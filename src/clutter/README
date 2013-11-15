@@ -1,0 +1,4 @@
+to run histogram.pro remotely, type
+
+/usr/bin/nohup /bin/nice -15 idl -quiet idl_clutter.batch > idl_clutter.out 2> idl_clutter.err < /dev/null &
+

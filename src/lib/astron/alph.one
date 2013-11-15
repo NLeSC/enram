@@ -1,0 +1,481 @@
+ad2xy:  Compute X and Y from native coordinates and a FITS astrometry structure  EXPLANATION:  If a WCS projection (Calabretta & Greisen 2002, A&A, 395, 1077) is  present, then the procedure WCSXY2SPH is used to compute native  coordinates. If distortion is present then this is corrected. 
+add_distort:  Add the distortion parameters in an astrometry structure to a FITS header.  EXPLANATION:  PUTAST currently does not add the SIP (Spitzer Imaging Polynomial)  distortion parameters when writing an astrometry structure to a FITS  header. Therefore, to include the distortion polynomial, one should 
+adstring:  Return RA and Dec as character string(s) in sexigesimal format.  EXPLANATION:  RA and Dec may be entered as either a 2 element vector or as  two separate vectors (or scalars). One can also specify the precision  of the declination in digits after the decimal point. 
+adxy:  Use a FITS header to convert astronomical to pixel coordinates  EXPLANATION:  Use an image header to compute X and Y positions, given the  RA and Dec (or longitude, latitude) in decimal degrees. 
+airtovac:  Convert air wavelengths to vacuum wavelengths  EXPLANATION:  Wavelengths are corrected for the index of refraction of air under  standard conditions. Wavelength values below 2000 A will not be  altered. Uses the IAU standard for conversion given in Morton 
+aitoff:  Convert longitude, latitude to X,Y using an AITOFF projection.  EXPLANATION:  This procedure can be used to create an all-sky map in Galactic  coordinates with an equal-area Aitoff projection. Output map  coordinates are zero longitude centered. 
+aitoff_grid:  Produce an overlay of latitude and longitude lines over a plot or image  EXPLANATION:  The grid is plotted on the current graphics device. AITOFF_GRID  assumes that the ouput plot coordinates span the x-range of  -180 to 180 and the y-range goes from -90 to 90. 
+altaz2hadec:  Convert Horizon (Alt-Az) coordinates to Hour Angle and Declination.  EXPLANATION::  Can deal with the NCP singularity. Intended mainly to be used by  program hor2eq.pro  CALLING SEQUENCE: 
+aper:  Compute concentric aperture photometry (adapted from DAOPHOT)  EXPLANATION:  APER can compute photometry in several user-specified aperture radii.  A separate sky value is computed for each source using specified inner  and outer sky radii. 
+arcbar:  Draw an arc bar on an image showing the astronomical plate scale 
+arrows:  To display "weathervane" directional arrows on an astronomical image  EXPLANATION:  Overlays a graphic showing orientation of North and East. 
+asinh:  Return the inverse hyperbolic sine of the argument  EXPLANATION:  The inverse hyperbolic sine is used for the calculation of asinh  magnitudes, see Lupton et al. (1999, AJ, 118, 1406) 
+astdisp:  Print astronomical and pixel coordinates in a standard format  EXPLANATION:  This procedure (ASTrometry DISPlay) prints the astronomical and  pixel coordinates in a standard format. X,Y must be supplied. RA,DEC  may also be supplied, and a data number (DN) may also be 
+astro:  Interactive utility for precession and coordinate conversion. 
+astrolib:  Add the non-standard system variables used by the IDL Astronomy Library  EXPLANATION:  Also defines the environment variable ASTRO_DATA pointing to the  directory containing data files associated with the IDL Astronomy  library (system dependent -- user must edit the first line in the 
+autohist:  Draw a histogram using automatic bin-sizing.  EXPLANATION  AUTOHIST chooses a number of bins (initially, SQRT(2*N). If this leads  to a histogram in which > 1/5 of the central 50% of the bins are empty,  it decreases the number of bins and tries again. The minimum # bins is 
+avg:  Return the average value of an array, or 1 dimension of an array  EXPLANATION:  Calculate the average value of an array (in which case AVG is identical  to the RSI procedure mean.pro), or calculate the average  value over one dimension of an array as a function of all the other 
+baryvel:  Calculates heliocentric and barycentric velocity components of Earth. 
+biweight_mean:  Calculate the center and dispersion (like mean and sigma) of a  distribution using bisquare weighting. 
+blink:  To allow the user to alternatively examine two or more windows within  a single window. 
+blkshift:  Shift a block of data to a new position in a file (possibly overlapping) 
+boost_array:  Append one array onto a destination array  EXPLANATION:  Add array APPEND to array DESTINATION, allowing the dimensions of  DESTINATION to adjust to accommodate it. If both input arrays have the  same number of dimensions, then the output array will have one  additional dimension. Otherwise, the last dimension of DESTINATION  will be incremented by one. 
+boxave:  Box-average a 1 or 2 dimensional array.  EXPLANATION:  This procedure differs from the intrinsic REBIN function in the follow  2 ways: 
+bprecess:  Precess positions from J2000.0 (FK5) to B1950.0 (FK4)  EXPLANATION:  Calculates the mean place of a star at B1950.0 on the FK4 system from  the mean place at J2000.0 on the FK5 system. 
+break_path:  Breaks up a path string into its component directories. 
+bsort:  Function to sort data into ascending order, like a simple bubble sort.  EXPLANATION:  Original subscript order is maintained when values are equal (FIFO).  (This differs from the IDL SORT routine alone, which may rearrange  order for equal values) 
+calz_unred:  Deredden a galaxy spectrum using the Calzetti et al. (2000) recipe  EXPLANATION:  Calzetti et al. (2000, ApJ 533, 682) developed a recipe for dereddening  the spectra of galaxies where massive stars dominate the radiation output,  valid between 0.12 to 2.2 microns. (CALZ_UNRED extrapolates between 
+ccm_unred:  Deredden a flux vector using the CCM 1989 parameterization  EXPLANATION:  The reddening curve is that of Cardelli, Clayton, and Mathis (1989 ApJ.  345, 245), including the update for the near-UV given by O'Donnell  (1994, ApJ, 422, 158). Parameterization is valid from the IR to the 
+check_fits:  Check that keywords in a FITS header array match the associated data  EXPLANATION:  Given a FITS array IM, and a associated FITS header HDR, this  procedure will check that  (1) HDR is a string array, and IM is defined and numeric 
+checksum32:  To compute the 32bit checksum of an array (ones-complement arithmetic) 
+cic:  Interpolate an irregularly sampled field using Cloud in Cell method 
+cirrange:  To force an angle into the range 0 <= ang < 360.  CALLING SEQUENCE:  CIRRANGE, ang, [/RADIANS] 
+cleanplot:  Reset all plotting system variables (!P,!X,!Y,!Z) to their default values  EXPLANATION:  Reset all system variables (!P,!X,!Y,!Z) which are set by the user  and which affect plotting to their default values. 
+cntrd:  Compute the centroid of a star using a derivative search  EXPLANATION:  CNTRD uses an early DAOPHOT "FIND" centroid algorithm by locating the  position where the X and Y derivatives go to zero. This is usually a  more "robust" determination than a "center of mass" or fitting a 2d 
+co_aberration:  Calculate changes to Ra and Dec due to "the effect of aberration",  EXPLANATION:  as described in Meeus, Chap 23.  CALLING SEQUENCE:  co_aberration, jd, ra, dec, d_ra, d_dec, [EPS = ] 
+co_nutate:  Calculate changes in RA and Dec due to nutation of the Earth's rotation  EXPLANATION:  Calculates necessary changes to ra and dec due to  the nutation of the Earth's rotation axis, as described in Meeus, Chap 23.  Uses formulae from Astronomical Almanac, 1984, and does the calculations 
+co_refract:  Calculate correction to altitude due to atmospheric refraction. 
+compare_struct:  Compare all matching tag names and return differences 
+concat_dir: 
+cons_dec:  Obtain the X and Y coordinates of a line of constant declination  EXPLANATION:  Returns a set of Y pixels values, given an image with astrometry, and  either  (1) A set of X pixel values, and a scalar declination value, or 
+cons_ra:  Obtain the X and Y coordinates of a line of constant right ascension  EXPLANATION:  Return a set of X pixel values given an image with astrometry,  and either  (1) a set of Y pixel values, and a scalar right ascension (or 
+convolve:  Convolution of an image with a Point Spread Function (PSF)  EXPLANATION:  The default is to compute the convolution using a product of  Fourier transforms (for speed). 
+copy_struct:  Copy all fields with matching tag names from one structure to another  EXPLANATION:  COPY_STRUCT is similar to the intrinisc STRUCT_ASSIGN procedure but  has optional keywords to exclude or specify specific tags. 
+copy_struct_inx:  Copy matching tags & specified indices from one structure to another  EXPLANATION:  Copy all fields with matching tag names (except for "except_Tags")  from one structure array to another structure array of different type.  This allows copying of tag values when equating the structures of 
+correl_images:  Compute the 2-D cross-correlation function of two images  EXPLANATION:  Computes the 2-D cross-correlation function of two images for  a range of (x,y) shifting by pixels of one image relative to the other. 
+correl_optimize:  Find the optimal (x,y) pixel offset of image_B relative to image_A  EXPLANATION"  Optimal offset is computed by means of maximizing the correlation  function of the two images. 
+corrmat_analyze:  Find the optimal (x,y) offset to maximize correlation of 2 images  EXPLANATION:  Analyzes the 2-D cross-correlation function of two images  and finds the optimal(x,y) pixel offsets.  Intended for use with function CORREL_IMAGES. 
+cosmo_param:  Derive full set of cosmological density parameters from a partial set  EXPLANATION:  This procedure is called by LUMDIST and GALAGE to allow the user a choice  in defining any two of four cosmological density parameters. 
+cr_reject:  General, iterative cosmic ray rejection using two or more input images. 
+create_struct:  Create an IDL structure from a list of tag names and dimensions  EXPLANATION:  Dynamically create an IDL structure variable from list of tag names  and data types of arbitrary dimensions. Useful when the type of  structure needed is not known until run time. 
+cspline:  Function to evaluate a natural cubic spline at specified data points  EXPLANATION:  Combines the Numerical Recipes functions SPL_INIT and SPL_INTERP 
+ct2lst:  To convert from Local Civil Time to Local Mean Sidereal Time. 
+curs:  Selects an X windows cursor shape  CALLING SEQUENCE:  curs ;Interactively select a cursor shape.  curs, sel ;Make the given CURSOR_STANDARD value the cursor  shape. 
+curval: 
+dao_value:  Returns the value of a DAOPHOT point-spread function at a set of points.  EXPLANATION:  The value of the point-spread function is the sum of a  two-dimensional integral under a bivariate Gaussian function, and  a value obtained by interpolation in a look-up table. DAO_VALUE will 
+daoerf: 
+date:  Convert day-of-year to a DD-MMM-YYYY string 
+date_conv:  Procedure to perform conversion of dates to one of three possible formats. 
+daycnv:  Converts Julian dates to Gregorian calendar dates 
+db_ent2ext:  Convert a database entry to external (IEEE) data format  EXPLANATION:  Converts a database entry to external (IEEE) data format prior to  writing it. Called from DBWRT. 
+db_ent2host:  Converts a database entry from external data format to host format.  EXPLANATION:  All items are extracted from the entry, and then converted to host  format, and placed back into the entry. Called from DBRD and DBEXT_DBF. 
+db_info:  Function to obtain information on opened data base file(s) 
+db_item: 
+db_item_info:  routine to return information on selected item(s) in the opened  data bases. 
+db_or:  Combine two vectors of entry numbers, removing duplicate values.  EXPLANATION:  DB_OR can also be used to remove duplicate values from any longword  vector 
+db_titles:  Print database name and title. Called by DBHELP 
+dbbuild:  Build a database by appending new values for every item.  EXPLANATION:  The database must be opened for update (with DBOPEN) before calling  DBBUILD. 
+dbcircle:  Find sources in a database within specified radius of specified center  EXPLANATION:  Database must include items named 'RA' (in hours) and 'DEC' (in degrees)  and must have previously been opened with DBOPEN 
+dbclose:  procedure to close a data base file 
+dbcompare:  Display two entries in an IDL database side by side in a column format 
+dbcreate: 
+dbdelete:  Deletes specified entries from data base 
+dbedit:  Interactively edit specified fields in an IDL database.  EXPLANATION:  The value of each field is displayed, and the user has the option  of changing or keeping the value. Widgets will be used if they  are available. 
+dbedit_basic:  Subroutine of DBEDIT_BASIC to edit a database on a dumb terminal.  EXPLANATION:  Interactively edit specified fields in a database. The  value of each field is displayed, and the user has the option  of changing or keeping the value. 
+dbext:  Extract values of up to 12 items from an IDL database  EXPLANATION:  Procedure to extract values of up to 12 items from  data base file, and place into IDL variables 
+dbext_dbf:  Subroutine of DBEXT to extract values of up to 18 items from a database  EXPLANATION:  This is a subroutine of DBEXT, which is the routine a user should  normally use. 
+dbext_ind:  routine to read a indexed item values from index file 
+dbfind: 
+dbfind_entry:  Subroutine of DBFIND to perform an entry number search  EXPLANATION:  This is a subroutine of dbfind and is not a standalone procedure  It performs a entry number search. 
+dbfind_sort:  Subroutine of DBFIND to perform a search using sorted values  EXPLANATION:  This is a subroutine of dbfind and is not a standalone procedure  It is used to limit the search using sorted values V5.2 or later! 
+dbfparse:  Parse the search string supplied to DBFIND. Not a standalone routine 
+dbget:  Find entry numbers which contain specified values of a given item.  EXPLANATION:  DBGET() is useful as an alternative to DBFIND() when the desired  search values are not easily expressed as a string. 
+dbhelp:  List available databases or items in the currently open database  EXPLANATION:  Procedure to either list available databases (if no database is  currently open) or the items in the currently open database. 
+dbindex:  Procedure to create index file for data base 
+dbindex_blk:  Subroutine of DBINDEX to create associated variable of correct datatype  EXPLANATION:  DBINDEX_BLK will offset into the file by a specified amount in  preparation for writing to the file. V5.2 or later 
+dbmatch:  Find the entry number in a database for each element of item values  EXPLANATION:  DBMATCH() is especially useful for finding a one-to-one  correspondence between entries in different databases, and thus to  create the vector needed for database pointers. 
+dbopen:  Routine to open an IDL database 
+dbprint:  Procedure to print specified items from a list of database entries 
+dbput:  Procedure to place a new value for a specified item into  a data base file entry. 
+dbrd:  procedure to read an entry from a data base file or from  linked multiple databases. 
+dbsearch:  Subroutine of DBFIND() to search a vector for specified values 
+dbsort:  Routine to sort list of entries in data base 
+dbtarget:  Find sources in a database within specified radius of specified target  EXPLANATION:  Uses QuerySimbad to translate target name to RA and Dec, and then uses  DBCIRCLE() to find any entries within specified radius. Database must  include items named 'RA' (in hours) and 'DEC' (in degrees) and must 
+dbtitle:  function to create title line for routine dbprint 
+dbupdate:  Update columns of data in a database -- inverse of DBEXT  EXPLANATION:  Database must be open for update before calling DBUPDATE 
+dbval:  procedure to extract value(s) of the specified item from  a data base file entry. 
+dbwrt:  procedure to update or add a new entry to a data base 
+dbxput:  routine to replace value of an item in a data base entry 
+dbxval: 
+delvarx:  Delete variables for memory management (can call from routines)  EXPLANATION:  Like intrinsic DELVAR function, but can be used from any calling level 
+deredd:  Deredden stellar Stromgren parameters given for a value of E(b-y)  EXPLANATION:  See the procedure UVBYBETA for more info. 
+detabify:  Replaces tabs in character strings with appropriate number of spaces  EXPLANATION:  The number of space characters inserted is calculated to space  out to the next effective tab stop, each of which is eight characters  apart. 
+dist_circle: 
+dist_ellipse:  Create a mask array useful for elliptical aperture photemetry  EXPLANATION:  Form an array in which the value of each element is equal to the  semi-major axis of the ellipse of specified center, axial ratio, and  position angle, which passes through that element. Useful for 
+eci2geo:  Convert Earth-centered inertial coordinates to geographic spherical coords  EXPLANATION:  Converts from ECI (Earth-Centered Inertial) (X,Y,Z) rectangular  coordinates to geographic spherical coordinates (latitude, longitude,  altitude). JD time is also needed as input. 
+eq2hor:  Convert celestial (ra-dec) coords to local horizon coords (alt-az). 
+eqpole:  Convert RA and Dec to X,Y using an equal-area polar projection.  EXPLANATION:  The output X and Y coordinates are scaled to be between  -90 and +90 to go from equator to pole to equator. Output map points  can be centered on the north pole or south pole. 
+eqpole_grid:  Produce an equal area polar projection grid overlay  EXPLANATION:  Grid is written on the current graphics device using the equal area  polar projection. EQPOLE_GRID assumes that the output plot  coordinates span the x and y ranges of -90 to 90 for a region that 
+euler:  Transform between Galactic, celestial, and ecliptic coordinates.  EXPLANATION:  Use the procedure ASTRO to use this routine interactively 
+expand_tilde:  Expand tilde in UNIX directory names 
+extast:  Extract ASTrometry parameters from a FITS image header.  EXPLANATION:  Extract World Coordinate System information  ( http://fits.gsfc.nasa.gov/fits_wcs.html ) from a FITS header and  place it into an IDL structure. 
+extgrp:  Extract the group parameter information out of SXREAD output  EXPLANATION:  This procedure extracts the group parameter information out of a  header and parameter variable obtained from SXREAD. This allows  astrometry, photometry and other parameters to be easily SXPARed by 
+f_format:  Choose a nice floating format for displaying an array of REAL data.  EXPLANATION:  Called by TVLIST, IMLIST. 
+factor:  Find prime factors of a given number. 
+fdecomp:  Routine to decompose file name(s) for any operating system. 
+filter_image:  Identical to MEDIAN or SMOOTH but handle edges and allow iterations.  EXPLANATION:  Computes the average and/or median of pixels in moving box,  replacing center pixel with the computed average and/or median,  (using the IDL SMOOTH() or MEDIAN() functions). 
+find:  Find positive brightness perturbations (i.e stars) in an image  EXPLANATION:  Also returns centroids and shape parameters (roundness & sharpness).  Adapted from 1991 version of DAOPHOT, but does not allow for bad pixels  and uses a slightly different centroid algorithm. 
+find_all_dir:  Finds all directories under a specified directory.  EXPLANATION:  This routine finds all the directories in a directory tree when the  root of the tree is specified. This provides the same functionality as  having a directory with a plus in front of it in the environment 
+find_with_def:  Searches for files with a default path and extension.  EXPLANATION:  Finds files using default paths and extensions, Using this routine  together with environment variables allows an OS-independent approach  to finding files. 
+findpro:  Find all locations of a procedure in the IDL !PATH  EXPLANATION:  FINDPRO searces for the procedure name (as a .pro or a .sav file) in all  IDL libraries or directories given in the !PATH system variable. This  differs from the intrinsic FILE_WHICH() function which only finds the 
+fitexy:  Best straight-line fit to data with errors in both coordinates  EXPLANATION:  Linear Least-squares approximation in one-dimension (y = a + b*x),  when both x and y data have errors 
+fits_add_checksum:  Add or update the CHECKSUM and DATASUM keywords in a FITS header  EXPLANATION:  Follows the 23 May 2002 version of the FITS checksum proposal at  http://heasarc.gsfc.nasa.gov/docs/heasarc/fits/checksum.html  CALLING SEQUENCE: 
+fits_ascii_encode:  Encode an unsigned longword as an ASCII string to insert in a FITS header  EXPLANATION:  Follows the 23 May 2002 version of the FITS checksum proposal at  http://heasarc.gsfc.nasa.gov/docs/heasarc/fits/checksum.html  CALLING SEQUENCE: 
+fits_cd_fix:  Update obsolete representations of the CD matrix in a FITS header 
+fits_close:  Close a FITS data file 
+fits_help:  To print a summary of the primary data units and extensions in a  FITS file. ;  CALLING SEQUENCE:  FITS_HELP,filename_or_fcb 
+fits_info:  Provide information about the contents of a FITS file  EXPLANATION:  Information includes number of header records and size of data array.  Applies to primary header and all extensions. Information can be  printed at the terminal and/or stored in a common block 
+fits_open:  Opens a FITS (Flexible Image Transport System) data file. 
+fits_read:  To read a FITS file. 
+fits_test_checksum:  Verify the values of the CHECKSUM and DATASUM keywords in a FITS header  EXPLANATION:  Follows the 23 May 2002 version of the FITS checksum proposal at  http://heasarc.gsfc.nasa.gov/docs/heasarc/fits/checksum.html 
+fits_write:  To write a FITS primary data unit or extension. 
+fitsdir:  Display selected FITS keywords from the headers of FITS files.  EXPLANATION: 
+fitsrgb_to_tiff:  Combine separate red, green, and blue FITS images into TIFF format  EXPLANATION:  The output TIFF (class R) file can have colors interleaved either  by pixel or image. The colour mix is also adjustable. 
+flegendre:  Compute the first M terms in a Legendre polynomial expansion.  EXPLANATION:  Meant to be used as a supplied function to SVDFIT. 
+flux2mag:  Convert from flux (ergs/s/cm^2/A) to magnitudes.  EXPLANATION:  Use MAG2FLUX() for the opposite direction. 
+fm_unred:  Deredden a flux vector using the Fitzpatrick (1999) parameterization  EXPLANATION:  The R-dependent Galactic extinction curve is that of Fitzpatrick & Massa  (Fitzpatrick, 1999, PASP, 111, 63; astro-ph/9809387 ).  Parameterization is valid from the IR to the far-UV (3.5 microns to 0.1 
+forprint:  Print a set of vectors by looping over each index value. 
+frebin:  Shrink or expand the size of an array an arbitary amount using interpolation 
+ftab_delrow:  Delete rows of data from a FITS ASCII or binary table extension 
+ftab_ext:  Routine to extract columns from a FITS (binary or ASCII) table. 
+ftab_help:  Describe the columns of a FITS binary or ASCII table extension(s). 
+ftab_print:  Print the contents of a FITS (binary or ASCII) table extension.  EXPLANATION:  User can specify which rows or columns to print 
+ftaddcol:  Routine to add a field to a FITS ASCII table 
+ftcreate:  Create a new (blank) FITS ASCII table and header with specified size. 
+ftdelcol:  Delete a column of data from a FITS table 
+ftdelrow:  Delete a row of data from a FITS table 
+ftget:  Function to return value(s) from specified column in a FITS ASCII table 
+fthelp:  Routine to print a description of a FITS ASCII table extension 
+fthmod:  Procedure to modify header information for a specified field  in a FITS table. 
+ftinfo:  Return an informational structure from a FITS ASCII table header.  CALLING SEQUENCE:  ftinfo,h,ft_str, [Count = ] 
+ftkeeprow:  Subscripts (and reorders) a FITS table. A companion piece to FTDELROW. 
+ftprint:  Procedure to print specified columns and rows of a FITS table 
+ftput:  Procedure to add or update a field in an FITS ASCII table  CALLING SEQUENCE:  FTPUT, htab, tab, field, row, values, [ nulls ] 
+ftsize:  Procedure to return the size of a FITS ASCII table. 
+ftsort:  Sort a FITS ASCII table according to a specified field 
+fxbdimen: 
+fxbheader:  Returns the header of an open FITS binary table. 
+fxbisopen:  Returns true if UNIT points to an open FITS binary table. 
+fxbreadm:  Read multiple columns/rows from a disk FITS binary table file.  EXPLANATION :  A call to FXBREADM will read data from multiple rows and  multiple columns in a single procedure call. Up to forty-nine  columns may be read in a single pass; the number of rows is 
+fxbstate:  Returns the state of a FITS binary table. 
+fxbwritm:  Write multiple columns/rows to a disk FITS binary table file.  EXPLANATION :  A call to FXBWRITM will write multiple rows and multiple  columns to a binary table in a single procedure call. Up to  fifty columns may be read in a single pass. The file should  have already been opened with FXBOPEN (with write access) or  FXBCREATE. FXBWRITM optimizes writing multiple columns by  first writing a large chunk of data to the FITS file all at  once. FXBWRITM cannot write variable-length arrays; use  FXBWRITE instead. 
+fxmove:  Skip to a specified extension number or name in a FITS file 
+fxpar:  Obtain the value of a parameter in a FITS header.  EXPLANATION:  The first 8 chacters of each element of HDR are searched for a match to  NAME. If the keyword is one of those allowed to take multiple values  ("HISTORY", "COMMENT", or " " (blank)), then the value is taken 
+fxposit:  Return the unit number of a FITS file positioned at specified extension  EXPLANATION:  The FITS file will be ready to be read at the beginning of the  specified extension. Exither an extension number or extension name  can be specified. Called by headfits.pro, mrdfits.pro, readfits.pro 
+gal_flat:  Transforms the image of a galaxy so that the galaxy appears face-on  EXPLANATION:  Either a nearest-neighbor approximations or a bilinear interpolation  may be used. 
+gal_uvw:  Calculate the Galactic space velocity (U,V,W) of star  EXPLANATION:  Calculates the Galactic space velocity U, V, W of star given its  (1) coordinates, (2) proper motion, (3) distance (or parallax), and  (4) radial velocity. 
+galage:  Determine the age of a galaxy given its redshift and a formation redshift. 
+gaussian:  Compute the 1-d Gaussian function and optionally the derivative  EXPLANATION:  Compute the 1-D Gaussian function and optionally the derivative  at an array of points. 
+gcirc:  Computes rigorous great circle arc distances.  EXPLANATION:  Input position can either be either radians, sexigesimal RA, Dec or  degrees. All computations are double precision. 
+gcntrd:  Compute the stellar centroid by Gaussian fits to marginal X,Y, sums  EXPLANATION:  GCNTRD uses the DAOPHOT "FIND" centroid algorithm by fitting Gaussians  to the marginal X,Y distributions. User can specify bad pixels  (either by using the MAXGOOD keyword or setting them to NaN) to be 
+geo2eci:  Convert geographic spherical coordinates to Earth-centered inertial coords 
+geo2geodetic:  Convert from geographic/planetographic to geodetic coordinates  EXPLANATION:  Converts from geographic (latitude, longitude, altitude) to geodetic  (latitude, longitude, altitude). In geographic coordinates, the  Earth is assumed a perfect sphere with a radius equal to its equatorial 
+geo2mag:  Convert from geographic to geomagnetic coordinates  EXPLANATION:  Converts from GEOGRAPHIC (latitude,longitude) to GEOMAGNETIC (latitude,  longitude). (Altitude remains the same) 
+geodetic2geo:  Convert from geodetic (or planetodetic) to geographic coordinates  EXPLANATION:  Converts from geodetic (latitude, longitude, altitude) to geographic  (latitude, longitude, altitude). In geographic coordinates, the  Earth is assumed a perfect sphere with a radius equal to its equatorial 
+get_coords:  Converts a string with angular coordinates to floating point values.  EXPLANATION:  Although called by ASTRO.PRO, this is a general purpose routine.  The user may input as floating point or sexigesimal. If user inputs  calling procedure's job to convert hours to degrees if needed. 
+get_date:  Return the (current) UTC date in CCYY-MM-DD format for FITS headers  EXPLANATION:  This is the format required by the DATE and DATE-OBS keywords in a  FITS header. 
+get_equinox:  Return the equinox value from a FITS header.  EXPLANATION:  Checks for 4 possibilities: 
+get_juldate:  Return the current Julian Date 
+getopt:  Convert a string supplied by the user into a valid scalar or vector  EXPLANATION:  Distinct elements in the string may be  separated by either a comma or a space. The output scalar  or vector can be specified to be either integer or floating 
+getpro:  Search !PATH for a procedure, and copy into user's working directory  EXPLANATION:  Extract a procedure from an IDL Library or directory given in the  !PATH system variable and place it in the current default directory  (presumably to be edited by the user). 
+getpsf:  To generate a point-spread function (PSF) from observed stars.  EXPLANATION:  The PSF is represented as a 2-dimensional Gaussian  (integrated over each pixel) and a lookup table of residuals.  The lookup table and Gaussian parameters are output in a FITS 
+getrot:  Return the rotation and plate scale of an image from its FITS header  EXPLANATION:  Derive the counterclockwise rotation angle, and the X and Y scale  factors of an image, from a FITS image header. Input parameter  may be either a FITS image header or an astrometry structure (as 
+gettok:  Retrieve the first part of a (vector) string up to a specified character  EXPLANATION:  GET TOKen - Retrieve first part of string until the character char  is encountered. 
+getwrd:  Return the n'th word from a text string. 
+glactc:  Convert between celestial and Galactic (or Supergalactic) coordinates.  EXPLANATION:  Program to convert right ascension (ra) and declination (dec) to  Galactic longitude (gl) and latitude (gb) (j=1) or vice versa (j=2). 
+group:  Assign stars with non-overlapping PSF profiles into distinct groups  EXPLANATION:  Part of the IDL-DAOPHOT sequence 
+gsss_stdast:  Insert the closest tangent projection astrometry into an GSSS Image 
+gsssadxy:  Converts RA and DEC (J2000) to (X,Y) for an STScI GuideStar image.  EXPLANATION:  The sky coordinates may be printed and/or returned in variables. 
+gsssextast:  Extract IDL astrometry structure from a ST Guide Star Survey FITS header 
+gsssxyad:  Convert (X,Y) coordinates in a STScI Guide Star image to RA and Dec  EXPLANATION:  The sky coordinates may be printed and/or returned in variables. 
+hadec2altaz:  Converts Hour Angle and Declination to Horizon (alt-az) coordinates.  EXPLANATION:  Can deal with NCP/SCP singularity. Intended mainly to be used by  program EQ2HOR 
+hastrom:  Transformation of an image to align it with a reference image  EXPLANATION:  A transformation is applied (using POLY_2D) to an image so that  its astrometry is identical with that in a reference header. This  procedure can be used to align two images. 
+hboxave:  Box average an image array and update the FITS header array  EXPLANATION:  The function BOXAVE() is used. This procedure is recommended for  integer images when photometric precision is desired, because it  performs intermediate steps using REAL*4 arithmetic. Otherwise, the 
+hcongrid:  CONGRID an image and update astrometry in a FITS header  EXPLANATION:  Expand or contract an image using CONGRID and update the  associated FITS header array. 
+headfits:  Read a FITS (primary or extension) header into a string array.  EXPLANATION:  HEADFITS() can also read gzip (.gz) or Unix compressed (.Z) FITS files. 
+helio:  Compute (low-precision) heliocentric coordinates for the planets.  EXPLANATION:  The mean orbital elements for epoch J2000 are used. These are derived  from a 250 yr least squares fit of the DE 200 planetary ephemeris to a  Keplerian orbit where each element is allowed to vary linearly with 
+helio_jd:  Convert geocentric (reduced) Julian date to heliocentric Julian date  EXPLANATION:  This procedure correct for the extra light travel time between the Earth  and the Sun. 
+helio_rv:  Return the heliocentric radial velocity of a spectroscopic binary 
+hermite:  To compute Hermite spline interpolation of a tabulated function.  EXPLANATION:  Hermite interpolation computes the cubic polynomial that agrees with  the tabulated function and its derivative at the two nearest  tabulated points. It may be preferable to Lagrangian interpolation 
+heuler:  Change the coordinate system of a FITS header or astrometry structure  EXPLANATION:  Converts a FITS header or a astrometry structure containing WCS (world  coordinate system) information between celestial, ecliptic, and  Galactic coordinates 
+hextract:  Extract a subimage from an array and update astrometry in FITS header  EXPLANATION:  Extract a subimage from an array and create a new FITS header with  updated astrometry for the subarray  CALLING SEQUENCE: 
+hgrep:  Find a substring in a FITS header (or any other string array) 
+histogauss:  Histograms data and overlays it with a Gaussian. Draws the mean, sigma,  and number of points on the plot. 
+hor2eq:  Converts local horizon coords (alt-az) of something to equatorial (ra-dec). 
+host_to_ieee:  Translate an IDL variable from host to IEEE representation  EXPLANATION:  The variable is converted from the format used by the host architecture  into IEEE-754 representation ("big endian" as used, e.g., in FITS data ). 
+hprecess:  Precess the astrometry in a FITS header to a new equinox 
+hprint:  Display a FITS header (or other string array)  EXPLANATION:  On a GUI terminal, the string array is displayed using XDISPSTR.  If printing at a non-GUI terminal, the string array is printed 1 line  at a time, to make sure that each element of the string array is 
+hrebin:  Expand or contract a FITS image using (F)REBIN and update the header  EXPLANATION:  If the output size is an exact multiple of the input size then REBIN is  used, else FREBIN is used. User can either overwrite the input array,  or write to new variables. 
+hreverse:  Reverse an image about either dimension and update FITS astrometry  EXPLANATION:  Reverse an image about either the X or Y axis, and create a new  header with updated astrometry for the reversed image. 
+hrot:  Rotate an image and create new FITS header with updated astrometry.  EXPLANATION:  Cubic, bilinear or nearest neighbor interpolation can be used. 
+hrotate:  Apply the IDL ROTATE function and update astrometry in a FITS header  EXPLANATION:  Apply the intrinsic IDL ROTATE function to an image and update  astrometry in the associated FITS header. 
+idl_validname:  Modify a string if necessary, so that it can used as a IDL variable name. 
+ieee_to_host:  Translate an IDL variable from IEEE-754 to host representation  EXPLANATION:  The variable is translated from IEEE-754 ("big-endian" as used, for  example, in FITS data ), into the host machine architecture. 
+imcontour:  Make a contour plot labeled with astronomical coordinates.  EXPLANATION:  The type of coordinate display is controlled by the keyword TYPE  Set TYPE=0 (default) to measure distances from the center of the image  (IMCONTOUR will decide whether the plotting units will be in 
+imdbase:  Find the sources in an IDL database that are located on a given image. 
+imf:  Compute an N-component power-law logarithmic initial mass function  EXPLANTION:  The function is normalized so that the total mass distribution  equals one solar mass. 
+imlist:  Display pixel values on an image surrounding a specified X,Y center.  EXPLANATION:  IMLIST is similar to TVLIST but the center pixel is supplied directly by  the user, rather than being read off of the image display 
+irafdir:  Provide a brief description of the IRAF images on a directory  CALLING SEQUENCE:  IRAFDIR, [ directory, TEXTOUT = ] 
+irafrd:  Read an IRAF (.imh) file into IDL image and header arrays.  EXPLANATION:  The internal IRAF format changed somewhat in IRAF V2.11 to a machine  independent format, with longer filename allocations. This version  of IRAFRD should be able to read either format. 
+irafwrt:  Write IDL data in IRAF (OIF) format (.imh and .pix files).  EXPLANATION:  Does the reverse of IRAFRD. IRAFWRT writes the "old" IRAF format  used prior to v2.11. However, this "old" format is still readable by  the current version of IRAF. 
+is_ieee_big:  Determine if the current machine uses IEEE, big-endian numbers.  EXPLANATION:  (Big endian implies that byteorder XDR conversions are no-ops).  CALLING SEQUENCE:  flag = is_ieee_big() 
+isarray:  Tests if the argument is an array. 
+ismeuv:  Compute the continuum interstellar EUV optical depth 
+jdcnv:  Converts Gregorian dates to Julian days 
+jplephinterp:  Interpolate position and motion of planetary bodies (JPL Ephemeris) 
+jplephread:  Open and read JPL DE200 or DE405 Ephemeride FITS File 
+jplephtest:  Test JPLEPHTEST with JPL test data set 
+jprecess:  Precess astronomical coordinates from B1950 to J2000  EXPLANATION:  Calculate the mean place of a star at J2000.0 on the FK5 system from the  mean place at B1950.0 on the FK4 system. 
+juldate: 
+ksone:  Compute the one-sided Kolmogorov-Smirnov statistic  EXPLANATION:  Returns the Kolmogorov-Smirnov statistic and associated probability for  for an array of data values and a user-supplied cumulative distribution  function (CDF) of a single variable. Algorithm from the procedure of 
+kstwo:  Return the two-sided Kolmogorov-Smirnov statistic  EXPLANATION:  Returns the Kolmogorov-Smirnov statistic and associated probability  that two arrays of data values are drawn from the same distribution  Algorithm taken from procedure of the same name in "Numerical 
+kuiperone:  Compute the one-sided Kuiper statistic (invariant Kolmogorov-Smirnov)  EXPLANATION:  Returns the Kuiper statistic and associated probability  for an array of data values and a user-supplied cumulative distribution  function (CDF) of a single variable. Algorithm adapted from KSONE 
+kuipertwo:  Compute the two-sided Kuiper statistic (invariant Kolmogorov-Smirnov)  EXPLANATION:  Returns the Kuiper statistic and associated probability  that two arrays of data values are drawn from the same distribution  Algorithm adapted from KSTWO in "Numerical 
+legend:  Create an annotation legend for a plot.  EXPLANATION:  This procedure makes a legend for a plot. The legend can contain  a mixture of symbols, linestyles, Hershey characters (vectorfont),  and filled polygons (usersym). A test procedure, legendtest.pro, 
+legendtest:  Demo program to show capabilities of the legend procedure.  CALLING SEQUENCE:  legendtest  INPUTS:  none 
+lineid_plot:  Plot spectrum with specified line identifications annotated at the  top of the plot. 
+linmix_err: 
+linterp:  Linearly interpolate tabulated 1-d data from one grid to a new one.  EXPLANATION:  The results of LINTERP are numerically equivalent to the RSI  INTERPOL() function, but note the following:  (1) LINTERP is a procedure rather than a function 
+list_with_path:  Search for files in a specified directory path.  EXPLANATION:  Lists files in a set of default paths, similar to using FILE_SEARCH,  except that a list of paths to be searched can be given. 
+lsf_rotate:  Create a 1-d convolution kernel to broaden a spectrum from a rotating star 
+lumdist:  Calculate luminosity distance (in Mpc) of an object given its redshift  EXPLANATION:  The luminosity distance in the Friedmann-Robertson-Walker model is  taken from Caroll, Press, and Turner (1992, ARAA, 30, 499), p. 511  Uses a closed form (Mattig equation) to compute the distance when the 
+mag2flux:  Convert from magnitudes to flux (ergs/s/cm^2/A).  EXPLANATION:  Use FLUX2MAG() for the opposite direction. 
+mag2geo:  Convert from geomagnetic to geographic coordinates 
+make_2d:  Change from 1-d indexing to 2-d indexing  EXPLANATION:  Convert an N element X vector, and an M element Y vector, into  N x M arrays giving all possible combination of X and Y pairs.  Useful for obtaining the X and Y positions of each element of 
+make_astr:  Build an astrometry structure from input parameter values  EXPLANATION:  This structure can be subsequently placed in a FITS header with  PUTAST 
+match:  Routine to match values in two vectors. 
+match2:  Routine to cross-match values in two vectors (including non-matches)  EXPLANATION:  This procedure *appears* similar to MATCH of the IDL astronomy  library. However, this routine is quite different in that it  reports an index value for each element of the input arrays. 
+max_entropy:  Deconvolution of data by Maximum Entropy analysis, given the PSF  EXPLANATION:  Deconvolution of data by Maximum Entropy analysis, given the  instrument point spread response function (spatially invariant psf).  Data can be an observed image or spectrum, result is always positive. 
+max_likelihood:  Maximum likelihood deconvolution of an image or a spectrum.  EXPLANATION:  Deconvolution of an observed image (or spectrum) given the  instrument point spread response function (spatially invariant psf).  Performs iteration based on the Maximum Likelihood solution for 
+meanclip:  Computes an iteratively sigma-clipped mean on a data set  EXPLANATION:  Clipping is done about median, but mean is returned.  Called by SKYADJ_CUBE 
+medarr:  Compute the median at each pixel across a set of 2-d images  EXPLANATION:  Each pixel in the output array contains the median of the  corresponding pixels in the input arrays. Useful, for example to  combine a stack of CCD images, while removing cosmic ray hits. 
+medsmooth:  Median smoothing of a vector, including points near its ends. 
+minf_bracket:  Bracket a local minimum of a 1-D function with 3 points,  EXPLANATION:  Brackets a local minimum of a 1-d function with 3 points,  thus ensuring that a minimum exists somewhere in the interval.  This routine assumes that the function has a minimum somewhere.... 
+minf_conj_grad:  Find the local minimum of a scalar function using conjugate gradient  EXPLANATION:  Find the local minimum of a scalar function of several variables using  the Conjugate Gradient method (Fletcher-Reeves-Polak-Ribiere algorithm).  Function may be anything with computable partial derivatives. 
+minf_parabol_d:  Minimize a function using a modified Brent's method with derivatives  EXPLANATION:  Based on the procedure DBRENT in Numerical Recipes by Press et al.  Finds a local minimum of a 1-D function up to specified tolerance,  using the first derivative of function in the algorithm. 
+minf_parabolic:  Minimize a function using Brent's method with parabolic interpolation  EXPLANATION:  Find a local minimum of a 1-D function up to specified tolerance.  This routine assumes that the function has a minimum nearby.  (recommend first calling minF_bracket, xa,xb,xc, to bracket minimum). 
+minmax:  Return a 2 element array giving the minimum and maximum of an array  EXPLANATION:  Using MINMAX() is faster than doing a separate MAX and MIN. 
+mkhdr:  Make a minimal primary (or IMAGE extension) FITS header  EXPLANATION:  If an array is supplied, then the created FITS header will be  appropriate to the supplied array. Otherwise, the user can specify  the dimensions and datatype. 
+mlinmix_err: 
+mmm:  Estimate the sky background in a stellar contaminated field.  EXPLANATION:  MMM assumes that contaminated sky pixel values overwhelmingly display  POSITIVE departures from the true value. Adapted from DAOPHOT  routine of the same name. 
+modfits:  Modify a FITS file by updating the header and/or data array.  EXPLANATION:  The size of the supplied FITS header or data array  does not need to match the size of the existing header or data array.  ***NOTE** This version of MODFITS must be used with a post Sep 2006 
+month_cnv:  Convert between a month name and the equivalent number  EXPLANATION: (e.g.,  For example, converts from 'January' to 1 or vice-versa.  CALLING SEQUENCE:  Result = MONTH_CNV( MonthInput, [/UP, /LOW, /SHORT ] ) 
+moonpos:  To compute the RA and Dec of the Moon at specified Julian date(s). 
+mphase:  Return the illuminated fraction of the Moon at given Julian date(s) 
+mrandomn:  Function to draw NRAND random deviates from a multivariate normal  distribution with zero mean and covariance matrix COVAR. 
+mrd_hread:  Reads a FITS header from an opened disk file or Unix pipe  EXPLANATION:  Like FXHREAD but also works with compressed Unix files 
+mrd_skip:  Skip a number of bytes from the current location in a file or a pipe  EXPLANATION:  First tries using POINT_LUN and if this doesn't work, perhaps because  the unit is a pipe or a socket, MRD_SKIP will just read in the  requisite number of bytes. 
+mrd_struct:  Return a structure as defined in the names and values data.  CALLING SEQUENCE:  struct = MRD_STRUCT(NAMES, VALUES, NROW, STRUCTYP='name' )  INPUT PARAMETERS:  NAMES = A string array of names of structure fields. 
+mrdfits:  Read all standard FITS data types into arrays or structures. 
+multinom:  SIMULATE MULTINOMIAL RANDOM VARIABLES 
+multiplot:  Create multiple plots with simple control over the gaps between plots.  By default, the gap is zero but this can be set with the  gap= keyword, or xgap=, ygap= for individual control over different axes.  You can also place a single title along the x, y and top axes of the  matrix of plots using the mtitle, mxtitle and mytitle keywords. 
+mwrfits:  Write all standard FITS data types from input arrays or structures. 
+n_bytes:  To return the total number of bytes in data element 
+n_struct:  To determine if variable is a structure and return number of elements. 
+ngp:  Interpolate an irregularly sampled field using Nearest Grid Point 
+nint:  Nearest integer function.  EXPLANATION:  NINT() is similar to the intrinsic ROUND function, with the following  two differences:  (1) if no absolute value exceeds 32767, then the array is returned as 
+nstar:  Simultaneous point spread function fitting (adapted from DAOPHOT)  EXPLANATION:  This PSF fitting algorithm is based on a very old (~1987) version of  DAOPHOT, and much better algorithms (e.g. ALLSTAR) are now available  -- though not in IDL. 
+nulltrim:  Trim a string of all characters after and including the first null  EXPLANATION:  The null character is an ascii 0b 
+numlines:  Return the number of lines in a file. 
+nutate:  Return the nutation in longitude and obliquity for a given Julian date 
+observatory:  Return longitude, latitude, altitude & time zones of an observatory  EXPLANATION:  Given an observatory name, returns a structure giving the longitude,  latitude, altitude, and time zone 
+one_arrow:  Draws an arrow labeled with a single character on the current device  EXPLANATION:  ONE_ARROW is called, for example, by ARROWS to create a  "weathervane" showing the N-E orientation of an image. 
+one_ray:  Draw a line with a specified starting point, length, and angle 
+oploterror:  Over-plot data points with accompanying X or Y error bars.  EXPLANATION:  For use instead of PLOTERROR when the plotting system has already been  defined. 
+ordinal:  Convert an integer to a correct English ordinal string:  EXPLANATION:  The first four ordinal strings are "1st", "2nd", "3rd", "4th" .... 
+partvelvec:  Plot the velocity vectors of particles at their positions  EXPLANATION:  This procedure plots the velocity vectors of particles (at the  positions of the particles). 
+pca:  Carry out a Principal Components Analysis (Karhunen-Loeve Transform)  EXPLANATION:  Results can be directed to the screen, a file, or output variables  See notes below for comparison with the intrinsic IDL function PCOMP. 
+pent:  Return the information entropy of a time series  EXPLANATION:  This function will return S, the information entropy of a time series  for a set of trial periods 
+pixcolor:  Assign colors to specified pixel values in a color lookup table 
+pixwt:  Circle-rectangle overlap area computation.  DESCRIPTION:  Compute the fraction of a unit pixel that is interior to a circle.  The circle has a radius r and is centered at (xc, yc). The center of  the unit pixel (length of sides = 1) is at (x, y). 
+pkfit:  Subroutine of GETPSF to perform a one-star least-squares fit  EXPLANATION:  Part of the DAOPHOT PSF photometry sequence 
+planck:  To calculate the Planck function in units of ergs/cm2/s/A 
+planet_coords: 
+ploterror:  Plot data points with accompanying X or Y error bars.  EXPLANATION:  This is a greatly enhanced version of the standard IDL Library routine  PLOTERR 
+plothist:  Plot the histogram of an array with the corresponding abcissa. 
+plotsym:  Define useful plotting symbols not in the standard !PSYM definitions.  EXPLANATION:  After a symbol has been defined with PLOTSYM, a plotting command should  follow with either PSYM = 8 or !P.PSYM = 8 (see USERSYM) 
+poidev:  Generate a Poisson random deviate  EXPLANATION:  Return an integer random deviate drawn from a Poisson distribution with  a specified mean. Adapted from procedure of the same name in  "Numerical Recipes" by Press et al. (1992), Section 7.3 
+polint:  Interpolate a set of N points by fitting a polynomial of degree N-1  EXPLANATION:  Adapted from algorithm in Numerical Recipes, Press et al. (1992),  Section 3.1. 
+polrec:  Convert 2-d polar coordinates to rectangular coordinates. 
+poly_smooth:  Apply a least-squares (Savitzky-Golay) polynomial smoothing filter  EXPLANATION:  Reduce noise in 1-D data (e.g. time-series, spectrum) but retain  dynamic range of variations in the data by applying a least squares  smoothing polynomial filter, 
+polyleg:  Evaluate a Legendre polynomial with specified coefficients.  EXPLANATION:  Meant to be used analogously to the POLY function in the IDL User's  Library distribution. 
+posang:  Computes rigorous position angle of source 2 relative to source 1 
+positivity:  Map an image uniquely and smoothly into all positive values.  EXPLANATION:  Take unconstrained x (usually an image), and map it uniquely and  smoothly into positive values. Negative values of x get mapped to  interval ( 0, sqrt( epsilon )/2 ], positive values go to 
+precess:  Precess coordinates from EQUINOX1 to EQUINOX2.  EXPLANATION:  For interactive display, one can use the procedure ASTRO which calls  PRECESS or use the /PRINT keyword. The default (RA,DEC) system is  FK5 based on epoch J2000.0 but FK4 based on B1950.0 is available via 
+precess_cd:  Precess the CD (coordinate description) matrix from a FITS header  EXPLANATION:  The CD matrix is precessed from EPOCH1 to EPOCH2. Called by HPRECESS 
+precess_xyz:  Precess equatorial geocentric rectangular coordinates. 
+premat:  Return the precession matrix needed to go from EQUINOX1 to EQUINOX2.  EXPLANTION:  This matrix is used by the procedures PRECESS and BARYVEL to precess  astronomical coordinates 
+prime:  Return an array with the specified number of prime numbers.  EXPLANATATION:  This procedure is similar to PRIMES in the standard IDL distribution,  but stores results in a common block, and so is much faster 
+print_struct:  Print the tag values of an array of structures in nice column format.  EXPLANATION:  The tag names are displayed in a header line. 
+prob_ks:  Return the significance of the Kolmogoroff-Smirnov statistic  EXPLANATION:  Returns the significance level of an observed value of the  Kolmogorov-Smirnov statistic D for an effective number of data points  N_eff. Called by KSONE and KSTWO 
+prob_kuiper:  Return the significance of the Kuiper statistic  EXPLANATION:  Returns the significance level of an observed value of the  Kuiper statistic D for an effective number of data points  N_eff. Called by KUIPERONE 
+psf_gaussian:  Create a 1-d, 2-d, or 3-d Gaussian with specified FWHM, center  EXPLANATION:  Return a point spread function having Gaussian profiles,  as either a 1D vector, a 2D image, or 3D volumetric-data. 
+putast:  Put WCS astrometry parameters into a given FITS header. 
+qdcb_grid:  Produce an overlay of latitude and longitude lines over a plot or image  EXPLANATION:  Grid is plotted on the current graphics device assuming that the  current plot is a map in the so called quad cube projection. The  output plot range is assumed to go from 7.0 to -1.0 on the X axis and  -3.0 to 3.0 on the Y axis. Within this plotting space, the quad cube  faces are laid out as follows (X=Empty, Astronomical Layout shown -  X axis can be swapped for geographic maps): 
+qget_string:  To get a string from the keyboard without echoing it to the screen. 
+qsimp:  Integrate using Simpson's rule to specified accuracy.  EXPLANATION:  Integrate a function to specified accuracy using the extended  trapezoidal rule. Adapted from algorithm in Numerical Recipes,  by Press et al. (1992, 2nd edition), Section 4.2. This procedure 
+qtrap:  Integrate using trapezoidal rule to specified accuracy.  EXPLANATION:  Integrate a function to specified accuracy using the extended  trapezoidal rule. Adapted from Numerical Recipes (1992, 2nd edition),  Section 4.2. 
+quadterp:  Quadratic interpolation of X,Y vectors onto a new X grid  EXPLANATION:  Interpolate a function Y = f(X) at specified grid points using an  average of two neighboring 3 point quadratic (Lagrangian) interpolants.  Use LINTERP for linear interpolation 
+querydss:  Query the digital sky survey (DSS) on-line at the ESO or STSCI servers 
+querygsc:  Query the Guide Star Catalog (GSC V2.3.2) at STScI by position 
+querysimbad:  Query the SIMBAD or NED astronomical name resolver to obtain coordinates 
+queryvizier:  Query any catalog in the Vizier database by position 
+radec:  To convert RA and Dec from decimal to sexigesimal units.  EXPLANATION:  The conversion is to sexigesimal hours for RA, and sexigesimal  degrees for declination. 
+randomchi:  GENERATE CHI-SQUARE DISTRIBUTED RANDOM VARIABLES. 
+randomdir:  GENERATE DIRICHLET-DISTRIBUTED RANDOM VARIABLES. 
+randomgam:  GENERATE GAMMA-DISTRIBUTED RANDOM VARIABLES. 
+randomp:  Generates an array of random numbers distributed as a power law.  CALLING SEQUENCE:  RANDOMP, X, Pow, N, [ RANGE_X = [low,high], SEED= ]'  INPUTS:  Pow: Exponent of power law. 
+rdfits_struct:  Read an entire FITS file (all extensions) into a single IDL structure.  EXPLANATION:  Each header, image or table array is placed in a separate structure  tag. 
+rdfloat:  Quickly read a numeric ASCII data file into IDL floating/double vectors.  EXPLANATION:  Columns of data may be separated by tabs or spaces. This  program is fast but is restricted to data files where all columns can  be read as floating point (or all double precision). 
+rdplot:  Like CURSOR but with a full-screen cursor and continuous readout option 
+rdpsf:  Read the FITS file created by GETPSF in the DAOPHOT sequence  EXPLANATION:  Combines the Gaussian with the residuals to create an output PSF array. 
+read_key:  To read a keystroke and return its ASCII equivalent  EXPLANATION:  If an ESCAPE sequence was produced and the sequence is  recognized (e.g. up arrow), then a code is returned. 
+readcol:  Read a free-format ASCII file with columns of data into IDL vectors  EXPLANATION:  Lines of data not meeting the specified format (e.g. comments) are  ignored. Columns may be separated by commas or spaces. 
+readfits:  Read a FITS file into IDL data and header variables.  EXPLANATION:  READFITS() can also read gzip or Unix compressed FITS files.  See http://idlastro.gsfc.nasa.gov/fitsio.html for other ways of  reading FITS files with IDL. 
+readfmt:  Quickly read a fixed format ASCII data file into IDL variables.  EXPLANATION:  Lines of data not meeting the specified format (e.g. comments) are  ignored. 
+recpol:  Convert 2-d rectangular coordinates to polar coordinates. 
+rem_dup: 
+remchar:  Remove all appearances of character (char) from string (st) 
+remove:  Contract a vector or up to 7 vectors by removing specified elements  CALLING SEQUENCE:  REMOVE, index, v1,[ v2, v3, v4, v5, v6, v7]  INPUTS:  INDEX - scalar or vector giving the index number of elements to 
+repchr:  Replace all occurrences of one character with another in a text string. 
+repstr:  Replace all occurences of one substring by another.  EXPLANATION:  Meant to emulate the string substitution capabilities of text editors  CALLING SEQUENCE:  result = repstr( obj, in, out ) 
+resistant_mean:  Outlier-resistant determination of the mean and standard deviation. 
+rinter:  Cubic interpolation of an image at a set of reference points.  EXPLANATION:  This interpolation program is equivalent to using the intrinsic  INTERPOLATE() function with CUBIC = -0.5. However,  RINTER() has two advantages: (1) one can optionally obtain the 
+rob_checkfit:  Used by ROBUST_... routines to determine the quality of a fit and to  return biweights.  CALLING SEQUENCE:  status = ROB_CHECKFIT( Y, YFIT, EPS, DEL, SIG, FRACDEV, NGOOD, W, B  BISQUARE_LIMIT = ) 
+robust_linefit:  An outlier-resistant two-variable linear regression.  EXPLANATION:  Either Y on X or, for the case in which there is no true independent  variable, the bisecting line of Y vs X and X vs Y is calculated. No  knowledge of the errors of the input points is assumed. 
+robust_poly_fit:  An outlier-resistant polynomial fit. 
+robust_sigma:  Calculate a resistant estimate of the dispersion of a distribution.  EXPLANATION:  For an uncontaminated distribution, this is identical to the standard  deviation. 
+scr_attrib:  To set the screen attribute to those given, in the given order.  CALLING SEQUENCE:  scr_attrib [, a1, a2, a3, a4, a5]  INPUTS:  a1 - a5 -- The attribute codes. The attributes are set in the 
+scr_charset:  To change the character sets.  CALLING SEQUENCE:  scr_charset [, g, cset]  INPUTS:  g -- The terminal character set to change (either 0, for the 
+scr_curmov:  To mov the cursor around the screen relative to its original position.  CALLING SEQUENCE:  scr_curmov [, cmd, n]  INPUTS:  cmd -- An integer indicating the direction in which to move the curs. 
+scr_curpos:  To position the cursor at the specified screen location.  EXPLANATION:  Unspecified coordinates are set to one. Please note that the ESCAPE  sequence expects the coordinates to be counted from (1,1).  CALLING SEQUENCE: 
+scr_erase:  To erase portions of the terminal screen.  CALLING SEQUENCE:  scr_erase [, cmd]  INPUTS:  cmd -- An integer telling the procedure what part of the screen to 
+scr_other:  To allow the user to issue any ESCAPE sequence.  CALLING SEQUENCE:  scr_other, str  INPUTS:  str -- A string containing the escape sequence. The initial ESCAPE 
+scr_reset:  To reset the terminal.  CALLING SEQUENCE:  scr_reset  INPUTS:  None. 
+scr_scroll:  Define the scrolling area on the screen.  EXPLANATION:  Please note that the line coordinates should be counted from 1.  CALLING SEQUENCE:  scr_scroll [, top, bot] 
+screen_select:  Allow a user to make an interactive screen selection from a list  EXPLANATION:  This procedure determines whether to use the dumb terminal version,  or the widget version by examining the !D.NAME system variable. 
+select_o:  Dumb-terminal routine to let a user interactively select from a list  EXPLANATION:  This is the non-widget version of SCREEN_SELECT 
+select_w:  Create a non-exclusive widget menu of items  EXPLANATION:  More than one item may be selected or 'de-selected'.  Normally called by SCREEN_SELECT 
+sigma_filter:  Replace pixels more than a specified pixels deviant from its neighbors  EXPLANATION:  Computes the mean and standard deviation of pixels in a box centered at  each pixel of the image, but excluding the center pixel. If the center  pixel value exceeds some # of standard deviations from the mean, it is 
+sigrange:  Selects the most significant data range in an image.  EXPLANATION:  Selects out the most significant range in the data to be used in  displaying images. The histogram of ARRAY is used to select the most  significant range. Useful for scaling an image display. 
+sixlin:  Compute linear regression coefficients by six different methods.  EXPLANATION:  Adapted from the FORTRAN program (Rev. 1.1) supplied by Isobe,  Feigelson, Akritas, and Babu Ap. J. Vol. 364, p. 104 (1990).  Suggested when there is no understanding about the nature of the 
+sixty:  Converts a decimal number to sexigesimal.  EXPLANATION:  Reverse of the TEN() function. 
+size_struct:  Obtain the size in bytes of an IDL structure definition.  EXPLANATION:  For most applications this function is superceded by use  of the /LENGTH keyword to the intrinsic N_TAGS function  introduced in IDL V2.3.0 
+sky:  Determine the sky level in an image  EXPLANATION:  Approximately 10000 uniformly spaced pixels are selected for the  computation. Adapted from the DAOPHOT routine of the same name. 
+skyadj_cube:  Sky adjust the planes of a datacube. 
+spec_dir:  Complete a file specification by appending the default disk or directory 
+sphdist:  Angular distance between points on a sphere.  CALLING SEQUENCE:  d = sphdist(long1, lat1, long2, lat2)  INPUTS:  long1 = longitude of point 1, scalar or vector 
+srcor:  Correlate the source positions found on two lists.  CALLING SEQUENCE:  srcor,x1in,ylin,x2in,y2in,dcr,ind1,ind2  INPUTS:  x1in,y1in - First set of x and y coordinates. The program 
+st_diskread: 
+starast:  Compute astrometric solution using positions of 2 or 3 reference stars  EXPLANATION:  Computes an exact astrometric solution using the positions and  coordinates from 2 or 3 reference stars and assuming a tangent  (gnomonic) projection. If 2 stars are used, then 
+store_array:  Insert array INSERT into the array DESTINATION  EXPLANATION:  The dimensions of the DESTINATION array are adjusted to accomodate  the inserted array.  CATEGOBY: 
+str_index:  Get indices of a substring (SUBSTR) in string. 
+strn:  Convert a number to a string and remove padded blanks.  EXPLANATION:  The main and original purpose of this procedure is to convert a number  to an unpadded string (i.e. with no blanks around it.) However, it  has been expanded to be a multi-purpose formatting tool. You may 
+strnumber:  Function to determine if a string is a valid numeric value. 
+substar:  Subtract a scaled point spread function at specified star position(s).  EXPLANATION:  Part of the IDL-DAOPHOT photometry sequence 
+sunpos:  To compute the RA and Dec of the Sun at a given date. 
+sunsymbol:  Return the Sun symbol as a subscripted postscript character string  EXPLANATION:  Returns the Sun symbol (circle with a dot in the middle) as a  (subscripted) postscript character string. Needed because although  the Sun symbol is available using the vector fonts as the string 
+sxaddhist:  Procedure to add HISTORY (or COMMENT) line(s) to a FITS header 
+sxaddpar:  Add or modify a parameter in a FITS header array. 
+sxdelpar:  Procedure to delete a keyword parameter(s) from a FITS header 
+sxginfo:  Return information on all group parameters in an STSDAS header.  EXPLANATION:  Return datatype, starting byte, and number bytes for all group  parameters in an STSDAS file. Obtaining these values  greatly speed up execution time in subsequent calls to SXGPAR. 
+sxgpar:  Obtain group parameter value in SDAS/FITS file 
+sxgread:  Read group parameters from a Space Telescope STSDAS image file 
+sxhcopy:  Copies selected portions of one header to another 
+sxhmake:  Create a basic STSDAS header file from an IDL data array 
+sxhread:  Procedure to read a STSDAS header from disk.  EXPLANATION:  This version of SXHREAD can read two types of disk files  (1) Unix stream files with a CR after every 80 bytes  (2) Variable length record files 
+sxhwrite:  Procedure to write an STSDAS or FITS header to disk as a *.hhh file. 
+sxmake:  Create a basic ST header file from an IDL array prior to writing data. 
+sxopen:  Open a Space Telescope formatted (STSDAS) header file.  EXPLANATION:  Saves the parameters required subsequent SX routines in  the common block Stcommn. Optionally save the header in  the string array Header, and the history in the string array 
+sxpar:  Obtain the value of a parameter in a FITS header 
+sxread:  Read a Space Telescope STSDAS image file 
+sxwrite:  Write a group of data and parameters in ST format  to a STSDAS data file. 
+t_aper:  Driver procedure (for APER) to compute concentric aperture photometry.  EXPLANATION:  Data is read from and written to disk FITS ASCII tables.  Part of the IDL-DAOPHOT photometry sequence 
+t_find:  Driver procedure (for FIND) to locate stars in an image.  EXPLANATION:  Finds positive brightness perturbations (i.e stars) in a  2 dimensional image. Output is to a FITS ASCII table. 
+t_getpsf:  Driver procedure (for GETPSF) to generate a PSF from isolate stars.  EXPLANATION:  Generates a point-spread function from one or more isolated stars.  List of stars is read from the FITS ASCII table output of T_APER.  PSF is represented as a sum of a Gaussian plus residuals. 
+t_group:  Driver procedure (for GROUP) to place stars in non-overlapping groups.  EXPLANATION:  This procedure is part of the DAOPHOT sequence that places star  positions with non-overlapping PSFs into distinct groups  Input and output are to FITS ASCII tables 
+t_nstar:  Driver procedure (for NSTAR) for simultaneous PSF fitting.  EXPLANATION:  Input and output are to disk FITS ASCII tables. 
+t_substar:  Driver procedure (for SUBSTAR) to subtract scaled PSF values  EXPLANATION:  Computes residuals of the PSF fitting program 
+tab_addcol:  Procedure to add a new column to an existing STSDAS table. 
+tab_col:  Procedure to extract column information from table control block 
+tab_create:  Procedure to create a new table file. 
+tab_del:  Delete specified row(s) from an STSDAS table 
+tab_expand:  routine to expand the size of an SDAS table file. 
+tab_fortospp:  Procedure to convert a FORTRAN format to an SPP format specfication. 
+tab_modcol:  Modify column description in a STSDAS table 
+tab_null:  function to locate null values within a vector of values from  an STSDAS table. 
+tab_nullrow:  Insert null row(s) into a STSDAS table 
+tab_print:  Routine to print an stsdas table. 
+tab_put:  Procedure to place new values into a STSDAS table. 
+tab_read:  Procedure to read an SDAS table file  CALLING SEQUENCE:  tab_read,name,tcb,table,header  INPUTS:  name - name of the table file 
+tab_size:  Routine to extract the table size from a table control block 
+tab_sort:  Procedure to sort table by the specified column 
+tab_spptofor:  This procedure converts an spp format specification to a normal  Fortran format specification. 
+tab_val:  Routine to read a column from an SDAS table file 
+tab_write:  Routine to write an stsdas table to disk 
+tabinv: 
+table_append:  Routine to append STSDAS tables to create a single table.  Input tables must all have identical columns. 
+table_calc:  Adds a new table column from a expression using existing columns 
+table_delete:  Delete specified rows from an STSDAS table 
+table_ext:  Routine to extract columns from an STSDAS table 
+table_help:  Procedure to decribe an SDAS table file. 
+table_list:  List the contents of an STSDAS table.  EXPLANATION:  Procedure to list contents of an STSDAS table. This does not  print the table in tabular form but instead for each row  prints the column name followed by its value (one column per 
+table_print:  Routine to print an stsdas table. 
+table_sort:  Procedure to sort an STSDAS table by the specified column 
+tag_exist: 
+tbdelcol:  Delete a column of data from a FITS binary table 
+tbdelrow:  Delete specified row or rows of data from a FITS binary table 
+tbget:  Return value(s) from specified column in a FITS binary table 
+tbhelp:  Routine to print a description of a FITS binary table header 
+tbinfo:  Return an informational IDL structure from a FITS binary table header. 
+tbprint:  Procedure to print specified columns & rows of a FITS binary table 
+tbsize:  Procedure to return the size of a FITS binary table. 
+tdb2tdt:  Relativistic clock corrections due to Earth motion in solar system 
+ten:  Converts a sexigesimal number to decimal.  EXPLANATION:  Inverse of the SIXTY() function. 
+tenv:  Converts sexigesimal number or vector to decimal.  EXPLANATION:  Like TEN() but allows vector input. 
+textclose:  Close a text outpu file previously opened with TEXTOPEN  EXPLANATION:  procedure to close file for text output as specifed  by the (non-standard) system variable !TEXTOUT. 
+textopen:  Open a device specified by TEXTOUT with unit !TEXTUNIT  EXPLANATION:  Procedure to open file for text output. The type of output  device (disk file or terminal screen) is specified by the  TEXTOUT keyword or the (nonstandard) system variable !TEXTOUT. 
+tic_one:  Determine the position of the first tic mark for astronomical images.  EXPLANATION:  For use in labelling images with right ascension  and declination axes. This routine determines the  position in pixels of the first tic. 
+ticlabels:  Create tic labels for labeling astronomical images.  EXPLANATION:  Used to display images with right ascension or declination  axes. This routine creates labels for already determined tic  marks (every other tic mark by default) 
+ticpos:  Specify distance between tic marks for astronomical coordinate overlays  EXPLANATION:  User inputs number an approximate distance  between tic marks, and the axis length in degrees. TICPOS will return  a distance between tic marks such that the separation is a round 
+tics:  Compute a nice increment between tic marks for astronomical images.  EXPLANATION:  For use in labelling a displayed image with right ascension  or declination axes. An approximate distance between tic  marks is input, and a new value is computed such that the 
+to_hex:  Translate a non-negative decimal integer to a hexadecimal string  CALLING SEQUENCE:  HEX = TO_HEX( D, [ NCHAR ] )  INPUTS:  D - non-negative decimal integer, scalar or vector. If input as a 
+transform_coeff:  Compute new polynomial coefficients under a linear transformation  EXPLANATION:  Suppose one has a (nonlinear) polynomial (similar to the POLY() function)  y = C[0] + C[1]*x + C[2]*x^2 + C[3]*x^3 + ... 
+trapzd:  Compute the nth stage of refinement of an extended trapezoidal rule.  EXPLANATION:  This procedure is called by QSIMP and QTRAP. Algorithm from Numerical  Recipes, Section 4.2. TRAPZD is meant to be called iteratively from  a higher level procedure. 
+tsc:  Interpolate an irregularly sampled field using a Triangular Shaped Cloud 
+tsum:  Trapezoidal summation of the area under a curve.  EXPLANATION:  Adapted from the procedure INTEG in the IUE procedure library. 
+tvbox:  Draw a box(es) or rectangle(s) of specified width  EXPLANATION:  Positions can be specified either by the cursor position or by  supplying a vector of X,Y positions. 
+tvcircle:  Draw circle(s) of specified radius at specified position(s)  EXPLANATION:  If a position is not specified, and device has a cursor, then a circle  is drawn at the current cursor position. 
+tvellipse:  Draw an ellipse on the current graphics device. 
+tvlaser:  Prints screen or image array onto a Postscript file or printer.  Information from FITS header is optionally used for labeling. 
+tvlist:  Cursor controlled listing of image pixel values in a window. 
+unzoom_xy:  Converts X, Y position on the image display to the the X,Y position  on the corresponding image array. (These positions are identical  only for an unroamed, unzoomed image with with pixel (0,0) of the  image placed at position (0,0) on the TV.) 
+uvbybeta:  Derive dereddened colors, metallicity, and Teff from Stromgren colors.  EXPLANATION:  Adapted from FORTRAN routine of same name published by T.T. Moon,  Communications of University of London Observatory, No. 78. Parameters  can either be input interactively (with /PROMPT keyword) or supplied 
+vactoair:  Convert vacuum wavelengths to air wavelengths  EXPLANATION:  Corrects for the index of refraction of air under standard conditions.  Wavelength values below 2000 A will not be altered. Accurate to  about 0.005 A 
+valid_num: 
+vect:  Print a set of numbers as a string with delimiters included  EXPLANATION:  This function returns the given vector in parenthesized coordinates  as in the form (X,Y). No limit on the number of dimensions. Also  note that the vector does not need to be numbers. It may also be a 
+vsym:  Create "Mongo"-like polygonal plot symbols  EXPLANATION:  This procedure generates a subset of Mongo-like plot symbols.  The symbols are the rotationally symmetric ones that have  a specified number of vertices and are either open or filled.  (The half-filled symbols are not included.) After defining the  plot symbol with VSYM, make the call to PLOT (or PLOTS or OPLOT) with  PSYM=8. 
+wcs_demo:  Demonstrate the basic capabilities of procedures WCSSPH2XY & WCSXY2SPH 
+wcs_getpole:  Compute the coordinates of the native pole for a non-polar projection  EXPLANATION:  For non-polar (cylindrical or conic) projections, the native pole is  not at the reference point, and WCS_GETPOLE is used to determine the  position of the native pole. See section 2.4 of the paper 
+wcs_rotate:  Rotate between standard (e.g. celestial) and native coordinates  EXPLANATION:  Computes a spherical coordinate rotation between native coordinates  and standard celestial coordinate system (celestial, Galactic, or  ecliptic). Applies the equations in Appendix A of the paper  "Representation of Celestial Coordinates in FITS" by Calabretta  Greisen (2002, A&A, 395, 1077). Also see  http://www.aoc.nrao.edu/~egreisen 
+wcssph2xy:  Convert spherical coordinates to x and y (map) angular coordinates  EXPLANATION:  Convert spherical (longitude and latitude -- sky) coordinates to x  and y (map) angular coordinates. This procedure is the inverse of  WCSXY2SPH. See WCS_DEMO for example of use. 
+wcsxy2sph:  Convert x and y (map) coordinates to spherical coordinates  EXPLANATION:  To convert x and y (map) coordinates to spherical (longitude and  latitude or sky) coordinates. This procedure is the inverse of  WCSSPH2XY. 
+webget:  Use the IDL SOCKET procedure to get data from http servers 
+wfpc2_metric:  Compute the distortion in a WFPC2 image and optionally return coordinates  EPLANATION:  Uses the distortion solution of Anderson & King (2003, PASP, 115, 113)  Pixel 424, 424 on each chip remains fixed, and other pixel positions are  mapped to remove nonlinearities. If /GLOBAL is set, then all chips are 
+wfpc2_read:  Read WFPC2 images in either FITS or STSDAS format into IDL variables. 
+where_tag:  Like WHERE but works on structure tag names  EXPLANATION:  Obtain subscripts of elements in structure array for which  a particular Tag has values in a range or matching specified values.  Like the WHERE function but for use with structures 
+wherenan:  Find the indices of all big-endian NaN values in an array. OBSOLETE  EXPLANATION:  Find the positions of all values within an array that correspond to the  big-endian NaN (not-a-number) special values. 
+writefits:  Write IDL array and header variables to a disk FITS file. 
+xdispstr: 
+xmedsky:  Subtract sky from an image as a 1-D function of X  EXPLANATION:  This procedure is designed to remove the sky from slitless spectra.  The sky is assumed to vary with wavelength (along a row) but not with  position (along a column). The sky is computed as the 
+xy2ad:  Compute R.A. and Dec from X and Y and a FITS astrometry structure  EXPLANATION:  The astrometry structure must first be extracted by EXTAST from a FITS  header. The offset from the reference pixel is computed and the CD  matrix is applied. If distortion is present then this is corrected. 
+xyad:  Use a FITS header to convert pixel (X,Y) to world coordinates  EXPLANATION:  Use astrometry in a FITS image header to compute world  coordinates in decimal degrees from X and Y. 
+xyxy:  To use a pair of headers to convert X/Y positions from one frame  to another.  CALLING SEQUENCE:  XYXY, hdra, hdrb, xa, ya, [ xb, yb ]  INPUTS: 
+xyz:  Calculate geocentric X,Y, and Z and velocity coordinates of the Sun  EXPLANATION:  Calculates geocentric X,Y, and Z vectors and velocity coordinates  (dx, dy and dz) of the Sun. (The positive X axis is directed towards  the equinox, the y-axis, towards the point on the equator at right 
+ydn2md:  Convert from year and day number of year to month and day of month.  CALLING SEQUENCE:  YDN2MD,yr,dy,m,d  INPUTS:  yr = 4 digit year (like 1988), integer scalar 
+ymd2dn:  Convert from year, month, day to day number of year. 
+zang:  Determine the angular size of an object as a function of redshift  EXPLANATION:  Requires an input size in kpc and returns an angular size in arc seconds  Default cosmology has a Hubble constant of 70 km/s/Mpc, Omega (matter)  =0.3 and a normalized cosmological constant Lambda = 0.7; however these 
+zbrent:  Find the zero of a 1-D function up to specified tolerance.  EXPLANTION:  This routine assumes that the function is known to have a zero.  Adapted from procedure of the same name in "Numerical Recipes" by  Press et al. (1992), Section 9.3 
+zenpos:  Return the zenith RA and Dec in radians for a given Julian date. 
+zoom_xy:  Converts X, Y position on the image array to the the X,Y position  in the current window. (These positions are identical  only for an unroamed, zoomed image with with pixel (0,0) of the  image placed at position (0,0) on the TV.) 
+zparcheck:  Routine to check user parameters to a procedure 

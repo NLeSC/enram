@@ -1,0 +1,5 @@
+io
+
+In this directory the input/output routines for the different radar systems 
+are defined, per country (i.e. it is assumed that all systems from one country
+can be handled equally). 

@@ -1,0 +1,58 @@
+\chapter{design}
+\label{ch:design}
+
+
+\section{Plan}
+
+Below is the plan for storing the ENRAM workflow (i.e.\,the whole process from reading the radar data to analysis and visualization of the data):
+
+\begin{itemize}
+\item{get all the C code and the IDL code, store it in a new repository `enram' at \burl{https://github.com}\footnote{We prefer a public project with a license like the ones we already have in place for existing projects. Check that this is OK with Martin, Hidde, Adriaan.}}
+\begin{itemize}
+\item{also store a selection of the data, e.g. one sample from every station, for unit testing}
+\begin{itemize}
+\item[Q:]{on what machine are the tests run? Whose license is IDL using then?}
+\end{itemize}
+\end{itemize}
+\item{set up a virtual machine (`ENRAMVM') containing a Linux operating system}
+\begin{itemize}
+\item[Q:]{what version of Linux? Ubuntu/Lubuntu? does it matter?}
+\end{itemize}
+\item{copy the data to inside the virtual machine}
+\item{within the virtual machine, install IDL}
+\begin{itemize}
+\item{get an idl license}
+\end{itemize}
+\item{within the virtual machine, install hdfview, plus any other software that you need}
+\item{set the necessary paths}
+\item{check out the code from the enram repository using \texttt{git clone}}
+\item{save the virtual machine on the external hard drive}
+\item{also store the virtualbox installer on the external harddrive}
+\end{itemize}
+
+\section{End user steps to reproduce the ENRAM workflow}
+
+These are the steps that Willem needs to take in order to reproduce the ENRAM workflow.
+\begin{itemize}
+\item{Plug in the external USB harddrive}
+\item{In Windows, open a file explorer, navigate to the USB drive, click on the virtualbox installer.}
+\item{In Windows, start virtualbox. Load/open the virtual machine 'ENRAMVM' located on the external haddrive.}
+\item{Log in if needed (can I skip logging in/maybe use a guest session or something?)}
+\item{Open a terminal}
+\item{\texttt{cd} to the directory that holds the local copy of the github/enram repository.}
+\item{In the terminal, start IDL}
+\item{At the IDL prompt, run \texttt{.r bird\_call.pro} or any other program that you want.}
+\end{itemize}
+
+
+\section{Drawbacks}
+What can I not do with this setup? Are there any other drawbacks?
+\begin{itemize}
+\item{external harddrive}
+\begin{itemize}
+\item[Q:](would it make sense to make a harddisk image that is then stored somewhere on, say, gridstorage?)}
+\item[A:]{yes}
+\end{itemize}
+\item{unit testing/integration testing not allowed under the license...not possible?}
+\end{itemize}
+

@@ -1,0 +1,182 @@
+\chapter{notes}
+\label{ch:notes}
+
+
+package hdfview\index{hdfview} on linux ubuntu
+
+\begin{itemize}
+\item{describe the METEOR 360AC\index{METEOR 360AC} \index{C-Band}(IEEE) C-Band setup/what the radar actually measures}
+\item{what the raw data look like}
+\item{what the converted data look like}
+\item{read the data}
+\item{what is a cluttermap\index{cluttermap}}
+\item{how cluttermaps are calculated}
+\item{PPI = \burl{http://en.wikipedia.org/wiki/Plan_position_indicator}}
+\item{\burl{http://en.wikipedia.org/wiki/C_band}}
+
+\end{itemize}
+
+
+\index{Selex SI}Selex SI
+\index{Gematronik}Gematronik
+\index{variables!uZ@$uZ$}
+\index{variables!uZ@$Z$}
+\index{variables!uZ@$V$}
+\index{variables!uZ@$W$}
+\index{PPI}
+\index{plan position indicator}
+\index{gate}
+\index{rays=pulses?}
+\index{rainbow}rainbow
+\index{ODIM}
+
+
+\section{History}
+
+\begin{enumerate}
+\item{Adriaan's vol2bird C program}
+\item{Martin's IDL code plus C-library}
+\end{enumerate}
+
+
+\section{Overview of files and folders}
+When I plug in the external USB drive, these 12 directories currently exist at \texttt{/media/daisycutter/49f14219-4570-4c14-87b3-d7e502ed3736/users/graafdem/FLYSAFE2}:
+\begin{enumerate}
+\item{\texttt{bird/}}
+\item{\texttt{cluttermaps/}}
+\item{\texttt{knmi/}}
+\item{\texttt{odim/}}
+\item{\texttt{rainbow/}}
+\item{\texttt{raw/}}
+\item{\texttt{sens\_clutter/}}
+\item{\texttt{software/}}
+\item{\texttt{statistics/}}
+\item{\texttt{web/}}
+\item{\texttt{zero\_bird/}}
+\end{enumerate}
+
+
+Here's a comparison between the contents of two dirs based on a recursive diff:
+
+%daisycutter@daisycutter-NLeSC:~/enram$ clc;diff --recursive --brief --side-by-side --width=200 --minimal $dir1/visualisation $dir2/software/visualisation
+
+
+\texttt{dir1='/home/daisycutter/enram/flysafe2-readonly/'}
+
+\texttt{dir2='/media/daisycutter/49f14219-4570-4c14-87b3-d7e502ed3736/users/graafdem/FLYSAFE2/'}
+
+\begin{enumerate}
+\item{\texttt{\$dir1/idl/} and \texttt{\$dir2/software/idl} are functionally equal. Differences are whitespace characters.}
+\item{\texttt{\$dir1/process/} and \texttt{\$dir2/software/process}}
+\item{\texttt{\$dir1/visualisation/} and \texttt{\$dir2/software/visualisation}: dir1 has a \texttt{visualisation/profile/multi\_prof\_test.pro} and a \texttt{profile/test\_gif}}
+\end{enumerate}
+
+
+\begin{enumerate}
+
+\item{\texttt{idl/}}
+\item{\texttt{idl/clutter/}}
+\item{\texttt{idl/io/}}
+\item{\texttt{idl/vol2bird/}}
+\item{\texttt{process/}}
+\item{\texttt{process/log/}}
+\item{\texttt{usr/people/graafdem/IDL/flysafe/*}}
+\item{\texttt{visualisation/map/}}
+\item{\texttt{visualisation/map/loop\_gif/}}
+\item{\texttt{visualisation/profile/}}
+\item{\texttt{visualisation/profile/all\_gif/}}
+\item{\texttt{visualisation/profile/test\_gif/}}
+\end{enumerate}
+Below is a more detailed description of what each directory contains:
+
+\begin{enumerate}
+\item{\texttt{idl}}
+\begin{itemize}
+\item{contains 3 IDL scripts: `common\_definition.pro', `radar\_definitions.pro', and `radar\_names.pro'.}
+\item{`common\_definitions.pro' defines a number of global (\texttt{COMMON}) constants like the maximum number of elevation scans, the radius of the Earth, a conversion factor to get from Z
+\footnote{reflectivity power?} to $\mathrm{cm}^2/\mathrm{km}^3$ at C-band \footnote{there are a couple of integer variables that have an L after their value, e.g. \texttt{NLAYER=30L;}, according to \burl{http://www.exelisvis.com/docs/IDL_Data_Types.html} this means long integer in IDL. Maybe the programmer adopted a `better safe than sorry' approach? (Normal integers are 16 bit, i.e.\,-32768 to +32767).} \footnote{I should check `common\_definitions.pro' again sometime when I have a better idea of what each variable is.}\footnote{Also, the COMMON block in `idl/vol2bird/bird\_call.pro' is not exactly equal to that found in `idl/common\_definition.pro'. Is it necessary to have both versions?}}
+\item{`radar\_definitions.pro' contains 5 hardcoded, absolute paths\footnote{maybe check out \burl{http://www.physics.wisc.edu/~craigm/idl/archive/msg06372.html}}\footnote{does IDL need hardcoded paths or could it use relative paths?}\footnote{am I free to re-organize the directory structure?}:}
+\begin{enumerate}
+\item{\texttt{RAW\_DATA\_PATH} is the full path to the raw data, as delivered by the various radar operatives. Its current value is \texttt{/usr/people/graafdem/FLYSAFE/process/data/raw/}, which does not exist on my system or the virtual machine.}
+\item{\texttt{IO\_PATH} is the full path to the IDL io definitions. Its current value is \texttt{/usr/people/graafdem/FLYSAFE/idl/io/}, which does not exist on my system or the virtual machine.}
+\item{\texttt{INPUT\_DATA\_PATH} is the full path to the harmonized, ODIM format data. Its current value is \texttt{/usr/people/graafdem/FLYSAFE/process/data/odim/}, which does not exist on my system or the virtual machine.}
+\item{\texttt{CLUTTER\_DATA\_PATH} is the full path to the cluttermap files. Its current value is \texttt{/usr/people/graafdem/FLYSAFE/process/data/cluttermaps/}, which does not exist on my system or the virtual machine.}
+\item{\texttt{BIRD\_DATA\_PATH} is the full path to the output data directory. Its current value is \texttt{/usr/people/graafdem/FLYSAFE/process/data/bird/}, which does not exist on my system or the virtual machine.}
+\end{enumerate}
+\item[]{In brief this is how I think the components from these directories work together:}
+\begin{enumerate}
+\item{The starting point is of course the data in \texttt{RAW\_DATA\_PATH};}
+\item{The data are stored in various formats and styles, so in order to access them, one needs to know how to read each specific format and style, which is defined in the algorithms in \texttt{IO\_PATH}. After the data have been `harmonized', i.e.\, converted to a uniform format (ODIM/HDF5), they are saved in \texttt{INPUT\_DATA\_PATH};}
+\item{Clutter (unwanted return signals from buildings, vegetation, as well as foreign signals that fall within the radar's receiver wavelength) needs to be removed from the data with the use of so called cluttermaps (i.e.\,masks). Before that can be done, the cluttermaps need to be calculated, essentially by picking a time interval during which all return signals can be attributed to clutter. The resulting maps are stored in directory \texttt{CLUTTER\_DATA\_PATH};}
+\item{By using the cluttermaps from \texttt{CLUTTER\_DATA\_PATH} and the harmonized data from \texttt{INPUT\_DATA\_PATH} $<$some algorithm\footnote{probably \texttt{idl/vol2bird}?}$>$ is used to calculate how many birds are airborne in the vicinity of each radar.}
+\end{enumerate}
+
+\item{`radar\_names.pro' contains a function that returns and optionally prints an alphabetical list of radar station codes when given either the full name of a country, the country code, a list of radar station codes, or an arbitrary combination.}
+\end{itemize}
+\item{\texttt{idl/clutter}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{idl/io}}
+\begin{itemize}
+\item[]{contains the input/output routines for the different radar systems are defined, per country (i.e. it is assumed that all systems from one country can be handled equally).
+}
+\end{itemize}
+\item{\texttt{idl/vol2bird}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{process}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{process/log}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{usr/people/graafdem/IDL/flysafe/}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{visualisation/map}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{visualisation/map/loop\_gif}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{visualisation/profile}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{visualisation/profile/all\_gif}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+\item{\texttt{{visualisation/profile/test\_gif}}
+\begin{itemize}
+\item[]{contains}
+\end{itemize}
+
+\end{enumerate}
+
+
+
+\section{Proposed directory structure}
+
+\begin{enumerate}
+\item{data}
+\item{data/raw}
+\item{data/harmonized}
+\item{data/harmonized/cluttermaps}
+\item{data/harmonized/odim}
+\item{data/harmonized/bird}
+\item{src}
+\item{src/clutter}
+\item{src/io}
+\item{src/vol2bird}
+\end{enumerate}
+
+
+

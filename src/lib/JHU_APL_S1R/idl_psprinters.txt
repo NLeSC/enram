@@ -1,0 +1,23 @@
+*--- IDL Postscript printers description file  --------
+*	R. Sterner, 13 Aug, 1991 S1R group system
+*	R. Sterner, 1997 Oct 02 updated for building 7.
+*	R. Sterner, 2000 Nov 22 updated for linux on zero.
+
+lpr -Pplot7_383
+HP Laserjet 4  in room 7-383.
+lpr -Pplot7_383
+DaveP B&W PS 600 dpi printer in room 7-385.
+lpr -Pcolor7_383
+Phaser 860 Color Print in room 7-383.
+lpr -Pcolor7_383t
+Phaser 860 Color Transparency in room 7-383.
+lpr -Pplot7_384
+HP Laserjet B&W PS 600 dpi printer in room 7-384.
+lpr -Pcolor_450
+Phaser 450 Color Print in 7-383
+lpr -Pcolor_450t
+Phaser 450 Color Transparency in 7-383
+lpr -Pcolor7_327
+Color paper in 7-327
+lpr -Pcolor7_327t
+Color Transparency in 7-327

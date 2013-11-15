@@ -1,0 +1,270 @@
+\documentclass[10pt,a4paper,twoside,openany,titlepage]{book}
+
+\usepackage{pifont}
+\usepackage{keyval}
+\usepackage{color}
+\usepackage{fancybox}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue,citecolor=black]{hyperref}
+\usepackage{calc}
+\usepackage{fancyhdr}
+\usepackage[inner=5cm,outer=2cm,ignoreheadfoot,top=4cm,bottom=5cm,footskip=4cm]{geometry}
+\usepackage{marvosym}
+\usepackage{tocloft}
+\usepackage{textcomp}
+\usepackage{makeidx}
+\usepackage{listings}
+\usepackage[framed]{mcode}
+\usepackage{setspace}
+\usepackage{fancyvrb}
+\usepackage[]{caption}
+\usepackage{lscape}
+\usepackage{tabularx}
+\usepackage{eso-pic}
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{needspace}
+\usepackage{breakurl}
+\usepackage[hang,flushmargin,multiple,perpage]{footmisc}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage[titletoc]{appendix}
+\usepackage{multicol}
+\usepackage{relsize}
+
+
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{mkeywordcolor}{rgb}{0,0,1}
+\definecolor{mstringcolor}{rgb}{0.6275,0.1255,0.9412}
+\definecolor{mcommentcolor}{rgb}{0,0.5,0}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{lgray}{rgb}{0.9,0.9,0.9}
+\definecolor{darkgray}{rgb}{0.15,0.15,0.15}
+\definecolor{black}{rgb}{0,0,0}
+\definecolor{white}{rgb}{1,1,1}
+
+
+
+%\setlength{\captionmargin}{3.25cm}
+\setlength{\captionmargin}{2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.75em}
+\setlength{\skip\footins}{2cm}
+%\setlength{\footbibskip}{1cm}
+
+\linespread{1}
+
+\makeindex
+
+
+\citestyle{egu}
+
+\renewcommand{\arraystretch}{1.5}
+%\renewcommand{\thechapter}{}
+%\renewcommand{\chaptername}{}
+
+%\pagestyle{fancy}
+%\fancyhf{} % clear all header and footer fields
+%\renewcommand{\headrulewidth}{0pt}
+%\renewcommand{\headrulewidth}{0pt}
+%\fancyfoot[OC,EC]{--\ \thepage{}\ --}
+
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[OC,EC]{--\ \thepage{}\ --}
+}%fancypagestyle
+
+
+
+\input{./hyp}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%\newcounter{smallqcounter}
+%\setcounter{smallqcounter}{0}
+%\newcommand{\smallq}[1]{
+%\stepcounter{smallqcounter}
+%{\arabic{smallqcounter} #1}
+%}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% exercises that we would like people to do:
+\newcounter{smallqcounter}
+\setcounter{smallqcounter}{0}
+\newcommand{\smallq}[1]{
+\begin{list}{$\blacktriangleright$ \arabic{smallqcounter}.}
+{
+\setlength{\labelwidth}{3cm}
+\setlength{\topsep}{0em}
+\setlength{\leftmargin}{0cm}
+\stepcounter{smallqcounter}
+}
+\item{#1}
+\end{list}
+}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% optional exercises:
+\newcommand{\smallqo}[1]{
+\begin{list}{$\vartriangleright$ \arabic{smallqcounter}.}
+{
+\setlength{\labelwidth}{3cm}
+\setlength{\topsep}{0em}
+\setlength{\leftmargin}{0cm}
+\stepcounter{smallqcounter}
+}
+\item{#1}
+\end{list}
+}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+
+
+
+
+
+
+
+\sloppy
+\newcommand{\guitext}[1]{``\textsf{#1}''}
+\newcommand{\MATLAB}[0]{\textsc{MATLAB}}
+\newcommand{\starred}[1]{$\ast{}$\textit{#1}$\ast{}$}
+
+\newcommand{\prompt}[1]{\vspace{0.25em}\par\noindent{\tt \textgreater\textgreater\ #1}\vspace{0.25em}\par}
+
+\newcommand{\hintbox}[1]{\noindent
+\begin{minipage}[0]{\textwidth}{\vspace{2em} \centering \begin{minipage}[0]{0.6\textwidth}{\hrule \vspace{0.5em}\textsc{\textbf{TIP:\,}} \small #1\vspace{0.5em}
+\hrule }\end{minipage} \vspace{2em} \end{minipage}}
+}%hintbox
+
+
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.2pt}
+
+
+
+
+
+\newcommand{\squote}[1]{\textquotesingle{}#1\textquotesingle{}} % 39 is the decimal ascii code for single straight quote.
+
+\renewcommand{\captionfont}{\footnotesize}
+\renewcommand{\captionlabelfont}{\sffamily}
+
+
+\title{esibayes manual}
+
+\author{Jurriaan H. Spaaks}
+\author{Martin de Graaf}
+\author{Hidde Leijnse}
+\author{Willem Bouten}
+
+
+\lstdefinestyle{basic}{basicstyle=\scriptsize\ttfamily,
+   numbersep=3mm,
+   tabsize=4,
+   showspaces=false,
+   showstringspaces=false,
+   frame=none,
+   framexleftmargin=0mm,
+   framexrightmargin=0mm,
+   aboveskip = 0.5em,
+   belowskip = -0.5em,
+   xleftmargin = 0mm,
+   breaklines = false,
+}
+
+\lstdefinestyle{spacious}{
+   aboveskip = 2.5em
+}
+
+
+\lstdefinestyle{numbered}{numbers=left,
+   numberstyle=\scriptsize\ttfamily{\color{gray}},
+   stepnumber=1,
+   numbersep=3mm,
+}
+
+\lstdefinestyle{matlab}{language=matlab,
+   keywords={break,case,catch,continue,else,elseif,end,for,function,      global,if,otherwise,persistent,return,switch,try,while},
+    morekeywords={...},
+   alsoletter={...},
+   keywordstyle=\color{mkeywordcolor},
+   commentstyle=\color{mcommentcolor},
+   stringstyle=\color{mstringcolor},
+}
+
+\lstdefinestyle{bash}{basicstyle=\color{black}\scriptsize\ttfamily,
+                      language=bash,
+                      keywords={},
+                      keywordstyle=\color{black},
+                      commentstyle=\color{black},
+                      stringstyle=\color{black},
+                      backgroundcolor=\color{lgray}
+}
+
+
+\lstdefinestyle{bashinline}{basicstyle=\color{black}\small\ttfamily,
+                            language=bash,
+                            keywords={},
+                            keywordstyle=\color{black},
+                            commentstyle=\color{black},
+                            stringstyle=\color{black}}
+
+
+\lstdefinestyle{plaintext}{keywords={}}
+
+%\lstset{language=matlab}
+%\lstset{language=bash}
+
+\newcommand{\insertemptypage}[0]{
+\vfill
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\pagebreak
+}
+
+
+\begin{document}
+
+\input{./chapters/title}
+\insertemptypage{}
+\insertemptypage{}
+
+\pagestyle{plain}
+\frontmatter
+
+\tableofcontents
+%\newpage
+
+\mainmatter
+\input{./chapters/design}
+\input{./chapters/notes}
+
+
+\clearpage
+\addappheadtotoc
+\appendixpage
+\begin{appendices}
+%
+\end{appendices}
+
+\backmatter
+
+\bibliographystyle{plainnat}
+\bibliography{./../bib/literaturedb}
+
+
+\printindex
+\insertemptypage{}
+
+\end{document}

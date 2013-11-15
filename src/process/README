@@ -1,0 +1,6 @@
+to run histogram.pro remotely, type
+/usr/bin/nohup /bin/nice -15 idl -quiet idl_histogram.batch > idl_histogram.out 2> idl_histogram.err < /dev/null &
+
+to run flysafe2.pro remotely, type
+/usr/bin/nohup /bin/nice -15 idl -quiet idl_flysafe2.batch > idl_flysafe2.out 2> idl_flysafe2.err < /dev/null &
+
