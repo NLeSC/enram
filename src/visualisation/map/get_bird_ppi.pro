@@ -1,19 +1,7 @@
-PRO common_definition
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Definition of standard parameters.                                          ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-COMMON constants,NSCANX,RADIUS
-
-NSCANX=64L  	    ;Maximum number of elevation scans.
-RADIUS=6378.137     ;Earth radius 
-
-END
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; get_bird_ppi
-; 
+;
 ; READ a PRF of VOL radar HDF5 file and plot a slice of data in PPI format
 ;
 ; MdG - KNMI November 2012
@@ -41,15 +29,27 @@ pngfile=pngfile,$
 help=help
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Definition of standard parameters.                                          ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;DEFINE and LOAD constants
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
-COMMON constants
+;
+COMMON constants,$
+NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;PARSE KEYWORDS
 IF KEYWORD_SET(help) THEN BEGIN
 ENDIF
-;
+; very unwise, this: FIXME!
 DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta.
 ;
 dx = N_ELEMENTS(dx) eq 1 ? dx : 1.0
@@ -77,7 +77,7 @@ rainmask = KEYWORD_SET(rain) ? 0 : 1
 ;;
 PRINT,FORMAT= '(%"\r","#Opening of HDF5 radar input file : ",a,$)',FILE_BASENAME(h5infile)
 
-h5_id=H5F_OPEN(h5infile)    	    ;;OPEN the current HDF5 scan file  
+h5_id=H5F_OPEN(h5infile)            ;;OPEN the current HDF5 scan file
 
 groups = H5_PARSE(h5_id,'/')
 tags=TAG_NAMES(groups)
@@ -136,10 +136,10 @@ FOR itag=0,N_ELEMENTS(datatags)-1 DO BEGIN
   IF STRPOS(STRUPCASE(datatags[itag]),'WHERE') ne -1 THEN BEGIN
     ;
     rscale = datagroups.(itag).RSCALE._DATA/1000.   & rscale=rscale[0]
-    nrang = datagroups.(itag).NBINS._DATA   	    & nrang=nrang[0]
-    nazim = datagroups.(itag).NRAYS._DATA   	    & nazim=nazim[0]
+    nrang = datagroups.(itag).NBINS._DATA           & nrang=nrang[0]
+    nazim = datagroups.(itag).NRAYS._DATA           & nazim=nazim[0]
     elevation = datagroups.(itag).ELANGLE._DATA     & elevation=elevation[0]
-    ascale = 360./nazim     	    	    	    & ascale=ascale[0]
+    ascale = 360./nazim                             & ascale=ascale[0]
     ;
   ENDIF
 ENDFOR
@@ -193,19 +193,19 @@ FOR j=0,Nrows-1 DO BEGIN
       their=ir[i,j]
       theia=ia[i,j]
       IF (their lt nrang) THEN BEGIN
-              
-;        theimage[i+j*Ncols]=zdata[their+theia*nrang] 
-	;
-	IF rainmask THEN BEGIN
-;	  ;
-	  IF (cellmap[their+theia*nrang] le cellvalue) THEN BEGIN
-	    ;
-	    theimage[i+j*Ncols]=zdata[their+theia*nrang] 
-	    ;
-	  ENDIF ELSE theimage[i+j*Ncols]=nodata 
-	  ;
-	ENDIF ELSE theimage[i+j*Ncols]=zdata[their+theia*nrang] 
-	;
+
+;        theimage[i+j*Ncols]=zdata[their+theia*nrang]
+    ;
+    IF rainmask THEN BEGIN
+;     ;
+      IF (cellmap[their+theia*nrang] le cellvalue) THEN BEGIN
+        ;
+        theimage[i+j*Ncols]=zdata[their+theia*nrang]
+        ;
+      ENDIF ELSE theimage[i+j*Ncols]=nodata
+      ;
+    ENDIF ELSE theimage[i+j*Ncols]=zdata[their+theia*nrang]
+    ;
       ENDIF ELSE theimage[i+j*Ncols]=nodata;
    ENDFOR
 ENDFOR
@@ -238,7 +238,7 @@ lat = where.LAT._DATA
 date = what.date._DATA
 time = what.time._DATA
 
-H5F_CLOSE,h5_id   	    ;;CLOSE the HDF5 file
+H5F_CLOSE,h5_id         ;;CLOSE the HDF5 file
 
 ;profile_bird=profile.PROFILE_REFLECTIVITY._DATA
 ;profile_bird=10*ALOG10(profile_bird/DBZFACTOR)
