@@ -9,20 +9,25 @@ PRO radar_definitions,radar_id,radar_definition
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;IO_PATH is the full path to the IDL io definitions
-io_path='/usr/people/graafdem/FLYSAFE/idl/io/'
+;io_path='/usr/people/graafdem/FLYSAFE/idl/io/'
+io_path=GETENV('IDL_ENRAM_SRC_IO')
 ;
 ;RAW_DATA_PATH is the full path to the raw data, as delivered by the 
 ;various radar operatives. 
-raw_data_path='/usr/people/graafdem/FLYSAFE/process/data/raw/'
+;raw_data_path='/usr/people/graafdem/FLYSAFE/process/data/raw/'
+raw_data_path=GETENV('IDL_ENRAM_RAW_DATA')
 ;
 ;INPUT_DATA_PATH is the full path to the harmonized, ODIM format data
-input_data_path='/usr/people/graafdem/FLYSAFE/process/data/odim/'
+;input_data_path='/usr/people/graafdem/FLYSAFE/process/data/odim/'
+input_data_path=GETENV('IDL_ENRAM_ODIM_DATA')
 ;
 ;BIRD_DATA_PATH is the full path to the output data directory
-bird_data_path='/usr/people/graafdem/FLYSAFE/process/data/bird/'
+;bird_data_path='/usr/people/graafdem/FLYSAFE/process/data/bird/'
+bird_data_path=GETENV('IDL_ENRAM_BIRD_DATA')
 ;
 ;CLUTTER_DATA_PATH is the full path to the cluttermap files
-clutter_data_path='/usr/people/graafdem/FLYSAFE/process/data/cluttermaps/'
+;clutter_data_path='/usr/people/graafdem/FLYSAFE/process/data/cluttermaps/'
+clutter_data_path=GETENV('IDL_ENRAM_CLUTTERMAPS')
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -78,7 +83,7 @@ END
 
 'SEOVI': BEGIN 
 
-  radar_full_name='Sweden_Ornskoldsvik' ;Örnsköldsvik
+  radar_full_name='Sweden_Ornskoldsvik' ;ï¿½rnskï¿½ldsvik
   radar_id       ='seovi'
   path_id        ='SE_ovi'
   io_file        ='vol2bird_se_odimhdf5.pro'
@@ -88,7 +93,7 @@ END
 
 'SEOSU': BEGIN 
 
-  radar_full_name='Sweden_Ostersund'  ;Östersund
+  radar_full_name='Sweden_Ostersund'  ;ï¿½stersund
   radar_id       ='seosu'
   path_id        ='SE_osu'
   io_file        ='vol2bird_se_odimhdf5.pro'
@@ -98,7 +103,7 @@ END
 
 'SELUL': BEGIN 
 
-  radar_full_name='Sweden_Lulea' ;Luleå
+  radar_full_name='Sweden_Lulea' ;Luleï¿½
   radar_id       ='selul'
   path_id        ='SE_lul'
   io_file        ='vol2bird_se_odimhdf5.pro'
@@ -162,7 +167,7 @@ END
 
 'SEANG': BEGIN 
 
-  radar_full_name='Sweden_Angelholm' ;Ängelholm
+  radar_full_name='Sweden_Angelholm' ;ï¿½ngelholm
   radar_id       ='seang'
   path_id        ='SE_ang'
   io_file        ='vol2bird_se_odimhdf5.pro'
@@ -181,7 +186,7 @@ END
 
 'CZSKA': BEGIN 
 
-  radar_full_name='Czech Republic_Skaly' ;Skály
+  radar_full_name='Czech Republic_Skaly' ;Skï¿½ly
   radar_id       ='50_C_OKPR'
   path_id        ='CZ_ska'
   io_file        ='vol2bird_cz_odimhdf5.pro'
@@ -290,7 +295,7 @@ END
 
 'FIUTA': BEGIN 
 
-  radar_full_name='Finland_Utajarvi' ;Utajärvi
+  radar_full_name='Finland_Utajarvi' ;Utajï¿½rvi
   radar_id       ='UTA_'
   path_id        ='FI_uta'
   io_file        ='vol2bird_fi_odimhdf5.pro'
@@ -327,7 +332,7 @@ END
 
 'FRALE': BEGIN 
 
-  radar_full_name='France_Aleria';Aléria
+  radar_full_name='France_Aleria';Alï¿½ria
   radar_id='T_PAGZ61_C_frale'
   path_id='FR_ale'
   io_file='vol2bird_fr_odimhdf5.pro'
@@ -364,7 +369,7 @@ END
 
 'FRBOL': BEGIN 
 
-  radar_full_name='France_Bollene' ;Bollène
+  radar_full_name='France_Bollene' ;Bollï¿½ne
   radar_id='T_PAGZ55_C_frbol'
   path_id='FR_bol'
   io_file='vol2bird_fr_odimhdf5.pro'
@@ -410,7 +415,7 @@ END
 
 'FRCOL': BEGIN 
 
-  radar_full_name='France_Collobrieres' ;Collobrières
+  radar_full_name='France_Collobrieres' ;Collobriï¿½res
   radar_id='T_PAGZ59_C_frcol'
   path_id='FR_col'
   io_file='vol2bird_fr_odimhdf5.pro'
@@ -420,7 +425,7 @@ END
 
 'FRGRE': BEGIN 
 
-  radar_full_name='France_Grezes' ;Grèzes
+  radar_full_name='France_Grezes' ;Grï¿½zes
   radar_id='T_PAGZ44_C_frgre'
   path_id='FR_gre'
   io_file='vol2bird_fr_odimhdf5.pro'
@@ -466,7 +471,7 @@ END
 
 'FRNIM': BEGIN 
 
-  radar_full_name='France_Nimes' ;Nîmes
+  radar_full_name='France_Nimes' ;Nï¿½mes
   radar_id='T_PAGZ49_C_frnim'
   path_id='FR_nim'
   io_file='vol2bird_fr_odimhdf5.pro'
@@ -476,7 +481,7 @@ END
 
 'NOAND': BEGIN 
 
-  radar_full_name='Norway_Andoya';Andøya
+  radar_full_name='Norway_Andoya';Andï¿½ya
   radar_id       ='AND'
   path_id        ='NO_and'
   io_file        ='vol2bird_no_odimhdf5.pro'
@@ -486,7 +491,7 @@ END
 
 'NOBML': BEGIN 
 
-  radar_full_name='Norway_Bomlo';Bømlo
+  radar_full_name='Norway_Bomlo';Bï¿½mlo
   radar_id       ='BML'
   path_id        ='NO_bml'
   io_file        ='vol2bird_no_odimhdf5.pro'
@@ -505,7 +510,7 @@ END
 
 'NOHGB': BEGIN 
 
-  radar_full_name='Norway_Haegebostad';Hægebostad
+  radar_full_name='Norway_Haegebostad';Hï¿½gebostad
   radar_id       ='HGB'
   path_id        ='NO_hgb'
   io_file        ='vol2bird_no_odimhdf5.pro'
@@ -532,7 +537,7 @@ END
 
 'NORST': BEGIN 
 
-  radar_full_name='Norway_Rost' ;Røst
+  radar_full_name='Norway_Rost' ;Rï¿½st
   radar_id       ='RST'
   path_id        ='NO_rst'
   io_file        ='vol2bird_no_odimhdf5.pro'
