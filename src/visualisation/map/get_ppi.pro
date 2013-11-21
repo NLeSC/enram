@@ -1,19 +1,7 @@
-PRO common_definition
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Definition of standard parameters.                                          ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-COMMON constants,NSCANX,RADIUS
-
-NSCANX=64L  	    ;Maximum number of elevation scans.
-RADIUS=6378.137     ;Earth radius 
-
-END
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; get_ppi
-; 
+;
 ; READ a PRF of VOL radar HDF5 file and plot a slice of data in PPI format
 ;
 ; MdG - KNMI November 2012
@@ -41,10 +29,22 @@ pngfile=pngfile,$
 help=help
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Definition of standard parameters.                                          ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;DEFINE and LOAD constants
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
-COMMON constants
+;
+COMMON constants,$
+NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;PARSE KEYWORDS
 IF KEYWORD_SET(help) THEN BEGIN
@@ -88,7 +88,7 @@ scanid=scanid,success=success
 IF not KEYWORD_SET(success) then BEGIN
   PRINT, 'Scan data could not be loaded from '+h5infile
   RETURN
-ENDIF 
+ENDIF
 data=thedata.(1)
 ;
 ;MAP the data
@@ -132,9 +132,9 @@ FOR j=0,Nrows-1 DO BEGIN
       their=ir[i,j]
       theia=ia[i,j]
       IF (their lt meta.nrang) THEN BEGIN
-;	IF (data[their+theia*meta.nrang] le maxz) THEN BEGIN
-	  theimage[i+j*Ncols]=data[their+theia*meta.nrang] 
-;	ENDIF ELSE theimage[i+j*Ncols]=nodata 
+;   IF (data[their+theia*meta.nrang] le maxz) THEN BEGIN
+      theimage[i+j*Ncols]=data[their+theia*meta.nrang]
+;   ENDIF ELSE theimage[i+j*Ncols]=nodata
       ENDIF ELSE theimage[i+j*Ncols]=nodata;
    ENDFOR
 ENDFOR
@@ -172,7 +172,7 @@ return
 thisDevice = !D.Name
 SET_PLOT,'Z',set_resolution=size(image,/dim)
 ;
-;SET environment variable 
+;SET environment variable
 bangp=!p
 !P.FONT=0
 ;
