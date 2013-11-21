@@ -1,104 +1,46 @@
-PRO common_definition
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Definition of standard parameters.                                          ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-COMMON constants,$
-
-NSCANX,RADIUS43,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,   	$
-RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,	$
-NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,     	$
-DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
-NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,     	$
-NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,    	$
-SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN   
-
-NSCANX=64L  	    ;Maximum number of elevation scans.
-RADIUS43=8495.0     ;Earth radius used for height calculations.
-
-;******************************************************************************
-;*Defined (default) parameters.                                               *
-;******************************************************************************
-HLAYER      =0.200  ;Thickness of height layer in km.               
-NLAYER      =30L     ;Number of stacked height layers.               
-NDATA       =3L      ;Data dimension height layers.                  
-RANGMIN     =5.0    ;Minimum range for WRWP analysis in km.         
-RANGMINSTDEV=5.0    ;Minimum range for WRWP determination for the   
-                    ;radial velocity st.dev. in km.                 
-RANGMAXSTDEV=25.0   ;Maximum range for WRWP determination for the   
-                    ;radial velocity st.dev. in km.                 
-RANGMAX     =25.0   ;Maximum range for WRWP analysis in km.         
-AZIMMIN     =0.0    ;Minimum azimuth for WRWP analysis in degrees.  
-AZIMMAX     =360.0  ;Maximum azimuth for WRWP analysis in degrees.  
-VRADMIN     =1.0    ;Minimum magnitude of velocity in m/s.          
-NGAPBIN     =8L     ;Number of bins where availability is analyzed. 
-NGAPMIN     =5L     ;Minimum number of points per analyses bin.     
-NDBZMIN     =25L    ;Minimum number of points necessary for valid   
-                    ;height layer reflectivity estimate             
-VDIFMAX     =10.0   ;Maximum deviation of radial velocity in m/s.   
-VMASKMAX    =0.0    ;A radial velocity difference with the          
-	            ;neighbouring azimuth. Pixel lower than VMASKMAX
-	 	    ;leads to inclusion in rainmask (0=no mask).    
-EMASKMAX    =5.0    ;Border size in km to enlarge rainmask          
-RHOMIN      =0.9    ;Minimum correlation for precipitation classific
-ZDRMIN      =3.0    ;Minimum differential reflectivity insects/chaff
-DBZMIN      =-100.0 ;Minimum reflectivity used in calc of avg dBZ.  
-DBZMAX      =20.0   ;Maximum reflectivity used in calc of avg dBZ.  
-DBZNOISE    =-40.0  ;Noise level used for missing reflectivity data 
-DBZRAIN     =0.0    ;Minimum reflectivity for qualification as rain 
-DBZCELL     =15.0   ;Raincell reflectivity threshold                
-STDEVCELL   =5.0    ;Raincell local standard deviation threshold    
-AREACELL    =4L      ;Minimum area for a rain cell in pixels         
-CLUTPERCCELL=0.5    ;Maximum percentage of clutter in a cell        
-NEIGHBOURS  =5L      ;Minimum number of directly neighouring pixels  
-	            ;with dBZ>DBZRAIN [1-8]                         
-VTEXSCALE   =0.2    ;Increament of bitresolution for texture field
-VTEXOFFSET  =-100.  ;
-STDEVSCALE  =0.1    ;                                               				   
-NTEXBINAZIM =3L      ;Azimuth bins on which to base texture field    
-NTEXBINRANG =3L      ;Range bins on which to base texture field      
-NTEXMIN     =4L	     ;Min necessary number of gates for texture      
-DBZCLUTTER  =-10.0  ;Minimum reflectivity for clutter               
-TEXCV       =1
-TEXSTDEV    =2
-
-DBZFACTOR   =360.7  ;Conversion factor Z to cm^2/km^3 at C-band     
-SIGMABIRD   =11.0   ;Bird radar cross section in cm^2               
-STDEVBIRD   =2.   ;Min radial standard deviation in m/s for birds 
-XOFFSET     =5.0    ;Cross-section offset,sigma=XOFFSET+XSCALE/range
-XSCALE      =134.0  ;Cross-section prefactor                        
-XMEAN       =15.0   ;Reflectivities are scaled by XMEAN/sigma       
-
-;******************************************************************************
-
-END
-;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main routine for the vol2birdprof program
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-PRO bird_call,h5infile,h5outfile,   	$
-definitions=definitions,    	    	$
-processed_datetime=processed_datetime,	$
-cm=cm,	    	    	    	    	$
-verbose=verbose,    	    	    	$
-sigma_bird=sigma_bird,	    	    	$
-img=img,    	    	    	    	$	
-dualpol=dualpol,    	    	    	$
-vad1=vad1,vad2=vad2,vvp1=vvp1,	    	$
-vvp2=vvp2,vvp3=vvp3,	    	    	$
-tex1=tex1,tex2=tex2,	    	    	$
-vsignflip=vsignflip,	    	    	$
-txtoutfile=txtoutfile,	    	    	$
-append=append,	    	    	    	$
-success=success,    	    	    	$
+PRO bird_call,h5infile,h5outfile,       $
+definitions=definitions,                $
+processed_datetime=processed_datetime,  $
+cm=cm,                                  $
+verbose=verbose,                        $
+sigma_bird=sigma_bird,                  $
+img=img,                                $
+dualpol=dualpol,                        $
+vad1=vad1,vad2=vad2,vvp1=vvp1,          $
+vvp2=vvp2,vvp3=vvp3,                    $
+tex1=tex1,tex2=tex2,                    $
+vsignflip=vsignflip,                    $
+txtoutfile=txtoutfile,                  $
+append=append,                          $
+success=success,                        $
 help=help
 ;
 success=0
 ;
 IF KEYWORD_SET(help) THEN BEGIN
 ENDIF
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Definition of standard parameters.                                          ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+;
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -138,8 +80,8 @@ t0=SYSTIME(1)
 ;ACCESS the constant common block
 common constants
 ;;
-;;Initialisation of paramaters from constants 
-;;In IDL UPPERCASE and lowercase parameter names are equal, so initialisations like 
+;;Initialisation of paramaters from constants
+;;In IDL UPPERCASE and lowercase parameter names are equal, so initialisations like
 ;;dbzcell=DBZCELL are skipped
 ;
 ;DEFINE a "NIL" parameter to substitute the C NULL pointer
@@ -256,19 +198,19 @@ CALL_PROCEDURE,readscan_command,h5infile,'Z',zmeta,zscan,success=zflag
 CALL_PROCEDURE,readscan_command,h5infile,'U',uzmeta,uzscan,success=uzflag
 ;CALL_PROCEDURE,readscan_command,h5infile,'W',wmeta,wscan   ;W is not used
 ;
-IF vflag eq 0 or zflag eq 0 THEN BEGIN    	;IF either vscan or zscan is not available, 
-  IF vflag eq 0 THEN message='VRAD not found'  	;the bird profile cannot be determined
-  IF zflag eq 0 THEN message='DBZH not found'  	;
+IF vflag eq 0 or zflag eq 0 THEN BEGIN      ;IF either vscan or zscan is not available,
+  IF vflag eq 0 THEN message='VRAD not found'   ;the bird profile cannot be determined
+  IF zflag eq 0 THEN message='DBZH not found'   ;
   message+=' in file '+h5infile
   PRINT, message
   IF not stdout THEN FREE_LUN,un0,/FORCE
   RETURN
-ENDIF  
+ENDIF
 ;
-IF uzflag eq 0 THEN BEGIN   	;uZ (uncorrected Z is only used in classification
-  uzmeta=zmeta	    	    	;to classify unvalid corrected Z (by signal
-  uzscan=zscan	    	    	;processor) as clutter. This will fail when uZ=Z and 
-ENDIF       	    	    	;no extra clutter will be generated. (besides uzflag<>1)
+IF uzflag eq 0 THEN BEGIN       ;uZ (uncorrected Z is only used in classification
+  uzmeta=zmeta                  ;to classify unvalid corrected Z (by signal
+  uzscan=zscan                  ;processor) as clutter. This will fail when uZ=Z and
+ENDIF                           ;no extra clutter will be generated. (besides uzflag<>1)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;OPEN the cluttermap, if given
@@ -276,7 +218,7 @@ ENDIF       	    	    	;no extra clutter will be generated. (besides uzflag<>1)
 ;
 IF N_ELEMENTS(cm) eq 0 or FILE_TEST(cm) eq 0 THEN BEGIN
   PRINT, 'Error: no valid cluttermap file specified'
-  IF not stdout THEN FREE_LUN,un0,/FORCE  
+  IF not stdout THEN FREE_LUN,un0,/FORCE
   RETURN
 ENDIF
 ;
@@ -292,12 +234,12 @@ ENDIF ELSE BEGIN
   cmflag=0
 ENDELSE
 ;
-;if the output file is not specified, create one from the 
+;if the output file is not specified, create one from the
 ;time/date info
 ;IF N_ELEMENTS(h5outfile) eq 0 THEN BEGIN
 ;  YYYYMMDD=STRING(FORMAT="(i8)",zmeta[1].date)
 ;  HRMI=STRING(FORMAT="(i04)",zmeta[1].time/100)
-;  radar_id=zmeta[1].id 
+;  radar_id=zmeta[1].id
 ;  h5outfile='RAD_'+radar_id+'_PRF_NA_'+YYYYMMDD+HRMI+'.h5'
 ;ENDIF ELSE  h5outfile=STRTRIM(h5outfile,2)
 ;;
@@ -361,70 +303,70 @@ cellmap = CREATE_STRUCT("cellmap_n",nscan)
 ;
 FOR id=1L,Nscan DO BEGIN
    ;
-   vtex.(id) *=0B    	    ;initialise
+   vtex.(id) *=0B           ;initialise
    vtex2.(id)*=0B
    ;
    ;cellmap should be structure of LONGs of size zscan
    cellmap = CREATE_STRUCT(cellmap,"cellmap_"+STRTRIM(id,2),LONG(zscan.(id))*0L)
-   ;   
-   thevtex=vtex.(id)	    ;array to pass
    ;
-   c=call_external(v2b_clib,	    	    $
-	  'call_texture',/PORTABLE,/UNLOAD,	    $
-	  thevtex,vscan.(id),zscan.(id),     	    $
-	  texmeta[id],vmeta[id],zmeta[id],   	    $
-	  ntexbinrang,ntexbinazim,ntexmin,TEXSTDEV)
+   thevtex=vtex.(id)        ;array to pass
    ;
-   vtex.(id)=thevtex	    ;Store results
+   c=call_external(v2b_clib,                $
+      'call_texture',/PORTABLE,/UNLOAD,     $
+      thevtex,vscan.(id),zscan.(id),            $
+      texmeta[id],vmeta[id],zmeta[id],          $
+      ntexbinrang,ntexbinazim,ntexmin,TEXSTDEV)
+   ;
+   vtex.(id)=thevtex        ;Store results
    ;
    IF KEYWORD_SET(dualpolflag) THEN BEGIN
    ;
    thecellmap=cellmap.(id) ;array to pass
    ;
-   Ncell=call_external(v2b_clib, 	    	    	$
-	 'call_findcells',/PORTABLE,/UNLOAD,        	$
-	 zscan.(id),rscan.(id),zdrscan.(id),thecellmap, $
+   Ncell=call_external(v2b_clib,                    $
+     'call_findcells',/PORTABLE,/UNLOAD,            $
+     zscan.(id),rscan.(id),zdrscan.(id),thecellmap, $
          zmeta[id],rmeta[id],zdrmeta[id],dbzrain,rhomin,$
-	 zdrmin,dBZmin,rcellmax,-1)
+     zdrmin,dBZmin,rcellmax,-1)
    ;
-   cellmap.(id)=thecellmap	;Store results
+   cellmap.(id)=thecellmap  ;Store results
    ;
    ENDIF ELSE BEGIN
      ;
      IF textype eq TEXCV THEN BEGIN
         ;
         thevtex=vtex2.(id)
-	;
-	c=call_external(v2b_clib,	    	    $
-	       'call_texture',/PORTABLE,/UNLOAD,    $
-	       thevtex,vscan.(id),zscan.(id),       $
-	       texmeta[id],vmeta[id],zmeta[id],     $
-	       ntexbinrang,ntexbinazim,ntexmin,TEXCV)
+    ;
+    c=call_external(v2b_clib,               $
+           'call_texture',/PORTABLE,/UNLOAD,    $
+           thevtex,vscan.(id),zscan.(id),       $
+           texmeta[id],vmeta[id],zmeta[id],     $
+           ntexbinrang,ntexbinazim,ntexmin,TEXCV)
         ;
         vtex2.(id)=thevtex
         ;
-	thecellmap=cellmap.(id) ;array to pass
-	cv=0
-	;
-	c=call_external(v2b_clib,	    	    $
-	       'call_findcells',/PORTABLE,/UNLOAD,  $
-	       thevtex,NIL,NIL,thecellmap,	    $
-	       texmeta[id],NIL,NIL,cv,rhomin,       $
-	       zdrmin,dBZmin,rcellmax,1)
+    thecellmap=cellmap.(id) ;array to pass
+    cv=0
+    ;
+    c=call_external(v2b_clib,               $
+           'call_findcells',/PORTABLE,/UNLOAD,  $
+           thevtex,NIL,NIL,thecellmap,      $
+           texmeta[id],NIL,NIL,cv,rhomin,       $
+           zdrmin,dBZmin,rcellmax,1)
         ;
-        cellmap.(id)=thecellmap	;Store results
+        cellmap.(id)=thecellmap ;Store results
         ;
      ENDIF ELSE BEGIN
         ;
-	thecellmap=cellmap.(id) ;array to pass
-	;
-	Ncell=call_external(v2b_clib, 	    $
-	      'call_findcells',/PORTABLE,/UNLOAD,   $
-	      zscan.(id),NIL,NIL,thecellmap,	    $
-	      zmeta[id],NIL,NIL,dbzrain,rhomin,     $
-	      zdrmin,dBZmin,rcellmax,-1)
+    thecellmap=cellmap.(id) ;array to pass
+    ;
+    Ncell=call_external(v2b_clib,       $
+          'call_findcells',/PORTABLE,/UNLOAD,   $
+          zscan.(id),NIL,NIL,thecellmap,        $
+          zmeta[id],NIL,NIL,dbzrain,rhomin,     $
+          zdrmin,dBZmin,rcellmax,-1)
         ;
-        cellmap.(id)=thecellmap	;Store results
+        cellmap.(id)=thecellmap ;Store results
         ;
      ENDELSE
      ;
@@ -432,38 +374,38 @@ FOR id=1L,Nscan DO BEGIN
    ;
    thecellmap=cellmap.(id) ;array to pass
    ;
-   NcellValid=call_external(v2b_clib,  	    	$
-	 'call_analysecells',/PORTABLE,/UNLOAD,     	$
-	 zscan.(id),vscan.(id),vtex.(id),cmscan.(id),	$
-	 thecellmap,zmeta[id],vmeta[id],texmeta[id],	$
-	 cmmeta[id],Ncell,cellarea,dbzcell,stdevcell,	$
-	 clutcell,vmin,dbzclutter,cmflag,dualpolflag,	$
-	 verboseflag);
+   NcellValid=call_external(v2b_clib,           $
+     'call_analysecells',/PORTABLE,/UNLOAD,         $
+     zscan.(id),vscan.(id),vtex.(id),cmscan.(id),   $
+     thecellmap,zmeta[id],vmeta[id],texmeta[id],    $
+     cmmeta[id],Ncell,cellarea,dbzcell,stdevcell,   $
+     clutcell,vmin,dbzclutter,cmflag,dualpolflag,   $
+     verboseflag);
    ;
-   cellmap.(id)=thecellmap	;Store results
+   cellmap.(id)=thecellmap  ;Store results
    ;
 ENDFOR
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;increase cellmap indices by 3 and change index -1 (nodata) to 0 
-;Add pixels with dBZ>dBZx to cellmap, using index NcellValid+1 0 
-;Now nodata=0,fringe=1,>dBZx=2,cell1=3,cell2=4, etc ...          
+;increase cellmap indices by 3 and change index -1 (nodata) to 0
+;Add pixels with dBZ>dBZx to cellmap, using index NcellValid+1 0
+;Now nodata=0,fringe=1,>dBZx=2,cell1=3,cell2=4, etc ...
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 FOR id=1L,Nscan DO BEGIN
    ;
    thecellmap=cellmap.(id) ;array to pass
    ;
-   void=call_external(v2b_clib,	    	    $
-	'call_fringecells',/PORTABLE,/UNLOAD,	    $
-	thecellmap,zmeta[id],zscan.(id),     	    $
-	emask,DBZx,id)
+   void=call_external(v2b_clib,             $
+    'call_fringecells',/PORTABLE,/UNLOAD,       $
+    thecellmap,zmeta[id],zscan.(id),            $
+    emask,DBZx,id)
    ;
-   cellmap.(id)=thecellmap	;Store results
+   cellmap.(id)=thecellmap  ;Store results
    ;
 ENDFOR
 ;
-;DETERMINE the classification of each range gate. 
+;DETERMINE the classification of each range gate.
 ;
 FOR l=0L,NLAYER-1 DO BEGIN
    ;
@@ -477,20 +419,20 @@ FOR l=0L,NLAYER-1 DO BEGIN
    height=(l+0.5)*HLAYER;
    FOR id=1L,Nscan DO BEGIN
       ;
-      void=call_external(v2b_clib,     	$
-	  'call_classification',/PORTABLE,/UNLOAD,$
-	  zmeta[id],vmeta[id],uzmeta[id],   	$
-	  cmmeta[id],cellmap.(id),  	    	$
-	  zscan.(id),vscan.(id),uzscan.(id),	$
-	  cmscan.(id),zdata,nzdata, 	    	$
-	  fracclut,fracrain,fracbird,fracfringe,$
-	  rminscan[id],rmaxscan[id],	    	$
-	  HLAYER,XOFFSET,XSCALE,XMEAN,height,	$
-	  amin,amax,vmin,dbzclutter,dBZmin,dBZx,$
-	  DBZNOISE,NGAPMIN,NGAPBIN,NDBZMIN, 	$
-	  l,id,n,Npnt,Npntall,Npntclut,Npntrain,$
-	  NpntrainNoFringe, 	    	    	$
-	  cmflag,uzflag,xflag)
+      void=call_external(v2b_clib,      $
+      'call_classification',/PORTABLE,/UNLOAD,$
+      zmeta[id],vmeta[id],uzmeta[id],       $
+      cmmeta[id],cellmap.(id),              $
+      zscan.(id),vscan.(id),uzscan.(id),    $
+      cmscan.(id),zdata,nzdata,             $
+      fracclut,fracrain,fracbird,fracfringe,$
+      rminscan[id],rmaxscan[id],            $
+      HLAYER,XOFFSET,XSCALE,XMEAN,height,   $
+      amin,amax,vmin,dbzclutter,dBZmin,dBZx,$
+      DBZNOISE,NGAPMIN,NGAPBIN,NDBZMIN,     $
+      l,id,n,Npnt,Npntall,Npntclut,Npntrain,$
+      NpntrainNoFringe,                     $
+      cmflag,uzflag,xflag)
        ;
    ENDFOR
    ;
@@ -529,46 +471,46 @@ IF Ndx eq 1 THEN BEGIN
      height=(l+0.5)*HLAYER;
      FOR id=1L,Nscan DO BEGIN
      ;
-     void=call_external(v2b_clib,     	$
-	 'call_vap',/PORTABLE,/UNLOAD,	    	$
-	 vmeta[id],cellmap.(id),vscan.(id),   	$
-	 udata,vdata,wdata,xdata,ndata,cdata, 	$
-	 Ndx,Npnt,Npntall,Npntclut,Npntrain, 	$
-	 NpntrainNoFringe,Npntmax,   	    	$       
-	 rminscan[id],rmaxscan[id],	    	$
-	 HLAYER,height,	    	    	    	$
-	 l,id,n)
+     void=call_external(v2b_clib,       $
+     'call_vap',/PORTABLE,/UNLOAD,          $
+     vmeta[id],cellmap.(id),vscan.(id),     $
+     udata,vdata,wdata,xdata,ndata,cdata,   $
+     Ndx,Npnt,Npntall,Npntclut,Npntrain,    $
+     NpntrainNoFringe,Npntmax,              $
+     rminscan[id],rmaxscan[id],         $
+     HLAYER,height,                         $
+     l,id,n)
 
      ENDFOR
   ENDFOR
   ;
 ENDIF ELSE BEGIN
   ;
-  FOR k=0L,NDATA-1 DO BEGIN 
+  FOR k=0L,NDATA-1 DO BEGIN
     FOR l=0L,NLAYER-1 DO BEGIN
        height=(l+0.5)*HLAYER;
        n=0L
        FOR id=1,Nscan DO BEGIN
-       ;         
+       ;
        void=call_external(v2b_clib,$
-	   'call_vvp',/PORTABLE,/UNLOAD,$
-	   vmeta[id],vscan.(id),    	$
-	   x,y,c,cellmap.(id),	    	$
-	   Ndx,Npntmax,NGAPBIN,	    	$
-	   rminscan[id],rmaxscan[id],	$
-	   HLAYER,height,vmin,	    	$
-	   k,l,id,n)
+       'call_vvp',/PORTABLE,/UNLOAD,$
+       vmeta[id],vscan.(id),        $
+       x,y,c,cellmap.(id),          $
+       Ndx,Npntmax,NGAPBIN,         $
+       rminscan[id],rmaxscan[id],   $
+       HLAYER,height,vmin,          $
+       k,l,id,n)
        ;
        ENDFOR
        Npnt=n;
        ;
        void=call_external(v2b_clib,$
-	   'call_fit',/PORTABLE,/UNLOAD,$
-	   udata,vdata,wdata,xdata, 	$
-	   cdata,nndata,x,y,yfit,c, 	$
-	   Ndx,Npar,Npnt,Npntmax,   	$
-	   ngapmin,NGAPBIN,vdmax,vsign, $
-	   k,l)
+       'call_fit',/PORTABLE,/UNLOAD,$
+       udata,vdata,wdata,xdata,     $
+       cdata,nndata,x,y,yfit,c,     $
+       Ndx,Npar,Npnt,Npntmax,       $
+       ngapmin,NGAPBIN,vdmax,vsign, $
+       k,l)
        ;
     ENDFOR
   ENDFOR
@@ -592,7 +534,7 @@ FOR l=0,NLAYER-1 DO BEGIN
       cdata[k,n]=cdata[k,l];
       hdata[k,n]=(l+0.5)*HLAYER;
       IF (nndata[k,n] eq 0) THEN BEGIN
-	  zdata[k,n]=!VALUES.F_NAN;
+      zdata[k,n]=!VALUES.F_NAN;
       ENDIF
    ENDFOR
    ;
@@ -617,14 +559,14 @@ FOR l=0,Nlev-1 DO BEGIN
       dd[k,l]=atan2(-udata[k,l],-vdata[k,l])*!RADEG;
       IF (dd[k,l] lt 0) THEN  dd[k,l]+=360;
    ENDFOR
-   
+
    line=STRING(FORMAT='(i8," ",i04," ",f4.1," ",f6.2," ",f6.2," ",f5.2," ",f5.1," ",f6.2," ",i5," ",3(f6.2," "),f4.2)',$
   vmeta[1].date,vmeta[1].time/100,hdata[2,l],udata[0,l],$
-  vdata[0,l],ff[0],dd[0],wdata[0,l],nndata[2,l],    	$
+  vdata[0,l],ff[0],dd[0],wdata[0,l],nndata[2,l],        $
   xdata[2,l],zdata[2,l],zdata[0,l],cdata[2,l])
   ;
   IF stdout THEN PRINT, line ELSE PRINTF,un0,line
-ENDFOR	
+ENDFOR
 ;
 ;Converting reflectivity factor to bird reflectivity*/
 ;
@@ -633,16 +575,16 @@ FOR l=0,Nlev-1 DO BEGIN
   rhobird[l]= (xdata[0,l] gt stdevbird) ? etabird[l]/SIGMABIRD : 0;
 ENDFOR
 ;
-;CREATE the HDF5 file 
+;CREATE the HDF5 file
 ;
-CALL_PROCEDURE, writeprofile_command,	    $
-h5outfile,in,	    	    	    	    $
-success=success,    	    	    	    $
-vmeta,zmeta,uzmeta,   	    	    	    $
-vscan,zscan,uZscan,cellmap,vtex,	    $
+CALL_PROCEDURE, writeprofile_command,       $
+h5outfile,in,                               $
+success=success,                            $
+vmeta,zmeta,uzmeta,                         $
+vscan,zscan,uZscan,cellmap,vtex,        $
 udata,vdata,wdata,xdata,zdata,nndata,nzdata,$
-cdata,hdata,dd,ff,etabird,rhobird,   	    $
-fracbird,fracclut,fracfringe,fracrain,	    $
+cdata,hdata,dd,ff,etabird,rhobird,          $
+fracbird,fracclut,fracfringe,fracrain,      $
 VTEXSCALE,VTEXOFFSET,NLEV,MISSING,imgflag
 ;
 openingh5_message=STRING(FORMAT= '("#Opening of HDF5 radar output file: ",a)',h5outfile)
