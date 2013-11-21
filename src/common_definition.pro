@@ -64,7 +64,7 @@ DBZCLUTTER  =-10.0  ;Minimum reflectivity for clutter
 TEXCV       =1
 TEXSTDEV    =2
 
-DBZFACTOR   =335.4  ;Conversion factor Z to cm^2/km^3 at C-band  // FIXME?
+DBZFACTOR   =335.4  ;Conversion factor Z to cm^2/km^3 at C-band  FIXME?
 SIGMABIRD   =10.0   ;Bird radar cross section in cm^2   FIXME?
 STDEVBIRD   =2.   ;Min radial standard deviation in m/s for birds
 XOFFSET     =5.0    ;Cross-section offset,sigma=XOFFSET+XSCALE/range
