@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main routine for the vol2birdprof program
+;; Main routine for the bird_call program
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 PRO bird_call,h5infile,h5outfile,       $
@@ -74,13 +74,7 @@ t0=SYSTIME(1)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;;DEFINE constants
-;common_definition
-;
-;ACCESS the constant common block
-common constants
 ;;
-;;Initialisation of paramaters from constants
 ;;In IDL UPPERCASE and lowercase parameter names are equal, so initialisations like
 ;;dbzcell=DBZCELL are skipped
 ;
