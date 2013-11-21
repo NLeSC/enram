@@ -102,8 +102,8 @@ ENDIF
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;SET the vol2bird c sharable library
-v2b_clib='/usr/people/graafdem/FLYSAFE/idl/vol2bird/vol2bird.so'
+;get the vol2bird.so library from the environment variable IDL_ENRAM_VOL2BIRDLIB
+v2b_clib=GETENV('IDL_ENRAM_VOL2BIRDLIB')
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
