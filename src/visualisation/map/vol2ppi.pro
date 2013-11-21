@@ -1,17 +1,21 @@
-PRO common_definition
-;
+PRO load_color,triple,index
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Definition of standard parameters.                                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-COMMON constants,NSCANX,RADIUS
-
-NSCANX=64L  	    ;Maximum number of elevation scans.
-RADIUS=6378.137     ;Earth radius 
-
-END
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
 ;
-PRO load_color,triple,index
+COMMON constants,$
+NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;HANDLE colors explicitely here
@@ -44,7 +48,7 @@ END
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; vol2ppi
-; 
+;
 ; READ a PRF of VOL radar HDF5 file and plot a slice of data in PPI format
 ;
 ; MdG - KNMI November 2012
@@ -95,7 +99,7 @@ nodata=255
 position= N_ELEMENTS(position) eq 0 ? [0.02,0.02,0.9,0.9] : position
 cb_Title='Reflectivity [dBz]'
 ;
-;SET the reflectivity levels 
+;SET the reflectivity levels
 ;label=["-33","-29","-25","-21","-17","-13","-9","-5","-1","3","7","11","15","19","23","27","31","35","39","43","47","51","55","59"]
 Thresh=[-33.0,-29.0,-25.0,-21.0,-17.0,-13.0,-9.0,-5.0,-1.0,3.0,7.0,11.0,15.0,19.0,23.0,27.0,31.0,35.0,39.0,43.0,47.0,51.0,55.0,59.0]
 label =STRING(thresh)
@@ -109,10 +113,10 @@ B=[000,061,148,242,255,255,145,013,000,000,000,000,000,005,000,000,000,000,000,0
 nodata_c=[240,240,240]
 missing_c=[255,255,255]
 ;
-;COMPUTE the color table: Define a step function to cover the entire 256 colors for the 
+;COMPUTE the color table: Define a step function to cover the entire 256 colors for the
 ;colors defined above
 nboxes=n_elements(R)
-ncolors=!D.TABLE_SIZE 
+ncolors=!D.TABLE_SIZE
 step = ncolors/nboxes
 index=INTARR(ncolors)
 ;
@@ -141,7 +145,7 @@ t0=SYSTIME(1)
 PRINT,FORMAT= '("#Opening of HDF5 radar input file : ",a)',h5infile
 ;
 RESOLVE_ROUTINE, 'volbird_knmihdf5', /compile_full_file
-h5_id=H5F_OPEN(h5infile)	    	    	    ;;OPEN the HDF5 file
+h5_id=H5F_OPEN(h5infile)                        ;;OPEN the HDF5 file
 ;
 ;;Reading of radial velocity and reflectivity data of the selected scans.
 
@@ -151,12 +155,12 @@ data=thedata.(1)
 geographic=H5_PARSE(h5_id,'geographic',/READ_DATA)
 ;
 ;CLOSE
-H5F_CLOSE,h5_id	    	    	    	    	    ;;CLOSE the HDF5 file
+H5F_CLOSE,h5_id                                     ;;CLOSE the HDF5 file
 ;
 IF not KEYWORD_SET(success) then BEGIN
   PRINT, 'Scan data could not be loaded from ',h5infile
   RETURN
-ENDIF 
+ENDIF
 ;
 ;MAP the data
 PRINT,FORMAT='("#Making PPI from ",a," at elevation   : ",g)',mode,meta.elev;
@@ -196,9 +200,9 @@ FOR j=0,Nrows-1 DO BEGIN
       their=ir[i,j]
       theia=ia[i,j]
       IF (their lt meta.nrang) THEN BEGIN
-;	IF (data[their+theia*meta.nrang] le maxz) THEN BEGIN
-	  theimage[i+j*Ncols]=data[their+theia*meta.nrang] 
-;	ENDIF ELSE theimage[i+j*Ncols]=nodata 
+;   IF (data[their+theia*meta.nrang] le maxz) THEN BEGIN
+      theimage[i+j*Ncols]=data[their+theia*meta.nrang]
+;   ENDIF ELSE theimage[i+j*Ncols]=nodata
       ENDIF ELSE theimage[i+j*Ncols]=nodata;
    ENDFOR
 ENDFOR
@@ -235,15 +239,15 @@ psfile= N_ELEMENTS(psfile) NE 1 ? 'vol2ppi_'+DD+MM+YY+'_'+hh+mi+scanname+'.ps' :
 thisDevice = !D.Name
 SET_PLOT,'ps'
 xsize=20
-ysize=20    
-a4xsize=21  	;center the image on an a4
+ysize=20
+a4xsize=21      ;center the image on an a4
 a4ysize=29.7
 ;
 DEVICE,/COLOR,BITS=8,FILE=psfile,XSIZE=xsize,ysize=ysize,   $
-/Encapsulated, Preview=0, 	    	    	    	    $
+/Encapsulated, Preview=0,                               $
 XOFFSET=(a4xsize-xsize)/2.,YOFFSET=(a4ysize-ysize)/2.,SCALE=1
 ;
-;SET environment variable 
+;SET environment variable
 bangp=!p
 !P.FONT=0
 ;
@@ -256,7 +260,7 @@ cb_Size=(p[3]-p[1])-2*cb_yOffset
 map_set,meta.lat,meta.lon,position=p,limit=limit
 tvimage,image,order=1,position=p
 ;
-;LOAD the colors for the colordivbar only 
+;LOAD the colors for the colordivbar only
 TVLCT,R,G,B
 colors=INDGEN(N_ELEMENTS(thresh)-1)
 ;PLOT the color bar
@@ -297,7 +301,7 @@ XYOUTS,/NORMAL,p[0],p[3]+0.01, thedatestring
 ;
 ;CLOSE device, return to original device
 DEVICE,/CLOSE
-PSTRACKER,psfile    ;replace the ps internal title with something more informative 
+PSTRACKER,psfile    ;replace the ps internal title with something more informative
 SET_PLOT,thisDevice
 ;
 !P=bangp
