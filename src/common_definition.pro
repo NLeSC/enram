@@ -27,7 +27,7 @@ NDATA       =3L      ;Data dimension height layers.
 RANGMIN     =5.0    ;Minimum range for WRWP analysis in km.
 RANGMINSTDEV=5.0    ;Minimum range for WRWP determination for the
                     ;radial velocity st.dev. in km.
-RANGMAXSTDEV=15.0   ;Maximum range for WRWP determination for the
+RANGMAXSTDEV=15.0   ;Maximum range for WRWP determination for the  FIXME?
                     ;radial velocity st.dev. in km.
 RANGMAX     =25.0   ;Maximum range for WRWP analysis in km.
 AZIMMIN     =0.0    ;Minimum azimuth for WRWP analysis in degrees.
@@ -64,8 +64,8 @@ DBZCLUTTER  =-10.0  ;Minimum reflectivity for clutter
 TEXCV       =1
 TEXSTDEV    =2
 
-DBZFACTOR   =335.4  ;Conversion factor Z to cm^2/km^3 at C-band
-SIGMABIRD   =10.0   ;Bird radar cross section in cm^2
+DBZFACTOR   =335.4  ;Conversion factor Z to cm^2/km^3 at C-band  FIXME?
+SIGMABIRD   =10.0   ;Bird radar cross section in cm^2   FIXME?
 STDEVBIRD   =2.   ;Min radial standard deviation in m/s for birds
 XOFFSET     =5.0    ;Cross-section offset,sigma=XOFFSET+XSCALE/range
 XSCALE      =134.0  ;Cross-section prefactor
