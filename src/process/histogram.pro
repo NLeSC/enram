@@ -20,7 +20,7 @@ day1 = 15
 month1 = 09
 year1 = 2011
 ;
-;SET refresh if a new statistics file is to be cretaed. Otherwise the results 
+;SET refresh if a new statistics file is to be cretaed. Otherwise the results
 ;can be added to an existing statistics file
 refresh=1
 ;
@@ -32,20 +32,20 @@ RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
 ;
 COMMON constants,$
-NSCANX,RADIUS43,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,   	$
-RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,	$
-NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,     	$
+NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
 DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
-NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,     	$
-NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,    	$
-SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN   
+NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;GET the radar definitions from the definitions structure
 ;
 IF KEYWORD_SET(definitions) THEN dumy=TEMPORARY(definitions)
-FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   radar_definitions,radar_ids[i],radar_definition
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
@@ -72,7 +72,7 @@ days = JULDAY(month1, day1, year1) - JULDAY(month0, day0, year0) + 1
 ;
 ; Loop over the requested radar systems
 ;
-FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   ;
   this_rd=definitions[iradar]
   ;
@@ -99,10 +99,10 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
     ;ADD found files to files array
     IF nfiles ne 0 THEN BEGIN
       ;
-      IF SIZE(firstday,/TYPE) ne 7 THEN firstday=date	;first day with files
-      lastday=date  	    	    	    	    	;last day with files
+      IF SIZE(firstday,/TYPE) ne 7 THEN firstday=date   ;first day with files
+      lastday=date                                      ;last day with files
       ;
-      files=[files,thisday_files]   	    	    	;CONCATENATE files array
+      files=[files,thisday_files]                       ;CONCATENATE files array
       ;
     ENDIF
     ;
@@ -110,17 +110,17 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   IF N_ELEMENTS(files) le 1 THEN BEGIN
     directory = STRING(FORMAT = '(a,a,"/")',$
                    this_rd.input_data_path,this_rd.path_id)
-    IF files eq '' THEN BEGIN 
+    IF files eq '' THEN BEGIN
       MESSAGE, 'No files found in '+directory+' for '+printdate0+' to '+printdate1
     ENDIF
   ENDIF
   files=files[1:N_ELEMENTS(files)-1]
   ;
-  ;PRINT some info over the found files  
+  ;PRINT some info over the found files
   yy0 = FIX(STRMID(firstday,0,4))
   mm0 = FIX(STRMID(firstday,4,2))
   dd0 = FIX(STRMID(firstday,6,2))
-  ;  
+  ;
   yy1 = FIX(STRMID(lastday,0,4))
   mm1 = FIX(STRMID(lastday,4,2))
   dd1 = FIX(STRMID(lastday,6,2))
@@ -156,7 +156,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
     MESSAGE, 'No '+this_rd.radar_id+' files found in '+this_rd.input_data_path+this_rd.path_id
   ENDIF
   ;
-  ;DEFINE a name for the statistics file to be created.  
+  ;DEFINE a name for the statistics file to be created.
   stats_file_name=stats_dir+this_rd.PATH_ID+'/'
   FILE_MKDIR, stats_file_name
   stats_file_name+='RAD_'+this_rd.PATH_ID+'_STS_'+stats_date+'.h5'
@@ -182,7 +182,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   (SYSTIME(1)-t1) mod 3600 mod 60)
   ;
   SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
-  PRINT,todate+loop_end    	    ;Print to screen       
+  PRINT,todate+loop_end         ;Print to screen
   ;
   ;STATE some stats
   grand_total_files += N_ELEMENTS(files)
@@ -203,7 +203,7 @@ plural,$
 (SYSTIME(1)-t0) mod 86400/3600,$
 (SYSTIME(1)-t0) mod 3600 / 60,$
 (SYSTIME(1)-t0) mod 3600 mod 60)
-PRINT,loop_end    	    ;Print to screen       
+PRINT,loop_end          ;Print to screen
 
 SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
 PRINT,todate+'Finished HISTOGRAM'

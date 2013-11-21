@@ -49,20 +49,20 @@ RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
 ;
 COMMON constants,$
-NSCANX,RADIUS43,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,   	$
-RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,	$
-NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,     	$
+NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
 DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
-NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,     	$
-NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,    	$
-SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN   
+NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;GET the radar definitions from the definitions structure
 ;
 IF KEYWORD_SET(definitions) THEN dumy=TEMPORARY(definitions)
-FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   radar_definitions,radar_ids[i],radar_definition
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
@@ -91,7 +91,7 @@ days = JULDAY(month1, day1, year1) - JULDAY(month0, day0, year0) + 1
 
 ; Loop over the requested radar systems
 ;
-FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   ;
   this_rd=definitions[iradar]
   ;
@@ -120,10 +120,10 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
     ;ADD found files to files array
     IF nfiles ne 0 THEN BEGIN
       ;
-      IF SIZE(firstday,/TYPE) ne 7 THEN firstday=date	;first day with files
-      lastday=date  	    	    	    	    	;last day with files
+      IF SIZE(firstday,/TYPE) ne 7 THEN firstday=date   ;first day with files
+      lastday=date                                      ;last day with files
       ;
-      files=[files,thisday_files]   	    	    	;CONCATENATE files array
+      files=[files,thisday_files]                       ;CONCATENATE files array
       ;
     ENDIF
     ;
@@ -131,17 +131,17 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   IF N_ELEMENTS(files) le 1 THEN BEGIN
     directory = STRING(FORMAT = '(a,a,"/")',$
                    this_rd.input_data_path,this_rd.path_id)
-    IF files eq '' THEN BEGIN 
+    IF files eq '' THEN BEGIN
       MESSAGE, 'No files found in '+directory+' for '+printdate0+' to '+printdate1
     ENDIF
   ENDIF
   files=files[1:N_ELEMENTS(files)-1]
   ;
-  ;PRINT some info over the found files  
+  ;PRINT some info over the found files
   yy0 = FIX(STRMID(firstday,0,4))
   mm0 = FIX(STRMID(firstday,4,2))
   dd0 = FIX(STRMID(firstday,6,2))
-  ;  
+  ;
   yy1 = FIX(STRMID(lastday,0,4))
   mm1 = FIX(STRMID(lastday,4,2))
   dd1 = FIX(STRMID(lastday,6,2))
@@ -181,7 +181,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   get_datetime_command=compile_iofile_command+'_get_datetime'
   CALL_PROCEDURE,get_datetime_command,files,thedates,thetimes
   ;
-  h5_infiles=FILE_BASENAME(files)	    	    	    	    	;FIND file_basename
+  h5_infiles=FILE_BASENAME(files)                                   ;FIND file_basename
   h5_outfiles = this_rd.bird_data_path+this_rd.path_id+'/'+thedates+'/RAD_'+this_rd.path_id+'_PRF_'+thedates+thetimes+'.h5'
   ;
   t1=SYSTIME(1) ;TRACK time for this system
@@ -197,7 +197,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
       ;
       ;PROCESS clutter_id in terms of percentages
       error_message="Usage: clutter_id = -1 ('mode')| -2 ('median')| <percentage>[0-100]"
-      CASE clutter_id of 
+      CASE clutter_id of
        0 : clutter_definition = 'PRC0'
        10 : clutter_definition = 'PRC10'
        25 : clutter_definition = 'PRC25'
@@ -220,86 +220,86 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
       ;CREATE a txtout filename
       txtoutfile = this_rd.bird_data_path+this_rd.path_id+'/'+this_rd.path_id+'_'+process_date+'.DAT'
       IF FILE_TEST(txtoutfile) THEN FILE_DELETE,txtoutfile
-      ;      
+      ;
       ;FOR each cluttermap, forget the processed files
       dummy=TEMPORARY(datetime_names)
       ;
       ntotalfiles=KEYWORD_SET(ultra_test) ? 1 : N_ELEMENTS(files)-1
       FOR ifile=0,ntotalfiles DO BEGIN
-	;
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;;OPEN file and READ the uncorrected Z
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;  
-	SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate  
-	;
-	;CREATE A MANUAL STOP PROCEDURE:
-	;STOP here if file "STOP" exists
-	IF file_test('STOP') THEN BEGIN
-	  print
-	  STOP,todate+" *** USER STOP *** Remove file STOP and type .c to continue                   "
-	ENDIF
-	;
-	;FIRST check if the current datetime has not been processed before, 
-	;due to other files with the same date/time but different data (happens
-	;for some countries)
-	continue_files=0
-	IF KEYWORD_SET(datetime_names) THEN BEGIN
-	  FOR idt=0,N_ELEMENTS(datetime_names)-1 DO BEGIN
-	    IF STRPOS(FILE_BASENAME(files[ifile]),datetime_names[idt]) ne -1 THEN BEGIN
-	      ;SKIP the file if this date/time has already been processed
-	      message=STRING(FORMAT='(a,"  Skipping HDF5 radar input file [",i0,"/",i0,"] ",a)',$
-        		 todate,ifile+1,N_ELEMENTS(files),FILE_BASENAME(files[ifile]))
-	      PRINT, FORMAT='(a%"\r",$)', message 
+    ;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;OPEN file and READ the uncorrected Z
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;
+    SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
+    ;
+    ;CREATE A MANUAL STOP PROCEDURE:
+    ;STOP here if file "STOP" exists
+    IF file_test('STOP') THEN BEGIN
+      print
+      STOP,todate+" *** USER STOP *** Remove file STOP and type .c to continue                   "
+    ENDIF
+    ;
+    ;FIRST check if the current datetime has not been processed before,
+    ;due to other files with the same date/time but different data (happens
+    ;for some countries)
+    continue_files=0
+    IF KEYWORD_SET(datetime_names) THEN BEGIN
+      FOR idt=0,N_ELEMENTS(datetime_names)-1 DO BEGIN
+        IF STRPOS(FILE_BASENAME(files[ifile]),datetime_names[idt]) ne -1 THEN BEGIN
+          ;SKIP the file if this date/time has already been processed
+          message=STRING(FORMAT='(a,"  Skipping HDF5 radar input file [",i0,"/",i0,"] ",a)',$
+                 todate,ifile+1,N_ELEMENTS(files),FILE_BASENAME(files[ifile]))
+          PRINT, FORMAT='(a%"\r",$)', message
 
-	      continue_files=1    ;break out of the files loop
-	      CONTINUE    	    ;this breaks out of the datetime_names loop
-	    ENDIF
-	  ENDFOR 
-	ENDIF
-	IF continue_files THEN CONTINUE
-	;
-	;OPEN the file
-	message=STRING(FORMAT='(a,"Processing HDF5 radar input file [",i0,"/",i0,"] ",a)',$
-        	   todate,ifile+1,N_ELEMENTS(files),FILE_BASENAME(files[ifile]))
-	PRINT, FORMAT='("#",a%"\r",$)', message 
-	;
-	IF ifile eq 0 THEN PRINT  ;do not overprint the first opened file message 
-	;  
-	dummy=TEMPORARY(processed_datetime)
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;CALL the bird profile algorithm
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	
-	bird_call,files[ifile],h5_outfiles[ifile],  $
-	definitions=this_rd,img=1,  	    	    $
-	cm=clutter_map,     	    	    	    $
-        txtoutfile=txtoutfile,	    	    	    $
-	success=success,    	    	    	    $
-	processed_datetime=processed_datetime
-	;
-	IF success eq 0 THEN CONTINUE
-	
-	;REPACK and zip output file 
-	SPAWN, 'h5repack --filter=GZIP=9 '+h5_outfiles[ifile]+' '+h5_outfiles[ifile]+'.zip'
-	SPAWN, 'mv '+h5_outfiles[ifile]+'.zip '+h5_outfiles[ifile]
-	;
-	;REMEMBER the processed files
-	IF KEYWORD_SET(datetime_names) THEN $
-	  datetime_names = [datetime_names,processed_datetime] ELSE $
-	  datetime_names = processed_datetime
-	;
-	;FREE as much memory as possible under IDL
-	H5_CLOSE
-	;
-      ENDFOR	;files
+          continue_files=1    ;break out of the files loop
+          CONTINUE          ;this breaks out of the datetime_names loop
+        ENDIF
+      ENDFOR
+    ENDIF
+    IF continue_files THEN CONTINUE
+    ;
+    ;OPEN the file
+    message=STRING(FORMAT='(a,"Processing HDF5 radar input file [",i0,"/",i0,"] ",a)',$
+               todate,ifile+1,N_ELEMENTS(files),FILE_BASENAME(files[ifile]))
+    PRINT, FORMAT='("#",a%"\r",$)', message
+    ;
+    IF ifile eq 0 THEN PRINT  ;do not overprint the first opened file message
+    ;
+    dummy=TEMPORARY(processed_datetime)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;CALL the bird profile algorithm
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    bird_call,files[ifile],h5_outfiles[ifile],  $
+    definitions=this_rd,img=1,                  $
+    cm=clutter_map,                             $
+        txtoutfile=txtoutfile,                      $
+    success=success,                            $
+    processed_datetime=processed_datetime
+    ;
+    IF success eq 0 THEN CONTINUE
+
+    ;REPACK and zip output file
+    SPAWN, 'h5repack --filter=GZIP=9 '+h5_outfiles[ifile]+' '+h5_outfiles[ifile]+'.zip'
+    SPAWN, 'mv '+h5_outfiles[ifile]+'.zip '+h5_outfiles[ifile]
+    ;
+    ;REMEMBER the processed files
+    IF KEYWORD_SET(datetime_names) THEN $
+      datetime_names = [datetime_names,processed_datetime] ELSE $
+      datetime_names = processed_datetime
+    ;
+    ;FREE as much memory as possible under IDL
+    H5_CLOSE
+    ;
+      ENDFOR    ;files
       ;
     ENDFOR ;clutter ids
     ;
   ENDIF ;cluttermap
   ;
   ;
-  ;PRINT info 
+  ;PRINT info
   plural=FLOOR((SYSTIME(1)-t1) / 86400) ne 1 ? 's,' : ', '
   loop_end=STRING(FORMAT='(A,A,A, i0," h,",i02," min,",i02," s. ")',$
   'Finished bird profiles for ',this_rd.radar_full_name,' in ',$
@@ -309,7 +309,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   ;
   SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
   PRINT
-  PRINT,todate+loop_end    	    ;Print to screen       
+  PRINT,todate+loop_end         ;Print to screen
   ;
   ;STOTE some stats
   grand_total_files += N_ELEMENTS(files)
@@ -330,7 +330,7 @@ plural,$
 (SYSTIME(1)-t0) mod 86400/3600,$
 (SYSTIME(1)-t0) mod 3600 / 60,$
 (SYSTIME(1)-t0) mod 3600 mod 60)
-PRINT,loop_end    	    ;Print to screen       
+PRINT,loop_end          ;Print to screen
 
 SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
 PRINT,todate+'Finished FLYSAFE2'
