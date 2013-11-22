@@ -6,7 +6,7 @@ cluttermap=1
 clutter_ids = 25
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['FRBOU','FRCAE','FRCHE','FRCOL','FRGRE','FRMOM','FRMTC','FRMCL','FRNAN','FRNIM','IEDUB','IESHA','NLDBL','NLDHL','NOAND','NOBML','NOHAS','NOHGB','NOHUR','NORSA','NORST','NOSTA','PLBRZ','PLGDA','PLLEG','PLPAS','PLPOZ','PLRAM','PLRZE','PLSWI','SEVIL','SEVAR','SEOVI','SEOSU','SELUL','SELEK','SEKKR','SEKIR','SEHUD','SEASE','SEARL','SEANG','SILIS','SKMAJ','SKKOH']
+radar_ids = ['NLDBL']
 radar_ids = radar_names(radar_ids,/print)
 ;
 ; SPECIFY the time interval to process.
