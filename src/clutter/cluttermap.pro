@@ -8,10 +8,10 @@ radar_ids = ['FI','FR','IE','SI','NL','PL','SK','NO','CZ','SE']
 radar_ids = radar_names(radar_ids,/print)
 ;
 ;SET the location of the statitics files
-stats_dir='/nobackup_1/users/graafdem/DATA/FLYSAFE2/statistics/'
+stats_dir = GETENV('IDL_ENRAM_STATISTICS')
 ;
 ;SET the location of the cluttermaps
-cluts_dir='/nobackup_1/users/graafdem/DATA/FLYSAFE2/cluttermaps/'
+cluts_dir = GETENV('IDL_ENRAM_CLUTTERMAPS')
 ;
 ;SET the selection criterion (mode precedes percentage, median precedes mode)
 ;mode=1
