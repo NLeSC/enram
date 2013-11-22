@@ -30,7 +30,7 @@ IF SIZE(in,/TYPE) ne 8 THEN in = H5_PARSE(gid,'/',/READ_DATA)
 ;
 PRINT, FORMAT='("in ",i0," s.")',SYSTIME(1)-t0
 ;
-h5_clutfile='clut_tst.h5'
+h5_clutfile='clut_tst.h5' ; FIXME (variable not used)
 ;
 ;CREATE an output file
 out=CREATE_STRUCT(  	    	    	$    
