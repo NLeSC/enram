@@ -4,11 +4,11 @@
 ;COMPUTE statistics of radar volume files for the creation of cluttermaps.
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['SEKKR','SEKIR','SEHUD','SEASE','SEARL','SEANG','SKMAJ','SKKOH','SILIS']
+radar_ids = ['NLDBL']
 radar_ids = radar_names(radar_ids,/print)
 ;
-;SET the location of the cluttermaps and the statitics files
-stats_dir='/nobackup_1/users/graafdem/DATA/FLYSAFE2/statistics/'
+;SET the location of the statistics files
+stats_dir=GETENV('IDL_ENRAM_STATISTICS')
 ;
 ; SPECIFY the time interval to process.
 ;
