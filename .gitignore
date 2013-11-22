@@ -2,5 +2,9 @@ data/harmonized/bird
 data/harmonized/cluttermaps
 data/harmonized/clutter-sensitivity
 data/harmonized/statistics
+testdata/harmonized/bird
+testdata/harmonized/cluttermaps
+testdata/harmonized/clutter-sensitivity
+testdata/harmonized/statistics
 data/raw
 private/
