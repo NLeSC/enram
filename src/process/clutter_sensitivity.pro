@@ -7,11 +7,11 @@ cluttermap=1
 clutter_ids = [STRING([0,10,25,50,75]),['mode','median']]
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['CZ']
+radar_ids = ['NLDBL']
 radar_ids = radar_names(radar_ids,/print)
 ;
 ;SET the location of the cluttermaps and the statitics files
-temp_dir='/nobackup_1/users/graafdem/DATA/FLYSAFE2/sens_clutter/'
+temp_dir=GETENV('IDL_ENRAM_CLUTTER_SENSITIVTY')
 ;
 ; SPECIFY the time interval to process.
 ;
