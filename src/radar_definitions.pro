@@ -9,24 +9,19 @@ PRO radar_definitions,radar_id,radar_definition
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;IO_PATH is the full path to the IDL io definitions
-;io_path='/usr/people/graafdem/FLYSAFE/idl/io/'
 io_path=GETENV('IDL_ENRAM_SRC_IO')
 ;
-;RAW_DATA_PATH is the full path to the raw data, as delivered by the 
-;various radar operatives. 
-;raw_data_path='/usr/people/graafdem/FLYSAFE/process/data/raw/'
+;RAW_DATA_PATH is the full path to the raw data, as delivered by the
+;various radar operatives.
 raw_data_path=GETENV('IDL_ENRAM_RAW_DATA')
 ;
 ;INPUT_DATA_PATH is the full path to the harmonized, ODIM format data
-;input_data_path='/usr/people/graafdem/FLYSAFE/process/data/odim/'
 input_data_path=GETENV('IDL_ENRAM_ODIM_DATA')
 ;
 ;BIRD_DATA_PATH is the full path to the output data directory
-;bird_data_path='/usr/people/graafdem/FLYSAFE/process/data/bird/'
 bird_data_path=GETENV('IDL_ENRAM_BIRD_DATA')
 ;
 ;CLUTTER_DATA_PATH is the full path to the cluttermap files
-;clutter_data_path='/usr/people/graafdem/FLYSAFE/process/data/cluttermaps/'
 clutter_data_path=GETENV('IDL_ENRAM_CLUTTERMAPS')
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -34,9 +29,9 @@ clutter_data_path=GETENV('IDL_ENRAM_CLUTTERMAPS')
 ;DEFINE station dependent settings here
 ;
 
-CASE STRUPCASE(radar_id) of 
+CASE STRUPCASE(radar_id) of
 
-'MYTST': BEGIN 
+'MYTST': BEGIN
 
   radar_full_name='Test_my radar'
   radar_id       ='IKA_'
@@ -45,7 +40,7 @@ CASE STRUPCASE(radar_id) of
 
 END
 
-'NLDBL': BEGIN 
+'NLDBL': BEGIN
 
   radar_full_name='The Netherlands_De Bilt'
   radar_id='NL60'
@@ -54,7 +49,7 @@ END
 
 END
 
-'NLDHL': BEGIN 
+'NLDHL': BEGIN
 
   radar_full_name='The Netherlands_Den Helder'
   radar_id='NL61'
@@ -63,7 +58,7 @@ END
 
 END
 
-'SEVIL': BEGIN 
+'SEVIL': BEGIN
 
   radar_full_name='Sweden_Vilebo'
   radar_id       ='sevil'
@@ -72,7 +67,7 @@ END
 
 END
 
-'SEVAR': BEGIN 
+'SEVAR': BEGIN
 
   radar_full_name='Sweden_Vara'
   radar_id       ='sevar'
@@ -81,7 +76,7 @@ END
 
 END
 
-'SEOVI': BEGIN 
+'SEOVI': BEGIN
 
   radar_full_name='Sweden_Ornskoldsvik' ;�rnsk�ldsvik
   radar_id       ='seovi'
@@ -89,9 +84,9 @@ END
   io_file        ='vol2bird_se_odimhdf5.pro'
   ascii_name     =[153,114,110,115,107,148,108,100,115,118,105,107]
 
-END 
+END
 
-'SEOSU': BEGIN 
+'SEOSU': BEGIN
 
   radar_full_name='Sweden_Ostersund'  ;�stersund
   radar_id       ='seosu'
@@ -101,7 +96,7 @@ END
 
 END
 
-'SELUL': BEGIN 
+'SELUL': BEGIN
 
   radar_full_name='Sweden_Lulea' ;Lule�
   radar_id       ='selul'
@@ -111,7 +106,7 @@ END
 
 END
 
-'SELEK': BEGIN 
+'SELEK': BEGIN
 
   radar_full_name='Sweden_Leksand'
   radar_id       ='selek'
@@ -120,7 +115,7 @@ END
 
 END
 
-'SEKKR': BEGIN 
+'SEKKR': BEGIN
 
   radar_full_name='Sweden_Karlskrona'
   radar_id       ='sekkr'
@@ -129,7 +124,7 @@ END
 
 END
 
-'SEKIR': BEGIN 
+'SEKIR': BEGIN
 
   radar_full_name='Sweden_Kiruna'
   radar_id       ='sekir'
@@ -138,7 +133,7 @@ END
 
 END
 
-'SEHUD': BEGIN 
+'SEHUD': BEGIN
 
   radar_full_name='Sweden_Hudiksvall'
   radar_id       ='sehud'
@@ -147,7 +142,7 @@ END
 
 END
 
-'SEASE': BEGIN 
+'SEASE': BEGIN
 
   radar_full_name='Sweden_Ase'
   radar_id       ='sease'
@@ -156,7 +151,7 @@ END
 
 END
 
-'SEARL': BEGIN 
+'SEARL': BEGIN
 
   radar_full_name='Sweden_Arlanda, Stockholm'
   radar_id       ='searl'
@@ -165,7 +160,7 @@ END
 
 END
 
-'SEANG': BEGIN 
+'SEANG': BEGIN
 
   radar_full_name='Sweden_Angelholm' ;�ngelholm
   radar_id       ='seang'
@@ -175,7 +170,7 @@ END
 
 END
 
-'CZBRD': BEGIN 
+'CZBRD': BEGIN
 
   radar_full_name='Czech Republic_Praha Brdy'
   radar_id       ='60_C_OKPR'
@@ -184,7 +179,7 @@ END
 
 END
 
-'CZSKA': BEGIN 
+'CZSKA': BEGIN
 
   radar_full_name='Czech Republic_Skaly' ;Sk�ly
   radar_id       ='50_C_OKPR'
@@ -194,7 +189,7 @@ END
 
 END
 
-'IESHA': BEGIN 
+'IESHA': BEGIN
 
   radar_full_name='Ireland_Shannon'
   radar_id       ='40_C_EIDB'
@@ -203,7 +198,7 @@ END
 
 END
 
-'IEDUB': BEGIN 
+'IEDUB': BEGIN
 
   radar_full_name='Ireland_Dublin'
   radar_id       ='41_C_EIDB'
@@ -212,7 +207,7 @@ END
 
 END
 
-'HRBIL': BEGIN 
+'HRBIL': BEGIN
 
   radar_full_name='Croatia_Bilogora'
   radar_id       ='43_C_LDZM'
@@ -221,7 +216,7 @@ END
 
 END
 
-'SILIS': BEGIN 
+'SILIS': BEGIN
 
   radar_full_name='Slovenia_Lisca'
   radar_id       ='41_C_LJLM'
@@ -230,7 +225,7 @@ END
 
 END
 
-'SKMAJ': BEGIN 
+'SKMAJ': BEGIN
 
   radar_full_name='Slovakia_Maly Javornik'
   radar_id       ='SK_MJ_'
@@ -239,7 +234,7 @@ END
 
 END
 
-'SKKOH': BEGIN 
+'SKKOH': BEGIN
 
   radar_full_name='Slovakia_Kojsovska Hola'
   radar_id       ='SK_KH_'
@@ -248,7 +243,7 @@ END
 
 END
 
-'FIANJ': BEGIN 
+'FIANJ': BEGIN
 
   radar_full_name='Finland_Anjalankoski'
   radar_id       ='ANJ_'
@@ -257,7 +252,7 @@ END
 
 END
 
-'FIIKA': BEGIN 
+'FIIKA': BEGIN
 
   radar_full_name='Finland_Ikaalinen'
   radar_id       ='IKA_'
@@ -266,7 +261,7 @@ END
 
 END
 
-'FIKOR': BEGIN 
+'FIKOR': BEGIN
 
   radar_full_name='Finland_Korpo'
   radar_id       ='KOR_'
@@ -275,7 +270,7 @@ END
 
 END
 
-'FIKUO': BEGIN 
+'FIKUO': BEGIN
 
   radar_full_name='Finland_Kuopio'
   radar_id       ='KUO_'
@@ -284,7 +279,7 @@ END
 
 END
 
-'FILUO': BEGIN 
+'FILUO': BEGIN
 
   radar_full_name='Finland_Luosto'
   radar_id       ='LUO_'
@@ -293,7 +288,7 @@ END
 
 END
 
-'FIUTA': BEGIN 
+'FIUTA': BEGIN
 
   radar_full_name='Finland_Utajarvi' ;Utaj�rvi
   radar_id       ='UTA_'
@@ -303,16 +298,16 @@ END
 
 END
 
-'FIVAN': BEGIN 
+'FIVAN': BEGIN
 
-  radar_full_name='Finland_Vantaa' 
+  radar_full_name='Finland_Vantaa'
   radar_id       ='VAN_'
   path_id        ='FI_van'
   io_file        ='vol2bird_fi_odimhdf5.pro'
 
 END
 
-'FIVIM': BEGIN 
+'FIVIM': BEGIN
 
   radar_full_name='Finland_Vimpeli'
   radar_id       ='VIM_'
@@ -321,7 +316,7 @@ END
 
 END
 
-'FRABB': BEGIN 
+'FRABB': BEGIN
 
   radar_full_name='France_Abbeville'
   radar_id='T_PAGZ40_C_frabb'
@@ -330,7 +325,7 @@ END
 
 END
 
-'FRALE': BEGIN 
+'FRALE': BEGIN
 
   radar_full_name='France_Aleria';Al�ria
   radar_id='T_PAGZ61_C_frale'
@@ -340,7 +335,7 @@ END
 
 END
 
-'FRTRO': BEGIN 
+'FRTRO': BEGIN
 
   radar_full_name='France_Arcis';
   radar_id='T_PAGZ52_C_frtro'
@@ -349,7 +344,7 @@ END
 
 END
 
-'FRAVE': BEGIN 
+'FRAVE': BEGIN
 
   radar_full_name='France_Avesnes'
   radar_id='T_PAGZ63_C_frave'
@@ -358,7 +353,7 @@ END
 
 END
 
-'FRBLA': BEGIN 
+'FRBLA': BEGIN
 
   radar_full_name='France_Blaisy-Haut'
   radar_id='T_PAGZ65_C_frbla'
@@ -367,7 +362,7 @@ END
 
 END
 
-'FRBOL': BEGIN 
+'FRBOL': BEGIN
 
   radar_full_name='France_Bollene' ;Boll�ne
   radar_id='T_PAGZ55_C_frbol'
@@ -377,7 +372,7 @@ END
 
 END
 
-'FRBOR': BEGIN 
+'FRBOR': BEGIN
 
   radar_full_name='France_Bordeaux' ;
   radar_id='T_PAGZ41_C_frbor'
@@ -386,7 +381,7 @@ END
 
 END
 
-'FRBOU': BEGIN 
+'FRBOU': BEGIN
 
   radar_full_name='France_Bourges' ;
   radar_id='T_PAGZ42_C_frbou'
@@ -395,7 +390,7 @@ END
 
 END
 
-'FRCAE': BEGIN 
+'FRCAE': BEGIN
 
   radar_full_name='France_Falaise' ;
   radar_id='T_PAGZ45_C_frcae'
@@ -404,7 +399,7 @@ END
 
 END
 
-'FRCHE': BEGIN 
+'FRCHE': BEGIN
 
   radar_full_name='France_Cherves' ;
   radar_id='T_PAGZ64_C_frche'
@@ -413,7 +408,7 @@ END
 
 END
 
-'FRCOL': BEGIN 
+'FRCOL': BEGIN
 
   radar_full_name='France_Collobrieres' ;Collobri�res
   radar_id='T_PAGZ59_C_frcol'
@@ -423,7 +418,7 @@ END
 
 END
 
-'FRGRE': BEGIN 
+'FRGRE': BEGIN
 
   radar_full_name='France_Grezes' ;Gr�zes
   radar_id='T_PAGZ44_C_frgre'
@@ -433,7 +428,7 @@ END
 
 END
 
-'FRMOM': BEGIN 
+'FRMOM': BEGIN
 
   radar_full_name='France_Momuy' ;
   radar_id='T_PAGZ66_C_frmom'
@@ -442,7 +437,7 @@ END
 
 END
 
-'FRMTC': BEGIN 
+'FRMTC': BEGIN
 
   radar_full_name='France_Montancy' ;
   radar_id='T_PAGZ67_C_frmtc'
@@ -451,7 +446,7 @@ END
 
 END
 
-'FRMCL': BEGIN 
+'FRMCL': BEGIN
 
   radar_full_name='France_Montclar' ;
   radar_id='T_PAGZ62_C_frmcl'
@@ -460,7 +455,7 @@ END
 
 END
 
-'FRNAN': BEGIN 
+'FRNAN': BEGIN
 
   radar_full_name='France_Nancy' ;
   radar_id='T_PAGZ47_C_frnan'
@@ -469,7 +464,7 @@ END
 
 END
 
-'FRNIM': BEGIN 
+'FRNIM': BEGIN
 
   radar_full_name='France_Nimes' ;N�mes
   radar_id='T_PAGZ49_C_frnim'
@@ -479,7 +474,7 @@ END
 
 END
 
-'NOAND': BEGIN 
+'NOAND': BEGIN
 
   radar_full_name='Norway_Andoya';And�ya
   radar_id       ='AND'
@@ -489,7 +484,7 @@ END
 
 END
 
-'NOBML': BEGIN 
+'NOBML': BEGIN
 
   radar_full_name='Norway_Bomlo';B�mlo
   radar_id       ='BML'
@@ -499,7 +494,7 @@ END
 
 END
 
-'NOHAS': BEGIN 
+'NOHAS': BEGIN
 
   radar_full_name='Norway_Hasvik'
   radar_id       ='HAS'
@@ -508,7 +503,7 @@ END
 
 END
 
-'NOHGB': BEGIN 
+'NOHGB': BEGIN
 
   radar_full_name='Norway_Haegebostad';H�gebostad
   radar_id       ='HGB'
@@ -517,7 +512,7 @@ END
   ascii_name     =[72,145,103,101,98,111,115,116,97,100]
 END
 
-'NOHUR': BEGIN 
+'NOHUR': BEGIN
 
   radar_full_name='Norway_Hurum'
   radar_id       ='HUR'
@@ -526,7 +521,7 @@ END
 
 END
 
-'NORSA': BEGIN 
+'NORSA': BEGIN
 
   radar_full_name='Norway_Rissa'
   radar_id       ='RSA'
@@ -535,7 +530,7 @@ END
 
 END
 
-'NORST': BEGIN 
+'NORST': BEGIN
 
   radar_full_name='Norway_Rost' ;R�st
   radar_id       ='RST'
@@ -545,7 +540,7 @@ END
 
 END
 
-'NOSTA': BEGIN 
+'NOSTA': BEGIN
 
   radar_full_name='Norway_Stadlandet'
   radar_id       ='STA'
@@ -554,7 +549,7 @@ END
 
 END
 
-'PLBRZ': BEGIN 
+'PLBRZ': BEGIN
 
   radar_full_name='Poland_Brzuchania' ;
   radar_id       ='brz'
@@ -563,7 +558,7 @@ END
 
 END
 
-'PLGDA': BEGIN 
+'PLGDA': BEGIN
 
   radar_full_name='Poland_Gdansk' ;
   radar_id       ='gda'
@@ -572,7 +567,7 @@ END
 
 END
 
-'PLLEG': BEGIN 
+'PLLEG': BEGIN
 
   radar_full_name='Poland_Legionowo' ;
   radar_id       ='leg'
@@ -581,43 +576,43 @@ END
 
 END
 
-'PLPAS': BEGIN 
+'PLPAS': BEGIN
 
-  radar_full_name='Poland_Pastewnik' 
+  radar_full_name='Poland_Pastewnik'
   radar_id       ='pas'
   path_id        ='PL_pas'
   io_file        ='vol2bird_pl_odimhdf5.pro'
 
 END
 
-'PLPOZ': BEGIN 
+'PLPOZ': BEGIN
 
-  radar_full_name='Poland_Poznan' 
+  radar_full_name='Poland_Poznan'
   radar_id       ='poz'
   path_id        ='PL_poz'
   io_file        ='vol2bird_pl_odimhdf5.pro'
 
 END
 
-'PLRAM': BEGIN 
+'PLRAM': BEGIN
 
-  radar_full_name='Poland_Ramza' 
+  radar_full_name='Poland_Ramza'
   radar_id       ='ram'
   path_id        ='PL_ram'
   io_file        ='vol2bird_pl_odimhdf5.pro'
 
 END
 
-'PLRZE': BEGIN 
+'PLRZE': BEGIN
 
-  radar_full_name='Poland_Rzeszow' 
+  radar_full_name='Poland_Rzeszow'
   radar_id       ='rze'
   path_id        ='PL_rze'
   io_file        ='vol2bird_pl_odimhdf5.pro'
 
 END
 
-'PLSWI': BEGIN 
+'PLSWI': BEGIN
 
   radar_full_name='Poland_Swidwin' ;Swidwin
   radar_id       ='swi'
@@ -640,25 +635,25 @@ ENDCASE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 radar_full_name   = N_ELEMENTS(radar_full_name)   eq 0 ? '' : radar_full_name
-radar_id          = N_ELEMENTS(radar_id)	  eq 0 ? '' : radar_id
-path_id           = N_ELEMENTS(path_id) 	  eq 0 ? '' : path_id
-io_file           = N_ELEMENTS(io_file) 	  eq 0 ? '' : io_file
-raw_data_path     = N_ELEMENTS(raw_data_path)	  eq 0 ? '' : raw_data_path
+radar_id          = N_ELEMENTS(radar_id)      eq 0 ? '' : radar_id
+path_id           = N_ELEMENTS(path_id)       eq 0 ? '' : path_id
+io_file           = N_ELEMENTS(io_file)       eq 0 ? '' : io_file
+raw_data_path     = N_ELEMENTS(raw_data_path)     eq 0 ? '' : raw_data_path
 input_data_path   = N_ELEMENTS(input_data_path)   eq 0 ? '' : input_data_path
-bird_data_path    = N_ELEMENTS(bird_data_path)	  eq 0 ? '' : bird_data_path
+bird_data_path    = N_ELEMENTS(bird_data_path)    eq 0 ? '' : bird_data_path
 clutter_data_path = N_ELEMENTS(clutter_data_path) eq 0 ? '' : clutter_data_path
 ascii_name        = N_ELEMENTS(ascii_name)        eq 0 ? '' : STRING(BYTE(ascii_name))
 ;
-radar_definition = CREATE_STRUCT(     	    $
-   'radar_full_name'	,radar_full_name,   $
-   'radar_id'	    	,radar_id,  	    $
-   'path_id'        	,path_id,	    $
-   'io_file'	    	,io_path+io_file,   $
-   'raw_data_path'      ,raw_data_path,	    $
+radar_definition = CREATE_STRUCT(           $
+   'radar_full_name'    ,radar_full_name,   $
+   'radar_id'           ,radar_id,          $
+   'path_id'            ,path_id,       $
+   'io_file'            ,io_path+io_file,   $
+   'raw_data_path'      ,raw_data_path,     $
    'input_data_path'    ,input_data_path,   $
    'bird_data_path'     ,bird_data_path,    $
-   'clutter_data_path'	,clutter_data_path, $
-   'ascii_name'     	,ascii_name 	    $
+   'clutter_data_path'  ,clutter_data_path, $
+   'ascii_name'         ,ascii_name         $
 )
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
