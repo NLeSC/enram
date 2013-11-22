@@ -4,7 +4,7 @@
 ;CREATE cluttermaps from statistics files for different radar systems
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['FI','FR','IE','SI','NL','PL','SK','NO','CZ','SE']
+radar_ids = ['NLDBL']
 radar_ids = radar_names(radar_ids,/print)
 ;
 ;SET the location of the statitics files
