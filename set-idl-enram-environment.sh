@@ -17,6 +17,9 @@ export IDL_DIR=~/exelis/idl82;
 # define in which directories IDL will search for functions, scripts, and so on:
 export IDL_PATH=\+$IDL_DIR/lib:+$IDL_DIR/external/lib:+/home/daisycutter/enram/src;
 
+# define the location of the startup file:
+export IDL_STARTUP='/home/daisycutter/enram/src/idl_startup.pro'
+
 # define where the different ENRAM directories are:
 export IDL_ENRAM_VOL2BIRDLIB='/home/daisycutter/enram/src/vol2bird/vol2bird.so'
 export IDL_ENRAM_SRC_IO='/home/daisycutter/enram/src/io/'
