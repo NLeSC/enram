@@ -5,7 +5,7 @@
 ;
 ;SET the radar ids of the radars to be processed
 radar_ids = ['NLDBL']
-radar_ids = radar_names(radar_ids,/print)
+radar_ids = radar_names(radar_ids)
 ;
 ;SET the location of the statitics files
 stats_dir = GETENV('IDL_ENRAM_STATISTICS')
@@ -111,5 +111,4 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
 
 ENDFOR
 
-exit
 END
