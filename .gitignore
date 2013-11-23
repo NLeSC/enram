@@ -2,6 +2,8 @@ data/harmonized/bird
 data/harmonized/cluttermaps
 data/harmonized/clutter-sensitivity
 data/harmonized/statistics
+log/stderr.log
+log/stdout.log
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
 testdata/harmonized/clutter-sensitivity
