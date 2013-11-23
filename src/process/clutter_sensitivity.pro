@@ -8,10 +8,10 @@ clutter_ids = [STRING([0,10,25,50,75]),['mode','median']]
 ;
 ;SET the radar ids of the radars to be processed
 radar_ids = ['NLDBL']
-radar_ids = radar_names(radar_ids,/print)
+radar_ids = radar_names(radar_ids)
 ;
 ;SET the location of the cluttermaps and the statitics files
-temp_dir=GETENV('IDL_ENRAM_CLUTTER_SENSITIVTY')
+temp_dir=GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')
 ;
 ; SPECIFY the time interval to process.
 ;
@@ -325,5 +325,5 @@ PRINT,loop_end          ;Print to screen
 
 SPAWN,"date +%A', '%e' '%B' '%Y,' '%R:%S': '", todate
 PRINT,todate+'Finished CLUTTER SENSITIVITY'
-exit
+
 END
