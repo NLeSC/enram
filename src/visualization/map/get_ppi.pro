@@ -74,8 +74,6 @@ t0=SYSTIME(1)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 PRINT,FORMAT= '(%"\r","#Opening of HDF5 radar input file : ",a,$)',FILE_BASENAME(h5infile)
-;
-;RESOLVE_ROUTINE,compile_iofile_command,/compile_full_file
 
 compile_iofile_command=FILE_BASENAME(io_file,'.pro')
 RESOLVE_ROUTINE,compile_iofile_command, /compile_full_file
@@ -93,8 +91,7 @@ data=thedata.(1)
 ;
 ;MAP the data
 elevation=meta.elev
-;PRINT,FORMAT='("#Making PPI from ",a," at elevation   : ",g)',mode,meta.elev;
-;
+
 ;SET geographical projection parameters of Cartesian grid.
 if maxr le 0.0 THEN maxr = meta.nrang * meta.rscale;
 maxz = (maxz - meta.zoffset) / meta.zscale;
@@ -138,14 +135,13 @@ FOR j=0,Nrows-1 DO BEGIN
       ENDIF ELSE theimage[i+j*Ncols]=nodata;
    ENDFOR
 ENDFOR
-;print, systime(1)-t0
 ;
 image=REFORM(theimage,ncols,nrows)
 image[where(image eq 0,/NULL)]=nodata
 ;
 ;FIND the center (radar coord.) and corners of the image
 Lon_Lat0=[meta.lon,meta.lat]
-dist=maxr/Radius
+dist=maxr/RADIUS
 lim0=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,270,/DEGREES),2)
 lim1=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,0,/DEGREES),2)
 lim2=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,90,/DEGREES),2)

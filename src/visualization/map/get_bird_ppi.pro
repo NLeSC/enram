@@ -49,8 +49,7 @@ SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 ;PARSE KEYWORDS
 IF KEYWORD_SET(help) THEN BEGIN
 ENDIF
-; very unwise, this: FIXME!
-DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta.
+DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 ;
 dx = N_ELEMENTS(dx) eq 1 ? dx : 1.0
 maxr = N_ELEMENTS(maxr) eq 1 ? maxr : -1.0
@@ -155,9 +154,6 @@ ENDIF
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;CREATING image
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;PRINT,FORMAT='("#Making PPI from ",a," at elevation   : ",g)',mode,meta.elev;
-;
 ;SET geographical projection parameters of Cartesian grid.
 if maxr le 0.0 THEN maxr = nrang * rscale;
 maxz = (maxz - zoffset) / zscale;
@@ -194,10 +190,8 @@ FOR j=0,Nrows-1 DO BEGIN
       theia=ia[i,j]
       IF (their lt nrang) THEN BEGIN
 
-;        theimage[i+j*Ncols]=zdata[their+theia*nrang]
-    ;
     IF rainmask THEN BEGIN
-;     ;
+     ;
       IF (cellmap[their+theia*nrang] le cellvalue) THEN BEGIN
         ;
         theimage[i+j*Ncols]=zdata[their+theia*nrang]
@@ -209,14 +203,13 @@ FOR j=0,Nrows-1 DO BEGIN
       ENDIF ELSE theimage[i+j*Ncols]=nodata;
    ENDFOR
 ENDFOR
-;print, systime(1)-t0
 ;
 image=REFORM(theimage,ncols,nrows)
 image[where(image eq 0,/NULL)]=nodata
 ;
 ;FIND the center (radar coord.) and corners of the image
 Lon_Lat0=[lon,lat]
-dist=maxr/Radius
+dist=maxr/RADIUS
 lim0=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,270,/DEGREES),2)
 lim1=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,0,/DEGREES),2)
 lim2=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,90,/DEGREES),2)
@@ -229,7 +222,6 @@ return
 ;
 profile =H5_PARSE(h5_id,'/profile1' ,/READ_DATA)
 where = H5_PARSE(h5_id,'/where')
-;what = H5_PARSE(h5_id,'/what')
 
 height = where.HEIGHT._DATA
 lon = where.LON._DATA
@@ -239,9 +231,6 @@ date = what.date._DATA
 time = what.time._DATA
 
 H5F_CLOSE,h5_id         ;;CLOSE the HDF5 file
-
-;profile_bird=profile.PROFILE_REFLECTIVITY._DATA
-;profile_bird=10*ALOG10(profile_bird/DBZFACTOR)
 
 profile_bird=profile.PROFILE_BIRD_REFLECTIVITY._DATA
 profile_height=profile.PROFILE_HEIGHT._DATA

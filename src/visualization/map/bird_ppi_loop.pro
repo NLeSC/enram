@@ -2,12 +2,10 @@
 
 ;SET the radar ids of the radars to be processed
 radar_ids = ['all']
-;radar_ids = []
 radar_ids = radar_names(radar_ids)
 
-gifdir='loop_gif/Hans/'
+gifdir='loop_gif/Hans/' ; FIXME (use environment variable)
 ; SPECIFY the time interval to process.
-;
 dates='20110902'
 
 scan=1
@@ -15,8 +13,6 @@ grid=1
 
 plot_lon=0
 plot_lat=45
-;
-;limit=[51,0,56,8]
 limit=[41,-15,71,40]
 
 fringe=0
@@ -24,9 +20,6 @@ rain=1
 
 minutes=STRING(FORMAT='(i0,"0")',INDGEN(6))
 hours=STRING(FORMAT='(i02)',INDGEN(8))
-
-;minutes='00'
-;hours='17'
 
 FILE_MKDIR,gifdir
 ;
@@ -48,10 +41,7 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
       definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
     ENDFOR
 
-    ;print, files
-    ;stop
-
-    psfile=thething+'_ppi_'+date+time
+    psfile=thething+'_ppi_'+date+time  ; FIXME
     giffile=psfile+'.gif'
     psfile+='.ps'
 
@@ -72,13 +62,10 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
     PRINT
     h5_close
 
-;    pstracker,psfile
     SPAWN, 'convert '+psfile+' '+gifdir+giffile
     SPAWN, 'rm -f '+psfile
 
   ENDFOR
 ENDFOR
-
-;exit
 
 END

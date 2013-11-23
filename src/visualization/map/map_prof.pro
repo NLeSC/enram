@@ -18,11 +18,11 @@ psfile=psfile
 ;SETTINGS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-RADIUS=6378.137     ;Earth radius 
-DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta.
+RADIUS=6378.137    ; FIXME ;Earth radius
+DBZFACTOR=335.4 ;FIXME  ;conversion factor reflectivity factor Z to reflectivity eta.
 
-;
-;SET the reflectivity levels 
+
+;SET the reflectivity levels
 ;label=["-33","-29","-25","-21","-17","-13","-9","-5","-1","3","7","11","15","19","23","27","31","35","39","43","47","51","55","59"]
 Thresh=[-33.0,-29.0,-25.0,-21.0,-17.0,-13.0,-9.0,-5.0,-1.0,3.0,7.0,11.0,15.0,19.0,23.0,27.0,31.0,35.0,39.0,43.0,47.0,51.0,55.0,59.0]
 label =STRING(thresh)
@@ -36,8 +36,8 @@ B=[000,061,148,242,255,255,145,013,000,000,000,000,000,005,000,000,000,000,000,0
 nodata_c=[240,240,240]
 missing_c=[255,255,255]
 ;
-seacolor  = N_ELEMENTS(seacolor ) eq 3 ?  seacolor : [224,255,255] 	;default sea color is light cyan
-landcolor = N_ELEMENTS(landcolor) eq 3 ? landcolor : [255,239,213] 	;default land color is papaya
+seacolor  = N_ELEMENTS(seacolor ) eq 3 ?  seacolor : [224,255,255]  ;default sea color is light cyan
+landcolor = N_ELEMENTS(landcolor) eq 3 ? landcolor : [255,239,213]  ;default land color is papaya
 ;
 ;COLORBAR settings
 cb_Title='Reflectivity [dBz]'
@@ -52,11 +52,11 @@ crosscolor = N_ELEMENTS(crosscolor) eq 3 ? crosscolor : [000,000,000]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;PARSE the KEYWORDS
-caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss	;GET current date/time
+caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss  ;GET current date/time
 psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRTRIM(DD,2)+STRTRIM(MM,2)+STRTRIM(YY,2)+'.ps'
 ;
 plot_lon = N_ELEMENTS(plot_lon) ne 0 ? plot_lon : 0
-plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0 
+plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0
 ;
 limit = N_ELEMENTS(limit) eq 4 ? limit : [45,0,60,10]
 ;
@@ -84,10 +84,10 @@ ps_ysize = N_ELEMENTS(ps_ysize) ne 0 ? ps_ysize : 20
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;COMPUTE the color table: Define a step function to cover the entire 256 colors for the 
+;COMPUTE the color table: Define a step function to cover the entire 256 colors for the
 ;colors defined above
 nboxes=n_elements(R)
-ncolors=!D.TABLE_SIZE 
+ncolors=!D.TABLE_SIZE
 step = ncolors/nboxes
 index=INTARR(ncolors)
 ;
@@ -112,14 +112,14 @@ bangp=!p
 ;OPEN a postscript file
 thisDevice = !D.Name
 SET_PLOT,'ps'
-a4xsize=21  	;center the image on an a4
+a4xsize=21      ;center the image on an a4
 a4ysize=29.7
 ;
 DEVICE,/COLOR,BITS=8,FILE=psfile,XSIZE=ps_xsize,ysize=ps_ysize,   $
-/Encapsulated, Preview=0, 	    	    	    	    $
+/Encapsulated, Preview=0,                               $
 XOFFSET=(a4xsize-ps_xsize)/2.,YOFFSET=(a4ysize-ps_ysize)/2.,SCALE=1
 ;
-;DEFINE a map projection 
+;DEFINE a map projection
 MAP_SET,plot_lon,plot_lat,limit=limit,position=p,/noborder,_EXTRA=extra
 ;
 ;COLOR the sea and continents with the sea and land colors
@@ -147,16 +147,16 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
   limit=ppilimit,$
   io_file=definitions[ifile].io_file,$
   radar_location=radar_location
-  
+
   lon=radar_location[0]
   lat=radar_location[1]
   ;
   circle = FINDGEN(37)*10
-  mindistance =  5/Radius
-  maxdistance = 25/Radius
+  mindistance =  5/RADIUS
+  maxdistance = 25/RADIUS
   minpolygon = FLTARR(2,N_ELEMENTS(circle))
   maxpolygon = FLTARR(2,N_ELEMENTS(circle))
-  
+
   FOR i=0,N_ELEMENTS(circle)-1 DO BEGIN
     minpolygon[*,i]=LL_ARC_DISTANCE(radar_location,mindistance,circle[i],/DEGREES)
     maxpolygon[*,i]=LL_ARC_DISTANCE(radar_location,maxdistance,circle[i],/DEGREES)
@@ -169,7 +169,7 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
   thiscolor = WHERE(thresh gt mean_bird_profile)
   thiscolor = thiscolor[0]-1
 ;  print, thiscolor
-  
+
   IF thiscolor ne -1 THEN BEGIN
     polyfill,maxpolygon,color=thiscolor
     polyfill,minpolygon,color=255
@@ -179,7 +179,7 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
   IF KEYWORD_SET(radar_cross) THEN BEGIN
 
     load_color,crosscolor,0  ;black
-    dist=5/Radius
+    dist=5/RADIUS
     FOR i=0,N_ELEMENTS(files)-1 DO BEGIN
       cr0=LL_ARC_DISTANCE(radar_location,dist,270,/DEGREES)
       cr1=LL_ARC_DISTANCE(radar_location,dist,0,/DEGREES)
@@ -192,19 +192,19 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
     ENDFOR
 
   ENDIF
-  
+
   IF KEYWORD_SET(radar_title) THEN BEGIN
     radar_code = definitions[ifile].PATH_ID
     radar_name = definitions[ifile].RADAR_FULL_NAME
     IF radar_title eq 1 THEN BEGIN
       radar_id = STRMID(radar_code,0,2)+' '+STRMID(radar_code,3,3)
-    ENDIF 
+    ENDIF
     IF radar_title eq 2 THEN BEGIN
       tmp=STRSPLIT(radar_name,'_',/EXTRACT)
       radar_id = TMP[1]
-    ENDIF 
-    
-    dist=27/radius
+    ENDIF
+
+    dist=27/RADIUS
     azim=45
     tloc=LL_ARC_DISTANCE(radar_location,dist,azim,/DEGREES)
     XYOUTS,/DATA,tloc[0],TLOC[1],radar_id
@@ -218,7 +218,7 @@ load_color,[110,110,110],0  ;SET the coast lines: dark grey
 MAP_CONTINENTS,COLOR=0,THICK=0.5,COASTS=coast,HIRES=high_resolution
 load_color,[200,200,240],0  ;SET the river color: light grey
 IF KEYWORD_SET(coast) THEN MAP_CONTINENTS,/RIVERS,COLOR=0,THICK=0.1,HIRES=high_resolution
-load_color,[200,200,200],0  ;SET the country lines: light grey 
+load_color,[200,200,200],0  ;SET the country lines: light grey
 MAP_CONTINENTS,COLOR=0,/COUNTRIES,HIRES=high_resolution
 ;ADD a rectangle or box-axis grid around the image
 load_color,[0,0,0],0  ;black
@@ -246,9 +246,9 @@ XYOUTS,/NORMAL,p[0],p[3]+0.04, thedatestring
 ;COMPUTE the size of the colorbar (along the entire plot window)
 cb_Size=(p[3]-p[1])-2*cb_yOffset
 
-;LOAD the colors for the colordivbar only 
+;LOAD the colors for the colordivbar only
 TVLCT,R,G,B
-colors=INDGEN(N_ELEMENTS(thresh)-1)	    
+colors=INDGEN(N_ELEMENTS(thresh)-1)
 ;PLOT the color bar
 colordivbar,thresh,colors,color=0,format='(i0)',ticklen=0,chartick=2,$
 lowleft=[p[2]+cb_xOffset,p[1]+cb_yOffset],ysize=cb_Size,/col,$
@@ -256,7 +256,7 @@ title=cb_Title
 ;
 ;CLOSE device, return to original device
 DEVICE,/CLOSE
-PSTRACKER,psfile    ;replace the ps internal title with something more informative 
+PSTRACKER,psfile    ;replace the ps internal title with something more informative
 SET_PLOT,thisDevice
 ;
 !P=bangp

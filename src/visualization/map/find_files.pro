@@ -19,9 +19,6 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   search_string=dir + '*'+radar_definition.PATH_ID+'*'+date+time+'*'
   file = FILE_SEARCH(search_string,count=n1files)
   
-;  print, search_string
-;  stop
-  
   IF n1files eq 0 THEN BEGIN
     thistime=STRMID(time,0,3)
     search_string=dir + '*'+radar_definition.PATH_ID+'*'+date+thistime+'*'

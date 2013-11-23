@@ -2,20 +2,16 @@
 
 ;SET the radar ids of the radars to be processed
 radar_ids = ['NL','NO','PL','SK','FR']
-;radar_ids = ['NL']
 radar_ids = radar_names(radar_ids)
 
-directory = '/usr/people/graafdem/FLYSAFE/process/data/sens_clutter/0/'
+subdir = '0'
+directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir
 
 ; SPECIFY the time interval to process.
-;
 date='20110901'
 time='1730'
 
 find_files,files,date,time,radar_ids,directory=directory
-
-;print, files
-;stop
 
 IF KEYWORD_SET(definitions) THEN dummy=TEMPORARY(definitions)
 FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
@@ -23,15 +19,14 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-psfile='map_centraleu_'+date+time+'.ps'
+psfile='map_centraleu_'+date+time+'.ps' ; FIXME
 
 scan=1
 grid=1
 
 plot_lon=0
 plot_lat=45
-;
-;limit=[51,0,56,8]
+
 limit=[47,10,56,28]
 
 map_prof,files,limit,$

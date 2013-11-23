@@ -5,7 +5,6 @@ radar_ids = ['all']
 radar_ids = radar_names(radar_ids)
 
 subdir = '0';
-
 directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')+subdir
 
 ; SPECIFY the time interval to process.
@@ -31,7 +30,7 @@ fringe=0
 rain=0
 
 psfile = KEYWORD_SET(rain) ? 'rain' : 'bird'
-psfile+='_ppi_'+date+time+'.ps'
+psfile+='_ppi_'+date+time+'.ps'    ; FIXME
 
 
 map_bird_ppi,files,limit,$

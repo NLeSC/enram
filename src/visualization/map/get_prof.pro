@@ -86,15 +86,8 @@ time = what.time._DATA
 
 H5F_CLOSE,h5_id         ;;CLOSE the HDF5 file
 
-;profile_bird=profile.PROFILE_REFLECTIVITY._DATA
-;profile_bird=10*ALOG10(profile_bird/DBZFACTOR)
-
 profile_bird=profile.PROFILE_BIRD_REFLECTIVITY._DATA
 profile_height=profile.PROFILE_HEIGHT._DATA
-
-;print, profile_bird;
-;stop
-
 
 
 radar_location=[lon,lat]

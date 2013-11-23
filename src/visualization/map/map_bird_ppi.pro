@@ -27,9 +27,9 @@ psfile=psfile
 ;SETTINGS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-RADIUS=6378.137     ;Earth radius 
+RADIUS=6378.137  ; FIXME   ;Earth radius
 ;
-;SET the reflectivity levels 
+;SET the reflectivity levels
 ;label=["-33","-29","-25","-21","-17","-13","-9","-5","-1","3","7","11","15","19","23","27","31","35","39","43","47","51","55","59"]
 Thresh=[-33.0,-29.0,-25.0,-21.0,-17.0,-13.0,-9.0,-5.0,-1.0,3.0,7.0,11.0,15.0,19.0,23.0,27.0,31.0,35.0,39.0,43.0,47.0,51.0,55.0,59.0]
 label =STRING(thresh)
@@ -43,8 +43,8 @@ B=[000,061,148,242,255,255,145,013,000,000,000,000,000,005,000,000,000,000,000,0
 nodata_c=[240,240,240]
 missing_c=[255,255,255]
 ;
-seacolor  = N_ELEMENTS(seacolor ) eq 3 ?  seacolor : [224,255,255] 	;default sea color is light cyan
-landcolor = N_ELEMENTS(landcolor) eq 3 ? landcolor : [255,239,213] 	;default land color is papaya
+seacolor  = N_ELEMENTS(seacolor ) eq 3 ?  seacolor : [224,255,255]  ;default sea color is light cyan
+landcolor = N_ELEMENTS(landcolor) eq 3 ? landcolor : [255,239,213]  ;default land color is papaya
 ;
 ;COLORBAR settings
 cb_Title='Reflectivity [dBz]'
@@ -59,11 +59,11 @@ crosscolor = N_ELEMENTS(crosscolor) eq 3 ? crosscolor : [000,000,000]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;PARSE the KEYWORDS
-caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss	;GET current date/time
-psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRTRIM(DD,2)+STRTRIM(MM,2)+STRTRIM(YY,2)+'.ps'
+caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss  ;GET current date/time
+psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRTRIM(DD,2)+STRTRIM(MM,2)+STRTRIM(YY,2)+'.ps' ; FIXME
 ;
 plot_lon = N_ELEMENTS(plot_lon) ne 0 ? plot_lon : 0
-plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0 
+plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0
 ;
 limit = N_ELEMENTS(limit) eq 4 ? limit : [45,0,60,10]
 ;
@@ -91,10 +91,10 @@ ps_ysize = N_ELEMENTS(ps_ysize) ne 0 ? ps_ysize : 20
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;COMPUTE the color table: Define a step function to cover the entire 256 colors for the 
+;COMPUTE the color table: Define a step function to cover the entire 256 colors for the
 ;colors defined above
 nboxes=n_elements(R)
-ncolors=!D.TABLE_SIZE 
+ncolors=!D.TABLE_SIZE
 step = ncolors/nboxes
 index=INTARR(ncolors)
 ;
@@ -119,14 +119,14 @@ bangp=!p
 ;OPEN a postscript file
 thisDevice = !D.Name
 SET_PLOT,'ps'
-a4xsize=21  	;center the image on an a4
+a4xsize=21      ;center the image on an a4
 a4ysize=29.7
 ;
 DEVICE,/COLOR,BITS=8,FILE=psfile,XSIZE=ps_xsize,ysize=ps_ysize,   $
-/Encapsulated, Preview=0, 	    	    	    	    $
+/Encapsulated, Preview=0,                               $
 XOFFSET=(a4xsize-ps_xsize)/2.,YOFFSET=(a4ysize-ps_ysize)/2.,SCALE=1
 ;
-;DEFINE a map projection 
+;DEFINE a map projection
 MAP_SET,plot_lon,plot_lat,limit=limit,position=p,/noborder,_EXTRA=extra
 ;
 ;GET ppi images and WARP them to the current map projection
@@ -165,7 +165,7 @@ IF KEYWORD_SET(BgColor) THEN BEGIN
   ;MASK a background image: bg[254]=sea, bg[253]=land
   ;
   ;temoporarily SWITCH to memory to build the image
-  ;DO this here, to match the resolution of the background image 
+  ;DO this here, to match the resolution of the background image
   ;to the composite image
   tmp_device=!D.NAME
   SET_PLOT,'Z'
@@ -205,7 +205,7 @@ load_color,[110,110,110],0  ;SET the coast lines: dark grey
 MAP_CONTINENTS,COLOR=0,THICK=0.5,COASTS=coast,HIRES=high_resolution
 load_color,[200,200,240],0  ;SET the river color: light grey
 IF KEYWORD_SET(coast) THEN MAP_CONTINENTS,/RIVERS,COLOR=0,THICK=0.1,HIRES=high_resolution
-load_color,[200,200,200],0  ;SET the country lines: light grey 
+load_color,[200,200,200],0  ;SET the country lines: light grey
 MAP_CONTINENTS,COLOR=0,/COUNTRIES,HIRES=high_resolution
 ;ADD a rectangle or box-axis grid around the image
 load_color,[0,0,0],0  ;black
@@ -217,7 +217,7 @@ PLOTS,/NORMAL,[p[0],p[2],p[2],p[0],p[0]],[p[1],p[1],p[3],p[3],p[1]],color=0,THIC
 IF KEYWORD_SET(radar_cross) THEN BEGIN
 
   load_color,crosscolor,0  ;black
-  dist=crossdistance/Radius
+  dist=crossdistance/RADIUS
   FOR i=0,N_ELEMENTS(files)-1 DO BEGIN
     radar_loc=[radar_locations[0,i],radar_locations[1,i]]
     cr0=LL_ARC_DISTANCE(radar_loc,dist,270,/DEGREES)
@@ -254,9 +254,9 @@ XYOUTS,/NORMAL,p[0],p[3]+0.04, thedatestring
 ;COMPUTE the size of the colorbar (along the entire plot window)
 cb_Size=(p[3]-p[1])-2*cb_yOffset
 
-;LOAD the colors for the colordivbar only 
+;LOAD the colors for the colordivbar only
 TVLCT,R,G,B
-colors=INDGEN(N_ELEMENTS(thresh)-1)	    
+colors=INDGEN(N_ELEMENTS(thresh)-1)
 ;PLOT the color bar
 colordivbar,thresh,colors,color=0,format='(i0)',ticklen=0,chartick=2,$
 lowleft=[p[2]+cb_xOffset,p[1]+cb_yOffset],ysize=cb_Size,/col,$
@@ -264,7 +264,7 @@ title=cb_Title
 ;
 ;CLOSE device, return to original device
 DEVICE,/CLOSE
-PSTRACKER,psfile    ;replace the ps internal title with something more informative 
+PSTRACKER,psfile    ;replace the ps internal title with something more informative
 SET_PLOT,thisDevice
 ;
 !P=bangp

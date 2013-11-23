@@ -2,7 +2,6 @@
 
 ;SET the radar ids of the radars to be processed
 radar_ids = ['SK']
-;radar_ids = []
 radar_ids = radar_names(radar_ids)
 
 subdir = '0'

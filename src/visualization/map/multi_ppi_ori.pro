@@ -24,7 +24,7 @@ files=[$
 '/usr/people/graafdem/FLYSAFE/process/data/raw/HR_bil/T_PAZZ43_C_LDZM_20111105000012.h5'    	   ,$
 '/nobackup/users/graafdem/DATA/RADAR/FLYSAFE2/raw/SI_lis/T_PAZZ41_C_LJLM_20110815000006.h5' 	    $
 ]
-
+; FIXME
 
 
 radar_ids = [$
@@ -36,9 +36,6 @@ radar_ids = [$
 	     'IESHA','IEDUB',					     	$
 	     'HRBIL',     	    	    	    	    	    	$
 	     'SILIS']
-
-;files=['/usr/people/graafdem/FLYSAFE/process/data/raw/NL_db/2011/08/15/00/RAD_NL60_VOL_NA_201108150000.h5']
-;radar_ids = ['DE BILT']
 
 files_ids = INDGEN(N_ELEMENTS(radar_ids))
 
@@ -54,8 +51,6 @@ grid=1
 
 plot_lon=0
 plot_lat=45
-;
-;limit=[48,-5,70,40]
 limit=[40,-15,70,40]
 
 map_ppi,files,limit,$

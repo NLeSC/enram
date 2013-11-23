@@ -179,7 +179,7 @@ image=REFORM(theimage,ncols,nrows)
 ;
 ;FIND the center (radar coord.) and corners of the image
 Lon_Lat0=[meta.lon,meta.lat]
-dist=maxr/Radius
+dist=maxr/RADIUS
 lim0=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,270,/DEGREES),2)
 lim1=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,0,/DEGREES),2)
 lim2=ROTATE(LL_ARC_DISTANCE(Lon_lat0,dist,90,/DEGREES),2)
@@ -252,7 +252,7 @@ PLOTS,/NORMAL,[p[0],p[2],p[2],p[0],p[0]],[p[1],p[1],p[3],p[3],p[1]],color=0,THIC
 crossdistance = 10 ;km
 crossthick=1
 load_color,[0,0,0],0  ;black
-dist=crossdistance/Radius
+dist=crossdistance/RADIUS
 cr0=LL_ARC_DISTANCE([meta.lon,meta.lat],dist,270,/DEGREES)
 cr1=LL_ARC_DISTANCE([meta.lon,meta.lat],dist,0,/DEGREES)
 cr2=LL_ARC_DISTANCE([meta.lon,meta.lat],dist,90,/DEGREES)
