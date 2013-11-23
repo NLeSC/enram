@@ -9,13 +9,13 @@ radar_ids = radar_names(radar_ids,/print)
 ;
 date='20110915'
 ;
-gifdir = 'all_gif/'
+gifdir = 'all_gif/' ; FIXME
 FILE_MKDIR, gifdir
 
 ;GET the radar definitions from the definitions structure
 ;
 IF KEYWORD_SET(definitions) THEN dumy=TEMPORARY(definitions)
-FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   radar_definitions,radar_ids[i],radar_definition
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
@@ -40,28 +40,28 @@ enddate=YYYY+'-'+themonth+'-'+DD
 
 print, startdate+' - '+ enddate
 ;
-FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN 
+FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   ;
   this_rd=definitions[iradar]
   countryplace=STRSPLIT(this_rd.RADAR_FULL_NAME,'_',/EXTRACT)
   thiscountry=countryplace[0]
 ;  thisplace=this_rd.ascii_name eq '' ? countryplace[1] : this_rd.ascii_name
-  thisplace=countryplace[1] 
+  thisplace=countryplace[1]
 
   ;FIND the ascii *DAT file
   search_string=this_rd.BIRD_DATA_PATH+this_rd.path_id+'/'+this_rd.path_id+'*'+DD+MM+YYYY+'*.DAT'
   ascii_data=FILE_SEARCH(search_string,count=ascii_count)
   IF ascii_count eq 0 THEN BEGIN
-    PRINT, search_string+' not found' 
+    PRINT, search_string+' not found'
     CONTINUE
   ENDIF ELSE ascii_data=ascii_data[0]
 
-  psfile = this_rd.path_id+'_'+date+'_profile.ps'
-  giffile = this_rd.path_id+'_'+date+'_profile.gif'
+  psfile = this_rd.path_id+'_'+date+'_profile.ps'  ; FIXME
+  giffile = this_rd.path_id+'_'+date+'_profile.gif'  ; FIXME
 
   bangp=!p
   loadct,5,/silent
-  !P.Multi=0 
+  !P.Multi=0
   !P.NOERASE=1
   !P.FONT=0
   !P.CHARSIZE=0.8
@@ -70,12 +70,12 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   Set_Plot, 'PS'
   DEVICE, BITS_PER_PIXEL=8, COLOR=1,filename=psfile,$
   xsize=0.75*20,ysize=0.75*13*sqrt(2)*2/3
-   
+
   ;define time axis format
   DateRange=date2jd([startdate, enddate])
   Daterange=[Daterange[0]-0.5D,dateRange[1]+0.5D]
   dummy=LABEL_DATE(DATE_FORMAT=['%D/%M'])
-  
+
   message=' Plotting Bird Profile for '
   message+=thisplace+', '+thiscountry
   data=readvp2(ascii_data)
@@ -86,12 +86,12 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   bar=1
 
   TRESH_PRECIP=1
-  SIGMABIRD=10
+  SIGMABIRD=10    ; FIXME
   YRNG=[0,100]
   TRESH_STDEV=1.85
   ;factor for conversion dBZ to reflectivity
   LAYERHEIGHT=0.2   ;height layer spacing in km
-  DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta.
+  DBZFACTOR=335.4  ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 
   plotprof_day, data.juldate,data.height,data.dbz/10+ALOG10(DBZFACTOR),$
   data.u,data.v,$
@@ -99,7 +99,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   /windbarb, NVectors=[40,10],$
   BARTITLE=bartitle,$
   YTICKLEN=1,XTICKLEN=1,$
-  CONTOURRANGE=[0.8,3.8],  	$
+  CONTOURRANGE=[0.8,3.8],   $
   BIRDTICKS=birdticks,BAR=bar,$
   XRANGE=DateRange,XSTYLE=1,XTITLE=xtitle
 

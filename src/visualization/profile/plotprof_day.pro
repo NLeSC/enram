@@ -39,8 +39,8 @@ ENDIF
   if n_elements(vectorlength) le 0 then vectorlength = 0.01
   if n_elements(uvals) le 1 then plotvectors = 0
   if n_elements(vvals) le 1 then plotvectors = 0
-MAXHEIGHT=max(HEIGHT_RANGE)
-DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta.
+MAXHEIGHT=max(HEIGHT_RANGE)  ; FIXME ?
+DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 ContourRange=FLOAT(ContourRange)
 heights=heights-0.1
 
@@ -58,13 +58,13 @@ GridSizeDate=where(ShiftHist eq max(ShiftHist))/double(60*24)
 If (n_elements(gridsizedate) ne 1) then begin
     PRINT, FORMAT = '("WARNING: Equal probability for different time grid sizes ", 20(I1, " "))',60*24*GridSizeDate
     print, '         Using smallest grid...'
-	GridSizeDate=GridSizeDate[0]
+    GridSizeDate=GridSizeDate[0]
 endif
 GSDMin=round(60*24*GridSizeDate)
 if (GSDMin mod 5) ne 0 then begin
     PRINT, FORMAT = '("WARNING: Detected time grid not a multiple of 5 minutes: ", 20(I1, " "))',GSDMin
-	if (GSDMin mod 5) lt 2.5 then GridSizeDate=GridSizeDate-(GSDMin mod 5)/(60.*24) $
-	else GridSizeDate=GridSizeDate+(5-(GSDMin mod 5))/(60.*24)
+    if (GSDMin mod 5) lt 2.5 then GridSizeDate=GridSizeDate-(GSDMin mod 5)/(60.*24) $
+    else GridSizeDate=GridSizeDate+(5-(GSDMin mod 5))/(60.*24)
     PRINT, FORMAT = '("         Adjusting to nearest multiple of 5 minutes: " 20(I1, " "))',Round(60*24*GridSizeDate)
 endif
 GridSizeHeight=0.2
@@ -77,25 +77,25 @@ PlotMatrix=0*findgen(size([GridDate],/dim),size([GridHeight],/dim))-2000
 IF (n_elements(NVectors) eq 1 ) then NVectors=size(Plotmatrix,/dim)
 UMatrix=make_array(size([GridDate],/dim),size([GridHeight],/dim),value=!VALUES.F_NAN)
 VMatrix=UMatrix
-if (size(PlotMatrix,/n_elements) EQ 1) then return 
+if (size(PlotMatrix,/n_elements) EQ 1) then return
 n=LONG64((SIZE(dates,/dim))[0])
 m=LONG64((SIZE(GridUniqDate,/dim))[0])
 FOR i=LONG64(0),m-1 DO BEGIN
-	dindex=round((GridUniqDate[i]-GridDate[0])/GridSizeDate)
-	if dindex lt 0 or dindex ge (size(plotmatrix,/dim))[0] then CONTINUE
-	PlotMatrix[dindex,*]=-1000
+    dindex=round((GridUniqDate[i]-GridDate[0])/GridSizeDate)
+    if dindex lt 0 or dindex ge (size(plotmatrix,/dim))[0] then CONTINUE
+    PlotMatrix[dindex,*]=-1000
 ENDFOR
 if (not windbarb) then uscale=GridSizeDate/GridSizeHeight else uscale=1
 FOR i=LONG64(0),n-1 DO BEGIN
-	dindex=round((dates[i]-GridDate[0])/GridSizeDate)
-	hindex=round((heights[i]-GridHeight[0])/GridSizeHeight)
-	if dindex lt 0 or dindex ge (size(plotmatrix,/dim))[0] $
-  	   or hindex lt 0 or hindex ge (size(plotmatrix,/dim))[1] then CONTINUE
-	PlotMatrix[dindex,hindex]=zvals[i] 
-	if (plotvectors) then begin
-	  UMatrix[dindex,hindex]=uvals[i]*uscale
-	  VMatrix[dindex,hindex]=vvals[i]
-	endif
+    dindex=round((dates[i]-GridDate[0])/GridSizeDate)
+    hindex=round((heights[i]-GridHeight[0])/GridSizeHeight)
+    if dindex lt 0 or dindex ge (size(plotmatrix,/dim))[0] $
+       or hindex lt 0 or hindex ge (size(plotmatrix,/dim))[1] then CONTINUE
+    PlotMatrix[dindex,hindex]=zvals[i]
+    if (plotvectors) then begin
+      UMatrix[dindex,hindex]=uvals[i]*uscale
+      VMatrix[dindex,hindex]=vvals[i]
+    endif
 ENDFOR
 image = (!D.TABLE_SIZE)*(PlotMatrix-min(ContourRange))/(max(ContourRange)-min(ContourRange))
 nodata=where(PlotMatrix le -1999)
@@ -115,7 +115,7 @@ nulldata=where(PlotMatrix le -999)
    g[1]=255
    b[1]=255
    TVLCT,r,g,b
-;apply colors for nodata or zero data    
+;apply colors for nodata or zero data
    image=round(image)
    status=check_math()
    if ~(size(nulldata,/n_elements) EQ 1) then image[nulldata]=1
@@ -149,13 +149,13 @@ Plot,DATE_RANGE,HEIGHT_RANGE, $
    XTICKNAME=[' ',' ',' ',' ',' '],$
   XTITLE=XTITLE,YTITLE=YTITLE,POSITION=POS,$
   XSTYLE=1,YSTYLE=1,/NODATA,XTICK_GET=v
-;  
+;
 ;plot time
 Plot,DATE_RANGE,HEIGHT_RANGE, $
   XTICKUNITS = ['Time'],XTICKFORMAT='LABEL_DATE',XTICKS=2,$
   POSITION=POS,$
   XSTYLE=1,YSTYLE=1,_EXTRA=ex,/NODATA,XTICKV=v[1:3]
-  
+
  ;plot speed vectors
 
 if (plotvectors) then begin
@@ -173,13 +173,13 @@ if (plotvectors) then begin
   endif
   NoVectIndex=WHERE(vectgridheight gt max(VECTHEIGHTRANGE) OR vectgridheight lt min(VECTHEIGHTRANGE))
   if ((size(NoVectIndex,/n_dim)) gt 0) then begin
-	  UMatrix[*,NoVectIndex]=0
-	  VMatrix[*,NoVectIndex]=0
+      UMatrix[*,NoVectIndex]=0
+      VMatrix[*,NoVectIndex]=0
   endif
   if vector then MYVELOVECT, (UMatrix),(VMatrix),VectGridDate,VectGridHeight+0.1,$
-	/overplot,missing=50,vmax=25,length=vectorlength,clip=POS
+    /overplot,missing=50,vmax=25,length=vectorlength,clip=POS
   if windbarb then MYVELOVECT, (UMatrix),(VMatrix),VectGridDate,VectGridHeight+0.1,$
-	/overplot,missing=200,vmax=25,windbarb=windbarb,length=vectorlength,clip=POS, aspect = 1.*!D.X_Size/!D.Y_Size
+    /overplot,missing=200,vmax=25,windbarb=windbarb,length=vectorlength,clip=POS, aspect = 1.*!D.X_Size/!D.Y_Size
 endif
 
 ;write colorbar
@@ -188,10 +188,10 @@ endif
     IF (BIRDTICKS ge 1) THEN Colorbar, Position=POS+colorbar_pos,Range=(10^ContourRange)/10.,/Vertical,$
         Format='(I6)',Title=TexToIDL("Density [Birds / km^3]"),/RIGHT,charsize=colorbar_charsize,/ylog,yticks=0,ncolor=250,bottom=2
     IF (BARPOS eq 1) THEN BEGIN  ;this is for the residuals plot only
-	 Colorbar_n, Position=POS+colorbar_pos,Range=ContourRange,/Vertical,$
+     Colorbar_n, Position=POS+colorbar_pos,Range=ContourRange,/Vertical,$
          Format='(F6.1)',Title=TitleBar,/RIGHT,charsize=colorbar_charsize,ncolor=250,bottom=2
     ENDIF ELSE BEGIN IF (BAR) then Colorbar_n, Position=POS+colorbar_pos,Range=ContourRange,/Vertical,$
-	        Format='(F6.1)',Title=TitleBar,charsize=colorbar_charsize,ncolor=250,bottom=2
+            Format='(F6.1)',Title=TitleBar,charsize=colorbar_charsize,ncolor=250,bottom=2
     ENDELSE
 TVLCT, reverse(r), reverse(g), reverse(b)
 END
