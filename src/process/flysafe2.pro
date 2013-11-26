@@ -6,7 +6,7 @@ cluttermap=1
 clutter_ids = 25
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['NLDBL']
+radar_ids = readstationlist()
 radar_ids = radar_names(radar_ids)
 ;
 ; SPECIFY the time interval to process.

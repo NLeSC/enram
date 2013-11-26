@@ -4,7 +4,7 @@
 ;COMPUTE statistics of radar volume files for the creation of cluttermaps.
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['NLDBL']
+radar_ids = readstationlist()
 radar_ids = radar_names(radar_ids)
 ;
 ;SET the location of the statistics files
