@@ -9,5 +9,6 @@ testdata/harmonized/bird
 testdata/harmonized/cluttermaps
 testdata/harmonized/clutter-sensitivity
 testdata/harmonized/statistics
+testdata/raw
 data/raw
 private
