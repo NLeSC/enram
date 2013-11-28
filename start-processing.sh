@@ -3,8 +3,8 @@
 # start this script from the terminal by (make sure to enter it exactly):
 # . ./start-processing.sh
 
-outfile='log/stdout.log'
-errfile='log/stderr.log'
+outfile='log/stdout.txt'
+errfile='log/stderr.txt'
 
 
 echo "Do you wish to process the test data or the full data? (Enter 1 or 2)"
@@ -16,6 +16,7 @@ select answer in "Test data only" "Full data"; do
 done
 
 echo "Started processing based on $answer..."
+echo "(processing logs are located in '$outfile' and '$errfile')"
 echo "IDL_ENRAM_VOL2BIRDLIB='$IDL_ENRAM_VOL2BIRDLIB'" 1>>$outfile
 echo "IDL_ENRAM_SRC_IO='$IDL_ENRAM_SRC_IO'" 1>>$outfile
 echo "IDL_ENRAM_RAW_DATA='$IDL_ENRAM_RAW_DATA'" 1>>$outfile
@@ -29,10 +30,10 @@ echo "IDL_ENRAM_VISUALIZATION_OUTPUT='$IDL_ENRAM_VISUALIZATION_OUTPUT'" 1>>$outf
 
 idl -e ".r histogram.pro" 1>>$outfile 2>>$errfile
 
-idl -e ".r cluttermap.pro" 1>>$outfile 2>>$errfile 
+idl -e ".r cluttermap.pro" 1>>$outfile 2>>$errfile
 
 idl -e ".r clutter_sensitivity.pro" 1>>$outfile 2>>$errfile
- 
+
 idl -e ".r flysafe2.pro" 1>>$outfile 2>>$errfile
 
 
