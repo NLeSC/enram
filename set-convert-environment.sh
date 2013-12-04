@@ -4,7 +4,7 @@
 # . set-convert-environment.sh
 # (don't omit the dot at the beginning)
 
-enramroot='/home/daisycutter/enram/'
+enramroot='/home/wbouten/enram/'
 
 # define where the different ENRAM directories are:
 export ENRAM_DATA=$enramroot'testdata/'
