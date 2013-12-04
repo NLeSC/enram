@@ -2,7 +2,7 @@ data/harmonized/bird
 data/harmonized/cluttermaps
 data/harmonized/clutter-sensitivity
 data/harmonized/statistics
-flysafe2-editable
+data/raw
 log/stderr.txt
 log/stdout.txt
 testdata/harmonized/bird
@@ -10,5 +10,4 @@ testdata/harmonized/cluttermaps
 testdata/harmonized/clutter-sensitivity
 testdata/harmonized/statistics
 testdata/raw
-data/raw
 private
