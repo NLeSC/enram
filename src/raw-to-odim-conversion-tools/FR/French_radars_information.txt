@@ -1,0 +1,26 @@
+Number	Country	CID	WMO	ODIM	Location	Lat	Lon	height
+1169	France	FR51	7145	frtra	Trappes	48.775	2.008	166.5
+1159	France	FR40	7005	frabb	Abbeville	50.136	1.835	71.1
+1160	France	FR41	7510	frbor	Bordeaux	44.831	-0.692	46
+1161	France	FR42	7255	frbou	Bourges	47.059	2.36	162.2
+1163	France	FR44	7436	frgre	Grèzes	45.104	1.37	350.6
+1164	France	FR45	7129	frcae	Falaise	48.927	-0.15	155.4
+1166	France	FR47	7182	frnan	Nancy	48.716	6.582	285.8
+1167	France	FR49	7658	frnim	Nîmes	43.806	4.503	71.1
+1168	France	FR50	7629	frtou	Toulouse	43.574	1.376	157.8
+1170	France	FR52	7167	frtro	Arcis-sur-Aube	48.462	4.309	155.6
+1171	France	FR53	7461	frlep	Sembadel	45.289	3.71	1115.2
+1172	France	FR54	7223	frtre	Treillères	47.337	-1.656	68.8
+1173	France	FR55	7569	frbol	Bollène	44.323	4.762	309.3
+1175	France	FR57	7745	fropo	Opoul	42.918	2.865	701.9
+1176	France	FR58	7381	frniz	Saint Nizier	46.068	4.445	907.8
+1177	France	FR59	7671	frcol	Collobrières	43.217	6.373	640.5
+1174	France	FR56	7108	frpla	Plabennec	48.461	-4.43	96.5
+1179	France	FR61	7774	frale	Aléria	42.13	9.496	50.1
+1302	France	FR62	7637	frmcl	Montclar	43.99	2.61	667.5
+1303	France	FR63	7083	frave	Avesnes	50.128	3.812	191.6
+1304	France	FR64	7336	frche	Cherves	46.699	0.066	159.4
+1305	France	FR65	7274	frbla	Blaisy-Haut	47.355	4.776	592.1
+1306	France	FR66	7606	frmom	Momuy	43.624	-0.609	126.5
+1352	France	FR67	7291	frmtc	Montancy	47.369	7.019	912.9
+

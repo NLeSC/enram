@@ -1,0 +1,44 @@
+1 Create/convert radar templates for all stations:
+e.g.: txt_to_h5_no_h5k T_PAGZ47_C_nancy.txt T_PAGZ47_C_nancy.h5
+
+2. Convert binary data to hdf5:
+
+
+
+
+Zie hierbij de C-code die ik heb gemaakt om de Meteo-France data om te
+zetten naar ODIM HDF5 bestanden. Ik heb er ook een tabel bij gedaan met
+karakteristieken van de Franse radars. Ik heb als voorbeeld de radardata
+van de radar in Avesnes omgezet (zie ook bijlagen). Ik heb daarvoor
+eerst een ODIM-template file aangemaakt met (txt_to_h5_no_h5k.c en
+T_PAGZ63_C_frave.txt zijn ook bijgesloten):
+txt_to_h5_no_h5k T_PAGZ63_C_frave.txt T_PAGZ63_C_frave.h5
+
+Daarna heb ik alle .gz-files uitgepakt om vervolgens de ODIM-HDF5-file
+te genereren. Ik gebruik dus alle binaire MeteoFrance files van een
+radar met dezelfde timestamp:
+MF_binary_to_ODIM_vol_h5 T_PAGZ63_C_frave.h5 test_Avesnes.h5
+MF_test/Avesnes_201109010000_004.PLUIE
+MF_test/Avesnes_201109010000_004.VITESSE
+MF_test/Avesnes_201109010000_010.PLUIE
+MF_test/Avesnes_201109010000_010.VITESSE
+MF_test/Avesnes_201109010000_016.PLUIE
+MF_test/Avesnes_201109010000_016.VITESSE
+MF_test/Avesnes_201109010000_026.PLUIE
+MF_test/Avesnes_201109010000_026.VITESSE
+MF_test/Avesnes_201109010000_036.PLUIE
+MF_test/Avesnes_201109010000_036.VITESSE
+MF_test/Avesnes_201109010000_046.PLUIE
+MF_test/Avesnes_201109010000_046.VITESSE
+MF_test/Avesnes_201109010000_060.PLUIE
+MF_test/Avesnes_201109010000_060.VITESSE
+MF_test/Avesnes_201109010000_080.PLUIE
+MF_test/Avesnes_201109010000_080.VITESSE
+MF_test/Avesnes_201109010000_900.PLUIE
+MF_test/Avesnes_201109010000_900.VITESSE
+
+De resulterende ODIM-HDF5 file (test_Avesnes.h5) heb ik ook bijgesloten.
+
+Wat er nog moet gebeuren is dat er voor alle (17) Franse radars waar we
+data van hebben een template file gemaakt moet worden. Daarvoor kun je
+T_PAGZ63_C_frave.txt en de tabel (French_radars_information.txt) gebruiken.
