@@ -1,8 +1,8 @@
 ;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
-radar_ids = ['NL','NO','PL','SK','FR']
-radar_ids = radar_names(radar_ids)
+radar_ids_central_europe = ['NL','NO','PL','SK','FR'] 
+radar_ids = radar_names(radar_ids_central_europe)
 
 subdir = '0'
 directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir
@@ -19,7 +19,7 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-psfile='map_centraleu_'+date+time+'.ps' ; FIXME
+psfile=GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+'map_centraleu_'+date+time+'.ps' ; FIXME
 
 scan=1
 grid=1
