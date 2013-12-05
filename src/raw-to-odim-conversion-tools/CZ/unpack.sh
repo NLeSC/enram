@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # next line needed for ShellEd Bash debugger for Eclipse:
-. _DEBUG.sh
+. ./_DEBUG.sh
+
+
 
 # script requires that ENRAM_* environment variables have been set
 
@@ -73,7 +75,7 @@ do
 done 
 
 #remove unpack directory
-rm -fr 'hdf5'
+rm -fr ${ENRAM_TMP}'hdf5'
 
 echo -en '\r' `date`": Moved $i files of id $id to $destination"
 echo
