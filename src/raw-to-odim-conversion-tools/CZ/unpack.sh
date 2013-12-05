@@ -18,15 +18,15 @@
 
 
 # next line needed for ShellEd Bash debugger for Eclipse:
-. ./_DEBUG.sh
+. ../_DEBUG.sh
 
 
-# script requires that ENRAM_* environment variables have been set
 
 #Czech Republic 
 #RUN for id='T_PAHZ60' and destination=CZ_brd
 #AND     id='T_PAHZ50' and destination=CZ_ska
 
+# script requires that ENRAM_* environment variables have been set
 : ${ENRAM_RAW_DATA:?"script requires ENRAM_RAW_DATA to have been set."}
 : ${ENRAM_CONVERTED_DATA:?"script requires ENRAM_CONVERTED_DATA to have been set."}
 : ${ENRAM_TMP:?"script requires ENRAM_TMP to have been set."}
