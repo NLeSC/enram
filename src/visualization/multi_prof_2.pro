@@ -18,26 +18,26 @@
 ;SET the radar ids of the radars to be processed
 radar_ids = ['IEDUB','IESHA','NLDBL','NLDHL','NOAND','NOBML','NOHAS','NOHGB','NOHUR','NORSA','NORST','NOSTA','PLBRZ','PLGDA','PLLEG','PLPAS','PLPOZ','PLRAM','PLRZE','PLSWI','SEVIL','SEVAR','SEOVI','SEOSU','SELUL','SELEK','SEKKR','SEKIR','SEHUD','SEASE','SEARL','SEANG','SILIS','SKMAJ','SKKOH']
 radar_ids = radar_names(radar_ids,/print)
-;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
+
 ; SPECIFY the time interval to process.
-;
+
 date='20110915'
-;
+
 gifdir = 'all_gif/' ; FIXME
 FILE_MKDIR, gifdir
 
 ;GET the radar definitions from the definitions structure
-;
+
 IF KEYWORD_SET(definitions) THEN dumy=TEMPORARY(definitions)
 FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   radar_definitions,radar_ids[i],radar_definition
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
-;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
+
 PRINT,'============================================================================
 PRINT,'                   PLOT PROFILES
 PRINT,'                 '+SYSTIME(0)
@@ -55,13 +55,12 @@ startdate=YYYY+'-'+themonth+'-'+DD
 enddate=YYYY+'-'+themonth+'-'+DD
 
 print, startdate+' - '+ enddate
-;
+
 FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   ;
   this_rd=definitions[iradar]
   countryplace=STRSPLIT(this_rd.RADAR_FULL_NAME,'_',/EXTRACT)
   thiscountry=countryplace[0]
-;  thisplace=this_rd.ascii_name eq '' ? countryplace[1] : this_rd.ascii_name
   thisplace=countryplace[1]
 
   ;FIND the ascii *DAT file
@@ -125,13 +124,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
 
 Device, /Close
 Set_Plot, thisDevice
-pstracker,psfile
 !P=bangp
-
-pstracker,psfile
-;SPAWN, 'convert -density 150 '+psfile+' '+gifdir+giffile
-;SPAWN, 'rm -f '+psfile
-
 
 ENDFOR
 
