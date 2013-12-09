@@ -63,7 +63,7 @@ psfile=psfile,$
 radar_cross=0,$
 radar_title=0
 
-pstracker,psfile
-showps, psfile
+;pstracker,psfile
+;showps, psfile
 
 END
