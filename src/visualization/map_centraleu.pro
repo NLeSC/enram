@@ -57,6 +57,4 @@ psfile=psfile,$
 radar_cross=0,$
 radar_title=2
 
-showps, psfile
-
 END
