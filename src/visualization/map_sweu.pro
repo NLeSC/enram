@@ -17,8 +17,8 @@
 ;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
-radar_ids = ['NL','PL','SK','FR']
-radar_ids = radar_names(radar_ids)
+radar_ids_sweu = ['NL','PL','SK','FR']
+radar_ids = radar_names(radar_ids_sweu)
 
 subdir = '0'
 directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')+subdir

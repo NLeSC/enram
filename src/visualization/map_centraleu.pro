@@ -42,7 +42,6 @@ grid=1
 
 plot_lon=0
 plot_lat=45
-
 limit=[47,10,56,28]
 
 map_prof,files,limit,$

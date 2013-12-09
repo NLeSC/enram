@@ -17,11 +17,11 @@
 ;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
-radar_ids = ['NL','NO','PL','SE','FI']
-radar_ids = radar_names(radar_ids)
+radar_ids_scandinavia = ['NL','NO','PL','SE','FI']
+radar_ids = radar_names(radar_ids_scandinavia)
 
 subdir = '0'
-directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')+subdir
+directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir
 
 ; SPECIFY the time interval to process.
 date='20110901'
@@ -35,7 +35,7 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-psfile='map_scandinavia_'+date+time+'.ps' ; FIXME
+psfile=GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+'map_scandinavia_'+date+time+'.ps' ; FIXME
 
 scan=1
 grid=1
@@ -55,7 +55,5 @@ grid=grid,$
 psfile=psfile,$
 radar_cross=0,$
 radar_title=2
-
-showps, psfile
 
 END
