@@ -267,10 +267,9 @@ TVLCT,R,G,B
 colors=INDGEN(N_ELEMENTS(thresh)-1)
 ;PLOT the color bar
 
-;colordivbar,thresh,colors,color=0,format='(i0)',ticklen=0,chartick=2,$
-;lowleft=[p[2]+cb_xOffset,p[1]+cb_yOffset],ysize=cb_Size,/col,$
-;title=cb_Title
-print,"skipping the colorbar for now"
+colordivbar,thresh,colors,color=0,format='(i0)',ticklen=0,chartick=2,$
+lowleft=[p[2]+cb_xOffset,p[1]+cb_yOffset],ysize=cb_Size,/col,$
+title=cb_Title
 ;
 ;CLOSE device, return to original device
 DEVICE,/CLOSE
