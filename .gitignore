@@ -7,6 +7,7 @@ data/other
 data/raw
 log/stderr.txt
 log/stdout.txt
+other-data
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
 testdata/harmonized/clutter-sensitivity
