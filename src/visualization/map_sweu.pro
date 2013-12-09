@@ -35,7 +35,7 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-psfile='map_sweu_'+date+time+'.ps' ; FIXME
+psfile=GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+'map_sweu_'+date+time+'.ps' ; FIXME
 
 scan=1
 grid=1
@@ -55,7 +55,5 @@ grid=grid,$
 psfile=psfile,$
 radar_cross=0,$
 radar_title=2
-
-showps, psfile
 
 END
