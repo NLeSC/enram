@@ -22,7 +22,7 @@ enramroot='/home/wbouten/enram/'
 export IDL_DIR=~/exelis/idl82;
 
 # define in which directories IDL will search for functions, scripts, and so on:
-export IDL_PATH=+$IDL_DIR/external/lib:+${enramroot}src;
+export IDL_PATH=+$IDL_DIR:+${enramroot}src;
 
 # define the location of the startup file:
 export IDL_STARTUP=${enramroot}'src/idl_startup.pro'
