@@ -1,0 +1,255 @@
+\chapter{Getting started}
+
+The following figures illustrate the steps needed to:
+\begin{enumerate}
+\item{install the VirtualBox application;}
+\item{create a virtual machine;}
+\item{start the virtual machine;}
+\item{use the ENRAM software.}
+\end{enumerate}
+Since you are reading this file, it is assumed that you have plugged in the USB drive that contains all the data and software pertaining to the ENRAM project.
+
+\clearpage
+
+\section{Installing VirtualBox}
+
+Use Windows Explorer to browse the USB disk contents. The USB disk should show up as ENRAMUSBDISK in the left hand pane (see figure~\ref{fig:screenshot-1}). The disk should at least contain the following: (1) a folder `ENRAMVM' (which contains the virtual hard drive file that we will use in the next section), a file `readme.pdf' (which is the document you have before you), and a VirtualBox installer for Windows.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.85\linewidth , keepaspectratio]{./../eps/screenshot-1.eps}
+  \caption{}
+  \label{fig:screenshot-1}
+\end{figure}
+
+
+Double-click on the VirtualBox installer file (`VirtualBox-4.3.4-91027-Win.exe') to start the setup wizard. A menu will show up (Figure~\ref{fig:screenshot-2}). Click on the button labeled `Run'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-2.eps}
+  \caption{}
+  \label{fig:screenshot-2}
+\end{figure}
+\clearpage
+
+
+The setup wizard program should now start. On the first page of the setup wizard (Figure~\ref{fig:screenshot-3}), click the button labeled `Next'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-3.eps}
+  \caption{}
+  \label{fig:screenshot-3}
+\end{figure}
+
+
+On the next page of the setup wizard (Figure~\ref{fig:screenshot-4}), click the button labeled `Next'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-4.eps}
+  \caption{}
+  \label{fig:screenshot-4}
+\end{figure}
+\clearpage
+
+On the next page of the setup wizard (Figure~\ref{fig:screenshot-5}), check the items as you like. Then click the button labeled `Next'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-5.eps}
+  \caption{}
+  \label{fig:screenshot-5}
+\end{figure}
+
+
+Make sure you are not currently doing something that requires network access (like downloading a big file). Then, on the next page of the setup wizard (Figure~\ref{fig:screenshot-6}), click the button labeled `Yes'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-6.eps}
+  \caption{}
+  \label{fig:screenshot-6}
+\end{figure}
+\clearpage
+
+On the next page of the setup wizard, click the button labeled `Install'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-7.eps}
+  \caption{}
+  \label{fig:screenshot-7}
+\end{figure}
+
+
+%\begin{figure}[ht]
+  %\centering
+    %\includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-8.eps}
+  %\caption{}
+  %\label{fig:screenshot-8}
+%\end{figure}
+
+
+Allright! Looks like you just installed VirtualBox. Leave the checkbox checked (Figure~\ref{fig:screenshot-9}) and click on the button labeled `Finish'.
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-9.eps}
+  \caption{}
+  \label{fig:screenshot-9}
+\end{figure}
+\clearpage
+
+
+\section{Creating a virtual machine and running it}
+
+Before we can access all the goodies that are on the virtual disk, we need to create a so-called \textit{virtual machine}. Start the VirtualBox program if it has not already started. Since this probably is the first time you started VirtualBox, the program will show a welcome message (Figure~\ref{fig:screenshot-10}). Click on light blue icon in the top left corner labeled `New'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-10.eps}
+  \caption{}
+  \label{fig:screenshot-10}
+\end{figure}
+
+
+In this window (Figure~\ref{fig:screenshot-11}), specify `ENRAMVM' as the name of the virtual machine.
+
+Use the drop-down menus to choose the type of operating system (`Linux') and the version (`Ubuntu 64-bit').
+
+Click the button labeled `Next'.
+
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-11.eps}
+  \caption{}
+  \label{fig:screenshot-11}
+\end{figure}
+\clearpage
+
+In this window, you need to specify the amount of virtual memory that your virtual machine will have. Set it to 4096 MB (Figure~\ref{fig:screenshot-12}).
+
+Click the button labeled `Next'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-12.eps}
+  \caption{}
+  \label{fig:screenshot-12}
+\end{figure}
+
+
+In this window, make sure to choose the last option `Use an existing virtual hard drive file'. Use the little folder icon to the right of the drop-down list to select the virtual hard drive file `ENRAMVM Clone-disk1.vdi' that is located in folder `ENRAMVM' on ENRAMUSBDISK.
+
+Then, click the button labeled `Create'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-13.eps}
+  \caption{}
+  \label{fig:screenshot-13}
+\end{figure}
+\clearpage
+
+Sweet! We have a virtual machine (`ENRAMVM'; Figure~\ref{fig:screenshot-14}). Boot up the virtual machine by clicking the icon with the green arrow labeled `Start'.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-14.eps}
+  \caption{}
+  \label{fig:screenshot-14}
+\end{figure}
+
+
+A new Window will pop up (Figure~\ref{fig:screenshot-15}), which initially is just black, but after a couple of seconds, stuff will appear. There will likely also be two warning messages, but you can ignore these by clicking on the little blue icon in the top right corner of the ENRAMVM window.
+
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-15.eps}
+  \caption{}
+  \label{fig:screenshot-15}
+\end{figure}
+\clearpage
+
+After a couple more seconds, your newly created ENRAMVM machine will have finished booting and will be ready for you to use. It will show you a blue desktop with a few icons on it (Figure~\ref{fig:screenshot-16}).
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-16.eps}
+  \caption{}
+  \label{fig:screenshot-16}
+\end{figure}
+
+
+Before we do anything else, let's first maximize the virtual screen. You can do this by clicking on the menu item `View' and then selecting `Switch to Fullscreen' (Figure~\ref{fig:screenshot-17}).
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-17.eps}
+  \caption{}
+  \label{fig:screenshot-17}
+\end{figure}
+\clearpage
+
+
+Note that you can toggle between fullscreen and windowed mode by simultaneously pressing the letter F button and the Ctrl button on the right hand side of your keyboard (Figure~\ref{fig:screenshot-18}).
+
+Click the `Switch' button to switch to Fullscreen mode.
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-18.eps}
+  \caption{}
+  \label{fig:screenshot-18}
+\end{figure}
+
+You should now see the virtual machine's desktop fullscreen (Figure~\ref{fig:screenshot-19}).
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-19.eps}
+  \caption{}
+  \label{fig:screenshot-19}
+\end{figure}
+\clearpage
+
+%\begin{figure}[ht]
+  %\centering
+    %\includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-20.eps}
+  %\caption{screenshot 20}
+  %\label{fig:screenshot-20}
+%\end{figure}
+
+The next chapter explains how to use the ENRAM software and data, but at some point you'll want to power down the virtual machine, so let's look at that first.
+
+Click on the blue icon in the taskbar in the lower left corner of the screen, and choose `Logout' (Figure~\ref{fig:screenshot-21}).
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-21.eps}
+  \caption{}
+  \label{fig:screenshot-21}
+\end{figure}
+\clearpage
+
+In this menu, choose `Shutdown' to power down the virtual machine (Figure~\ref{fig:screenshot-22}). After a few seconds, you will be back at you Windows desktop (Figure~\ref{fig:screenshot-23}).
+
+\begin{figure}[ht]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-22.eps}
+  \caption{}
+  \label{fig:screenshot-22}
+\end{figure}
+
+\begin{figure}[hb]
+  \centering
+    \includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-23.eps}
+  \caption{}
+  \label{fig:screenshot-23}
+\end{figure}
+
+
+
