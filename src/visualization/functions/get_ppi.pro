@@ -47,19 +47,8 @@ help=help
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Definition of standard parameters.                                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-RESOLVE_ROUTINE, 'common_definition', /compile_full_file
-common_definition
-;
-COMMON constants,$
-NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
-RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
-NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
-DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
-NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
-NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
-SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
-;
+COMMON constants,NSCANX,TMP2,RADIUS
+UNDEFINE,TMP2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;PARSE KEYWORDS
@@ -74,11 +63,14 @@ IF KEYWORD_SET(ppw) THEN mode='W'
 ;
 dx = N_ELEMENTS(dx) eq 1 ? dx : 1.0
 maxr = N_ELEMENTS(maxr) eq 1 ? maxr : -1.0
-maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E10
-;
+;maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E10  ; FIXME maxz does not fit in LONG type, so conversion (below) is screwed.
+maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E9  ; FIXME maxz does not fit in LONG type, so conversion (below) is screwed.
+
 dx=LONG(dx)
 maxr=LONG(maxr)
-maxl=LONG(maxz)
+;maxl=LONG(maxz)   ; FIXME maxl is not used....typo perhaps? Should maybe be 'maxz'
+maxz=LONG(maxz)   ; FIXME maxl is not used....typo perhaps? Should maybe be 'maxz'
+
 ;
 nodata=255    ;MAKE this same as missing, in order to remove the outer limit 'ring' when patching
 ;
