@@ -17,6 +17,7 @@ done
 
 echo "Started processing based on $answer..."
 echo "(processing logs are located in '$outfile' and '$errfile')"
+echo "You can use the browser to inspect those files while the ENRAM scripts are running"
 echo "IDL_ENRAM_VOL2BIRDLIB='$IDL_ENRAM_VOL2BIRDLIB'" 1>>$outfile
 echo "IDL_ENRAM_SRC_IO='$IDL_ENRAM_SRC_IO'" 1>>$outfile
 echo "IDL_ENRAM_RAW_DATA='$IDL_ENRAM_RAW_DATA'" 1>>$outfile
