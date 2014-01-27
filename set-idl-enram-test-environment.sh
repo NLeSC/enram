@@ -19,7 +19,7 @@ enramroot='/home/wbouten/enram/'
 
 
 # define where the IDL binary is located:
-export IDL_DIR=~/exelis/idl82;
+export IDL_DIR=~/exelis/idl83;
 
 # define in which directories IDL will search for functions, scripts, and so on:
 export IDL_PATH=+$IDL_DIR:+${enramroot}src;
