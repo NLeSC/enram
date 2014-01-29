@@ -160,7 +160,7 @@ FOR i=0,allcount-1 DO BEGIN
   IF STRPOS(allfiles[i],'PAGZ') ne -1 THEN necessary_products += 1
 ENDFOR
 ;
-quarantine_dir='/usr/people/graafdem/FLYSAFE/process/data/odim/IE_'+STRLOWCASE(this_code)+'/quarantined/'
+quarantine_dir='/usr/people/graafdem/FLYSAFE/process/data/odim/IE_'+STRLOWCASE(this_code)+'/quarantined/'  ;FIXME (address does not exist)
 IF necessary_products lt 2 and allcount ge 0 THEN BEGIN
   FOR i=0,allcount-1 DO BEGIN
     mvstring = STRING(FORMAT='("mv ",a," ",a)',allfiles[i],quarantine_dir)
