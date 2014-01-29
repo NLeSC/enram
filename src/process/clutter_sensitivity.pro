@@ -84,7 +84,6 @@ printdate0 = STRING(format = '(2(I02,"-"),I4)', day0, month0, year0)
 printdate1 = STRING(format = '(2(I02,"-"),I4)', day1, month1, year1)
 ;GET total number of days
 days = JULDAY(month1, day1, year1) - JULDAY(month0, day0, year0) + 1
-;radar_ids = ['NL']
 
 ; Loop over the requested radar systems
 ;
