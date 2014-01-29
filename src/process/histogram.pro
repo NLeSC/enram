@@ -36,7 +36,7 @@ day1 = 15
 month1 = 09
 year1 = 2011
 ;
-;SET refresh if a new statistics file is to be cretaed. Otherwise the results
+;SET refresh if a new statistics file is to be created. Otherwise the results
 ;can be added to an existing statistics file
 refresh=1
 ;
