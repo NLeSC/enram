@@ -58,17 +58,28 @@ out=CREATE_STRUCT(  	    	    	$
 "_COMMENT"      ,"(IDL) Cluttermap",	$
 "what"          ,in.what,    	    	$
 "where"         ,in.where)
-;  
-in_tags=WHERE(STRMID(TAG_NAMES(in),0,7) eq 'DATASET',nscan)
+;
+THE_TAGS_JHS = TAG_NAMES(in)
+nTags_JHS = N_ELEMENTS(THE_TAGS_JHS)
+in_tags=WHERE(STRMID(THE_TAGS_JHS,0,7) eq 'DATASET',nscan)
 if nscan le 0 THEN MESSAGE, 'No datasets found in '+FILE_BASENAME(h5_statsfile)
 ;
-FOR iscan=1,nscan DO BEGIN
-  ;
+;FOR iscan=1,nscan DO BEGIN
+
+FOR iTag_JHS=0,nTags_JHS-1 DO BEGIN
+  
+  IF STRMID(THE_TAGS_JHS[iTag_JHS],0,7) ne 'DATASET' THEN CONTINUE   
   ;FIND dataset name according to scan number
-  dataset_name=STRING(FORMAT='("dataset",i0)',iscan)
+  ;dataset_name=STRING(FORMAT='("dataset",i0)',iscan)
+  iscan = FIX(STRMID(THE_TAGS_JHS[iTag_JHS],7)+0)  ;  adding zero is IDL's stupid way of type conversion, FIX converts to 16 bit signed integer
+  dataset_name=STRLOWCASE(THE_TAGS_JHS[iTag_JHS])
   ;
   ;FIND the field in the out structure corresponding to dataset_name
   i_intag=WHERE(TAG_NAMES(in) eq STRUPCASE(dataset_name),ntags)
+  
+  ; JHS2014 added this IF statement to deal with 0-range scans (which lead to the 'in' variable  
+  ; missing some datasets
+  IF i_intag eq -1 THEN CONTINUE
   ;    
   ;LOAD the statistics data for this scan
   hist_data = in.(i_intag).data1.data._data
