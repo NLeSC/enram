@@ -4,6 +4,7 @@ data/harmonized/clutter-sensitivity
 data/harmonized/statistics
 data/harmonized
 data/other
+data/stations.txt
 data/raw
 log/stderr.txt
 log/stdout.txt
@@ -14,5 +15,6 @@ testdata/harmonized/clutter-sensitivity
 testdata/harmonized/statistics
 testdata/harmonized
 testdata/raw
+testdata/stations.txt
 private
 visualization-output
