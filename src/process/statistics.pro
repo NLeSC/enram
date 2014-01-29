@@ -127,6 +127,9 @@ ENDIF ELSE BEGIN
     data=scan.(iscan)
     nrang=meta[iscan].nrang 	;GET the dimensions 
     nazim=meta[iscan].nazim 	;of the volume data
+    
+    ; JHS2014 added this if-statement to account for 0-range scans:
+    IF nrang eq 0 THEN CONTINUE
     ;
     ;CREATE a new dataset structure to hold the hist_data
     dataset = {_NAME:dataset_name,_TYPE:"GROUP"}
