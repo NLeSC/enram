@@ -127,7 +127,7 @@ IF STRPOS(passed_file,'PAGZ') ne -1 THEN BEGIN
   passed_type='Z'
 ENDIF
 IF passed_type eq 'A' THEN BEGIN
-  PRINT, 'The file '+passed_file+' does not seem to be of Czech ODIM format'
+  PRINT, 'The file '+passed_file+' does not seem to be of Irish ODIM format'
   RETURN
 ENDIF
 ;
