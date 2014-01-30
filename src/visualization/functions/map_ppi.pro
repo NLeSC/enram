@@ -39,7 +39,7 @@ psfile=psfile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;SETTINGS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
+
 COMMON constants,NSCANX,TMP2,RADIUS
 UNDEFINE,TMP2
 
@@ -76,7 +76,7 @@ crosscolor = N_ELEMENTS(crosscolor) eq 3 ? crosscolor : [000,000,000]
 ;PARSE the KEYWORDS
 caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss  ;GET current date/time
 psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRTRIM(DD,2)+STRTRIM(MM,2)+STRTRIM(YY,2)+'.ps'
-psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+psfile
+psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + psfile
 ;
 plot_lon = N_ELEMENTS(plot_lon) ne 0 ? plot_lon : 0
 plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0
@@ -140,7 +140,7 @@ a4ysize=29.7
 ;
 DEVICE,/COLOR,BITS=8,FILE=psfile,XSIZE=ps_xsize,ysize=ps_ysize,   $
 /Encapsulated, Preview=0, $
-XOFFSET=(a4xsize-ps_xsize)/2.,YOFFSET=(a4ysize-ps_ysize)/2.,SCALE=1  
+XOFFSET=(a4xsize-ps_xsize)/2.,YOFFSET=(a4ysize-ps_ysize)/2.,SCALE=1
 ;
 ;DEFINE a map projection
 MAP_SET,plot_lon,plot_lat,limit=limit,position=p,/noborder,_EXTRA=extra
