@@ -54,8 +54,9 @@ idl -e ".r histogram.pro" 1>>$outfile 2>>$errfile
 
 idl -e ".r cluttermap.pro" 1>>$outfile 2>>$errfile
 
-#idl -e ".r clutter_sensitivity.pro" 1>>$outfile 2>>$errfile
-
 idl -e ".r flysafe2.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r clutter_sensitivity.pro" 1>>$outfile 2>>$errfile
+
 
 echo "Started processing based on $answer...Done"
