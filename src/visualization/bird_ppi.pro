@@ -46,7 +46,7 @@ fringe=0
 rain=0
 
 psfile = KEYWORD_SET(rain) ? 'rain' : 'bird'
-psfile+='_ppi_'+date+time+'.ps'    ; FIXME
+psfile+='_ppi_'+date+time+'.ps' 
 
 
 map_bird_ppi,files,limit,$
@@ -62,8 +62,5 @@ grid=grid,$
 psfile=psfile,$
 radar_cross=0,$
 radar_title=0
-
-;pstracker,psfile
-;showps, psfile
 
 END
