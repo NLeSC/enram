@@ -1,7 +1,7 @@
 Function Atan2, arr1, arr2, zero = zr, deg = deg
 
 ; FIXME this is not the function Martin used
-print,'(atan2.pro) warning: this is not the function that Martin used during development'
+;print,'(atan2.pro) warning: this is not the function that Martin used during development'
 
 ;+
 ; NAME:
