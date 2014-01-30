@@ -65,11 +65,12 @@ SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 ;PARSE KEYWORDS
 IF KEYWORD_SET(help) THEN BEGIN
 ENDIF
-DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 ;
 dx = N_ELEMENTS(dx) eq 1 ? dx : 1.0
 maxr = N_ELEMENTS(maxr) eq 1 ? maxr : -1.0
-maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E10
+;maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E10   ; FIXME: 1.0e10 causes type conversion error when it is converted to a long (doesnt fit in 32-bit signed)
+; JHS2014
+maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E9
 ;
 dx=LONG(dx)
 maxr=LONG(maxr)
