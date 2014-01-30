@@ -17,14 +17,14 @@
 ;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
-radar_ids = ['all']
+radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 
 subdir = '0';
 directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')+subdir
 
 ; SPECIFY the time interval to process.
-date='20110914'
+date='20110815'
 time='0000'
 
 find_files,files,date,time,radar_ids;,directory=directory
