@@ -14,7 +14,7 @@
 ; limitations under the License.
 ;
 
-PRO map_prof,files,limit,$
+PRO map_donut,files,limit,$
 definitions=definitions,$
 date=date,time=time,$
 plot_lon=plot_lon,$
@@ -74,7 +74,7 @@ crosscolor = N_ELEMENTS(crosscolor) eq 3 ? crosscolor : [000,000,000]
 ;
 ;PARSE the KEYWORDS
 caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss  ;GET current date/time
-psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_prof_'+STRING([DD,MM,YY],FORMAT='(I02,I02,I04)')+'.ps'
+psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'donutmap_'+STRING([DD,MM,YY],FORMAT='(I02,I02,I04)')+'.ps'
 ;
 plot_lon = N_ELEMENTS(plot_lon) ne 0 ? plot_lon : 0
 plot_lat = N_ELEMENTS(plot_lat) ne 0 ? plot_lat : 0
