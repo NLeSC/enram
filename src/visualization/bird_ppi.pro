@@ -36,7 +36,7 @@ radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 
 subdir = '0';
-directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')+subdir
+directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir + '/'
 
 ; SPECIFY the time interval to process.
 date='20110815'
