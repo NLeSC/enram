@@ -63,15 +63,12 @@ IF KEYWORD_SET(ppw) THEN mode='W'
 ;
 dx = N_ELEMENTS(dx) eq 1 ? dx : 1.0
 maxr = N_ELEMENTS(maxr) eq 1 ? maxr : -1.0
-;maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E10  ; FIXME maxz does not fit in LONG type, so conversion (below) is screwed.
-maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E9  ; FIXME maxz does not fit in LONG type, so conversion (below) is screwed.
+maxz = N_ELEMENTS(maxz) eq 1 ? maxz : 1.0E9
 
 dx=LONG(dx)
 maxr=LONG(maxr)
-;maxl=LONG(maxz)   ; FIXME maxl is not used....typo perhaps? Should maybe be 'maxz'
-maxz=LONG(maxz)   ; FIXME maxl is not used....typo perhaps? Should maybe be 'maxz'
+maxz=LONG(maxz)
 
-;
 nodata=255    ;MAKE this same as missing, in order to remove the outer limit 'ring' when patching
 ;
 position= N_ELEMENTS(position) eq 0 ? [0.02,0.02,0.9,0.9] : position
