@@ -185,11 +185,9 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
   ;
   TVLCT,R,G,B
 
-;  print, mean(profile_bird)
   mean_bird_profile = MEAN(profile_bird)
   thiscolor = WHERE(thresh gt mean_bird_profile)
   thiscolor = thiscolor[0]-1
-;  print, thiscolor
 
   IF thiscolor ne -1 THEN BEGIN
     polyfill,maxpolygon,color=thiscolor
