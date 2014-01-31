@@ -58,7 +58,7 @@ plot_lon=0
 plot_lat=45
 limit=[41,-15,71,40]
 
-map_prof,files,limit,$
+map_donut,files,limit,$
 date=date,time=time,$
 definitions=definitions,$
 coast=0,$
