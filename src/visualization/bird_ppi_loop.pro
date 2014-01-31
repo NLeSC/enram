@@ -57,9 +57,15 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
     time=hours[ihour]+minutes[iminute]
 
     thething = KEYWORD_SET(rain) ? 'rain' : 'bird'
-    print, FORMAT='("Plotting ",a," ppi on ",a,":",a)',thething,date,time
 
-    find_files,files,date,time,radar_ids;,directory=directory
+    find_files,files,date,time,radar_ids
+    IF N_ELEMENTS(files) eq 0 THEN BEGIN 
+      print, FORMAT='("I can''t plot ",a," ppi on ",a,":",a," because I don''t see any files corresponding to that datetime")',thething,date,time
+      CONTINUE
+    ENDIF ELSE BEGIN
+      print, FORMAT='("Plotting ",a," ppi on ",a,":",a)',thething,date,time
+    ENDELSE
+    
 
     IF KEYWORD_SET(definitions) THEN dummy=TEMPORARY(definitions)
     FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
@@ -68,7 +74,6 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
     ENDFOR
 
     psfile = thething+'_ppi_'+date+time
-    giffile=psfile+'.gif'
     psfile+='.ps'
 
     map_bird_ppi,files,limit,$
@@ -87,9 +92,6 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
 
     PRINT
     h5_close
-
-    SPAWN, 'convert '+psfile+' '+giffile
-    SPAWN, 'rm -f '+psfile
 
   ENDFOR
 ENDFOR
