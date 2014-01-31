@@ -16,16 +16,30 @@
 
 ;PLOT multiple radars' ppi's
 
+; add the global variables
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
+
 ;SET the radar ids of the radars to be processed
-radar_ids_central_europe = ['NL','NO','PL','SK','FR'] 
+radar_ids_central_europe = ['NO','PL','SK','FR'] 
 radar_ids = radar_names(radar_ids_central_europe)
 
 subdir = '0'
-directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir
+directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir + '/'
 
 ; SPECIFY the time interval to process.
-date='20110901'
-time='1730'
+date='20110815'
+time='0000'
 
 find_files,files,date,time,radar_ids,directory=directory
 
@@ -35,7 +49,7 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-psfile=GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+'map_centraleu_'+date+time+'.ps' ; FIXME
+psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT')+'map_centraleu_'+date+time+'_'+subdir+'_'+'.ps'
 
 scan=1
 grid=1
