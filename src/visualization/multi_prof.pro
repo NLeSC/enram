@@ -16,6 +16,20 @@
 
 ;PLOT multiple radars' ppi's
 
+; add the global variables
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
+
 ;SET the radar ids of the radars to be processed
 radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
@@ -33,7 +47,7 @@ FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
 ENDFOR
 
-find_files,files,date,time,radar_ids;,directory=directory
+find_files,files,date,time,radar_ids
 
 psfile= GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + 'map_prof_'+date+time+'.ps'
 
