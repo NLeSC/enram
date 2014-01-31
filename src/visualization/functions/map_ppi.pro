@@ -40,8 +40,14 @@ psfile=psfile
 ;SETTINGS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-COMMON constants,NSCANX,TMP2,RADIUS
-UNDEFINE,TMP2
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 
 
 ;SET the reflectivity levels
@@ -75,7 +81,7 @@ crosscolor = N_ELEMENTS(crosscolor) eq 3 ? crosscolor : [000,000,000]
 ;
 ;PARSE the KEYWORDS
 caldat,SYSTIME(/JULIAN,/UTC),mm,dd,yy,hh,mi,ss  ;GET current date/time
-psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRTRIM(DD,2)+STRTRIM(MM,2)+STRTRIM(YY,2)+'.ps'
+psfile = N_ELEMENTS(psfile) ne 0 ? psfile : 'map_ppi_'+STRING([DD,MM,YY],FORMAT='(I02,I02,I04)')+'.ps'
 psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + psfile
 ;
 plot_lon = N_ELEMENTS(plot_lon) ne 0 ? plot_lon : 0
