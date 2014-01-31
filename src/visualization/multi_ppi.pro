@@ -54,8 +54,6 @@ plot_lat=45
 limit=[40,-15,70,40]
 
 
-; Variable 'psfile' needs to be undefined for map_ppi to work properly. I know! Totally weird.
-
 map_ppi,files,limit,$
 definitions=definitions,$
 coast=0,$
