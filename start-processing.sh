@@ -12,7 +12,7 @@ select answer in "Test data only" "Full data"; do
     case $answer in
         "Test data only" ) 
            echo "Test data only" 1>$outfile 2>$errfile
-           echo "The following `cat testdata/stations.txt| wc -w` stations will be processed:" 1>>$outfile
+           echo "The following `cat testdata/stations.txt| wc -w` station codes will be processed:" 1>>$outfile
            cat testdata/stations.txt 1>>$outfile
            echo "" 1>>$outfile
            echo "" 1>>$outfile
@@ -22,7 +22,7 @@ select answer in "Test data only" "Full data"; do
            ;;
         "Full data" )
            echo "Full data" 1>$outfile 2>$errfile
-           echo "The following `cat data/stations.txt| wc -w` stations will be processed:" 1>>$outfile
+           echo "The following `cat data/stations.txt| wc -w` station codes will be processed:" 1>>$outfile
            cat data/stations.txt 1>>$outfile
            echo "" 1>>$outline
            echo "" 1>>$outfile
