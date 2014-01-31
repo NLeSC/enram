@@ -14,9 +14,13 @@
 ; limitations under the License.
 ;
 
+;PLOT multiple radars' ppi's
+
+
+; add the global variables
 RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
-;
+
 COMMON constants,$
   NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
   RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
@@ -27,7 +31,6 @@ COMMON constants,$
   SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 
 
-;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
 radar_ids = READSTATIONLIST()
@@ -73,8 +76,8 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
       definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
     ENDFOR
 
-    psfile = thething+'_ppi_'+date+time
-    psfile+='.ps'
+    psfile = thething+'_ppi_'+date+time+.ps
+
 
     map_bird_ppi,files,limit,$
     date=date,time=time,$
