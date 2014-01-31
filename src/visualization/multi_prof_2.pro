@@ -14,10 +14,24 @@
 ; limitations under the License.
 ;
 
+
+; add the global variables
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
 ;
 ;SET the radar ids of the radars to be processed
 radar_ids = READSTATIONLIST()
-radar_ids = radar_names(radar_ids,/print)
+radar_ids = radar_names(radar_ids)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -25,11 +39,7 @@ radar_ids = radar_names(radar_ids,/print)
 
 date='20110815'
 
-;gifdir = 'all_gif/' ; FIXME
-;FILE_MKDIR, gifdir
-
 ;GET the radar definitions from the definitions structure
-
 IF KEYWORD_SET(definitions) THEN dumy=TEMPORARY(definitions)
 FOR i=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   radar_definitions,radar_ids[i],radar_definition
@@ -71,8 +81,7 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
     CONTINUE
   ENDIF ELSE ascii_data=ascii_data[0]
 
-  psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + this_rd.path_id+'_'+date+'_profile.ps'  ; FIXME
-  giffile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + this_rd.path_id+'_'+date+'_profile.gif'  ; FIXME
+  psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + this_rd.path_id+'_'+date+'_profile.ps'
 
   bangp=!p
   loadct,5,/silent
@@ -101,12 +110,10 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
   bar=1
 
   TRESH_PRECIP=1
-  SIGMABIRD=10    ; FIXME
   YRNG=[0,100]
   TRESH_STDEV=1.85
   ;factor for conversion dBZ to reflectivity
   LAYERHEIGHT=0.2   ;height layer spacing in km
-  DBZFACTOR=335.4  ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 
   plotprof_day, data.juldate,data.height,data.dbz/10+ALOG10(DBZFACTOR),$
   data.u,data.v,$
