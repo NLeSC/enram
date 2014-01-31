@@ -85,7 +85,7 @@ FOR iMap = 0,2 DO BEGIN
   plot_lat=45
 
   
-  map_prof,files,limit,$
+  map_donut,files,limit,$
     date=date,time=time,$
     definitions=definitions,$
     coast=0,$
