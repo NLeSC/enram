@@ -16,17 +16,17 @@
 
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = ['IEDUB','IESHA','NLDBL','NLDHL','NOAND','NOBML','NOHAS','NOHGB','NOHUR','NORSA','NORST','NOSTA','PLBRZ','PLGDA','PLLEG','PLPAS','PLPOZ','PLRAM','PLRZE','PLSWI','SEVIL','SEVAR','SEOVI','SEOSU','SELUL','SELEK','SEKKR','SEKIR','SEHUD','SEASE','SEARL','SEANG','SILIS','SKMAJ','SKKOH']
+radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids,/print)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; SPECIFY the time interval to process.
 
-date='20110915'
+date='20110815'
 
-gifdir = 'all_gif/' ; FIXME
-FILE_MKDIR, gifdir
+;gifdir = 'all_gif/' ; FIXME
+;FILE_MKDIR, gifdir
 
 ;GET the radar definitions from the definitions structure
 
@@ -71,8 +71,8 @@ FOR iradar=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
     CONTINUE
   ENDIF ELSE ascii_data=ascii_data[0]
 
-  psfile = this_rd.path_id+'_'+date+'_profile.ps'  ; FIXME
-  giffile = this_rd.path_id+'_'+date+'_profile.gif'  ; FIXME
+  psfile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + this_rd.path_id+'_'+date+'_profile.ps'  ; FIXME
+  giffile = GETENV('IDL_ENRAM_VISUALIZATION_OUTPUT') + this_rd.path_id+'_'+date+'_profile.gif'  ; FIXME
 
   bangp=!p
   loadct,5,/silent
