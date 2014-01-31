@@ -14,15 +14,27 @@
 ; limitations under the License.
 ;
 
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+;
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
 ;PLOT multiple radars' ppi's
 
 ;SET the radar ids of the radars to be processed
-radar_ids = ['all']
+radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 
-gifdir='loop_gif/Hans/' ; FIXME (use environment variable)
 ; SPECIFY the time interval to process.
-dates='20110902'
+dates='20110815'
 
 scan=1
 grid=1
@@ -37,8 +49,6 @@ rain=1
 minutes=STRING(FORMAT='(i0,"0")',INDGEN(6))
 hours=STRING(FORMAT='(i02)',INDGEN(8))
 
-FILE_MKDIR,gifdir
-;
 FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
 
   FOR iminute=0,N_ELEMENTS(minutes)-1 DO BEGIN
@@ -57,7 +67,7 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
       definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
     ENDFOR
 
-    psfile=thething+'_ppi_'+date+time  ; FIXME
+    psfile = thething+'_ppi_'+date+time
     giffile=psfile+'.gif'
     psfile+='.ps'
 
@@ -78,7 +88,7 @@ FOR ihour=0,N_ELEMENTS(hours)-1 DO BEGIN
     PRINT
     h5_close
 
-    SPAWN, 'convert '+psfile+' '+gifdir+giffile
+    SPAWN, 'convert '+psfile+' '+giffile
     SPAWN, 'rm -f '+psfile
 
   ENDFOR
