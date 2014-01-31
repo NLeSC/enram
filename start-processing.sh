@@ -58,5 +58,22 @@ idl -e ".r flysafe2.pro" 1>>$outfile 2>>$errfile
 
 idl -e ".r clutter_sensitivity.pro" 1>>$outfile 2>>$errfile
 
+idl -e ".r map_centraleu.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r map_scandinavia.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r map_sweu.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r bird_ppi.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r bird_ppi_loop.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r multi_ppi.pro" 1>>$outfile 2>>$errfile
+
+idl -e ".r multi_prof.pro" 1>>$outfile 2>>$errfile
+
 
 echo "Started processing based on $answer...Done"
+
+
+
