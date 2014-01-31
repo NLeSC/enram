@@ -54,9 +54,8 @@ COMMON constants,$
 
 
 ;SET the reflectivity levels
-;label=["-33","-29","-25","-21","-17","-13","-9","-5","-1","3","7","11","15","19","23","27","31","35","39","43","47","51","55","59"]
 thresh=[-33.0,-29.0,-25.0,-21.0,-17.0,-13.0,-9.0,-5.0,-1.0,3.0,7.0,11.0,15.0,19.0,23.0,27.0,31.0,35.0,39.0,43.0,47.0,51.0,55.0,59.0]
-label =STRING(thresh)
+label = STRING(thresh)
 ;
 ;DEFINE the color table for the reflectivity levels
 R=[000,000,000,000,000,003,003,003,000,000,054,120,184,247,255,255,199,135,184,245,255,255,255,237]
@@ -177,17 +176,12 @@ FOR ifile=0,N_ELEMENTS(files)-1 DO BEGIN
   data_index=WHERE(patch ne 255 AND patch ne 0,count)
   IF count gt 0 THEN composite[data_index]=patch[data_index]
   ;
-;  map=map_image(image,xstart,ystart,latmin=limit[6],latmax=limit[2],lonmin=limit[1],lonmax=limit[5])
-;  TV,map,xstart,ystart
-  ;
 ENDFOR
 radar_locations=REFORM(radar_locations,2,N_ELEMENTS(files),/OVERWRITE)
 ;
 ;COLOR the sea and continents with the sea and land colors
 ;if BgColor is set
 IF KEYWORD_SET(BgColor) THEN BEGIN
-  ;
-  ;MASK a background image: bg[254]=sea, bg[253]=land
   ;
   ;temoporarily SWITCH to memory to build the image
   ;DO this here, to match the resolution of the background image
@@ -222,8 +216,7 @@ ENDIF ELSE load_color,missing_c,255  ;
 ;
 ;PLOT the composite image
 TV,composite,xstart,ystart,xsize=xsize,ysize=ysize
-;TV,bg,xstart,ystart,xsize=xsize,ysize=ysize
-;
+
 ;ADD continents and grid.
 ;NOTE: all colors are passed through index 0, this should be modified before, and no other index than 0
 load_color,[110,110,110],0  ;SET the coast lines: dark grey
