@@ -20,6 +20,7 @@
 ; add the global variables
 RESOLVE_ROUTINE, 'common_definition', /compile_full_file
 common_definition
+
 COMMON constants,$
   NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
   RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
@@ -35,20 +36,9 @@ COMMON constants,$
 radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 
-subdir = '0';
-directory = GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY') + subdir + '/'
-
 ; SPECIFY the time interval to process.
 date='20110815'
 time='0000'
-
-find_files,files,date,time,radar_ids;,directory=directory
-
-IF KEYWORD_SET(definitions) THEN dummy=TEMPORARY(definitions)
-FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
-  radar_definitions,radar_ids[id],radar_definition
-  definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
-ENDFOR
 
 scan=1
 grid=1
@@ -60,8 +50,26 @@ limit=[41,-15,71,40]
 fringe=0
 rain=0
 
-psfile = KEYWORD_SET(rain) ? 'rain' : 'bird'
-psfile+='_ppi_'+date+time+'.ps' 
+thething = KEYWORD_SET(rain) ? 'rain' : 'bird'
+
+find_files,files,date,time,radar_ids
+IF N_ELEMENTS(files) eq 0 THEN BEGIN 
+  print, FORMAT='("I can''t plot ",a," ppi on ",a,":",a," because I don''t see any files corresponding to that datetime")',thething,date,time
+  CONTINUE
+ENDIF ELSE BEGIN
+  print, FORMAT='("Plotting ",a," ppi on ",a,":",a)',thething,date,time
+ENDELSE
+
+
+IF KEYWORD_SET(definitions) THEN dummy=TEMPORARY(definitions)
+FOR id=0,N_ELEMENTS(radar_ids)-1 DO BEGIN
+  radar_definitions,radar_ids[id],radar_definition
+  definitions= KEYWORD_SET(definitions) ? [definitions,radar_definition] : radar_definition
+ENDFOR
+
+
+
+psfile = thething+'_ppi_'+date+time+.ps
 
 
 map_bird_ppi,files,limit,$
