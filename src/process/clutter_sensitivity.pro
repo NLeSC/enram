@@ -23,7 +23,7 @@ cluttermap=1
 clutter_ids = [STRING([0,10,25,50,75]),['mode','median']]
 ;
 ;SET the radar ids of the radars to be processed
-radar_ids = readstationlist()
+radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 ;
 ;SET the location of the cluttermaps and the statitics files
@@ -31,12 +31,12 @@ temp_dir=GETENV('IDL_ENRAM_CLUTTER_SENSITIVITY')
 ;
 ; SPECIFY the time interval to process.
 ;
-day0 = 01
-month0 = 09
+day0 = 15
+month0 = 08
 year0 = 2011
 ;
-day1 = 01
-month1 = 09
+day1 = 15
+month1 = 08
 year1 = 2011
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
