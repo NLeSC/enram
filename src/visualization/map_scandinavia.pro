@@ -16,6 +16,19 @@
 
 ;PLOT multiple radars' ppi's
 
+; add the global variables
+RESOLVE_ROUTINE, 'common_definition', /compile_full_file
+common_definition
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
 ;SET the radar ids of the radars to be processed
 radar_ids_scandinavia = ['NO','SE','FI','PL']
 radar_ids = radar_names(radar_ids_scandinavia)
