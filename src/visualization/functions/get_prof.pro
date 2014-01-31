@@ -42,9 +42,6 @@ help=help
 ;;Definition of standard parameters.                                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-RESOLVE_ROUTINE, 'common_definition', /compile_full_file
-common_definition
-;
 COMMON constants,$
 NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
 RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
@@ -60,8 +57,6 @@ SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 ;PARSE KEYWORDS
 IF KEYWORD_SET(help) THEN BEGIN
 ENDIF
-;
-DBZFACTOR=335.4   ;conversion factor reflectivity factor Z to reflectivity eta. FIXME
 ;
 nodata=255    ;MAKE this same as missing, in order to remove the outer limit 'ring' when patching
 ;
