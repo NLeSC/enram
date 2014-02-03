@@ -34,7 +34,7 @@ select answer in "Test data only" "Full data"; do
     esac
 done
 
-echo "Started processing based on $answer..."
+echo `date`": Started processing based on $answer..."
 echo "(processing logs are located in '$outfile' and '$errfile')"
 echo "You can use the browser to inspect those files while the ENRAM scripts are running, but leave this window open."
 
@@ -67,7 +67,7 @@ idl -e ".r multi_ppi.pro" 1>>$outfile 2>>$errfile
 idl -e ".r multi_prof.pro" 1>>$outfile 2>>$errfile
 
 
-echo "Started processing based on $answer...Done"
+echo `date`": Started processing based on $answer...Done"
 
 
 
