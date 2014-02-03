@@ -28,15 +28,12 @@ COMMON constants,$
   SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
 
 
-;
+
 ;SET the radar ids of the radars to be processed
 radar_ids = READSTATIONLIST()
 radar_ids = radar_names(radar_ids)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ; SPECIFY the time interval to process.
-
 date='20110815'
 
 ;GET the radar definitions from the definitions structure
