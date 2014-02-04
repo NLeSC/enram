@@ -30,6 +30,17 @@ PRO PLOTPROF_DAY, dates, heights, zvals, uvals, vvals, WINDBARB=windbarb,VECTOR=
   VECTHEIGHTRANGE=HEIGHT_RANGE
   XTITLE="Date / Time (UTC)"
   plotvectors=1
+
+COMMON constants,$
+  NSCANX,RADIUS43,RADIUS,HLAYER,NLAYER,NDATA,RANGMIN,RANGMINSTDEV,    $
+  RANGMAXSTDEV,RANGMAX,AZIMMIN,AZIMMAX,VRADMIN,NGAPBIN,NGAPMIN,   $
+  NDBZMIN,VDIFMAX,VMASKMAX,EMASKMAX,RHOMIN,ZDRMIN,DBZMIN,         $
+  DBZMAX,DBZNOISE,DBZRAIN,DBZCELL,STDEVCELL,AREACELL,CLUTPERCCELL,$
+  NEIGHBOURS,VTEXSCALE,VTEXOFFSET,STDEVSCALE,NTEXBINAZIM,         $
+  NTEXBINRANG,NTEXMIN,TEXCV,TEXSTDEV,DBZCLUTTER,DBZFACTOR,        $
+  SIGMABIRD,STDEVBIRD,XOFFSET,XSCALE,XMEAN
+
+
 ;identify extra arguments
 IF (N_ELEMENTS(ex) NE 0) THEN BEGIN
   IF WHERE(TAG_NAMES(ex) eq 'BARTITLE') NE -1 THEN TitleBar=ex.BARTITLE[0]
@@ -55,8 +66,8 @@ ENDIF
   if n_elements(vectorlength) le 0 then vectorlength = 0.01
   if n_elements(uvals) le 1 then plotvectors = 0
   if n_elements(vvals) le 1 then plotvectors = 0
-MAXHEIGHT=max(HEIGHT_RANGE)  ; FIXME ?
-DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
+MAXHEIGHT=max(HEIGHT_RANGE)
+;DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 ContourRange=FLOAT(ContourRange)
 heights=heights-0.1
 
