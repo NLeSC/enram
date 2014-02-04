@@ -22,5 +22,3 @@ compile_opt DEFINT32, STRICTARR, STRICTARRSUBS
 ; Automatic Path creation
 sep = ':'  ; path directory separator
 
-
-
