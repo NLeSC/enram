@@ -19,10 +19,10 @@ enramroot='/home/wbouten/enram/'
 
 
 # define where the IDL binary is located:
-export IDL_DIR=~/exelis/idl83;
+export IDL_DIR=~/exelis/idl82;
 
 # define in which directories IDL will search for functions, scripts, and so on:
-export IDL_PATH=+$IDL_DIR:+${enramroot}src;
+export IDL_PATH=+${enramroot}src:+$IDL_DIR;
 
 # define the location of the startup file:
 export IDL_STARTUP=${enramroot}'src/idl_startup.pro'
@@ -38,3 +38,4 @@ export IDL_ENRAM_CLUTTERMAPS=${enramroot}'testdata/harmonized/cluttermaps/'
 export IDL_ENRAM_STATISTICS=${enramroot}'testdata/harmonized/statistics/'
 export IDL_ENRAM_CLUTTER_SENSITIVITY=${enramroot}'testdata/harmonized/clutter-sensitivity/'
 export IDL_ENRAM_VISUALIZATION_OUTPUT=${enramroot}'visualization-output/'
+export IDL_ENRAM_TEMPLATES=${enramroot}'other-data/templates.sav'
