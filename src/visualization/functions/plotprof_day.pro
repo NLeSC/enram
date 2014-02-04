@@ -67,7 +67,6 @@ ENDIF
   if n_elements(uvals) le 1 then plotvectors = 0
   if n_elements(vvals) le 1 then plotvectors = 0
 MAXHEIGHT=max(HEIGHT_RANGE)
-;DBZFACTOR=335.4   ; FIXME ;conversion factor reflectivity factor Z to reflectivity eta.
 ContourRange=FLOAT(ContourRange)
 heights=heights-0.1
 
