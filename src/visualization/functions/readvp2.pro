@@ -15,7 +15,10 @@
 ;
 
 function READVP2, filename, VERBOSE=verbose
-  restore, '~/IDL/flysafe/templates.sav'
+
+  templateFileStr = GETENV('IDL_ENRAM_TEMPLATES')
+  restore,templateFileStr
+  
   data=read_ascii(filename, template=weather_template)
   juldates=julday(strmid(data.date,4,2),strmid(data.date,6,2),$
          strmid(data.date,0,4),strmid(data.time,0,2),strmid(data.time,2,2))
