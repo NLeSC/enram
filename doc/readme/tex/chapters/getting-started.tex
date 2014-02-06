@@ -1,17 +1,13 @@
 \chapter{Getting started}
 
-The following figures illustrate the steps needed to:
-\begin{enumerate}
-\item{install the VirtualBox application;}
-\item{create a virtual machine;}
-\item{start the virtual machine;}
-\item{use the ENRAM software.}
-\end{enumerate}
+This document explains how to install the VirtualBox software (Section~\ref{sec:installing-virtualbox}), how to create a virtual machine and how to start it (Section~\ref{sec:creating-virtual-machine}), how to start the ENRAM data processing (Chapter~\ref{ch:using-the-enram-software}), and finally it provides some background about how the virtual machine is organized (Chapter~\ref{ch:design-philosophy}).
+
 Since you are reading this file, it is assumed that you have plugged in the USB drive that contains all the data and software pertaining to the ENRAM project.
 
 \clearpage
 
 \section{Installing VirtualBox}
+\label{sec:installing-virtualbox}
 
 Use Windows Explorer to browse the USB disk contents. The USB disk should show up as ENRAMUSBDISK in the left hand pane (see figure~\ref{fig:screenshot-1}). The disk should at least contain the following: (1) a folder `ENRAMVM' (which contains the virtual hard drive file that we will use in the next section), a file `readme.pdf' (which is the document you have before you), and a VirtualBox installer for Windows.
 
@@ -84,13 +80,6 @@ On the next page of the setup wizard, click the button labeled `Install'.
 \end{figure}
 
 
-%\begin{figure}[ht]
-  %\centering
-    %\includegraphics[width=0.80\linewidth , keepaspectratio]{./../eps/screenshot-8.eps}
-  %\caption{}
-  %\label{fig:screenshot-8}
-%\end{figure}
-
 
 Allright! Looks like you just installed VirtualBox. Leave the checkbox checked (Figure~\ref{fig:screenshot-9}) and click on the button labeled `Finish'.
 \begin{figure}[ht]
@@ -103,6 +92,7 @@ Allright! Looks like you just installed VirtualBox. Leave the checkbox checked (
 
 
 \section{Creating a virtual machine and running it}
+\label{sec:creating-virtual-machine}
 
 Before we can access all the goodies that are on the virtual disk, we need to create a so-called \textit{virtual machine}. Start the VirtualBox program if it has not already started. Since this probably is the first time you started VirtualBox, the program will show a welcome message (Figure~\ref{fig:screenshot-10}). Click on light blue icon in the top left corner labeled `New'.
 
