@@ -8,7 +8,7 @@ Software has been developed by Adriaan Dokter and Martin de Graaf during previou
 
 Currently, data from the following stations are included:\\
 \\
-\begin{longtable}[htb]{lll}
+\begin{longtable}[htb]{ll}
 \caption{List of radar stations}
 \hline
 \textbf{station code} & \textbf{full name}\\
@@ -79,5 +79,51 @@ SKKOH & Kojsovska hola, Slovakia \\
 SKMAJ & Maly Javornik, Slovakia\\
 \end{longtable}
 
+\needspace{10em}
 \section{Directory structure}
+The following table lists a selection of the most important files and directories as used in the \mbox{`ENRAMVM'} Virtual Machine.
 
+\begin{longtable}[htb]{lp{7cm}}
+\hline
+\textbf{Location} & \textbf{Description}\\
+(relative to \texttt{/home/wbouten/enram/}) & \\
+\hline
+\endhead
+\texttt{data/}  & contains the radar data and derived products \\
+\texttt{data/harmonized/bird/}  & ... \\
+\texttt{data/harmonized/cluttermaps/}  & ... \\
+\multicolumn{2}{l}{\texttt{data/harmonized/clutter-sensitivity/}  }\\
+ & ... \\
+\texttt{data/harmonized/odim/}  & radar data for all stations for the period 15-Aug-2011 to 16-Sep-2011 in ODIM-HDF5 format. \\
+\texttt{data/harmonized/statistics/}  & contains output from \texttt{src/process/cluttermap.pro} \\
+\texttt{data/raw/}  & radar data for most stations for the period 15-Aug-2011 to 16-Sep-2011 as provided by individual weather services \\
+\texttt{data/stations.txt}  & configuration file containing a list of stations that are part of the data set to be analyzed \\
+\texttt{doc/}  & some relevant literature\\
+\texttt{doc/readme/}  & the latex files needed for compiling this document\\
+\texttt{log/stderr.txt}  &  standard error log\\
+\texttt{log/stderr.txt}  & standard output log\\
+\texttt{other-data/}  & miscellaneous data (currently not used)\\
+\texttt{src/}  & source code main directory\\
+\texttt{src/io}  & country-specific i/o routines written in IDL\\
+\texttt{src/lib}  & programs and functions from external libraries, written in IDL\\
+\texttt{src/process/bird\_call.pro} & IDL program that ... \\
+\texttt{src/process/cluttermap.pro}\footref{fnlabel}  & IDL program that ...  Output is written to \texttt{data/harmonized/cluttermaps/}.  \\
+\multicolumn{2}{l}{\texttt{src/process/clutter\_sensitivity.pro}\footref{fnlabel} } \\
+& IDL program that ...  \\
+\texttt{src/process/flysafe2.pro}\footref{fnlabel}  & IDL program that ... \\
+\texttt{src/process/statistics.pro}  & IDL program that calculates statistics based on which ... Output is written to \texttt{data/harmonized/statistics/} \\
+\multicolumn{2}{l}{\texttt{src/raw-to-odim-conversion-tools}}\\
+ & (incomplete) collection of conversion scripts, mostly written in Bash and C, with which the initial conversion was performed to convert the data from \texttt{data/raw} to the ODIM-HDF5 format in \texttt{data/harmonized/odim}.\\
+\multicolumn{2}{l}{\texttt{src/visualization/make\_bird\_density\_profiles.pro}\footref{fnlabel}}\\
+   & IDL program that creates figures of bird density as a function of time and altitude.\\
+\multicolumn{2}{l}{\texttt{src/visualization/make\_colored\_donut\_maps.pro}\footref{fnlabel}} \\
+ & IDL program that creates a figure in which the bird density around each radar is plotted as a colored  donut.\\
+\multicolumn{2}{l}{\texttt{src/visualization/make\_ppi\_time\_space\_bird\_rain.pro}\footref{fnlabel}}  \\
+& IDL program that creates a map of distributed PPI's of rain and of bird density, at given time intervals. \\
+\multicolumn{2}{l}{\texttt{src/visualization/multi\_ppi.pro}\footnote{\label{fnlabel}This program is part of the main data processing pipeline, as defined in the Bash script \texttt{start-processing.sh}.}} \\
+   & IDL program that visualizes multiple PPI's.\\
+\texttt{src/visualization}  & figure-generating programs\\
+\texttt{src/vol2bird} & stores Adriaan Dokter's C language program \\
+\texttt{testdata/} & subset of \texttt{data/}, used in integration testing\\
+\texttt{visualization-output/}  & directory where all visualization programs place their output figure files\\
+\end{longtable}
