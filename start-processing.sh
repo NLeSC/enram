@@ -115,7 +115,7 @@ else
     
     idl -e ".r flysafe2.pro" 1>>${outfile} 2>>${errfile}
     
-    idl -e ".r clutter_sensitivity.pro" 1>>${outfile} 2>>${errfile}
+    #idl -e ".r clutter_sensitivity.pro" 1>>${outfile} 2>>${errfile}
     
     idl -e ".r make_colored_donut_maps.pro" 1>>${outfile} 2>>${errfile}
     
