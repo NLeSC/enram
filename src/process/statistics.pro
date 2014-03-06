@@ -442,7 +442,7 @@ endif
     ;CREATE an indexing array to update hist_Data
     ;directly
     ;
-    if 0 eq 1 THEN begin  
+    if 0 eq 1 THEN begin  ;//fixme why the if?
       
       hist_data_direct = hist_data
     
