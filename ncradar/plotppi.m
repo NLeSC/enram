@@ -28,7 +28,10 @@ for iBin = 1:nBins
         lon(1:5,1) = polygons(iBin,iRay,1:5,1);
         lat(1:5,1) = polygons(iBin,iRay,1:5,2);
         iColor = iColor + 1;
-        patch(lon,lat,'k','facecolor',theColors(iColor,1:3),'edgecolor',theColors(iColor,1:3));
+        
+        if abs(theScanData(iRay,iBin))>10
+            patch(lon,lat,'k','facecolor',theColors(iColor,1:3),'edgecolor',theColors(iColor,1:3));
+        end
         
         if iBin==nBins
             lonOutline(iRay*2+[-1,0],1) = lon(1:2,1);
