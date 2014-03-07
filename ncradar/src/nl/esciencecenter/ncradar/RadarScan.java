@@ -55,7 +55,6 @@ public class RadarScan {
 		this.radarPositionLatitude = readRadarPositionLatitude();
 		this.radarPositionLongitude = readRadarPositionLongitude();
 		this.scanData = readScanData();
-		this.polygons = calcPolygons();
 		
 	}
 	
