@@ -14,7 +14,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-public class RadarFile {
+public class RadarScan {
 	
 	private String directory;
 	private String filename;
@@ -27,7 +27,7 @@ public class RadarFile {
 	private double radarPositionLatitude;
 	private double radarPositionLongitude;
 	
-	public RadarFile(String directory,String filename) throws IOException {
+	public RadarScan(String directory,String filename) throws IOException {
 		
 		this.directory = directory;
 		System.out.println("directory = " + this.directory);
@@ -48,16 +48,11 @@ public class RadarFile {
 		this.radarPositionLatitude = readRadarPositionLatitude();
 		this.radarPositionLongitude = readRadarPositionLongitude();
 		
-		
 		this.scanData = readScanData();
 		
 		this.polygons = calcPolygons();
 		
-		System.out.println("construction finished -- all good so far");
-		
-		
 	}
-	
 	
 	private byte[][] readScanData() throws IOException {
 		
@@ -346,19 +341,31 @@ public class RadarFile {
 	}
 
 	public byte[][] getScanData() {
-		return scanData;
+		return scanData.clone();
 	}
+
+
+	public double[][][][] getPolygons() {
+		return polygons.clone();
+	}
+
+
+	public double getRadarPositionHeight() {
+		return radarPositionHeight;
+	}
+	
+	
 	
 	public static void main(String[] args) throws IOException{
 		
-		RadarFile rf = new RadarFile("/home/daisycutter/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf");
+		RadarScan rf = new RadarScan("/home/daisycutter/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf");
 		String str = rf.getDirectory();
 		System.out.println(str);
 
 //		rf.printAsWKTToCSV();
 //		rf.printAsGeoJSONToCSV();
 	}
-	
+
 }
 
 
