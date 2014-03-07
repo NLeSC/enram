@@ -15,44 +15,169 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 public class RadarScan {
-	
+
+	private int datasetIndex;
 	private String directory;
 	private String filename;
+	private String scanType;
 	private double[][][][] polygons;
 	private long numberOfRays;
 	private long numberOfBins;
 	private double elevationAngle;
+//	private double gain;
+//	private double offset;
 	private byte[][] scanData;
+	private String startDate;
+	private String startTime;
+	private String endDate;
+	private String endTime;
 	private double radarPositionHeight;
 	private double radarPositionLatitude;
 	private double radarPositionLongitude;
+	private String datasetName;
 	
-	public RadarScan(String directory,String filename) throws IOException {
+	public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
 		
+ 
+		this.datasetIndex = datasetIndex;
+		this.datasetName = "dataset"+(datasetIndex+1);
 		this.directory = directory;
-		System.out.println("directory = " + this.directory);
-		
 		this.filename = filename;
-		System.out.println("filename = " + this.filename);
-
+		this.scanType = readScanType();
 		this.numberOfRays = readNumberOfRays();
-		System.out.println("nRays = " + this.numberOfRays);
-		
         this.numberOfBins = readNumberOfBins();
-        System.out.println("nBins = " + this.numberOfBins);
-        
 		this.elevationAngle = readElevationAngle();
-		System.out.println("elevationAngle = " + this.elevationAngle);
-		
+		this.startDate = readStartDate();
+        this.startTime = readStartTime();
+		this.endDate = readEndDate();
+        this.endTime = readEndTime();
 		this.radarPositionHeight = readRadarPositionHeight();
 		this.radarPositionLatitude = readRadarPositionLatitude();
 		this.radarPositionLongitude = readRadarPositionLongitude();
-		
 		this.scanData = readScanData();
-		
 		this.polygons = calcPolygons();
 		
 	}
+	
+
+	private String readScanType() throws IOException {
+		
+		String scanType = "";
+		String fullFilename = this.directory + File.separator + this.filename;
+
+		NetcdfFile ncfile = null;
+		try {
+			ncfile = NetcdfFile.open(fullFilename);
+
+			Attribute attr = ncfile.findGlobalAttribute(datasetName+"_data1_what_quantity");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
+		    scanType = attr.getStringValue();
+		    
+		} finally {
+			ncfile.close();
+		}
+		
+		return scanType;
+	}
+
+	
+	private String readStartDate() throws IOException {
+		
+		String startDate = "";
+		String fullFilename = this.directory + File.separator + this.filename;
+
+		NetcdfFile ncfile = null;
+		try {
+
+			ncfile = NetcdfFile.open(fullFilename);
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_startdate");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
+	        startDate = attr.getStringValue();
+
+	        
+		} finally {
+			ncfile.close();
+		}
+		
+		return startDate;
+	}
+	
+	private String readStartTime() throws IOException {
+		
+		String startTime = "";
+		String fullFilename = this.directory + File.separator + this.filename;
+
+		NetcdfFile ncfile = null;
+		try {
+
+			ncfile = NetcdfFile.open(fullFilename);
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_starttime");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
+	        startTime = attr.getStringValue();
+
+	        
+		} finally {
+			ncfile.close();
+		}
+		
+		return startTime;
+	}
+		
+	
+	private String readEndDate() throws IOException {
+		
+		String endDate = "";
+		String fullFilename = this.directory + File.separator + this.filename;
+
+		NetcdfFile ncfile = null;
+		try {
+
+			ncfile = NetcdfFile.open(fullFilename);
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_enddate");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
+	        
+	        endDate = attr.getStringValue();
+
+	        
+		} finally {
+			ncfile.close();
+		}
+		
+		return endDate;
+	}
+	
+	private String readEndTime() throws IOException {
+		
+		String endTime = "";
+		String fullFilename = this.directory + File.separator + this.filename;
+
+		NetcdfFile ncfile = null;
+		try {
+
+			ncfile = NetcdfFile.open(fullFilename);
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_endtime");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
+	        endTime = attr.getStringValue();
+
+	        
+		} finally {
+			ncfile.close();
+		}
+		
+		return endTime;
+	}
+			
+	
 	
 	private byte[][] readScanData() throws IOException {
 		
@@ -61,7 +186,7 @@ public class RadarScan {
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
-	        Variable var = ncfile.findVariable("dataset1/data1/data");
+	        Variable var = ncfile.findVariable(datasetName + "/data1/data");
 	        Array data = var.read();
 	        
 	        int[] dims = data.getShape();
@@ -97,7 +222,10 @@ public class RadarScan {
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
-	        Attribute attr = ncfile.findGlobalAttribute("dataset1_where_nrays");
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_nrays");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        nRays = (Long) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -116,7 +244,10 @@ public class RadarScan {
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
-	        Attribute attr = ncfile.findGlobalAttribute("dataset1_where_nbins");
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_nbins");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        nBins = (Long) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -133,7 +264,10 @@ public class RadarScan {
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
-	        Attribute attr = ncfile.findGlobalAttribute("dataset1_where_elangle");
+	        Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_elangle");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        elevAngle = (Double) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -151,6 +285,9 @@ public class RadarScan {
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
 	        Attribute attr = ncfile.findGlobalAttribute("where_height");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        radarPositionHeight = (Double) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -168,6 +305,9 @@ public class RadarScan {
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
 	        Attribute attr = ncfile.findGlobalAttribute("where_lat");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        radarPositionLatitude = (Double) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -185,6 +325,9 @@ public class RadarScan {
 		try {
 			ncfile = NetcdfFile.open(fullFilename);
 	        Attribute attr = ncfile.findGlobalAttribute("where_lon");
+			if (attr==null){
+				System.err.println("Looks like there is no attribute by that name.");
+			}
 	        radarPositionLongitude = (Double) attr.getNumericValue();
 		} finally {
 			ncfile.close();
@@ -235,9 +378,18 @@ public class RadarScan {
 	}
 	
 	public void printAsWKTToCSV() throws FileNotFoundException, UnsupportedEncodingException {
+		
+		String filename = this.filename+".wkt.csv";
+		printAsWKTToCSV(filename);
+		
+	}
+
+
+	
+	public void printAsWKTToCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException {
 
 		
-		PrintWriter writer = new PrintWriter("polygon-test.wkt.csv", "UTF-8");
+		PrintWriter writer = new PrintWriter(filename, "UTF-8");
 
 		int nPolyCorners = 5;
 		int iBinMin = 0;
@@ -281,8 +433,14 @@ public class RadarScan {
 
 	public void printAsGeoJSONToCSV() throws FileNotFoundException, UnsupportedEncodingException {
 
-		
-		PrintWriter writer = new PrintWriter("polygon-test.geojson.csv", "UTF-8");
+	   String filename = this.filename+".geojson.csv";
+	   printAsGeoJSONToCSV(filename);
+	   
+	}
+	
+	public void printAsGeoJSONToCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException {
+
+		PrintWriter writer = new PrintWriter(filename, "UTF-8");
 
 		int nPolyCorners = 5;
 		String headerStr = "\"the_geom\",\"reflectivity\"";
@@ -350,6 +508,43 @@ public class RadarScan {
 	}
 
 
+	public int getDatasetIndex() {
+		return datasetIndex;
+	}
+
+	public String getScanType() {
+		return scanType;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public double getRadarPositionLatitude() {
+		return radarPositionLatitude;
+	}
+
+	public double getRadarPositionLongitude() {
+		return radarPositionLongitude;
+	}
+
+	public String getDatasetName() {
+		return datasetName;
+	}
+
+	
 	public double getRadarPositionHeight() {
 		return radarPositionHeight;
 	}
@@ -358,12 +553,12 @@ public class RadarScan {
 	
 	public static void main(String[] args) throws IOException{
 		
-		RadarScan rf = new RadarScan("/home/daisycutter/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf");
-		String str = rf.getDirectory();
+		RadarScan rs = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",10);
+		String str = rs.getDirectory();
 		System.out.println(str);
 
-//		rf.printAsWKTToCSV();
-//		rf.printAsGeoJSONToCSV();
+//		rs.printAsWKTToCSV();
+//		rs.printAsGeoJSONToCSV();
 	}
 
 }
