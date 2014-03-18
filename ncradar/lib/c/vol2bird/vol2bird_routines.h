@@ -50,7 +50,7 @@
 #define TEXCV       (1)
 #define TEXSTDEV    (2)
 #define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
-		             /*with dBZ>DBZRAIN [1-8]                         */
+/*with dBZ>DBZRAIN [1-8]                         */
 #define NLAYER      (30)     /*Number of stacked height layers.               */
 #define NDATA       (3)      /*Data dimension height layers.                  */
 
@@ -59,7 +59,7 @@
 /******************************************************************************/
 #define BYAREA      (1)
 #define BYMEAN      (2)
-				   
+
 /******************************************************************************/
 /*Definition of parameters for fitting:                                       */
 /******************************************************************************/
@@ -83,37 +83,37 @@ int svd_vvp3func(float x[],int Ndx,float afunc[],int Npar);
 /******************************************************************************/
 
 struct scanmeta {
-    int date;                /*Date of scan data in YYYYMMDD.*/
-    int time;                /*Time of scan data in HHMMSS.*/
-    float heig;              /*Height of radar antenna in km.*/
-    float elev;              /*Elevation of scan in deg.*/
-    int nrang;               /*Number of range bins in scan.*/
-    int nazim;               /*Number of azimuth rays in scan.*/
-    float rscale;            /*Size of range bins in scan in km.*/
-    float ascale;            /*Size of azimuth steps in scan in deg.*/
-    int azim0;               /*Ray number with which radar scan started.*/
-    float zoffset;           /*Offset value of quantity contained by scan.*/
-    float zscale;            /*Scale of value of quantity contained by scan.*/
-    int missing;             /*Missing value of quantity contained by scan.*/
-    float PRFh;              /*High PRF used for scan in Hz.*/
-    float PRFl;              /*Low PRF used for scan in Hz.*/
-    float pulse;             /*Pulse length in microsec.*/
-    float radcnst;           /*Radar constant in dB.*/
-    float txnom;             /*Nominal maximum TX power in kW.*/
-    float antvel;            /*Antenna velocity in deg/s.*/	
+	int date;                /*Date of scan data in YYYYMMDD.*/
+	int time;                /*Time of scan data in HHMMSS.*/
+	float heig;              /*Height of radar antenna in km.*/
+	float elev;              /*Elevation of scan in deg.*/
+	int nrang;               /*Number of range bins in scan.*/
+	int nazim;               /*Number of azimuth rays in scan.*/
+	float rscale;            /*Size of range bins in scan in km.*/
+	float ascale;            /*Size of azimuth steps in scan in deg.*/
+	int azim0;               /*Ray number with which radar scan started.*/
+	float zoffset;           /*Offset value of quantity contained by scan.*/
+	float zscale;            /*Scale of value of quantity contained by scan.*/
+	int missing;             /*Missing value of quantity contained by scan.*/
+	float PRFh;              /*High PRF used for scan in Hz.*/
+	float PRFl;              /*Low PRF used for scan in Hz.*/
+	float pulse;             /*Pulse length in microsec.*/
+	float radcnst;           /*Radar constant in dB.*/
+	float txnom;             /*Nominal maximum TX power in kW.*/
+	float antvel;            /*Antenna velocity in deg/s.*/
 };
 
 struct cellprop {
-    int imax;
-    int jmax;
-    float dbz;
-    float tex;
-    float cv;
-    float area;
-    float clutterarea;
-    float max;
-    int index;
-    char drop;
+	int imax;
+	int jmax;
+	float dbz;
+	float tex;
+	float cv;
+	float area;
+	float clutterarea;
+	float max;
+	int index;
+	char drop;
 };
 
 typedef struct scanmeta SCANMETA;
@@ -142,15 +142,15 @@ float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale)
 void sortcells(CELLPROP *c,int ncell, int method);
 int updatemap(int *cellmap,CELLPROP *c, int Ncell,int Npoints, int area);
 void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta, 
-     SCANMETA cmmeta,int *cellmap,
-     unsigned char *zscan,unsigned char *vscan,
-     unsigned char *uzscan,unsigned char *cmscan,
-     float *zdata,int *nzdata,
-     float *fracclut,float *fracrain,float *fracbird, float *fracfringe,
-     float rminscan,float rmaxscan,float HLAYER,float XOFFSET,
-     float XSCALE,float XMEAN,float height,
-     float amin,float amax,float vmin,float dbzclutter,float dBZmin,
-     float dBZx,float DBZNOISE,int NGAPMIN,int NGAPBIN,int NDBZMIN,
-     int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
-     int *Npntrainp,int *NpntrainNoFringep,
-     unsigned char cmflag,unsigned char uzflag,unsigned char xflag);
+		SCANMETA cmmeta,int *cellmap,
+		unsigned char *zscan,unsigned char *vscan,
+		unsigned char *uzscan,unsigned char *cmscan,
+		float *zdata,int *nzdata,
+		float *fracclut,float *fracrain,float *fracbird, float *fracfringe,
+		float rminscan,float rmaxscan,float HLAYER,float XOFFSET,
+		float XSCALE,float XMEAN,float height,
+		float amin,float amax,float vmin,float dbzclutter,float dBZmin,
+		float dBZx,float DBZNOISE,int NGAPMIN,int NGAPBIN,int NDBZMIN,
+		int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
+		int *Npntrainp,int *NpntrainNoFringep,
+		unsigned char cmflag,unsigned char uzflag,unsigned char xflag);
