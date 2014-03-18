@@ -41,12 +41,9 @@ void texture(unsigned char *teximg,unsigned char *vimage, unsigned char *zimage,
 	 for (k=0 ; k<ntexrang*ntexazim ; k++) {
             ii=(i-ntexrang/2+k%ntexrang);
 	    jj=(nazim+(j-ntexazim/2+k/ntexrang))%nazim; /* periodic boundary condition azimuth */
-   //         ii=(i-1+k%3);
-   //         jj=(nazim+(j-1+k/3))%nazim; /* periodic boundary condition azimuth */
             index=ii+jj*nrang;
 	    if (index >= nrang*nazim || index < 0) continue;
             if (vimage[ii+jj*nrang]==missing || zimage[ii+jj*nrang]==missing) continue;
-   //         if (vimage[ii+jj*nrang]==missing) value=-(vmeta->zoffset)/(vmeta->zscale);
 	    else value=vimage[ii+jj*nrang];
             vmoment1+=(vmeta->zoffset)+(vmeta->zscale)*(vimage[i+j*nrang]-value);
             vmoment2+=SQUARE((vmeta->zoffset)+(vmeta->zscale)*(vimage[i+j*nrang]-value));
@@ -123,17 +120,14 @@ for (j=0 ; j<nazim ; j++) {
          if (count-1 < NEIGHBOURS) continue;
       }
       else {
-//         if (teximage[i+j*nrang]==missing||sign*teximage[i+j*nrang]>sign*threstex){
 	    if (!(rhoimage[i+j*nrang]!=missing && zdrimage[i+j*nrang]!=missing &&
                  teximage[i+j*nrang]!=missing && teximage[i+j*nrang]>=dbzmin &&
 		(zdrimage[i+j*nrang]>threszdr||rhoimage[i+j*nrang]>thresrho))) continue; 
-//	 }
          /* count number of direct neighbours above threshold */
          count=0;
          for (k=0 ; k<9 ; k++) {
             ii=(i-1+k%3);
             jj=(nazim+(j-1+k/3))%nazim; /* periodic boundary condition azimuth */
-//            if (sign*teximage[ii+jj*nrang]<=sign*threstex || rhoimage[ii+jj*nrang]>thresrho) count++;
             if (rhoimage[ii+jj*nrang]>thresrho||zdrimage[ii+jj*nrang]>threszdr) count++;
          }
          /* when not enough neighbours with dBZ>DBZRAIN, continue */
@@ -220,7 +214,6 @@ for (n=0 ; n<Ncell ; n++) {
 for (ia=0 ; ia<nazim ; ia++) {
 for (ir=0 ; ir<zmeta->nrang ; ir++) {
    ij=ir+ia*zmeta->nrang;
-//for (ij=0 ; ij<nazim*nrang ; ij++) {
    if (cellmap[ij]<0) continue;
    //low radial velocities are treated as clutter, not included in calculation cell properties
    if (fabs(vmeta->zscale*imgv[ij]+vmeta->zoffset)<vmin){
@@ -267,7 +260,6 @@ for (n=0 ; n<Ncell ; n++) {
    }
    else {
       if (c[n].area<area || (c[n].dbz<dbzcell && c[n].tex>stdevcell && c[n].clutterarea/c[n].area < clutcell )){
-      //   if (c[n].area<area||c[n].cv>0.5)
           c[n].drop=1;
       }
    }
@@ -413,11 +405,9 @@ int updatemap(int *cellmap,CELLPROP *c,int Ncell,int Npoints,int area)
 int ij,n,NcellValid=Ncell;
 
 for (ij=0 ; ij<Npoints ; ij++) {
-//   printf("ij=%i,c[ij]4.dbz = %f \n",ij,c[n].dbz);
 
    if (cellmap[ij]<0) continue;
    if (c[cellmap[ij]].drop) cellmap[ij]=-1;
-
 
 }
 
@@ -512,17 +502,13 @@ for (j=0 ; j<nazim ; j++){
       tmp=(XYMAX(0,i-rblock)*rscale*ascale*DEG2RAD);
       if (tmp<fringe/nazim) ablock=nazim;
       else ablock=ROUND(fringe/tmp);
-//      printf("i=%i,j=%i,k=%i,ii=%i,jj=%i,id=%i \n",i,j,k,ii,jj,ii+jj*nrang);
       for (k=0 ; k<(2*rblock+1)*(2*ablock+1) ; k++) {
          ii=(i-rblock+k%(2*rblock+1));
          jj=(nazim+(j-ablock+k/(2*rblock+1)))%nazim; // periodic boundary condition azimuth
 	 if (ii<0||ii>=nrang) continue;
 	 //if not within range or already in cellmap or already a fringe, do nothing
-//	 if ((dist(i,j,ii,jj,rscale,ascale)>fringe || cellmap[ii+jj*nrang]>=1) && ii+jj*nrang < 105626) printf("i=%i,j=%i,k=%i,ii=%i,jj=%i,id=%i,distance=%f,fringe=%f\n",i,j,k,ii,jj,ii+jj*nrang,dist(i,j,ii,jj,rscale,ascale),fringe);
          if (dist(i,j,ii,jj,rscale,ascale)>fringe || cellmap[ii+jj*nrang]>=1) continue;
-//	 if (ii+jj*nrang < 105626) printf("i=%i,j=%i,k=%i,ii=%i,jj=%i,id=%i,rscale=%f,ascale=%f,fringe=%f\n",i,j,k,ii,jj,ii+jj*nrang,rscale,ascale,fringe);
 	 //include pixel (ii,jj) in fringe
-//	 if (ii+jj*nrang < 105626) printf("i=%i,j=%i,k=%i,ii=%i,jj=%i,id=%i,old cellmap=%i\n",i,j,k,ii,jj,ii+jj*nrang,cellmap[ii+jj*nrang]);
          cellmap[ii+jj*nrang]=1; //assign index 1 to fringes
       }
    }
@@ -565,8 +551,6 @@ int gap=0,Nsector[NGAPBIN],n,m;
 for (m=0 ; m<NGAPBIN ; m++) Nsector[m]=0;
 
 /*Collect histogram.*/
-
-//printf("x[Ndx*n]*NGAPBIN=%i, or %f", x[Ndx*n]*NGAPBIN);
 
 for (n=0 ; n<Npnt ; n++) {
    m=(x[Ndx*n]*NGAPBIN)/360.0;
