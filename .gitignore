@@ -9,6 +9,7 @@ data/raw
 log/stderr.txt
 log/stdout.txt
 ncradar/.metadata/
+ncradar/.classpath
 other-data
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
