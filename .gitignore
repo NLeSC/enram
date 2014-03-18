@@ -8,12 +8,13 @@ data/stations.txt
 data/raw
 log/stderr.txt
 log/stdout.txt
+ncradar/.metadata/
 other-data
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
 testdata/harmonized/clutter-sensitivity
 testdata/harmonized/statistics
-testdata/harmonized
+#testdata/harmonized
 testdata/raw
 testdata/stations.txt
 private
