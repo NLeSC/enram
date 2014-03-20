@@ -36,6 +36,14 @@ public class RadarScan {
 	private double radarPositionLongitude;
 	private String datasetName;
 	
+//    static {
+//    	System.out.println("there's an error here relating to the library path");
+//    	System.loadLibrary("sayhello"); 
+//    	}
+//		 
+//    // Declare native method
+//    private native void sayHello();	
+	
 	public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
 		
  
@@ -336,7 +344,7 @@ public class RadarScan {
 	
 	
 	
-	private double[][][][] calcPolygons(){
+	public double[][][][] calcPolygons(){
 		
 		double angleTrailing = 0;
 		double angleLeading = 0;

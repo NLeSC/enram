@@ -51,7 +51,7 @@
   </target>
 
   <target name="runit" depends="makejar" description="run the jar containing everything">
-	<java jar="${dist}/ncradar.jar" fork="true"/>
+	<java jar="${dist}/ncradar.jar" fork="true" />
   </target>
 
 	
