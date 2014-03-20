@@ -564,8 +564,8 @@ public class RadarScan {
 		String str = rs.getDirectory();
 		System.out.println(str);
 
-//		rs.printAsWKTToCSV();
-//		rs.printAsGeoJSONToCSV();
+		rs.printAsWKTToCSV();
+		rs.printAsGeoJSONToCSV();
 	}
 
 }
