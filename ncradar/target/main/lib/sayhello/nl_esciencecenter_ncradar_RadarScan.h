@@ -7,6 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/*
+ * Class:     nl_esciencecenter_ncradar_RadarScan
+ * Method:    sayHello
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_nl_esciencecenter_ncradar_RadarScan_sayHello
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
