@@ -4,88 +4,65 @@
   <description>
   	Ant build file for ncradar project
   </description>
+	
+  <property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include"/>
 
-  <property name="src.main.java"               location="src/main/java"/>
-  <property name="src.main.native"             location="src/main/native"/>
-  <property name="src.main.native.libvol2bird" location="src/main/native/libvol2bird"/>
-  <property name="src.main.native.netcdf"      location="src/main/native/netcdf"/>
-  <property name="src.main.native.sayhello"    location="src/main/native/sayhello"/>	
-  <property name="src.test"                    location="src/test"/>
-  <property name="target"                      location="target"/>
-  <property name="target.main"                 location="target/main"/>
-  <property name="target.main.classes"         location="target/main/classes"/>
-  <property name="target.main.lib"             location="target/main/lib"/>
-  <property name="target.main.lib.libvol2bird" location="target/main/lib/libvol2bird"/>
-  <property name="target.main.lib.netcdf"      location="target/main/lib/netcdf"/>
-  <property name="target.main.lib.sayhello"    location="target/main/lib/sayhello"/>
-  <property name="target.test"                 location="target/test"/>
-  <property name="target.reports"              location="target/reports"/>
-  <property name="javadoc"                     location="javadoc"/>
-  <property name="jnihdir"                     location="/usr/lib/jvm/java-6-openjdk-amd64/include/"/>
-  <property name="verbosity"                   value="true"/>	
-  
   <target name="clean" description="clean up" >
-  	<delete dir="${target}" verbose="${verbosity}"/>
-  	<delete file="ncradar.jar" verbose="${verbosity}"/>
+  	<delete dir="build"/>
+  	<delete dir="dist"/>
+  	<delete dir="tmp"/>
   </target>
 	
-  <target name="init" depends="clean">
+  <target name="create-dirs" depends="clean">
     <tstamp/>
-    <mkdir dir="${target.main.classes}"/>
-    <mkdir dir="${target.main.lib}"/>
-    <mkdir dir="${target.main.lib.libvol2bird}"/>
-    <mkdir dir="${target.main.lib.netcdf}"/>
-  	<mkdir dir="${target.main.lib.sayhello}"/>
-  	<mkdir dir="${target.main}/META-INF"/>  	
-    <mkdir dir="${target.test}"/>
-    <mkdir dir="${target.reports}"/>
+  	<mkdir dir="build"/>
+  	<mkdir dir="build/lib/sayhello"/>
+    <mkdir dir="build/classes"/>
+  	<mkdir dir="dist"/>
   </target>
 
-  <target name="copyjar" depends="init">
-    <copy file="${src.main.native.netcdf}/netcdfAll-4.3.jar" todir="${target.main.lib.netcdf}" verbose="${verbosity}"/>    
+  <target name="copyjar" depends="create-dirs">
+    <copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist"/>    
   </target>
 	
   <target name="javacompile" depends="copyjar" description="compile the java source code" >
-    <javac srcdir="${src.main.java}" 
-    	   destdir="${target.main.classes}" 
-    	   classpath="${target.main.lib.netcdf}/netcdfAll-4.3.jar"
+    <javac srcdir="src" 
+    	   destdir="build/classes" 
+    	   classpath="lib/netcdf/netcdfAll-4.3.jar"
     	   includeAntRuntime="false"/>
   </target>
 
-  <target name="jniheaders" depends="javacompile" description="Use javah to create the JNI header" >
-    <javah force="yes" classpath="${target.main.classes}" destdir="${target.main.lib.sayhello}">
+  <target name="copyccode" depends="javacompile">
+    <copy file="lib/sayhello/libsayhello.c" todir="build/lib/sayhello"/>    
+  </target>
+	
+	
+  <target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header" >
+    <javah force="yes" classpath="build/classes" destdir="build/lib/sayhello">
     	<class name="nl.esciencecenter.ncradar.RadarScan"/>
     </javah>
   </target>
 
   <target name="sayhello" depends="jniheaders" description="compile the C-language source file sayhello into a shared object" >
-    <exec dir="${src.main.native.sayhello}" executable="gcc">
+    <exec dir="build/lib/sayhello" executable="gcc">
     	<arg line="-fPIC"/>
-        <arg line="-I${jnihdir}"/>
-        <arg line="-I${target.main.lib.sayhello}"/>
+    	<arg line="-I${jnihdir}"/>
+    	<arg line="-I${jnihdir}/linux"/>
         <arg line="-shared"/>
-        <arg line="sayhello.c"/>
+        <arg line="libsayhello.c"/>
         <arg line="-o"/>
-        <arg line="${target.main.lib.sayhello}/sayhello.so"/>
+        <arg line="../../../dist/libsayhello.so"/>
     </exec>
   </target> 
-
-  <target name="writemanifest" depends="sayhello">
-    <manifest file="${target.main}/META-INF/MANIFEST.MF">
-      <section name="common">
-    	<attribute name="Implementation-Title" value="blah"/>
-      	<attribute name="Implementation-Vendor" value="Example Corp."/>
-   		<attribute name="Main-Class" value="nl.esciencecenter.ncradar.RadarScan"/>      	
-      </section>
-    </manifest>
-  </target>
 	
-  <target name="makejar" depends="writemanifest" description="make a jar out of everything">
-    <jar destfile="ncradar.jar" basedir="${target.main}"/>
+  <target name="makejar" depends="sayhello" description="make a jar out of everything">
+    <jar destfile="dist/ncradar.jar" basedir="build/classes" />
   </target>
 
   <target name="runit" depends="makejar" description="run the jar containing everything">
-	<java jar="ncradar.jar" fork="true" />
+	<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScan">
+		<sysproperty key="java.library.path" value="dist"/>
+	</java>
   </target>
 	
 </project>
