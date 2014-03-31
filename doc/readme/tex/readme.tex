@@ -34,7 +34,7 @@
 \usepackage{multicol}
 \usepackage{relsize}
 \usepackage{placeins}
-
+\usepackage[blocks]{authblk}
 
 \definecolor{orange}{rgb}{1,0.5,0}
 \definecolor{mkeywordcolor}{rgb}{0,0,1}
@@ -170,12 +170,12 @@
 \renewcommand{\captionlabelfont}{\sffamily}
 
 
-\title{ENRAM readme}
+\title{\textbf{ENRAM readme}}
 
-\author{Jurriaan H. Spaaks}
-\author{Martin de Graaf}
-\author{Hidde Leijnse}
-\author{Willem Bouten}
+\author[1]{Jurriaan H. Spaaks}
+\author[2]{Willem Bouten}
+\affil[1]{Netherlands eScience Center}
+\affil[2]{University of Amsterdam}
 
 
 \lstdefinestyle{basic}{basicstyle=\scriptsize\ttfamily,
@@ -246,9 +246,9 @@
 
 \begin{document}
 
-%\input{./chapters/title}
+\input{./chapters/title}
 %\insertemptypage{}
-%\insertemptypage{}
+\insertemptypage{}
 
 \pagestyle{plain}
 %\frontmatter

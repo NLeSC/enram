@@ -1,6 +1,10 @@
 \chapter{Getting started}
 
-This document explains how to install the VirtualBox software (Section~\ref{sec:installing-virtualbox}), how to create a virtual machine and how to start it (Section~\ref{sec:creating-virtual-machine}), how to start the ENRAM data processing (Chapter~\ref{ch:using-the-enram-software}), and finally it provides some background about how the virtual machine is organized (Chapter~\ref{ch:design-philosophy}).
+Software has been developed by Adriaan Dokter and Martin de Graaf during previous stages of the project. Adriaan's software is written in the C programming language, whereas most of Martin's work is in IDL. The two components work together to read radar signals from ODIM-HDF5 formatted files containing radar sensor data, most importantly reflectivities and radial velocities. The software can use these data to visualize the intensity of bird migration around a radar station, either as PPI's\footnote{\burl{http://en.wikipedia.org/wiki/Plan_Position_Indicator}} or as altitude profiles. The software further includes algorithms to calculate cluttermaps for a given radar station. 
+
+The current stage of the project attempts to preserve the functionality of the existing radar analysis workflow. This has been implemented by creating a virtual machine in which all necessary software has been set up and configured correctly and consistently, such that the entire workflow may be reproduced by running just one script (`/home/wbouten/enram/start-processing.sh'). Furthermore, the code is now stored using a version control system (git), and is publicly accessible at GitHub (\burl{https://github.com/NLeSC/enram}).
+
+The rest of this document explains how to install the VirtualBox software (Section~\ref{sec:installing-virtualbox}), how to create a virtual machine and how to start it (Section~\ref{sec:creating-virtual-machine}), how to start the ENRAM data processing (Chapter~\ref{ch:using-the-enram-software}), and finally it provides some background about how the virtual machine is organized (Chapter~\ref{ch:design-philosophy}).
 
 Since you are reading this file, it is assumed that you have plugged in the USB drive that contains all the data and software pertaining to the ENRAM project.
 
