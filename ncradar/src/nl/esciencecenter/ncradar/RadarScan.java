@@ -36,13 +36,12 @@ public class RadarScan {
 	private double radarPositionLongitude;
 	private String datasetName;
 	
-//    static {
-//    	System.out.println("there's an error here relating to the library path");
-//    	System.loadLibrary("sayhello");
-//    	}
+    static {
+    	System.loadLibrary("sayhello");
+    	}
 		 
     // Declare native method
-    private native void sayHello();	
+    private final native void sayHello();	
 	
 	public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
 		
@@ -613,7 +612,7 @@ public class RadarScan {
 		RadarScan rs = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",10);
 		String str = rs.getDirectory();
 		System.out.println(str);
-//		rs.sayHello();
+		rs.sayHello();
 		
 		rs.calcPolygons();
 		rs.printAsWKTToCSV();
