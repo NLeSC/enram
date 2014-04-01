@@ -1,68 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="ncradar" default="runit" basedir=".">
-  <description>
+	<description>
   	Ant build file for ncradar project
   </description>
-	
-  <property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include"/>
 
-  <target name="clean" description="clean up" >
-  	<delete dir="build"/>
-  	<delete dir="dist"/>
-  	<delete dir="tmp"/>
-  </target>
-	
-  <target name="create-dirs" depends="clean">
-    <tstamp/>
-  	<mkdir dir="build"/>
-  	<mkdir dir="build/lib/sayhello"/>
-    <mkdir dir="build/classes"/>
-  	<mkdir dir="dist"/>
-  </target>
+	<property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
 
-  <target name="copyjar" depends="create-dirs">
-    <copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist"/>    
-  </target>
-	
-  <target name="javacompile" depends="copyjar" description="compile the java source code" >
-    <javac srcdir="src" 
-    	   destdir="build/classes" 
-    	   classpath="lib/netcdf/netcdfAll-4.3.jar"
-    	   includeAntRuntime="false"/>
-  </target>
+	<target name="clean" description="clean up">
+		<delete dir="build" />
+		<delete dir="dist" />
+		<delete dir="tmp" />
+	</target>
 
-  <target name="copyccode" depends="javacompile">
-    <copy file="lib/sayhello/libsayhello.c" todir="build/lib/sayhello"/>    
-  </target>
-	
-	
-  <target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header" >
-    <javah force="yes" classpath="build/classes" destdir="build/lib/sayhello">
-    	<class name="nl.esciencecenter.ncradar.RadarScan"/>
-    </javah>
-  </target>
+	<target name="create-dirs" depends="clean">
+		<tstamp />
+		<mkdir dir="build" />
+		<mkdir dir="build/lib/addintegers" />
+		<mkdir dir="build/lib/sayhello" />
+		<mkdir dir="build/lib/getfieldfromstruct" />
+		<mkdir dir="build/classes" />
+		<mkdir dir="dist" />
+	</target>
 
-  <target name="sayhello" depends="jniheaders" description="compile the C-language source file sayhello into a shared object" >
-    <exec dir="build/lib/sayhello" executable="gcc">
-    	<arg line="-fPIC"/>
-    	<arg line="-I${jnihdir}"/>
-    	<arg line="-I${jnihdir}/linux"/>
-        <arg line="-shared"/>
-        <arg line="libsayhello.c"/>
-        <arg line="-o"/>
-        <arg line="../../../dist/libsayhello.so"/>
-    </exec>
-  </target> 
-	
-  <target name="makejar" depends="sayhello" description="make a jar out of everything">
-    <jar destfile="dist/ncradar.jar" basedir="build/classes" />
-  </target>
+	<target name="copyjar" depends="create-dirs">
+		<copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist" />
+	</target>
 
-  <target name="runit" depends="makejar" description="run the jar containing everything">
-	<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScan">
-		<sysproperty key="java.library.path" value="dist"/>
-	</java>
-  </target>
-	
+	<target name="javacompile" depends="copyjar" description="compile the java source code">
+		<javac srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
+	</target>
+
+	<target name="copyccode" depends="javacompile">
+		<copy file="lib/addintegers/libaddintegers.c" todir="build/lib/addintegers" />
+		<copy file="lib/sayhello/libsayhello.c" todir="build/lib/sayhello" />
+		<copy file="lib/getfieldfromstruct/libgetfieldfromstruct.c" todir="build/lib/getfieldfromstruct" />
+	</target>
+
+	<target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
+		<javah force="yes" classpath="build/classes" destdir="build/lib/sayhello">
+			<class name="nl.esciencecenter.ncradar.RadarScan" />
+		</javah>
+		<javah force="yes" classpath="build/classes" destdir="build/lib/addintegers">
+			<class name="nl.esciencecenter.ncradar.RadarScan" />
+		</javah>
+		<javah force="yes" classpath="build/classes" destdir="build/lib/getfieldfromstruct">
+			<class name="nl.esciencecenter.ncradar.RadarScan" />
+		</javah>
+	</target>
+
+	<target name="sayhello" depends="jniheaders" description="compile the C-language source file libsayhello.c into a shared object">
+		<exec dir="build/lib/sayhello" executable="gcc">
+			<arg line="-fPIC" />
+			<arg line="-I${jnihdir}" />
+			<arg line="-I${jnihdir}/linux" />
+			<arg line="-shared" />
+			<arg line="libsayhello.c" />
+			<arg line="-o" />
+			<arg line="../../../dist/libsayhello.so" />
+		</exec>
+	</target>
+
+	<target name="addintegers" depends="sayhello" description="compile the C-language source file libaddintegers.c into a shared object">
+		<exec dir="build/lib/addintegers" executable="gcc">
+			<arg line="-fPIC" />
+			<arg line="-I${jnihdir}" />
+			<arg line="-I${jnihdir}/linux" />
+			<arg line="-shared" />
+			<arg line="libaddintegers.c" />
+			<arg line="-o" />
+			<arg line="../../../dist/libaddintegers.so" />
+		</exec>
+	</target>
+
+	<target name="getfieldfromstruct" depends="addintegers" description="compile the C-language source file libgetfieldfromstruct.c into a shared object">
+		<exec dir="build/lib/getfieldfromstruct" executable="gcc">
+			<arg line="-fPIC" />
+			<arg line="-I${jnihdir}" />
+			<arg line="-I${jnihdir}/linux" />
+			<arg line="-shared" />
+			<arg line="libgetfieldfromstruct.c" />
+			<arg line="-o" />
+			<arg line="../../../dist/libgetfieldfromstruct.so" />
+		</exec>
+	</target>
+
+	<target name="makejar" depends="getfieldfromstruct" description="make a jar out of everything">
+		<jar destfile="dist/ncradar.jar" basedir="build/classes" />
+	</target>
+
+	<target name="runit" depends="makejar" description="run the jar containing everything">
+		<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScan">
+			<sysproperty key="java.library.path" value="dist" />
+		</java>
+	</target>
+
 </project>
