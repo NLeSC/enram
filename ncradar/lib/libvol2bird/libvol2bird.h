@@ -49,7 +49,7 @@
 #define TEXCV       (1)
 #define TEXSTDEV    (2)
 #define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
-/*with dBZ>DBZRAIN [1-8]                         */
+                             /*with dBZ>DBZRAIN [1-8]                         */
 #define NLAYER      (30)     /*Number of stacked height layers.               */
 #define NDATA       (3)      /*Data dimension height layers.                  */
 
@@ -66,16 +66,6 @@
 #define NPARMX     (16)      /*Maximum number of fit parameters.*/
 #define SVDTOL     (1e-5)    /*Accuracy in SV decomposition.*/
 #define SVDMIN     (1e-5)    /*Minimum valid SV standard deviation.*/
-
-/******************************************************************************/
-/*Basis functions for Singular Value Decomposition linear fitting.            */
-/******************************************************************************/
-
-int svd_vad1func(float x[],int Ndx,float afunc[],int Npar);
-int svd_vad2func(float x[],int Ndx,float afunc[],int Npar);
-int svd_vvp1func(float x[],int Ndx,float afunc[],int Npar);
-int svd_vvp2func(float x[],int Ndx,float afunc[],int Npar);
-int svd_vvp3func(float x[],int Ndx,float afunc[],int Npar);
 
 /******************************************************************************/
 /*Structure for containing SCAN metadata:                                     */
@@ -119,13 +109,23 @@ typedef struct scanmeta SCANMETA;
 typedef struct cellprop CELLPROP;
 
 /******************************************************************************/
+/*Basis functions for Singular Value Decomposition linear fitting.            */
+/******************************************************************************/
+
+int svd_vad1func(float x[],int Ndx,float afunc[],int Npar);
+int svd_vad2func(float x[],int Ndx,float afunc[],int Npar);
+int svd_vvp1func(float x[],int Ndx,float afunc[],int Npar);
+int svd_vvp2func(float x[],int Ndx,float afunc[],int Npar);
+int svd_vvp3func(float x[],int Ndx,float afunc[],int Npar);
+
+/******************************************************************************/
 /*Prototypes of local functions:                                              */
 /******************************************************************************/
 
-void texture(unsigned char *teximg,unsigned char *vimage, unsigned char *zimage,
-		SCANMETA *texmeta,SCANMETA *vmeta,SCANMETA *zmeta,
-		unsigned char ntexrang,unsigned char ntexazim,
-		unsigned char ntexmin,unsigned char textype);
+void calcTexture(unsigned char *teximg,unsigned char *vimage, unsigned char *zimage,
+                 SCANMETA *texmeta,SCANMETA *vmeta,SCANMETA *zmeta,
+                 unsigned char nRangLocal,unsigned char nAzimLocal,
+                 unsigned char nCountMin,unsigned char textype)
 int findcells(unsigned char *image,unsigned char *rhoimage,unsigned char *zdrimage, int *cellmap,
 		SCANMETA *meta,SCANMETA *rhometa,SCANMETA *zdrmeta, float threstexmin,
 		float thresrhomin,float zdrmin,float dbzmin, float rcellmax,char sign);
