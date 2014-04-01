@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h> 
-#include "hdf5.h"
 #include "vol2bird_routines.h"
 
 /******************************************************************************/
