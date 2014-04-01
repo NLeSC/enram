@@ -26,7 +26,7 @@ public class RadarScan {
 	private double elevationAngle;
 	private double gain;
 	private double offset;
-	private double[][] scanData;
+	private byte[][] scanData;
 	private String startDate;
 	private String startTime;
 	private String endDate;
@@ -191,7 +191,7 @@ public class RadarScan {
 			
 	
 	
-	private double[][] readScanData() throws IOException {
+	private byte[][] readScanData() throws IOException {
 		
 		String fullFilename = this.directory + File.separator + this.filename;
 
@@ -207,11 +207,11 @@ public class RadarScan {
 	        int nRows = dims[0];
 	        int nCols = dims[1];
 	        
-			double[][] scanData = new double[nRows][nCols];
+			byte[][] scanData = new byte[nRows][nCols];
 
 	        for (int iRow=0;iRow<nRows;iRow++){
 	        	for (int iCol=0;iCol<nCols;iCol++){
-	        		scanData[iRow][iCol] = this.offset + this.gain * data.getByte(index.set(iRow,iCol));
+	        		scanData[iRow][iCol] = data.getByte(index.set(iRow,iCol));
 	        	}
 	        }
 	        
