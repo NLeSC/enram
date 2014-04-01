@@ -66,8 +66,10 @@ void calcTexture(unsigned char *teximg,unsigned char *vimage, unsigned char *zim
 
             for (iNeighborhood=0; iNeighborhood<nNeighborhood; iNeighborhood++) {
 
-                // FIXME iiRang and iiAzim could be the other way round
+                // FIXME this calculation seems to depend on nRangLocal being odd but there's no test
                 iRangLocal = (iRang-nRangLocal/2+iNeighborhood%nRangLocal);
+                // FIXME this calculation seems to depend on nAzimLocal being odd but there's no test
+                // FIXME also, why the modulo?
                 iAzimLocal = (nAzim+(iAzim-nAzimLocal/2+iNeighborhood/nRangLocal))%nAzim;
                 iLocal = iRangLocal+iAzimLocal*nRang;
                 if (iLocal >= nGlobal || iLocal < 0) {
