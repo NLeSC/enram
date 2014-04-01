@@ -38,11 +38,15 @@ public class RadarScan {
 	
     static {
     	System.loadLibrary("sayhello");
+    	System.loadLibrary("addintegers");
+    	System.loadLibrary("getfieldfromstruct");
     	}
 		 
-    // Declare native method
-    private final native void sayHello();	
-	
+    // Declare native methods
+    private final native void sayHello();
+    private final native int addIntegers(int a, int b);
+    private final native int getFieldFromStruct();
+
 	public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
 		
  
@@ -609,11 +613,18 @@ public class RadarScan {
 	
 	public static void main(String[] args) throws IOException{
 		
-		RadarScan rs = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",10);
+		RadarScan rs = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
 		String str = rs.getDirectory();
 		System.out.println(str);
 		rs.sayHello();
 		
+		int a = 50;
+		int b = 2;
+		int c = rs.addIntegers(a,b);		
+		System.out.println("Hello from Java -- int value is " + c);
+		
+		rs.getFieldFromStruct();
+
 		rs.calcPolygons();
 		rs.printAsWKTToCSV();
 		rs.printAsGeoJSONToCSV();
