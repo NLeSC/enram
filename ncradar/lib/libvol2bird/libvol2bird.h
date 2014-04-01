@@ -123,9 +123,6 @@ typedef struct cellprop CELLPROP;
 /*Prototypes of local functions:                                              */
 /******************************************************************************/
 
-int read_h5_scan(hid_t file,int iscan,char type,SCANMETA *meta,unsigned char *data[]);
-void string2datetime(char *string,int *date,int *time);
-void printhelp(int argc,char *argv[]);
 void texture(unsigned char *teximg,unsigned char *vimage, unsigned char *zimage,
 		SCANMETA *texmeta,SCANMETA *vmeta,SCANMETA *zmeta,
 		unsigned char ntexrang,unsigned char ntexazim,
