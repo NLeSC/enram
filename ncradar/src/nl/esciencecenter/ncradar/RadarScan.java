@@ -39,16 +39,18 @@ public class RadarScan {
     static {
         System.loadLibrary("sayhello");
         System.loadLibrary("addintegers");
-        System.loadLibrary("vol2bird");
+        //System.loadLibrary("vol2bird");
+        System.loadLibrary("passarray");
         }
          
     // Declare native methods
     private final native void sayHello();
     private final native int addIntegers(int a, int b);
-    private final native void calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
-                            int[] vImage, int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
-                            int[] zImage, int zMissing, int znAzim, int znRange, double zOffset, double zScale,
-                            int nRangLocal, int nAzimLocal, int nCountMin, int textype);
+//    private final native void calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
+//                            int[] vImage, int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
+//                            int[] zImage, int zMissing, int znAzim, int znRange, double zOffset, double zScale,
+//                            int nRangLocal, int nAzimLocal, int nCountMin, int textype);
+    private final native int[] passArray(int[] arr);
 
     public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
         
@@ -627,6 +629,15 @@ public class RadarScan {
         System.out.println("Hello from Java -- int value is " + c);
         
 //        rs.calcTexture();
+        int[] arr = new int[] {65,243,53,464,235,754,78,5};
+
+        int[] summedByC = rs.passArray(arr);
+        
+        int nElems = summedByC.length;
+        
+        for (int iElem=-0;iElem<nElems;iElem++){
+        	System.out.println("(Java) iElem "+iElem+" = "+summedByC[iElem]);
+        }
 
         rs.calcPolygons();
         rs.printAsWKTToCSV();
