@@ -17,8 +17,9 @@
 		<tstamp />
 		<mkdir dir="build" />
 		<mkdir dir="build/lib/addintegers" />
+		<mkdir dir="build/lib/passing-an-array" />
 		<mkdir dir="build/lib/sayhello" />
-        <mkdir dir="build/lib/vol2bird" />		
+		<mkdir dir="build/lib/vol2bird" />
 		<mkdir dir="build/classes" />
 		<mkdir dir="dist" />
 	</target>
@@ -33,21 +34,26 @@
 
 	<target name="copyccode" depends="javacompile">
 		<copy file="lib/addintegers/libaddintegers.c" todir="build/lib/addintegers" />
+		<copy file="lib/passing-an-array/libpassarray.c" todir="build/lib/passing-an-array" />
 		<copy file="lib/sayhello/libsayhello.c" todir="build/lib/sayhello" />
-        <copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
+		<copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
+		<copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
 	</target>
 
 	<target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
 		<javah force="yes" classpath="build/classes" destdir="build/lib/sayhello">
 			<class name="nl.esciencecenter.ncradar.RadarScan" />
 		</javah>
+		<javah force="yes" classpath="build/classes" destdir="build/lib/passing-an-array">
+			<class name="nl.esciencecenter.ncradar.RadarScan" />
+		</javah>
 		<javah force="yes" classpath="build/classes" destdir="build/lib/addintegers">
 			<class name="nl.esciencecenter.ncradar.RadarScan" />
 		</javah>
-        <javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
-            <class name="nl.esciencecenter.ncradar.RadarScan" />
-        </javah>
+
+		<javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
+			<class name="nl.esciencecenter.ncradar.RadarScan" />
+		</javah>
 	</target>
 
 	<target name="sayhello" depends="jniheaders" description="compile the C-language source file libsayhello.c into a shared object">
@@ -74,19 +80,32 @@
 		</exec>
 	</target>
 
-    <target name="vol2bird" depends="addintegers" description="compile the C-language source file libvol2bird.c into a shared object">
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libvol2bird.c" />
-            <arg line="-o" />
-            <arg line="../../../dist/libvol2bird.so" />
-        </exec>
-    </target>
-	
-	<target name="makejar" depends="vol2bird" description="make a jar out of everything">
+	<target name="passarray" depends="addintegers" description="compile the C-language source file libpassarray.c into a shared object">
+		<exec dir="build/lib/passing-an-array" executable="gcc">
+			<arg line="-fPIC" />
+			<arg line="-I${jnihdir}" />
+			<arg line="-I${jnihdir}/linux" />
+			<arg line="-shared" />
+			<arg line="libpassarray.c" />
+			<arg line="-o" />
+			<arg line="../../../dist/libpassarray.so" />
+		</exec>
+	</target>
+
+<!--	<target name="vol2bird" depends="addintegers" description="compile the C-language source file libvol2bird.c into a shared object">
+		<exec dir="build/lib/vol2bird" executable="gcc">
+			<arg line="-fPIC" />
+			<arg line="-I${jnihdir}" />
+			<arg line="-I${jnihdir}/linux" />
+			<arg line="-shared" />
+			<arg line="libvol2bird.c" />
+			<arg line="-o" />
+			<arg line="../../../dist/libvol2bird.so" />
+		</exec>
+	</target>
+	-->
+
+	<target name="makejar" depends="passarray" description="make a jar out of everything">
 		<jar destfile="dist/ncradar.jar" basedir="build/classes" />
 	</target>
 
