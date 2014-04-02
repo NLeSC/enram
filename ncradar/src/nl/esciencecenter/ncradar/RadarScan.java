@@ -39,18 +39,16 @@ public class RadarScan {
     static {
         System.loadLibrary("sayhello");
         System.loadLibrary("addintegers");
-        //System.loadLibrary("vol2bird");
-        System.loadLibrary("passarray");
+        System.loadLibrary("vol2bird");
         }
          
     // Declare native methods
     private final native void sayHello();
     private final native int addIntegers(int a, int b);
-//    private final native void calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
-//                            int[] vImage, int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
-//                            int[] zImage, int zMissing, int znAzim, int znRange, double zOffset, double zScale,
-//                            int nRangLocal, int nAzimLocal, int nCountMin, int textype);
-    private final native int[] passArray(int[] arr);
+    private final native int[] calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
+                             int[] vImage, int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
+                             int[] zImage, int zMissing, int znAzim, int znRange, double zOffset, double zScale,
+                             int nRangLocal, int nAzimLocal, int nCountMin, int textype);
 
     public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
         
@@ -627,21 +625,48 @@ public class RadarScan {
         int b = 2;
         int c = rs.addIntegers(a,b);        
         System.out.println("Hello from Java -- int value is " + c);
-        
-//        rs.calcTexture();
-        int[] arr = new int[] {65,243,53,464,235,754,78,5};
 
-        int[] summedByC = rs.passArray(arr);
-        
+        int tMissing = 23;
+        int tnAzim = 5;
+        int tnRange = 6;
+        double tOffset = 0.00;
+        double tScale = 0.001;
+        int[] vImage = new int[] {60,61,62,63,64,65,66,67,68,69,
+                                  70,71,72,73,74, 5,76,77,78,79,
+                                  80,81,82,83,84,85,86,87,88,89};
+        int vMissing = 45;
+        int vnAzim = tnAzim;
+        int vnRange = tnRange;
+        double vOffset = 4.23;
+        double vScale = 0.001;
+        int[] zImage = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        	                      10, 1,12,13,14,15,16,17,18,19,
+                                  20,21,22,23,24,25,26,27,28,29};
+        int zMissing = 68;
+        int znAzim = tnAzim;
+        int znRange = tnRange;
+        double zOffset = 56.9;
+        double zScale = 100;
+        int nRangLocal = 3;
+        int nAzimLocal = 3;
+        int nCountMin = 4;
+        int textype = 2; // (TEXSTDEV)
+
+
+        int[] summedByC = rs.calcTexture(tMissing,tnAzim,tnRange,tOffset,tScale,
+        		                  vImage,vMissing,vnAzim,vnRange,vOffset,vScale,
+        		                  zImage,zMissing,znAzim,znRange,zOffset,zScale,
+        		                  nRangLocal,nAzimLocal,nCountMin,textype);
+
         int nElems = summedByC.length;
         
         for (int iElem=-0;iElem<nElems;iElem++){
         	System.out.println("(Java) iElem "+iElem+" = "+summedByC[iElem]);
         }
 
-        rs.calcPolygons();
-        rs.printAsWKTToCSV();
-        rs.printAsGeoJSONToCSV();
+//        rs.calcPolygons();
+//        rs.printAsWKTToCSV();
+//        rs.printAsGeoJSONToCSV();
     }
 
 }

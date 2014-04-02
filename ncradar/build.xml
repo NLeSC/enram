@@ -36,7 +36,7 @@
 	<target name="copyccode" depends="javacompile">
 		<copy file="lib/addintegers/libaddintegers.c" todir="build/lib/addintegers" />
 		<copy file="lib/sayhello/libsayhello.c" todir="build/lib/sayhello" />
-		<copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
+		<copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
 		<copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
 		<copy file="lib/vol2bird-all/libvol2bird.c" todir="build/lib/vol2bird-all" />
 		<copy file="lib/vol2bird-all/libvol2bird.h" todir="build/lib/vol2bird-all" />
@@ -87,9 +87,9 @@
 			<arg line="-I${jnihdir}" />
 			<arg line="-I${jnihdir}/linux" />
 			<arg line="-shared" />
-			<arg line="libvol2bird.c" />
+			<arg line="libcalctexture.c" />
 			<arg line="-o" />
-			<arg line="../../../dist/libvol2bird.so" />
+			<arg line="../../../dist/libcalctexture.so" />
 		</exec>
 	</target>
 

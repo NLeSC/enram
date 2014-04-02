@@ -12,10 +12,8 @@
 #include "libvol2bird.h"
 //#include "nl_esciencecenter_ncradar_RadarScan.h" // maybe only used when calling java from c?
 
-
-
 JNIEXPORT jintArray JNICALL
-Java_nl_esciencecenter_ncradar_RadarScan_passArray(JNIEnv *env, jobject obj, jint tMissing, jint tnAzim, jint tnRange, jdouble tOffset, jdouble tScale, jintArray vImage, jint vMissing, jint vnAzim, jint vnRange, jdouble vOffset, jdouble vScale, jintArray zImage, jint zMissing, jint znAzim, jint znRange, jdouble zOffset, jdouble zScale, jint nRangLocal, jint nAzimLocal, jint nCountMin, jint textype)
+Java_nl_esciencecenter_ncradar_RadarScan_calcTexture(JNIEnv *env, jobject obj, jint tMissing, jint tnAzim, jint tnRange, jdouble tOffset, jdouble tScale, jintArray vImage, jint vMissing, jint vnAzim, jint vnRange, jdouble vOffset, jdouble vScale, jintArray zImage, jint zMissing, jint znAzim, jint znRange, jdouble zOffset, jdouble zScale, jint nRangLocal, jint nAzimLocal, jint nCountMin, jint textype)
 {
     int iRang;
     int nRang;
@@ -34,7 +32,6 @@ Java_nl_esciencecenter_ncradar_RadarScan_passArray(JNIEnv *env, jobject obj, jin
     double dbz;
     double tex;
     double vRad;
-
 
     // do some Java Native interface tricks:
     jsize nElems = (*env)->GetArrayLength(env, vImage);
@@ -155,7 +152,6 @@ Java_nl_esciencecenter_ncradar_RadarScan_passArray(JNIEnv *env, jobject obj, jin
                 tImageBody[iGlobal] = (int)ROUND((tex-tOffset)/tScale);
             } // else
             printf("count = %d; nCountMin = %d; textype = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; tImageBody[%d] = %d\n",count,nCountMin,textype,vmoment1,vmoment2,tex,iGlobal,tImageBody[iGlobal]);
-
 
         } // for iRang
     } // for iAzim
