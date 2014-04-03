@@ -11,6 +11,8 @@ log/stdout.txt
 ncradar/.metadata/
 ncradar/build
 ncradar/dist
+ncradar/*hdf.geojson.csv
+ncradar/*hdf.wkt.csv
 other-data
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
