@@ -5,8 +5,15 @@
   	Ant build file for ncradar project
   </description>
 
+    <echo>${java.home}</echo>
+    <echo>${env.JAVA_HOME}</echo>   
+	
+	
+<!--
 	<property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
-
+-->
+    <property name="jnihdir" value="${java.home}/../include" />
+	
 	<target name="clean" description="clean up">
 		<delete dir="build" />
 		<delete dir="dist" />
