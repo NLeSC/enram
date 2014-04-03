@@ -40,9 +40,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int threstex;
     int thresrho;
     int threszdr;
-    int nrang;
     int nazim;
-    int threstex;
 
     ncell = 0;
     thresrho = 0;
@@ -60,13 +58,11 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*Initializing of connection cellmap.*/
-
     for (ij = 0; ij<nazim*nrang; ij++) {
         cellmap[ij] = -1;
     }
 
     /*If threshold is missing, return.*/
-
     if (threstex==missing) {
         return 0;
     }
@@ -75,11 +71,13 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     /*diagonal connections. The algorithm is described in 'Digital Image */
     /*Processing' by Gonzales and Woods published by Addison-Wesley.*/
 
-    for (j = 0; j<nazim; j++) {
+    for (j=0; j<nazim; j++) {
         for (i = 0; i<nrang; i++) {
+
             if ((i+1)*(texmeta->rscale)>rcellmax) {
                 continue;
             }
+
             if (rhoimage==NULL){
                 if (teximage[i+j*nrang]==missing||sign*teximage[i+j*nrang]>sign*threstex) {
                     continue;
@@ -122,18 +120,21 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
             /*connections.*/
 
-            for (k=0 ; k<4 ; k++) {
+            for (k=0; k<4; k++) {
 
                 ii = (i-1+k%3);
                 jj = (nazim+(j-1+k/3))%nazim; /* periodic boundary condition azimuth */
+
                 /* index out of range, goto next pixel: */
                 if (ii<0||ii>=nrang||jj<0||jj>=nazim) {
                     continue;
                 }
+
                 /* no connection found, goto next pixel */
                 if (cellmap[ii+jj*nrang]<0) {
                     continue;
                 }
+
                 /* if pixel still unassigned, assign same cellnumber as connection */
                 if (cellmap[i+j*nrang]<0) {
                     cellmap[i+j*nrang] = cellmap[ii+jj*nrang];
@@ -153,7 +154,6 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             /*When no connections are found, give a new number.*/
-
             if (cellmap[i+j*nrang]<0) {
                 cellmap[i+j*nrang] = ncell;
                 ncell++;
