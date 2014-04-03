@@ -1,7 +1,6 @@
 
 package nl.esciencecenter.ncradar;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-public class RadarScan {
+public class RadarScan extends JNIMethodsVol2Bird {
 
     private int datasetIndex;
     private String directory;
@@ -36,22 +35,7 @@ public class RadarScan {
     private double radarPositionLongitude;
     private String datasetName;
     
-    static {
-        System.loadLibrary("sayhello");
-        System.loadLibrary("addintegers");
-        System.loadLibrary("vol2bird");
-        }
-         
-    // Declare native methods
-    private final native void sayHello();
-    private final native int addIntegers(int a, int b);
-    private final native int[] calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
-                             int[] vImage, int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
-                             int[] zImage, int zMissing, int znAzim, int znRange, double zOffset, double zScale,
-                             int nRangLocal, int nAzimLocal, int nCountMin, int textype);
-
     public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
-        
  
         this.datasetIndex = datasetIndex;
         this.datasetName = "dataset"+(datasetIndex+1);

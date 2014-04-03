@@ -10,7 +10,7 @@
 //#include <stdlib.h>
 //#include <math.h>
 #include "libvol2bird.h"
-//#include "nl_esciencecenter_ncradar_RadarScan.h" // maybe only used when calling java from c?
+//#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 
 /******************************************************************************/

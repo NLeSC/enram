@@ -44,16 +44,16 @@
 
 	<target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
 		<javah force="yes" classpath="build/classes" destdir="build/lib/addintegers">
-			<class name="nl.esciencecenter.ncradar.RadarScan" />
+			<class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
 		</javah>
         <javah force="yes" classpath="build/classes" destdir="build/lib/sayhello">
-            <class name="nl.esciencecenter.ncradar.RadarScan" />
+            <class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
         </javah>
         <javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
-            <class name="nl.esciencecenter.ncradar.RadarScan" />
+            <class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
         </javah>
 		<javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird-all">
-			<class name="nl.esciencecenter.ncradar.RadarScan" />
+			<class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
 		</javah>
 	</target>
 
@@ -81,7 +81,7 @@
 		</exec>
 	</target>
 
-	<target name="vol2bird" depends="addintegers" description="compile the C-language source file libvol2bird.c into a shared object">
+	<target name="calctexture" depends="addintegers" description="compile the C-language source file libvol2bird.c into a shared object">
 		<exec dir="build/lib/vol2bird" executable="gcc">
 			<arg line="-fPIC" />
 			<arg line="-I${jnihdir}" />
@@ -106,7 +106,7 @@
 	</target>
 	-->
 
-	<target name="makejar" depends="vol2bird" description="make a jar out of everything">
+	<target name="makejar" depends="calctexture" description="make a jar out of everything">
 		<jar destfile="dist/ncradar.jar" basedir="build/classes" />
 	</target>
 
