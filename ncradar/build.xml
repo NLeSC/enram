@@ -111,7 +111,7 @@
 	</target>
 
 	<target name="runit" depends="makejar" description="run the jar containing everything">
-		<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScan">
+		<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
 			<sysproperty key="java.library.path" value="dist" />
 		</java>
 	</target>
