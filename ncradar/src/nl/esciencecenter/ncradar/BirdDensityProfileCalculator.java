@@ -1,18 +1,27 @@
+
 package nl.esciencecenter.ncradar;
 
 import java.io.IOException;
 
-public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
+public class BirdDensityProfileCalculator {
 	
-	
-	public BirdDensityProfileCalculator() throws IOException {
+	private RadarScan rsz;
+	private RadarScan rsv;
+
+	public BirdDensityProfileCalculator(RadarScan rsz, RadarScan rsv) throws IOException {
+		
+		this.rsz = rsz;
+		this.rsv = rsv;
 		
 	}
 	
     public static void main(String[] args) throws IOException{
         
+    	
         RadarScan rsz = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
-        RadarScan rsv = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
+        RadarScan rsv = new RadarScan("/home/wbouten/tmp","T_PAHZ60_C_OKPR_20110815000447.hdf",3);
+
+        BirdDensityProfileCalculator birdprofile = new BirdDensityProfileCalculator(rsz,rsv);
 
 
         int tMissing = 23;
@@ -41,7 +50,7 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
         int nCountMin = 4;
         int textype = 2; // (TEXSTDEV)
 
-        int[] summedByC = calcTexture(tMissing,tnAzim,tnRange,tOffset,tScale,
+        int[] summedByC = JNIMethodsVol2Bird.calcTexture(tMissing,tnAzim,tnRange,tOffset,tScale,
         		                  vImage,vMissing,vnAzim,vnRange,vOffset,vScale,
         		                  zImage,zMissing,znAzim,znRange,zOffset,zScale,
         		                  nRangLocal,nAzimLocal,nCountMin,textype);
@@ -52,9 +61,6 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
         	System.out.println("(Java) iElem "+iElem+" = "+summedByC[iElem]);
         }
 
-//        rs.calcPolygons();
-//        rs.printAsWKTToCSV();
-//        rs.printAsGeoJSONToCSV();
     }
 
 

@@ -5,14 +5,12 @@
   	Ant build file for ncradar project
   </description>
 
-    <echo>${java.home}</echo>
-    <echo>${env.JAVA_HOME}</echo>   
-	
-	
 <!--
 	<property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
 -->
     <property name="jnihdir" value="${java.home}/../include" />
+	
+    <echo message = "java.home is ${java.home}" />
 	
 	<target name="clean" description="clean up">
 		<delete dir="build" />
@@ -37,7 +35,7 @@
 	</target>
 
 	<target name="javacompile" depends="copyjar" description="compile the java source code">
-		<javac srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
+		<javac source="1.6" target="1.6" debug="true" srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
 	</target>
 
 	<target name="copyccode" depends="javacompile">
