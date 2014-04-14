@@ -9,19 +9,16 @@ import java.io.UnsupportedEncodingException;
 
 import ucar.ma2.Array;
 import ucar.ma2.Index;
-import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-public class RadarScan {
+public class RadarScan extends NetcdfAttributeReader {
 
     private int datasetIndex;
     private String directory;
     private String filename;
     private String scanType;
     private double[][][][] polygons;
-    private long numberOfRays;
-    private long numberOfBins;
     private double elevationAngle;
     private double gain;
     private double offset;
@@ -34,16 +31,17 @@ public class RadarScan {
     private double radarPositionLatitude;
     private double radarPositionLongitude;
     private String datasetName;
-    
+    private int missingValue;
+    private long numberOfAzimuthBins;
+    private long numberOfRangeBins;
+
     public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
- 
+
         this.datasetIndex = datasetIndex;
         this.datasetName = "dataset"+(datasetIndex+1);
         this.directory = directory;
         this.filename = filename;
         this.scanType = readScanType();
-        this.numberOfRays = readNumberOfRays();
-        this.numberOfBins = readNumberOfBins();
         this.gain = readGain();
         this.offset = readOffset();
         this.elevationAngle = readElevationAngle();
@@ -54,132 +52,76 @@ public class RadarScan {
         this.radarPositionHeight = readRadarPositionHeight();
         this.radarPositionLatitude = readRadarPositionLatitude();
         this.radarPositionLongitude = readRadarPositionLongitude();
+        this.missingValue = readMissingValue();
+        this.numberOfAzimuthBins = readNumberOfAzimuthBins();
+        this.numberOfRangeBins = readNumberOfRangeBins();
         this.scanData = readScanData();
-        
     }
-    
+
+    private long readNumberOfAzimuthBins() throws IOException {
+
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = this.datasetName + "_where_nrays";
+
+        return readLongAttribute(fullFilename,fullAttributename);
+
+    }
+
+    private long readNumberOfRangeBins() throws IOException {
+
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = this.datasetName + "_where_nbins";
+
+        return readLongAttribute(fullFilename,fullAttributename);
+
+    }
+
+    private int readMissingValue() throws IOException {
+
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = this.datasetName + "_data1_what_nodata";
+        return readIntegerAttribute(fullFilename, fullAttributename);
+    }
+
 
     private String readScanType() throws IOException {
-        
-        String scanType = "";
+
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-
-            Attribute attr = ncfile.findGlobalAttribute(datasetName+"_data1_what_quantity");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            scanType = attr.getStringValue();
-            
-        } finally {
-            ncfile.close();
-        }
-        
-        return scanType;
+        String fullAttributename = this.datasetName+"_data1_what_quantity";
+        return readStringAttribute(fullFilename, fullAttributename);
     }
 
-    
+
     private String readStartDate() throws IOException {
         
-        String startDate = "";
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_startdate");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            startDate = attr.getStringValue();
-
-            
-        } finally {
-            ncfile.close();
-        }
-        
-        return startDate;
+        String fullAttributename = this.datasetName + "_what_startdate";
+        return readStringAttribute(fullFilename, fullAttributename);
     }
-    
+
     private String readStartTime() throws IOException {
-        
-        String startTime = "";
+
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_starttime");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            startTime = attr.getStringValue();
-
-            
-        } finally {
-            ncfile.close();
-        }
-        
-        return startTime;
+        String fullAttributename = this.datasetName + "_what_starttime";
+        return readStringAttribute(fullFilename, fullAttributename);
     }
-        
-    
+
     private String readEndDate() throws IOException {
-        
-        String endDate = "";
+
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_enddate");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            
-            endDate = attr.getStringValue();
-
-            
-        } finally {
-            ncfile.close();
-        }
-        
-        return endDate;
+        String fullAttributename = this.datasetName + "_what_enddate";
+        return readStringAttribute(fullFilename, fullAttributename);
     }
-    
+
     private String readEndTime() throws IOException {
-        
-        String endTime = "";
+
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_what_endtime");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            endTime = attr.getStringValue();
-
-            
-        } finally {
-            ncfile.close();
-        }
-        
-        return endTime;
+        String fullAttributename = this.datasetName + "_what_endtime";
+        return readStringAttribute(fullFilename, fullAttributename);
     }
-            
-    
-    
+
     private byte[][] readScanData() throws IOException {
-        
+
         String fullFilename = this.directory + File.separator + this.filename;
 
         NetcdfFile ncfile = null;
@@ -210,192 +152,64 @@ public class RadarScan {
 
     }
 
-
-    private long readNumberOfRays() throws IOException {
-        
-        long nRays;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_nrays");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            nRays = (Long) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        
-        return nRays;
-    }
-
-    
-    private long readNumberOfBins() throws IOException {
-        
-        long nBins;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_nbins");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            nBins = (Long) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        return nBins;
-    }
-
     private double readGain() throws IOException {
-        
-        double gain;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
 
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_data1_what_gain");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            gain = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        
-        return gain;
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = this.datasetName + "_data1_what_gain";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
-    
     private double readOffset() throws IOException {
-        
-        double offset;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
 
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_data1_what_offset");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            offset = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        
-        return offset;
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = this.datasetName + "_data1_what_offset";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
-    
-    
     private double readElevationAngle() throws IOException {
         
-        double elevAngle;
-        
         String fullFilename = this.directory + File.separator + this.filename;
-
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute(datasetName + "_where_elangle");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            elevAngle = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        return elevAngle;
+        String fullAttributename = this.datasetName + "_where_elangle";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
     private double readRadarPositionHeight() throws IOException {
-        
-        double radarPositionHeight;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
 
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute("where_height");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            radarPositionHeight = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        return radarPositionHeight;
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename =  "where_height";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
+
     private double readRadarPositionLatitude() throws IOException {
-        
-        double radarPositionLatitude;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
 
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute("where_lat");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            radarPositionLatitude = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        return radarPositionLatitude;
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = "where_lat";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
+
     private double readRadarPositionLongitude() throws IOException {
-        
-        double radarPositionLongitude;
-        
-        String fullFilename = this.directory + File.separator + this.filename;
 
-        NetcdfFile ncfile = null;
-        try {
-            ncfile = NetcdfFile.open(fullFilename);
-            Attribute attr = ncfile.findGlobalAttribute("where_lon");
-            if (attr==null){
-                System.err.println("Looks like there is no attribute by that name.");
-            }
-            radarPositionLongitude = (Double) attr.getNumericValue();
-        } finally {
-            ncfile.close();
-        }
-        return radarPositionLongitude;
+        String fullFilename = this.directory + File.separator + this.filename;
+        String fullAttributename = "where_lon";
+        return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
-    
-    
+
     public void calcPolygons(){
-        
+
         double angleTrailing = 0;
         double angleLeading = 0;
         double range = 0.50;
-        double[][][][] polygons = new double[(int)numberOfBins][(int)numberOfRays][5][2];
-                
-        for (int iBin=0;iBin<numberOfBins;iBin++){
-            
-            double lengthInner = ((double) iBin/numberOfBins) * range;
-            double lengthOuter = ((double) (iBin+1)/numberOfBins) * range;
+        double[][][][] polygons = new double[(int)numberOfRangeBins][(int)numberOfAzimuthBins][5][2];
 
-            for (int iRay=0;iRay<numberOfRays;iRay++){
-                
-                angleTrailing = ((double) iRay/numberOfRays)*2*Math.PI;
-                angleLeading = ((double) (iRay+1)/numberOfRays)*2*Math.PI;
+        for (int iBin=0;iBin<numberOfRangeBins;iBin++){
+
+            double lengthInner = ((double) iBin/numberOfRangeBins) * range;
+            double lengthOuter = ((double) (iBin+1)/numberOfRangeBins) * range;
+
+            for (int iRay=0;iRay<numberOfAzimuthBins;iRay++){
+
+                angleTrailing = ((double) iRay/numberOfAzimuthBins)*2*Math.PI;
+                angleLeading = ((double) (iRay+1)/numberOfAzimuthBins)*2*Math.PI;
                 
                 polygons[iBin][iRay][0][0] = radarPositionLongitude + Math.sin(angleTrailing)*lengthOuter;
                 polygons[iBin][iRay][0][1] = radarPositionLatitude + Math.cos(angleTrailing)*lengthOuter;
@@ -415,56 +229,54 @@ public class RadarScan {
 
             }
         }
-        
+
         this.polygons = polygons;
-        
+
     }
-    
+
     public void printAsWKTToCSV() throws FileNotFoundException, UnsupportedEncodingException {
-        
+
         String filename = this.filename+".wkt.csv";
         printAsWKTToCSV(filename);
-        
+
     }
 
-
-    
     public void printAsWKTToCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException {
 
-        
+
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
 
         int nPolyCorners = 5;
         int iBinMin = 0;
-        int iBinMax = (int) numberOfBins;
+        int iBinMax = (int) numberOfRangeBins;
         int iRayMin = 0;
-        int iRayMax = (int) numberOfRays;
-                
+        int iRayMax = (int) numberOfAzimuthBins;
+
         String headerStr = "\"the_geom\",\"reflectivity\"";
         writer.println(headerStr);
-        
-        
-        for (int iBin=0;iBin<numberOfBins;iBin++){
-            
-            for (int iRay=0;iRay<numberOfRays;iRay++){
+
+
+        for (int iBin=0;iBin<numberOfRangeBins;iBin++){
+
+            for (int iRay=0;iRay<numberOfAzimuthBins;iRay++){
 
                 if (iBinMin<=iBin & iBin<=iBinMax & iRayMin<=iRay & iRay<=iRayMax){
                 String polyStr = "\"POLYGON((";
-                
+
                 for (int iPolyCorner=0;iPolyCorner<nPolyCorners;iPolyCorner++){
                     polyStr = polyStr + String.format("%.6f %.6f", polygons[iBin][iRay][iPolyCorner][0],polygons[iBin][iRay][iPolyCorner][1]);
                     if (iPolyCorner<nPolyCorners-1){
-                        
-                        polyStr = polyStr + ",";                        
-                        
+
+                        polyStr = polyStr + ",";
+
                     }
                 }
                 polyStr = polyStr + "))\"";
 
                 polyStr = polyStr + "," + scanData[iRay][iBin];
-                
+
                 writer.println(polyStr);
-                
+
                 }
 
             }
@@ -489,9 +301,9 @@ public class RadarScan {
         String headerStr = "\"the_geom\",\"reflectivity\"";
         writer.println(headerStr);
         
-        for (int iBin=0;iBin<numberOfBins;iBin++){
+        for (int iBin=0;iBin<numberOfRangeBins;iBin++){
             
-            for (int iRay=0;iRay<numberOfRays;iRay++){
+            for (int iRay=0;iRay<numberOfAzimuthBins;iRay++){
 
                 String polyStr = "\"{\"\"type\"\":\"\"MultiPolygon\"\",\"\"coordinates\"\":[[[";
                 
@@ -529,12 +341,8 @@ public class RadarScan {
         return filename;
     }
     
-    public long getNumberOfRays() {
-        return numberOfRays;
-    }
-
-    public long getNumberOfBins() {
-        return numberOfBins;
+    public long getNumberOfRangeBins() {
+        return numberOfRangeBins;
     }
 
     public double getElevationAngle() {
@@ -584,7 +392,6 @@ public class RadarScan {
     public String getDatasetName() {
         return datasetName;
     }
-
     
     public double getRadarPositionHeight() {
         return radarPositionHeight;
@@ -598,7 +405,15 @@ public class RadarScan {
         return offset;
     }
     
+    public int getMissingValue() {
+		return missingValue;
+	}
 
+    public long getNumberOfAzimuthBins() {
+		return numberOfAzimuthBins;
+	}
+    
+    
     
     
 }
