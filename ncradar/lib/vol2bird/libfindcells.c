@@ -37,12 +37,20 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int nRang;
     int nAzim;
     int texMissing;
+    double texOffset;
+    double texScale;
+
     int rhoMissing;
+    double rhoOffset;
+    double rhoScale;
+
     int zdrMissing;
+    double zdrOffset;
+    double zdrScale;
+
     int threstex;
     int thresrho;
     int threszdr;
-    int nAzim;
     int iGlobal;
 
     ncell = 0;
@@ -50,18 +58,28 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     threszdr = 0;
     nRang = texmeta->nrang;
     nAzim = texmeta->nazim;
+
     texMissing = texmeta->missing;
+    texOffset = texmeta->zoffset;
+    texScale = texmeta->zscale;
+
     rhoMissing = rhometa->missing;
+    rhoOffset = rhometa->zoffset;
+    rhoScale = rhometa->zscale;
+
     zdrMissing = zdrmeta->missing;
+    zdrOffset = zdrmeta->zoffset;
+    zdrScale = zdrmeta->zscale;
+
     iGlobal = iRang+iAzim*nRang;
 
-    threstex = ROUND((threstexmin-(texmeta->zoffset))/(texmeta->zscale));
+    threstex = ROUND((threstexmin-texOffset)/texScale);  // FIXME why type is int?
 
     if (rhoimage!=NULL) {
-        thresrho = ROUND((thresrhomin-(rhometa->zoffset))/(rhometa->zscale));
+        thresrho = ROUND((thresrhomin-rhoOffset)/rhoScale);
     }
     if (zdrimage!=NULL) {
-        threszdr = ROUND((threszdrmin-(zdrmeta->zoffset))/(zdrmeta->zscale));
+        threszdr = ROUND((threszdrmin-zdrOffset)/zdrScale);
     }
 
     /*Initializing of connection cellmap.*/
