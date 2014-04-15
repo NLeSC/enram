@@ -43,6 +43,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int thresrho;
     int threszdr;
     int nAzim;
+    int iGlobal;
 
     ncell = 0;
     thresrho = 0;
@@ -52,6 +53,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     texMissing = texmeta->missing;
     rhoMissing = rhometa->missing;
     zdrMissing = zdrmeta->missing;
+    iGlobal = iRang+iAzim*nRang;
 
     threstex = ROUND((threstexmin-(texmeta->zoffset))/(texmeta->zscale));
 
@@ -84,7 +86,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             if (rhoimage==NULL){
-                if (teximage[iRang+iAzim*nRang]==texMissing||sign*teximage[iRang+iAzim*nRang]>sign*threstex) {
+                if (teximage[iGlobal]==texMissing||sign*teximage[iGlobal]>sign*threstex) {
                     continue;
                 }
                 /* count number of direct neighbors above threshold */
@@ -105,9 +107,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
             }
             else {
-                if (!(rhoimage[iRang+iAzim*nRang]!=rhoMissing && zdrimage[iRang+iAzim*nRang]!=zdrMissing &&
-                        teximage[iRang+iAzim*nRang]!=texMissing && teximage[iRang+iAzim*nRang]>=dbzmin &&
-                        (zdrimage[iRang+iAzim*nRang]>threszdr||rhoimage[iRang+iAzim*nRang]>thresrho))) {
+                if (!(rhoimage[iGlobal]!=rhoMissing && zdrimage[iGlobal]!=zdrMissing &&
+                        teximage[iGlobal]!=texMissing && teximage[iGlobal]>=dbzmin &&
+                        (zdrimage[iGlobal]>threszdr||rhoimage[iGlobal]>thresrho))) {
                     continue;
                 }
                 /* count number of direct neighbors above threshold */
@@ -141,15 +143,15 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
 
                 /* if pixel still unassigned, assign same cellnumber as connection */
-                if (cellmap[iRang+iAzim*nRang]<0) {
-                    cellmap[iRang+iAzim*nRang] = cellmap[ii+jj*nRang];
+                if (cellmap[iGlobal]<0) {
+                    cellmap[iGlobal] = cellmap[ii+jj*nRang];
                 }
                 else {
                     /* if connection found but pixel is already assigned a different cellnumber: */
-                    if (cellmap[iRang+iAzim*nRang]!=cellmap[ii+jj*nRang]) {
+                    if (cellmap[iGlobal]!=cellmap[ii+jj*nRang]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
                         for (ij=0 ; ij<nAzim*nRang ; ij++) {
-                            if (cellmap[ij]==cellmap[iRang+iAzim*nRang]) {
+                            if (cellmap[ij]==cellmap[iGlobal]) {
                                 cellmap[ij] = cellmap[ii+jj*nRang];
                             }
                             /*note: not all ncell need to be used eventually */
@@ -159,8 +161,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             /*When no connections are found, give a new number.*/
-            if (cellmap[iRang+iAzim*nRang]<0) {
-                cellmap[iRang+iAzim*nRang] = ncell;
+            if (cellmap[iGlobal]<0) {
+                cellmap[iGlobal] = ncell;
                 ncell++;
             }
         }
