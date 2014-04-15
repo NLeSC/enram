@@ -135,7 +135,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 for (k = 0; k<9; k++) {
                     ii = (iRang-1+k%3);
                     jj = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
-                    if (rhoimage[ii+jj*nRang]>thresrho||zdrimage[ii+jj*nRang]>threszdr) count++;
+                    if (rhoimage[ii+jj*nRang]>thresrho||zdrimage[ii+jj*nRang]>threszdr) {
+                        count++;
+                    }
                 }
                 /* when not enough neighbors with dBZ>DBZRAIN, continue */
                 if (count-1 < NEIGHBOURS) {
