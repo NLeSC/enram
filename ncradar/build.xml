@@ -1,74 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="ncradar" default="runit" basedir=".">
-	<description>
-  	Ant build file for ncradar project
-  </description>
+    <description>
+    Ant build file for ncradar project
+    </description>
 
 <!--
-	<property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
+    <property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
 -->
-    <property name="jnihdir" value="${java.home}/../include" />
-	
-    <echo message = "java.home is ${java.home}" />
-	
-	<target name="clean" description="clean up">
-		<delete dir="build" />
-		<delete dir="dist" />  
-		<delete dir="tmp" />
-	</target>
 
-	<target name="create-dirs" >
-		<tstamp />
-		<mkdir dir="build" />
+    <property name="jnihdir" value="${java.home}/../include" />
+    
+    <echo message = "java.home is ${java.home}" />
+    
+    <target name="clean" description="clean up">
+        <delete dir="build" />
+        <delete dir="dist" />  
+        <delete dir="tmp" />
+    </target>
+
+    <target name="create-dirs" >
+        <tstamp />
+        <mkdir dir="build" />
         <mkdir dir="build/classes" />
         <mkdir dir="build/lib" />
-		<mkdir dir="build/lib/addintegers" />
-		<mkdir dir="build/lib/sayhello" />
         <mkdir dir="build/lib/vol2bird" />
-		<mkdir dir="build/lib/vol2bird-all" />
         <mkdir dir="dist" />
-	</target>
+    </target>
 
-	<target name="copyjar" depends="create-dirs">
-		<copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist" />
-	</target>
+    <target name="copyjar" depends="create-dirs">
+        <copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist" />
+    </target>
 
-	<target name="javacompile" depends="copyjar" description="compile the java source code">
-		<javac source="1.6" target="1.6" debug="true" srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
-	</target>
+    <target name="javacompile" depends="copyjar" description="compile the java source code">
+        <javac source="1.6" target="1.6" debug="true" srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
+    </target>
 
-	<target name="copyccode" depends="javacompile">
-		<copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
-		<copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
-	</target>
+    <target name="copyccode" depends="javacompile">
+    	<copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
+    	<copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
+    </target>
 
-	<target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
+    <target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
         <javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
             <class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
         </javah>
-	</target>
+    </target>
 
-	<target name="calctexture" depends="jniheaders" description="compile the C-language source file libvol2bird.c into a shared object">
-		<exec dir="build/lib/vol2bird" executable="gcc">
-			<arg line="-fPIC" />
-			<arg line="-I${jnihdir}" />
-			<arg line="-I${jnihdir}/linux" />
-			<arg line="-shared" />
-			<arg line="libcalctexture.c" />
-			<arg line="-o" />
-			<arg line="../../../dist/libcalctexture.so" />
-		</exec>
-	</target>
+    <target name="calctexture" depends="jniheaders" description="compile the C-language source file libvol2bird.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libcalctexture.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libcalctexture.so" />
+        </exec>
+    </target>
+	
+    <target name="findcells" depends="calctexture" description="compile the C-language source file libvol2bird.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libfindcells.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libfindcells.so" />
+        </exec>
+    </target>	
 
-	<target name="makejar" depends="calctexture" description="make a jar out of everything">
-		<jar destfile="dist/ncradar.jar" basedir="build/classes" />
-	</target>
+    <target name="makejar" depends="findcells" description="make a jar out of everything">
+        <jar destfile="dist/ncradar.jar" basedir="build/classes" />
+    </target>
 
-	<target name="runit" depends="makejar" description="run the jar containing everything">
-		<java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
-			<sysproperty key="java.library.path" value="dist" />
-		</java>
-	</target>
+    <target name="runit" depends="makejar" description="run the jar containing everything">
+        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
+            <sysproperty key="java.library.path" value="dist" />
+        </java>
+    </target>
 
 </project>
