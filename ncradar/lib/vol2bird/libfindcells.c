@@ -28,8 +28,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 {
 
 
-    int ncell;
-    int ij;
+    int iCellIdentifier;
+    int nCells;
     int iRang;
     int nRang;
     int iAzim;
@@ -55,10 +55,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     double zdrScale;
 
     int iGlobal;
+    int iGlobalOther;
     int nGlobal;
     int iLocal;
-
-    ncell = 0;
 
     nRang = texmeta->nrang;
     nAzim = texmeta->nazim;
@@ -79,9 +78,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     zdrThres = 0;
     texThres = ROUND((texThresMin-texOffset)/texScale);  // FIXME why type is int?
 
-    iGlobal = iRang+iAzim*nRang;
     nGlobal = nAzim*nRang;
-
 
     if (rhoimage!=NULL) {
         rhoThres = ROUND((rhoThresMin-rhoOffset)/rhoScale);
@@ -104,10 +101,17 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     /*diagonal connections. The algorithm is described in 'Digital Image */
     /*Processing' by Gonzales and Woods published by Addison-Wesley.*/
 
+    iCellIdentifier = 0;
+
     for (iAzim=0; iAzim<nAzim; iAzim++) {
         for (iRang=0; iRang<nRang; iRang++) {
 
+            iGlobal = iRang+iAzim*nRang;
+
             if ((iRang+1)*(texmeta->rscale)>rcellmax) {  // FIXME what is the difference between zscale and rscale // FIXME why iRang +1 ?
+                continue;
+            }
+            if (teximage[iGlobal]==texMissing) {
                 continue;
             }
 
@@ -115,9 +119,6 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             count = 0;
 
             if (rhoimage==NULL){
-                if (teximage[iGlobal]==texMissing) {
-                    continue;
-                }
                 if (sign*teximage[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
                     continue;
                 }
@@ -128,22 +129,30 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
-                    if (sign*teximage[iLocal]<=sign*texThres) { // FIXME sign 2x ?
+                    if (sign*teximage[iLocal]<=sign*texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
                         count++;
                     }
                 }
             }
             else {
-                if (!(rhoimage[iGlobal]!=rhoMissing && zdrimage[iGlobal]!=zdrMissing &&
-                        teximage[iGlobal]!=texMissing && teximage[iGlobal]>=dbzmin &&
-                        (zdrimage[iGlobal]>zdrThres||rhoimage[iGlobal]>rhoThres))) {
+                if (rhoimage[iGlobal]==rhoMissing) {
                     continue;
                 }
+                if (zdrimage[iGlobal]==zdrMissing) {
+                    continue;
+                }
+                if (teximage[iGlobal]<dbzmin) {  // FIXME tex v dbz why?
+                    continue;
+                }
+                if !(zdrimage[iGlobal]>zdrThres || rhoimage[iGlobal]>rhoThres) {
+                    continue;
+                }
+
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
                     iRangLocal = (iRang-1+iNeighborhood%3);
-                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim; /* periodic boundary condition azimuth */
+                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
                     iLocal = iRangLocal+iAzimLocal*nRang;
-                    if (rhoimage[iLocal]>rhoThres||zdrimage[iLocal]>zdrThres) {
+                    if (rhoimage[iLocal]>rhoThres || zdrimage[iLocal]>zdrThres) {
                         count++;
                     }
                 }
@@ -154,41 +163,38 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 continue;
             }
 
-
-
-
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
             /*connections.*/
 
             for (k=0; k<4; k++) {
 
                 iRangLocal = (iRang-1+k%3); // FIXME is this right given that k counts to only 4, not 9?
-                iAzimLocal = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
+                iAzimLocal = (nAzim+(iAzim-1+k/3))%nAzim;
                 iLocal = iRangLocal+iAzimLocal*nRang;
 
-                /* index out of range, goto next pixel: */
+                /* index out of range, go to next pixel: */
                 if (iRangLocal<0 || iRangLocal>=nRang || iAzimLocal<0 || iAzimLocal>=nAzim) {
                     continue;
                 }
 
-                /* no connection found, goto next pixel */
+                /* no connection found, go to next pixel */
                 if (cellmap[iLocal]<0) {
                     continue;
                 }
 
-                /* if pixel still unassigned, assign same cellnumber as connection */
+                /* if pixel still unassigned, assign same iCellIdentifier as connection */
                 if (cellmap[iGlobal]<0) {
                     cellmap[iGlobal] = cellmap[iLocal];
                 }
                 else {
-                    /* if connection found but pixel is already assigned a different cellnumber: */
+                    /* if connection found but pixel is already assigned a different iCellIdentifier: */
                     if (cellmap[iGlobal]!=cellmap[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
-                        for (ij=0 ; ij<nGlobal ; ij++) {
-                            if (cellmap[ij]==cellmap[iGlobal]) {
-                                cellmap[ij] = cellmap[iLocal];
+                        for (iGlobalOther=0; iGlobalOther<nGlobal; iGlobalOther++) {
+                            if (cellmap[iGlobalOther]==cellmap[iGlobal]) {
+                                cellmap[iGlobalOther] = cellmap[iLocal];
                             }
-                            /*note: not all ncell need to be used eventually */
+                            /*note: not all iCellIdentifier need to be used eventually */
                         }
                     }
                 }
@@ -196,8 +202,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
             /*When no connections are found, give a new number.*/
             if (cellmap[iGlobal]<0) {
-                cellmap[iGlobal] = ncell;
-                ncell++;
+                cellmap[iGlobal] = iCellIdentifier;
+                iCellIdentifier++;
             }
 
         } // (iRang=0; iRang<nRang; iRang++)
@@ -205,5 +211,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
     /*Returning number of detected cells (including fringe/clutter) .*/
 
-    return ncell;
+    nCells = iCellIdentifier;
+
+    return nCells;
 }//findcells
