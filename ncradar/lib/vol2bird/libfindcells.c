@@ -36,7 +36,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int count;
     int nRang;
     int nAzim;
-    int missing;
+    int texMissing;
+    int rhoMissing;
+    int zdrMissing;
     int threstex;
     int thresrho;
     int threszdr;
@@ -46,8 +48,11 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     thresrho = 0;
     threszdr = 0;
     nRang = texmeta->nrang;
-    nAzim = texmeta->nazim; // FIXME previously did not exist nAzim/nazim
-    missing = texmeta->missing;
+    nAzim = texmeta->nazim;
+    texMissing = texmeta->missing;
+    rhoMissing = rhometa->missing;
+    zdrMissing = zdrmeta->missing;
+
     threstex = ROUND((threstexmin-(texmeta->zoffset))/(texmeta->zscale));
 
     if (rhoimage!=NULL) {
@@ -63,7 +68,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*If threshold is missing, return.*/
-    if (threstex==missing) {
+    if (threstex==texMissing) {
         return 0;  // FIXME return zero is traditionally used to signal "everything is great!"
     }
 
@@ -79,7 +84,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             if (rhoimage==NULL){
-                if (teximage[iRang+iAzim*nRang]==missing||sign*teximage[iRang+iAzim*nRang]>sign*threstex) {
+                if (teximage[iRang+iAzim*nRang]==texMissing||sign*teximage[iRang+iAzim*nRang]>sign*threstex) {
                     continue;
                 }
                 /* count number of direct neighbors above threshold */
@@ -100,8 +105,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
             }
             else {
-                if (!(rhoimage[iRang+iAzim*nRang]!=missing && zdrimage[iRang+iAzim*nRang]!=missing &&
-                        teximage[iRang+iAzim*nRang]!=missing && teximage[iRang+iAzim*nRang]>=dbzmin &&
+                if (!(rhoimage[iRang+iAzim*nRang]!=rhoMissing && zdrimage[iRang+iAzim*nRang]!=zdrMissing &&
+                        teximage[iRang+iAzim*nRang]!=texMissing && teximage[iRang+iAzim*nRang]>=dbzmin &&
                         (zdrimage[iRang+iAzim*nRang]>threszdr||rhoimage[iRang+iAzim*nRang]>thresrho))) {
                     continue;
                 }
