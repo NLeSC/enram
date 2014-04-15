@@ -331,6 +331,35 @@ public class RadarScan extends NetcdfAttributeReader {
     }
     
     
+    public int[] convertScanData() {
+        int[] scanDataAsInt;
+        int nRows;
+        int nCols;
+        int iElem;
+        int nElems;
+        
+        
+        
+        nRows = (int) getNumberOfAzimuthBins();
+        nCols = (int) getNumberOfRangeBins();
+        nElems = nRows*nCols;
+        scanDataAsInt = new int[nElems];
+        
+        for (int iRow=0;iRow<nRows;iRow++) {
+            for (int iCol=0;iCol<nCols;iCol++) {
+                
+                iElem = iRow * nCols + iCol;
+                Number number = scanData[iRow][iCol];
+                scanDataAsInt[iElem] = number.intValue();
+                
+            }
+            
+        }
+        
+        return scanDataAsInt;
+        
+    }
+    
     // getters below this point
      
     public String getDirectory() {
