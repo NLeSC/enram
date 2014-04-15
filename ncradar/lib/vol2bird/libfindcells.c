@@ -23,7 +23,7 @@
 int findcells(unsigned char *teximage,unsigned char *rhoimage,
               unsigned char *zdrimage,int *cellmap,
               SCANMETA *texmeta, SCANMETA *rhometa, SCANMETA *zdrmeta,
-              float threstexmin,float thresrhomin,float threszdrmin,
+              float texThresMin,float rhoThresMin,float zdrThresMin,
               float dbzmin,float rcellmax,char sign)
 {
     int ncell;
@@ -37,25 +37,26 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int nRang;
     int nAzim;
     int texMissing;
+    int texThres;
     double texOffset;
     double texScale;
 
+
     int rhoMissing;
+    int rhoThres;
     double rhoOffset;
     double rhoScale;
 
     int zdrMissing;
+    int zdrThres;
     double zdrOffset;
     double zdrScale;
 
-    int threstex;
-    int thresrho;
-    int threszdr;
     int iGlobal;
+    int nGlobal;
 
     ncell = 0;
-    thresrho = 0;
-    threszdr = 0;
+
     nRang = texmeta->nrang;
     nAzim = texmeta->nazim;
 
@@ -71,15 +72,19 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     zdrOffset = zdrmeta->zoffset;
     zdrScale = zdrmeta->zscale;
 
-    iGlobal = iRang+iAzim*nRang;
+    rhoThres = 0;
+    zdrThres = 0;
+    texThres = ROUND((texThresMin-texOffset)/texScale);  // FIXME why type is int?
 
-    threstex = ROUND((threstexmin-texOffset)/texScale);  // FIXME why type is int?
+    iGlobal = iRang+iAzim*nRang;
+    nGlobal = nAzim*nRang;
+
 
     if (rhoimage!=NULL) {
-        thresrho = ROUND((thresrhomin-rhoOffset)/rhoScale);
+        rhoThres = ROUND((rhoThresMin-rhoOffset)/rhoScale);
     }
     if (zdrimage!=NULL) {
-        threszdr = ROUND((threszdrmin-zdrOffset)/zdrScale);
+        zdrThres = ROUND((zdrThresMin-zdrOffset)/zdrScale);
     }
 
     /*Initializing of connection cellmap.*/
@@ -88,7 +93,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*If threshold is missing, return.*/
-    if (threstex==texMissing) {
+    if (texThres==texMissing) {
         return 0;  // FIXME return zero is traditionally used to signal "everything is great!"
     }
 
@@ -99,12 +104,12 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     for (iAzim=0; iAzim<nAzim; iAzim++) {
         for (iRang = 0; iRang<nRang; iRang++) {
 
-            if ((iRang+1)*(texmeta->rscale)>rcellmax) {
+            if ((iRang+1)*(texmeta->rscale)>rcellmax) {  // FIXME what is the difference between zscale and rscale
                 continue;
             }
 
             if (rhoimage==NULL){
-                if (teximage[iGlobal]==texMissing||sign*teximage[iGlobal]>sign*threstex) {
+                if (teximage[iGlobal]==texMissing||sign*teximage[iGlobal]>sign*texThres) {
                     continue;
                 }
                 /* count number of direct neighbors above threshold */
@@ -115,7 +120,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                     if (ii+jj*nRang >= nRang*nAzim || ii+jj*nRang < 0) {
                         continue;
                     }
-                    if (sign*teximage[ii+jj*nRang]<=sign*threstex) {
+                    if (sign*teximage[ii+jj*nRang]<=sign*texThres) {
                         count++;
                     }
                 }
@@ -127,7 +132,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             else {
                 if (!(rhoimage[iGlobal]!=rhoMissing && zdrimage[iGlobal]!=zdrMissing &&
                         teximage[iGlobal]!=texMissing && teximage[iGlobal]>=dbzmin &&
-                        (zdrimage[iGlobal]>threszdr||rhoimage[iGlobal]>thresrho))) {
+                        (zdrimage[iGlobal]>zdrThres||rhoimage[iGlobal]>rhoThres))) {
                     continue;
                 }
                 /* count number of direct neighbors above threshold */
@@ -135,7 +140,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 for (k = 0; k<9; k++) {
                     ii = (iRang-1+k%3);
                     jj = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
-                    if (rhoimage[ii+jj*nRang]>thresrho||zdrimage[ii+jj*nRang]>threszdr) {
+                    if (rhoimage[ii+jj*nRang]>rhoThres||zdrimage[ii+jj*nRang]>zdrThres) {
                         count++;
                     }
                 }
