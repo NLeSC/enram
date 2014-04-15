@@ -2,7 +2,7 @@
  * libvol2bird.c
  *
  *  Created on: Apr 2, 2014
- *      Author: wbouten
+ *      Author: Jurriaan H. Spaaks, Netherlands eScience Center
  */
 
 #include <jni.h>
@@ -15,6 +15,18 @@
 JNIEXPORT jintArray JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(JNIEnv *env, jobject obj, jint tMissing, jint tnAzim, jint tnRange, jdouble tOffset, jdouble tScale, jintArray vImage, jint vMissing, jint vnAzim, jint vnRange, jdouble vOffset, jdouble vScale, jintArray zImage, jint zMissing, jint znAzim, jint znRange, jdouble zOffset, jdouble zScale, jint nRangLocal, jint nAzimLocal, jint nCountMin, jint textype)
 {
+
+    // do some Java Native interface tricks:
+    jsize nElems = (*env)->GetArrayLength(env, vImage);
+
+    jsize nv = (*env)->GetArrayLength(env, vImage);
+    jsize nz = (*env)->GetArrayLength(env, zImage);
+
+    jint *vImageBody = (*env)->GetIntArrayElements(env, vImage, NULL);
+    jint *zImageBody = (*env)->GetIntArrayElements(env, zImage, NULL);
+    jint *tImageBody = (jint*)malloc(nElems*sizeof(jint));
+    // end of Java Native Interface tricks
+
     int iRang;
     int nRang;
     int iAzim;
@@ -33,20 +45,9 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(JNIEnv *env, jobje
     double tex;
     double vRad;
 
-    // do some Java Native interface tricks:
-    jsize nElems = (*env)->GetArrayLength(env, vImage);
-
-    jsize nv = (*env)->GetArrayLength(env, vImage);
-    jsize nz = (*env)->GetArrayLength(env, zImage);
-
-    jint *vImageBody = (*env)->GetIntArrayElements(env, vImage, NULL);
-    jint *zImageBody = (*env)->GetIntArrayElements(env, zImage, NULL);
-    jint *tImageBody = (jint*)malloc(nElems*sizeof(jint));
-    // end of Java Native Interface tricks
-
     // check whether the sizes of the input arrays are the same:
     if (nv!=nz) {
-        printf("error: different sized input arguments.");
+        fprintf(stderr,"error: different sized input arguments.");
         return;
     } else {
         nGlobal = nv;
@@ -54,31 +55,31 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(JNIEnv *env, jobje
 
     // check if the number of rows in each image is consistent
     if (tnAzim != vnAzim || tnAzim != znAzim || vnAzim != znAzim) {
-        printf("error: nAzim arguments have different values");
+        fprintf(stderr,"error: nAzim arguments have different values");
         return;
     }
 
     // check if the number of columns in each image is consistent
     if (tnRange != vnRange || tnRange != znRange || vnRange != znRange) {
-        printf("error: nRange arguments have different values");
+        fprintf(stderr,"error: nRange arguments have different values");
         return;
     }
 
     // check if there are exactly enough elements in vImageBody and zImageBody;
     if (nGlobal != tnAzim*tnRange) {
-        printf("error: number of elements in arrays must match nRange*nAzim");
+        fprintf(stderr,"error: number of elements in arrays must match nRange*nAzim");
         return;
     }
 
     // verify that the moving window can be centered on the current row
     if (nAzimLocal%2!=1) {
-        printf("error: nAzimLocal must be odd integer.");
+        fprintf(stderr,"error: nAzimLocal must be odd integer.");
         return;
     }
 
     // verify that the moving window can be centered on the current column
     if (nRangLocal%2!=1) {
-        printf("error: nRangeLocal must be odd integer.");
+        fprintf(stderr,"error: nRangeLocal must be odd integer.");
         return;
     }
 
@@ -146,12 +147,12 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(JNIEnv *env, jobje
                 if (textype == TEXSTDEV){
                     tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
                 } else {
-                    printf("error: seems like you have an invalid 'textype'.");
+                    fprintf(stderr,"error: seems like you have an invalid 'textype'.");
                     return;
                 }
                 tImageBody[iGlobal] = (int)ROUND((tex-tOffset)/tScale);
             } // else
-            printf("count = %d; nCountMin = %d; textype = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; tImageBody[%d] = %d\n",count,nCountMin,textype,vmoment1,vmoment2,tex,iGlobal,tImageBody[iGlobal]);
+            fprintf(stderr,"count = %d; nCountMin = %d; textype = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; tImageBody[%d] = %d\n",count,nCountMin,textype,vmoment1,vmoment2,tex,iGlobal,tImageBody[iGlobal]);
 
         } // for iRang
     } // for iAzim
