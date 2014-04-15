@@ -29,18 +29,18 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int ncell;
     int ij;
     int iRang;
-    int iAzim;
-    int ii;
-    int jj;
-    int k;
-    int count;
     int nRang;
+    int iAzim;
     int nAzim;
+    int iRangLocal;
+    int iAzimLocal;
+    int iNeighbourhood;
+    int count;
+
     int texMissing;
     int texThres;
     double texOffset;
     double texScale;
-
 
     int rhoMissing;
     int rhoThres;
@@ -54,6 +54,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
     int iGlobal;
     int nGlobal;
+    int iLocal;
 
     ncell = 0;
 
@@ -78,6 +79,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
     iGlobal = iRang+iAzim*nRang;
     nGlobal = nAzim*nRang;
+    iLocal = iRangLocal+iAzimLocal*nRang;
 
 
     if (rhoimage!=NULL) {
@@ -102,7 +104,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     /*Processing' by Gonzales and Woods published by Addison-Wesley.*/
 
     for (iAzim=0; iAzim<nAzim; iAzim++) {
-        for (iRang = 0; iRang<nRang; iRang++) {
+        for (iRang=0; iRang<nRang; iRang++) {
 
             if ((iRang+1)*(texmeta->rscale)>rcellmax) {  // FIXME what is the difference between zscale and rscale
                 continue;
@@ -114,13 +116,13 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
                 /* count number of direct neighbors above threshold */
                 count = 0;
-                for (k = 0; k<9; k++) {
-                    ii = (iRang-1+k%3);
-                    jj = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
-                    if (ii+jj*nRang >= nRang*nAzim || ii+jj*nRang < 0) {
+                for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
+                    iRangLocal = (iRang-1+iNeighborhood%3);
+                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim; /* periodic boundary condition azimuth */
+                    if (iLocal >= nRang*nAzim || iLocal < 0) {
                         continue;
                     }
-                    if (sign*teximage[ii+jj*nRang]<=sign*texThres) {
+                    if (sign*teximage[iLocal]<=sign*texThres) {
                         count++;
                     }
                 }
@@ -137,10 +139,10 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
                 /* count number of direct neighbors above threshold */
                 count = 0;
-                for (k = 0; k<9; k++) {
-                    ii = (iRang-1+k%3);
-                    jj = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
-                    if (rhoimage[ii+jj*nRang]>rhoThres||zdrimage[ii+jj*nRang]>zdrThres) {
+                for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
+                    iRangLocal = (iRang-1+iNeighborhood%3);
+                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim; /* periodic boundary condition azimuth */
+                    if (rhoimage[iLocal]>rhoThres||zdrimage[iLocal]>zdrThres) {
                         count++;
                     }
                 }
@@ -154,30 +156,30 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
             for (k=0; k<4; k++) {
 
-                ii = (iRang-1+k%3);
-                jj = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
+                iRangLocal = (iRang-1+k%3); // FIXME is this right given that k counts to only 4, not 9?
+                iAzimLocal = (nAzim+(iAzim-1+k/3))%nAzim; /* periodic boundary condition azimuth */
 
                 /* index out of range, goto next pixel: */
-                if (ii<0||ii>=nRang||jj<0||jj>=nAzim) {
+                if (iRangLocal<0 || iRangLocal>=nRang || iAzimLocal<0 || iAzimLocal>=nAzim) {
                     continue;
                 }
 
                 /* no connection found, goto next pixel */
-                if (cellmap[ii+jj*nRang]<0) {
+                if (cellmap[iLocal]<0) {
                     continue;
                 }
 
                 /* if pixel still unassigned, assign same cellnumber as connection */
                 if (cellmap[iGlobal]<0) {
-                    cellmap[iGlobal] = cellmap[ii+jj*nRang];
+                    cellmap[iGlobal] = cellmap[iLocal];
                 }
                 else {
                     /* if connection found but pixel is already assigned a different cellnumber: */
-                    if (cellmap[iGlobal]!=cellmap[ii+jj*nRang]) {
+                    if (cellmap[iGlobal]!=cellmap[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
                         for (ij=0 ; ij<nAzim*nRang ; ij++) {
                             if (cellmap[ij]==cellmap[iGlobal]) {
-                                cellmap[ij] = cellmap[ii+jj*nRang];
+                                cellmap[ij] = cellmap[iLocal];
                             }
                             /*note: not all ncell need to be used eventually */
                         }
@@ -190,8 +192,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 cellmap[iGlobal] = ncell;
                 ncell++;
             }
-        }
-    }
+
+        } // (iRang=0; iRang<nRang; iRang++)
+    } // for (iAzim=0; iAzim<nAzim; iAzim++)
 
     /*Returning number of detected cells (including fringe/clutter) .*/
 
