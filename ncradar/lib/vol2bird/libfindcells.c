@@ -90,8 +90,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*Initializing of connection cellmap.*/
-    for (ij = 0; ij<nAzim*nRang; ij++) {
-        cellmap[ij] = -1;
+    for (iGlobal = 0; iGlobal<nGlobal; iGlobal++) {
+        cellmap[iGlobal] = -1;
     }
 
     /*If threshold is missing, return.*/
@@ -177,7 +177,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                     /* if connection found but pixel is already assigned a different cellnumber: */
                     if (cellmap[iGlobal]!=cellmap[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
-                        for (ij=0 ; ij<nAzim*nRang ; ij++) {
+                        for (ij=0 ; ij<nGlobal ; ij++) {
                             if (cellmap[ij]==cellmap[iGlobal]) {
                                 cellmap[ij] = cellmap[iLocal];
                             }
