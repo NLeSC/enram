@@ -7,25 +7,27 @@
 
 #include <jni.h>
 //#include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 //#include <math.h>
 #include "libvol2bird.h"
 //#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 
-/******************************************************************************/
-/*This function detects the cells in 'image' using an integer threshold value */
-/*of 'thres' and a non-recursive algorithm which looks for neighboring pixels */
-/*above threshold. On return the marked cells are contained by 'cellmap'. The */
-/*number of detected cells/highest index value is returned.                   */
-/******************************************************************************/
 
-int findcells(unsigned char *teximage,unsigned char *rhoimage,
-              unsigned char *zdrimage,int *cellmap,
-              SCANMETA *texmeta, SCANMETA *rhometa, SCANMETA *zdrmeta,
-              float texThresMin,float rhoThresMin,float zdrThresMin,
-              float dbzmin,float rcellmax,char sign)
+JNIEXPORT jintArray JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject obj, jintArray cellImage, jintArray texImage, jint texnRang, jint texnAzim, jdouble texOffset, jdouble texScale, jint texMissing, jdouble texThresMin, jintArray rhoImage, jint rhonRang, jint rhonAzim, jdouble rhoOffset, jdouble rhoScale, jint rhoMissing, jdouble rhoThresMin, jintArray zdrImage, jint zdrnRang, jint zdrnAzim, jdouble zdrOffset, jdouble zdrScale, jint zdrMissing, jdouble zdrThresMin, jdouble dbzmin, jdouble rcellmax, jint sign, jdouble texrScale)
 {
+
+    // do some Java Native interface tricks:
+    jsize texnElems = (*env)->GetArrayLength(env, texImage);
+    jsize rhonElems = (*env)->GetArrayLength(env, rhoImage);
+    jsize zdrnElems = (*env)->GetArrayLength(env, zdrImage);
+
+    jint *texImageBody = (*env)->GetIntArrayElements(env, texImage, NULL);
+    jint *rhoImageBody = (*env)->GetIntArrayElements(env, rhoImage, NULL);
+    jint *zdrImageBody = (*env)->GetIntArrayElements(env, zdrImage, NULL);
+    jint *cellImageBody = (jint*)malloc(texnElems*sizeof(jint));
+    // end of Java Native Interface tricks
 
 
     int iCellIdentifier;
@@ -38,60 +40,64 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int iAzimLocal;
     int iNeighborhood;
     int count;
-    int cellmapInitialValue;
+    int cellImageBodyInitialValue;
 
-    int texMissing;
-    int texThres;
-    double texOffset;
-    double texScale;
-
-    int rhoMissing;
-    int rhoThres;
-    double rhoOffset;
-    double rhoScale;
-
-    int zdrMissing;
-    int zdrThres;
-    double zdrOffset;
-    double zdrScale;
+    double texThres;
+    double rhoThres;
+    double zdrThres;
 
     int iGlobal;
     int iGlobalOther;
     int nGlobal;
     int iLocal;
 
-    nRang = texmeta->nrang;
-    nAzim = texmeta->nazim;
 
-    texMissing = texmeta->missing;
-    texOffset = texmeta->zoffset;
-    texScale = texmeta->zscale;
+    // check whether the sizes of the input arrays are the same:
+    if (rhonElems!=texnElems || zdrnElems!=texnElems) {
+        fprintf(stderr,"error: different sized input arguments.");
+        return;
+    } else {
+        nGlobal = texnElems;
+    }
 
-    rhoMissing = rhometa->missing;
-    rhoOffset = rhometa->zoffset;
-    rhoScale = rhometa->zscale;
+    // check if the number of rows in each image is consistent
+    if (rhonAzim != texnAzim || zdrnAzim != texnAzim) {
+        fprintf(stderr,"error: nAzim arguments have different values");
+        return;
+    }
+    else {
+        nAzim = texnAzim;
+    }
 
-    zdrMissing = zdrmeta->missing;
-    zdrOffset = zdrmeta->zoffset;
-    zdrScale = zdrmeta->zscale;
+    // check if the number of columns in each image is consistent
+    if (rhonRang != texnRang || zdrnRang != texnRang) {
+        fprintf(stderr,"error: nRang arguments have different values");
+        return;
+    }
+    else {
+        nRang = texnRang;
+    }
 
-    rhoThres = 0;
-    zdrThres = 0;
+    // check if there are exactly enough elements in vImageBody and zImageBody;
+    if (nGlobal != nAzim*nRang) {
+        fprintf(stderr,"error: number of elements in arrays must match nRang*nAzim");
+        return;
+    }
+
+
     texThres = ROUND((texThresMin-texOffset)/texScale);  // FIXME why type is int?
 
-    nGlobal = nAzim*nRang;
-
-    if (rhoimage!=NULL) {
-        rhoThres = ROUND((rhoThresMin-rhoOffset)/rhoScale);
+    if (rhoImageBody!=NULL) {
+        rhoThres = ROUND((rhoThresMin-rhoOffset)/rhoScale);  // FIXME why type is int?
     }
-    if (zdrimage!=NULL) {
-        zdrThres = ROUND((zdrThresMin-zdrOffset)/zdrScale);
+    if (zdrImageBody!=NULL) {
+        zdrThres = ROUND((zdrThresMin-zdrOffset)/zdrScale);  // FIXME why type is int?
     }
 
-    /*Initializing of connection cellmap.*/
-    cellmapInitialValue = -1;
+    /*Initializing of connection cellImageBody.*/
+    cellImageBodyInitialValue = -1;
     for (iGlobal=0; iGlobal<nGlobal; iGlobal++) {
-        cellmap[iGlobal] = cellmapInitialValue;
+        cellImageBody[iGlobal] = cellImageBodyInitialValue;
     }
 
     /*If threshold is missing, return.*/
@@ -110,18 +116,18 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
             iGlobal = iRang+iAzim*nRang;
 
-            if ((iRang+1)*(texmeta->rscale)>rcellmax) {  // FIXME what is the difference between zscale and rscale // FIXME why iRang +1 ?
+            if ((iRang+1)*texrScale>rcellmax) {  // FIXME what is the difference between zscale and rscale // FIXME why iRang +1 ?
                 continue;
             }
-            if (teximage[iGlobal]==texMissing) {
+            if (texImageBody[iGlobal]==texMissing) {
                 continue;
             }
 
             /* count number of direct neighbors above threshold */
             count = 0;
 
-            if (rhoimage==NULL){
-                if (sign*teximage[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
+            if (rhoImageBody==NULL){
+                if (sign*texImageBody[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
                     continue;
                 }
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
@@ -131,22 +137,22 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
-                    if (sign*teximage[iLocal]<=sign*texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
+                    if (sign*texImageBody[iLocal]<=sign*texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
                         count++;
                     }
                 }
             }
             else {
-                if (rhoimage[iGlobal]==rhoMissing) {
+                if (rhoImageBody[iGlobal]==rhoMissing) {
                     continue;
                 }
-                if (zdrimage[iGlobal]==zdrMissing) {
+                if (zdrImageBody[iGlobal]==zdrMissing) {
                     continue;
                 }
-                if (teximage[iGlobal]<dbzmin) {  // FIXME tex v dbz why?
+                if (texImageBody[iGlobal]<dbzmin) {  // FIXME tex v dbz why?
                     continue;
                 }
-                if !(zdrimage[iGlobal]>zdrThres || rhoimage[iGlobal]>rhoThres) {
+                if (!(zdrImageBody[iGlobal]>zdrThres || rhoImageBody[iGlobal]>rhoThres)) {
                     continue;
                 }
 
@@ -154,11 +160,11 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                     iRangLocal = (iRang-1+iNeighborhood%3);
                     iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
                     iLocal = iRangLocal+iAzimLocal*nRang;
-                    if (rhoimage[iLocal]>rhoThres || zdrimage[iLocal]>zdrThres) {
+                    if (rhoImageBody[iLocal]>rhoThres || zdrImageBody[iLocal]>zdrThres) {
                         count++;
                     }
                 }
-            } // if (rhoimage==NULL)
+            } // if (rhoImageBody==NULL)
 
             /* when not enough qualified neighbors, continue */
             if (count-1 < NEIGHBOURS) {
@@ -180,21 +186,21 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
 
                 /* no connection found, go to next pixel within neighborhood */
-                if (cellmap[iLocal] == cellmapInitialValue) {
+                if (cellImageBody[iLocal] == cellImageBodyInitialValue) {
                     continue;
                 }
 
                 /* if pixel still unassigned, assign same iCellIdentifier as connection */
-                if (cellmap[iGlobal] == cellmapInitialValue) {
-                    cellmap[iGlobal] = cellmap[iLocal];
+                if (cellImageBody[iGlobal] == cellImageBodyInitialValue) {
+                    cellImageBody[iGlobal] = cellImageBody[iLocal];
                 }
                 else {
                     /* if connection found but pixel is already assigned a different iCellIdentifier: */
-                    if (cellmap[iGlobal]!=cellmap[iLocal]) {
+                    if (cellImageBody[iGlobal]!=cellImageBody[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
                         for (iGlobalOther=0; iGlobalOther<nGlobal; iGlobalOther++) {
-                            if (cellmap[iGlobalOther]==cellmap[iGlobal]) {
-                                cellmap[iGlobalOther] = cellmap[iLocal];
+                            if (cellImageBody[iGlobalOther]==cellImageBody[iGlobal]) {
+                                cellImageBody[iGlobalOther] = cellImageBody[iLocal];
                             }
                             /*note: not all iCellIdentifier need to be used eventually */
                         }
@@ -203,8 +209,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             /*When no connections are found, give a new number.*/
-            if (cellmap[iGlobal] == cellmapInitialValue) {
-                cellmap[iGlobal] = iCellIdentifier;
+            if (cellImageBody[iGlobal] == cellImageBodyInitialValue) {
+                cellImageBody[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
 
@@ -215,5 +221,17 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
 
     nCells = iCellIdentifier;
 
-    return nCells;
+
+
+
+    // do some more Java Native Interface tricks:
+    (*env)->ReleaseIntArrayElements(env, texImage, texImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, rhoImage, rhoImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, zdrImage, zdrImageBody, 0);
+
+    jintArray tImage = (*env)->NewIntArray(env,nGlobal);
+    (*env)->SetIntArrayRegion(env,cellImage,0,nGlobal,cellImageBody);
+    // end of Java Native Interface tricks
+
+    return cellImage;
 }//findcells
