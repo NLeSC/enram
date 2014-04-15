@@ -38,6 +38,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int iAzimLocal;
     int iNeighborhood;
     int count;
+    int cellmapInitialValue;
 
     int texMissing;
     int texThres;
@@ -88,8 +89,9 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*Initializing of connection cellmap.*/
+    cellmapInitialValue = -1;
     for (iGlobal=0; iGlobal<nGlobal; iGlobal++) {
-        cellmap[iGlobal] = -1;
+        cellmap[iGlobal] = cellmapInitialValue;
     }
 
     /*If threshold is missing, return.*/
@@ -158,7 +160,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
                 }
             } // if (rhoimage==NULL)
 
-            /* when not enough neighbors with dBZ>DBZRAIN, continue */
+            /* when not enough qualified neighbors, continue */
             if (count-1 < NEIGHBOURS) {
                 continue;
             }
@@ -166,24 +168,24 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
             /*connections.*/
 
-            for (k=0; k<4; k++) {
+            for (iNeighborhood=0; iNeighborhood<4; iNeighborhood++) {
 
-                iRangLocal = (iRang-1+k%3); // FIXME is this right given that k counts to only 4, not 9?
-                iAzimLocal = (nAzim+(iAzim-1+k/3))%nAzim;
+                iRangLocal = (iRang-1+iNeighborhood%3);
+                iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
                 iLocal = iRangLocal+iAzimLocal*nRang;
 
-                /* index out of range, go to next pixel: */
+                /* index out of range, go to next pixel within neighborhood */
                 if (iRangLocal<0 || iRangLocal>=nRang || iAzimLocal<0 || iAzimLocal>=nAzim) {
                     continue;
                 }
 
-                /* no connection found, go to next pixel */
-                if (cellmap[iLocal]<0) {
+                /* no connection found, go to next pixel within neighborhood */
+                if (cellmap[iLocal] == cellmapInitialValue) {
                     continue;
                 }
 
                 /* if pixel still unassigned, assign same iCellIdentifier as connection */
-                if (cellmap[iGlobal]<0) {
+                if (cellmap[iGlobal] == cellmapInitialValue) {
                     cellmap[iGlobal] = cellmap[iLocal];
                 }
                 else {
@@ -201,7 +203,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             }
 
             /*When no connections are found, give a new number.*/
-            if (cellmap[iGlobal]<0) {
+            if (cellmap[iGlobal] == cellmapInitialValue) {
                 cellmap[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
