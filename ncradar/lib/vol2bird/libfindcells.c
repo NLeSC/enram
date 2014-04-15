@@ -26,6 +26,8 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
               float texThresMin,float rhoThresMin,float zdrThresMin,
               float dbzmin,float rcellmax,char sign)
 {
+
+
     int ncell;
     int ij;
     int iRang;
@@ -34,7 +36,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     int nAzim;
     int iRangLocal;
     int iAzimLocal;
-    int iNeighbourhood;
+    int iNeighborhood;
     int count;
 
     int texMissing;
@@ -89,7 +91,7 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
     }
 
     /*Initializing of connection cellmap.*/
-    for (iGlobal = 0; iGlobal<nGlobal; iGlobal++) {
+    for (iGlobal=0; iGlobal<nGlobal; iGlobal++) {
         cellmap[iGlobal] = -1;
     }
 
@@ -113,12 +115,15 @@ int findcells(unsigned char *teximage,unsigned char *rhoimage,
             count = 0;
 
             if (rhoimage==NULL){
-                if (teximage[iGlobal]==texMissing || sign*teximage[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
+                if (teximage[iGlobal]==texMissing) {
+                    continue;
+                }
+                if (sign*teximage[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
                     continue;
                 }
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
                     iRangLocal = (iRang-1+iNeighborhood%3);
-                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim; /* periodic boundary condition azimuth */
+                    iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
                     iLocal = iRangLocal+iAzimLocal*nRang;
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
