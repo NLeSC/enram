@@ -39,6 +39,7 @@
     <target name="copyccode" depends="javacompile">
     	<copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
     	<copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
+    	<copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
     </target>
 
@@ -48,7 +49,7 @@
         </javah>
     </target>
 
-    <target name="calctexture" depends="jniheaders" description="compile the C-language source file libvol2bird.c into a shared object">
+    <target name="calctexture" depends="jniheaders" description="compile the C-language source file libcalctexture.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -60,7 +61,7 @@
         </exec>
     </target>
 	
-    <target name="findcells" depends="calctexture" description="compile the C-language source file libvol2bird.c into a shared object">
+    <target name="findcells" depends="calctexture" description="compile the C-language source file libfindcells.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -71,8 +72,21 @@
             <arg line="../../../dist/libfindcells.so" />
         </exec>
     </target>	
+	
+    <target name="analysecells" depends="findcells" description="compile the C-language source file libanalysecells.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libanalysecells.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libanalysecells.so" />
+        </exec>
+    </target>
+	
 
-    <target name="makejar" depends="findcells" description="make a jar out of everything">
+    <target name="makejar" depends="analysecells" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />
     </target>
 

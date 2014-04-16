@@ -222,8 +222,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
     nCells = iCellIdentifier;
 
 
-
-
     // do some more Java Native Interface tricks:
     (*env)->ReleaseIntArrayElements(env, texImage, texImageBody, 0);
     (*env)->ReleaseIntArrayElements(env, rhoImage, rhoImageBody, 0);

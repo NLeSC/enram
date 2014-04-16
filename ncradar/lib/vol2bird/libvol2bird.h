@@ -87,21 +87,21 @@
 //    float antvel;            /*Antenna velocity in deg/s.*/
 //};
 //
-//struct cellprop {
-//    int imax;
-//    int jmax;
-//    float dbz;
-//    float tex;
-//    float cv;
-//    float area;
-//    float clutterarea;
-//    float max;
-//    int index;
-//    char drop;
-//};
-//
+struct cellprop {
+    int iRangOfMax;
+    int iAzimOfMax;
+    float dbz;
+    float tex;
+    float cv;
+    float area;
+    float clutterarea;
+    float max;
+    int index;
+    char drop;
+};
+
 //typedef struct scanmeta SCANMETA;
-//typedef struct cellprop CELLPROP;
+typedef struct cellprop CELLPROP;
 //
 ///******************************************************************************/
 ///*Basis functions for Singular Value Decomposition linear fitting.            */

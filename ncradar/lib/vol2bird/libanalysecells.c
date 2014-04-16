@@ -4,112 +4,227 @@
 /*The final number of cells in the cellmap is returned as an integer          */
 /******************************************************************************/
 
-int analysecells(unsigned char *imgz,unsigned char *imgv, unsigned char *imgtex,
-        unsigned char *imgcm, int *cellmap, SCANMETA *zmeta,SCANMETA *vmeta,
-        SCANMETA *texmeta, SCANMETA *cmmeta, int Ncell,int area, float dbzcell,
-        float stdevcell, float clutcell, float vmin,float dbzclutter,
-        unsigned char cmflag, unsigned char dualpolflag, unsigned char verbose)
+/*
+ * libvol2bird.c
+ *
+ *  Created on: Apr 2, 2014
+ *      Author: Jurriaan H. Spaaks, Netherlands eScience Center
+ */
+
+#include <jni.h>
+//#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "libvol2bird.h"
+//#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
+
+JNIEXPORT jint JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyseCells(
+JNIEnv *env,
+jobject obj,
+jint nAzim,
+jint nRang,
+jintArray dbzImage,
+jintArray texImage,
+jintArray vradImage,
+jintArray cmapImage,
+jintArray cellImage,
+jintArray cellPropIRangOfMax,
+jintArray cellPropIAzimOfMax,
+jdoubleArray cellPropDbz,
+jdoubleArray cellPropTex,
+jdoubleArray cellPropCv,
+jdoubleArray cellPropArea,
+jdoubleArray cellPropClutterArea,
+jdoubleArray cellPropMax,
+jintArray cellPropIndex,
+jintArray cellPropDrop,
+jdouble elev,
+jdouble dbzScale,
+jdouble dbzOffset,
+jint vradScale,
+jdouble vradOffset,
+jdouble texScale,
+jdouble texOffset,
+jdouble cmapScale,
+jdouble cmapOffset,
+jint nCells,
+jdouble area,
+jdouble dbzThresCell,
+jdouble stdevThresCell,
+jdouble clutcell,
+jdouble vmin,
+jdouble dbzclutter,
+jint cmapFlag,
+jint dualpolflag,
+jint verbose)
 {
-    CELLPROP *c;
-    int n,ij,ir,ia,NcellValid,nazim,nrang;
-    float validarea;
-    float zoffset,zscale;
 
-    NcellValid=Ncell;
-    zscale=zmeta->zscale;
-    zoffset=zmeta->zoffset;
-    nrang=zmeta->nrang;
-    nazim=zmeta->nazim;
+    // do some Java Native interface tricks:
 
-    /*Allocating and initializing memory for cell properties.*/
-    c=(CELLPROP *)malloc(Ncell*sizeof(CELLPROP));
-    if (!c) {
-        printf("Requested memory could not be allocated!\n");
-        exit(10);
+    jsize nGlobal = (*env)->GetArrayLength(env, dbzImage);
+
+    // these arrays have nGlobal elements
+    jint *dbzImageBody = (*env)->GetIntArrayElements(env, dbzImage, NULL);
+    jint *texImageBody = (*env)->GetIntArrayElements(env, texImage, NULL);
+    jint *vradImageBody = (*env)->GetIntArrayElements(env, vradImage, NULL);
+    jint *cmapImageBody = (*env)->GetIntArrayElements(env, cmapImage, NULL);
+    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
+
+    // these arrays have nCells elements:
+    jint *cellPropIRangOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIRangOfMax, NULL);
+    jint *cellPropIAzimOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIAzimOfMax, NULL);
+    jdouble *cellPropDbzBody = (*env)->GetDoubleArrayElements(env, cellPropDbz, NULL);
+    jdouble *cellPropTexBody = (*env)->GetDoubleArrayElements(env, cellPropTex, NULL);
+    jdouble *cellPropCvBody = (*env)->GetDoubleArrayElements(env, cellPropCv, NULL);
+    jdouble *cellPropAreaBody = (*env)->GetDoubleArrayElements(env, cellPropArea, NULL);
+    jdouble *cellPropClutterAreaBody = (*env)->GetDoubleArrayElements(env, cellPropClutterArea, NULL);
+    jdouble *cellPropMaxBody = (*env)->GetDoubleArrayElements(env, cellPropMax, NULL);
+    jint *cellPropIndexBody = (*env)->GetIntArrayElements(env, cellPropIndex, NULL);
+    jint *cellPropDropBody = (*env)->GetIntArrayElements(env, cellPropDrop, NULL);
+    // end of Java Native Interface tricks
+
+    int iCell;
+    int iGlobal;
+    int iAzim;
+    int iRang;
+    int nCellValid;
+    int iCellIdentifier;
+    float validArea;
+    float dbzValue;
+    float vradValue;
+    float texValue;
+    float cmapValue;
+
+    nCellValid = nCells;
+
+    if (nGlobal != nAzim*nRang) {
+        fprintf(stderr,"Inconsistent array sizes.");
     }
-    for (n=0 ; n<Ncell ; n++) {
-        c[n].imax=c[n].jmax=0;
-        c[n].area=c[n].clutterarea=c[n].dbz=c[n].tex=0;
-        c[n].max=zoffset;
-        c[n].index=n;
-        c[n].drop=0;
-        c[n].cv=0;
+
+    iCellIdentifier = cellImageBody[iGlobal];
+
+    for (iCell=0; iCell<nCells; iCell++) {
+        cellPropIRangOfMaxBody[iCell] = 0;
+        cellPropIAzimOfMaxBody[iCell] = 0;
+        cellPropAreaBody[iCell] = 0;
+        cellPropClutterAreaBody[iCell] = 0;
+        cellPropDbzBody[iCell] = 0;
+        cellPropTexBody[iCell] = 0;
+        cellPropMaxBody[iCell] = dbzOffset;
+        cellPropIndexBody[iCell] = iCell;
+        cellPropDropBody[iCell] = 0;
+        cellPropCvBody[iCell] = 0;
     }
 
     /*Calculation of cell properties.*/
-    for (ia=0 ; ia<nazim ; ia++) {
-        for (ir=0 ; ir<zmeta->nrang ; ir++) {
-            ij=ir+ia*zmeta->nrang;
-            if (cellmap[ij]<0) continue;
-            //low radial velocities are treated as clutter, not included in calculation cell properties
-            if (fabs(vmeta->zscale*imgv[ij]+vmeta->zoffset)<vmin){
-                c[cellmap[ij]].clutterarea+=1;
-                c[cellmap[ij]].area+=1;
+    for (iAzim = 0; iAzim<nAzim; iAzim++) {
+        for (iRang = 0; iRang<nRang; iRang++) {
+
+            iGlobal = iRang+iAzim*nRang;
+
+            dbzValue = dbzScale*dbzImageBody[iGlobal] + dbzOffset;
+            cmapValue = cmapScale*cmapImageBody[iGlobal] + cmapOffset;
+            texValue = texScale*texImageBody[iGlobal] + texOffset;
+            vradValue = vradScale*vradImageBody[iGlobal] + vradOffset;
+
+            if (iCellIdentifier<0){  //FIXME cellImageBody == -1? if you're testing for identity
                 continue;
             }
-            //pixels in clutter map not included in calculation cell properties
 
-            if (cmflag == 1){
-                if (ia<cmmeta->nazim && ir<zmeta->nrang){
-                    if (cmmeta->zscale*imgcm[ij]+cmmeta->zoffset>dbzclutter){
-                        c[cellmap[ij]].clutterarea+=1;
-                        c[cellmap[ij]].area+=1;
-                        continue;
-                    }
+            //low radial velocities are treated as clutter, not included in calculation cell properties
+            if (fabs(vradValue) < vmin){
+                cellPropClutterAreaBody[iCellIdentifier] += 1;
+                cellPropAreaBody[iCellIdentifier] += 1;
+                continue;
+            }
+
+            //pixels in clutter map not included in calculation cell properties
+            if (cmapFlag == 1){
+                if (cmapValue > dbzclutter) {
+                    cellPropClutterAreaBody[iCellIdentifier] += 1;
+                    cellPropAreaBody[iCellIdentifier] += 1;
+                    continue;
                 }
             }
-            c[cellmap[ij]].area+=1;
+            cellPropAreaBody[iCellIdentifier] += 1;
 
-            if (zscale*imgz[ij]+zoffset>c[cellmap[ij]].max) {
-                c[cellmap[ij]].max=zscale*imgz[ij]+zoffset;
-                c[cellmap[ij]].imax=ij%nazim;
-                c[cellmap[ij]].jmax=ij/nazim;
+            if (dbzValue>c[iCellIdentifier].max) {
+                cellPropMaxBody[iCellIdentifier] = dbzValue;
+                cellPropIRangOfMaxBody[iCellIdentifier] = iGlobal%nAzim;
+                cellPropIAzimOfMaxBody[iCellIdentifier] = iGlobal/nAzim;
             }
-            c[cellmap[ij]].dbz+=zscale*imgz[ij]+zoffset;
-            c[cellmap[ij]].tex+=(texmeta->zoffset)+(texmeta->zscale)*imgtex[ij];
+            cellPropDbzBody[iCellIdentifier] += dbzValue;
+            cellPropTexBody[iCellIdentifier] += texValue;
         }
     }
-    for (n=0 ; n<Ncell ; n++) {
-        validarea=c[n].area-c[n].clutterarea;
-        if (validarea>0){
-            c[n].dbz/=validarea;
-            c[n].tex/=validarea;
-            c[n].cv=10*log10(c[n].tex)-c[n].dbz;
-            c[n].cv=c[n].tex/c[n].dbz;
+
+    for (iCell = 0; iCell<nCells; iCell++) {
+        validArea = cellPropAreaBody[iCell] - cellPropClutterAreaBody[iCell];
+        if (validArea>0){
+            cellPropDbzBody[iCell] /= validArea;
+            cellPropTexBody[iCell] /= validArea;
+            cellPropCvBody[iCell] = 10*log10(cellPropTexBody[iCell])-cellPropDbzBody[iCell];  // FIXME this is immediately overwritten in the next line
+            cellPropCvBody[iCell] = cellPropTexBody[iCell]/cellPropDbzBody[iCell];
         }
     }
 
     /*Determine which cells to drop from map based on low mean dBZ / high stdev / small area / high percentage clutter*/
-    for (n=0 ; n<Ncell ; n++) {
+    for (iCell = 0; iCell<nCells; iCell++) {
         if (dualpolflag == 1){
-            if (c[n].area<area) c[n].drop=1;
+            if (cellPropAreaBody[iCell]<area){
+                cellPropDropBody[iCell] = 1;
+            }
         }
         else {
-            if (c[n].area<area || (c[n].dbz<dbzcell && c[n].tex>stdevcell && c[n].clutterarea/c[n].area < clutcell )){
-                c[n].drop=1;
+            if (cellPropAreaBody[iCell]<area || (cellPropDbzBody[iCell]<dbzThresCell && cellPropTexBody[iCell]>stdevThresCell && cellPropClutterAreaBody[iCell]/cellPropAreaBody[iCell]< clutcell )) {
+                cellPropDropBody[iCell] = 1;
             }
         }
     }
 
     /*Sorting cell properties according to cell area. Drop small cells from map*/
-    NcellValid=updatemap(cellmap,c,Ncell,nazim*nrang,area);
+    nCellValid = updatemap(cellImageBody,c,nCells,nGlobal,area);
 
     //Printing of cell properties to stdout.
     if (verbose==1){
-        printf("#Cell analysis for elevation %f:\n",zmeta->elev);
-        printf("#Minimum cell area in pixels   : %i\n",area);
-        printf("#Threshold for mean dBZ cell   : %g dBZ\n",dbzcell);
-        printf("#Threshold for mean stdev cel  : %g dBZ\n",stdevcell);
-        printf("#Valid cells                   : %i/%i\n#\n",NcellValid,Ncell);
-        printf("cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
-        for (n=0 ; n<Ncell ; n++) {
-            if (c[n].area==0) continue;
-            printf("cellinfo: %3d %8.1f %8.1f %6.2f %6.2f %6.2f %6.2f %6d %6d %6d\n",
-                    n+2,c[n].area,c[n].clutterarea,c[n].dbz,c[n].tex,c[n].cv,c[n].max,c[n].imax,c[n].jmax,c[n].drop);
+        fprintf(stdout,"#Cell analysis for elevation %f:\n",elev);
+        fprintf(stdout,"#Minimum cell area in pixels   : %i\n",area);
+        fprintf(stdout,"#Threshold for mean dBZ cell   : %g dBZ\n",dbzThresCell);
+        fprintf(stdout,"#Threshold for mean stdev cel  : %g dBZ\n",stdevThresCell);
+        fprintf(stdout,"#Valid cells                   : %i/%i\n",nCellValid,nCells);
+        fprintf(stdout,"#\n");
+        fprintf(stdout,"cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
+
+        for (iCell=0; iCell<nCells; iCell++) {
+            if (cellPropAreaBody[iCell]==0) {
+                continue;
+            }
+            fprintf(stdout,"cellinfo: %3d %8.1f %8.1f %6.2f %6.2f %6.2f %6.2f %6d %6d %6d\n",
+                    iCell+2,   //FIXME plus 2 why?
+                    cellPropAreaBody[iCell],
+                    cellPropClutterAreaBody[iCell],
+                    cellPropDbzBody[iCell],
+                    cellPropTexBody[iCell],
+                    cellPropCvBody[iCell],
+                    cellPropMaxBody[iCell],
+                    cellPropIRangOfMaxBody[iCell],
+                    cellPropIAzimOfMaxBody[iCell],
+                    cellPropDropBody[iCell]);
         }
     }
 
     free(c);
 
-    return NcellValid;
+    // do some more Java Native Interface tricks:
+    (*env)->ReleaseIntArrayElements(env, dbzImage, dbzImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, texImage, texImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, vradImage, vradImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cmapImage, cmapImageBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, 0);
+    // end of Java Native Interface tricks
+
+
+
+    return nCellValid;
 } //analysecells
