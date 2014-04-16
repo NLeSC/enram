@@ -149,7 +149,7 @@ jint verbose)
             }
             cellPropAreaBody[iCellIdentifier] += 1;
 
-            if (dbzValue>c[iCellIdentifier].max) {
+            if (dbzValue>cellPropMaxBody[iCellIdentifier]) {
                 cellPropMaxBody[iCellIdentifier] = dbzValue;
                 cellPropIRangOfMaxBody[iCellIdentifier] = iGlobal%nAzim;
                 cellPropIAzimOfMaxBody[iCellIdentifier] = iGlobal/nAzim;
