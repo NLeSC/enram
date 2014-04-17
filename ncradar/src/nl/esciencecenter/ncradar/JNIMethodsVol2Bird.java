@@ -5,6 +5,7 @@ public class JNIMethodsVol2Bird {
     static {
         System.loadLibrary("calctexture");
         System.loadLibrary("findcells");
+        System.loadLibrary("sortcells");
         }
          
     // Declare native methods
@@ -18,5 +19,18 @@ public class JNIMethodsVol2Bird {
             int[] rhoImage, int rhonRang, int rhonAzim, double rhoOffset, double rhoScale, int rhoMissing, double rhoThresMin,
             int[] zdrImage, int zdrnRang, int zdrnAzim, double zdrOffset, double zdrScale, int zdrMissing, double zdrThresMin, 
             double dbzmin, double rcellmax, int sign, double texrScale);
+    
+    final native static void sortCells(int[] cellPropIRangOfMax,
+                                       int[] cellPropIAzimOfMax, 
+                                       double[] cellPropDbz, 
+                                       double[] cellPropTex, 
+                                       double[] cellPropCv, 
+                                       double[] cellPropArea, 
+                                       double[] cellPropClutterArea, 
+                                       double[] cellPropMax, 
+                                       int[] cellPropIndex, 
+                                       int[] cellPropDrop, 
+                                       int nCells, 
+                                       int method);
     
 }
