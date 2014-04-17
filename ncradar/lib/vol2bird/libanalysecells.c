@@ -31,12 +31,12 @@ jintArray cmapImage,
 jintArray cellImage,
 jintArray cellPropIRangOfMax,
 jintArray cellPropIAzimOfMax,
-jdoubleArray cellPropDbz,
-jdoubleArray cellPropTex,
+jdoubleArray cellPropDbzAvg,
+jdoubleArray cellPropTexAvg,
 jdoubleArray cellPropCv,
 jdoubleArray cellPropArea,
 jdoubleArray cellPropClutterArea,
-jdoubleArray cellPropMax,
+jdoubleArray cellPropDbzMax,
 jintArray cellPropIndex,
 jintArray cellPropDrop,
 jdouble elev,
@@ -49,7 +49,7 @@ jdouble texOffset,
 jdouble cmapScale,
 jdouble cmapOffset,
 jint nCells,
-jdouble area,
+jdouble minCellArea,
 jdouble dbzThresCell,
 jdouble stdevThresCell,
 jdouble clutcell,
@@ -74,12 +74,12 @@ jint verbose)
     // these arrays have nCells elements:
     jint *cellPropIRangOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIRangOfMax, NULL);
     jint *cellPropIAzimOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIAzimOfMax, NULL);
-    jdouble *cellPropDbzBody = (*env)->GetDoubleArrayElements(env, cellPropDbz, NULL);
-    jdouble *cellPropTexBody = (*env)->GetDoubleArrayElements(env, cellPropTex, NULL);
+    jdouble *cellPropDbzAvgBody = (*env)->GetDoubleArrayElements(env, cellPropDbzAvg, NULL);
+    jdouble *cellPropTexAvgBody = (*env)->GetDoubleArrayElements(env, cellPropTexAvg, NULL);
     jdouble *cellPropCvBody = (*env)->GetDoubleArrayElements(env, cellPropCv, NULL);
     jdouble *cellPropAreaBody = (*env)->GetDoubleArrayElements(env, cellPropArea, NULL);
     jdouble *cellPropClutterAreaBody = (*env)->GetDoubleArrayElements(env, cellPropClutterArea, NULL);
-    jdouble *cellPropMaxBody = (*env)->GetDoubleArrayElements(env, cellPropMax, NULL);
+    jdouble *cellPropDbzMaxBody = (*env)->GetDoubleArrayElements(env, cellPropDbzMax, NULL);
     jint *cellPropIndexBody = (*env)->GetIntArrayElements(env, cellPropIndex, NULL);
     jint *cellPropDropBody = (*env)->GetIntArrayElements(env, cellPropDrop, NULL);
     // end of Java Native Interface tricks
@@ -88,7 +88,7 @@ jint verbose)
     int iGlobal;
     int iAzim;
     int iRang;
-    int nCellValid;
+    int nCellsValid;
     int iCellIdentifier;
     float validArea;
     float dbzValue;
@@ -96,7 +96,7 @@ jint verbose)
     float texValue;
     float cmapValue;
 
-    nCellValid = nCells;
+    nCellsValid = nCells;
 
     if (nGlobal != nAzim*nRang) {
         fprintf(stderr,"Inconsistent array sizes.");
@@ -109,9 +109,9 @@ jint verbose)
         cellPropIAzimOfMaxBody[iCell] = 0;
         cellPropAreaBody[iCell] = 0;
         cellPropClutterAreaBody[iCell] = 0;
-        cellPropDbzBody[iCell] = 0;
-        cellPropTexBody[iCell] = 0;
-        cellPropMaxBody[iCell] = dbzOffset;
+        cellPropDbzAvgBody[iCell] = 0;
+        cellPropTexAvgBody[iCell] = 0;
+        cellPropDbzMaxBody[iCell] = dbzOffset;
         cellPropIndexBody[iCell] = iCell;
         cellPropDropBody[iCell] = 0;
         cellPropCvBody[iCell] = 0;
@@ -149,50 +149,54 @@ jint verbose)
             }
             cellPropAreaBody[iCellIdentifier] += 1;
 
-            if (dbzValue>cellPropMaxBody[iCellIdentifier]) {
-                cellPropMaxBody[iCellIdentifier] = dbzValue;
+            if (dbzValue>cellPropDbzMaxBody[iCellIdentifier]) {
+                cellPropDbzMaxBody[iCellIdentifier] = dbzValue;
                 cellPropIRangOfMaxBody[iCellIdentifier] = iGlobal%nAzim;
                 cellPropIAzimOfMaxBody[iCellIdentifier] = iGlobal/nAzim;
             }
-            cellPropDbzBody[iCellIdentifier] += dbzValue;
-            cellPropTexBody[iCellIdentifier] += texValue;
-        }
-    }
+            cellPropDbzAvgBody[iCellIdentifier] += dbzValue;
+            cellPropTexAvgBody[iCellIdentifier] += texValue;
+        } // for (iRang = 0; iRang<nRang; iRang++)
+    } //  (iAzim = 0; iAzim<nAzim; iAzim++)
 
     for (iCell = 0; iCell<nCells; iCell++) {
         validArea = cellPropAreaBody[iCell] - cellPropClutterAreaBody[iCell];
         if (validArea>0){
-            cellPropDbzBody[iCell] /= validArea;
-            cellPropTexBody[iCell] /= validArea;
-            cellPropCvBody[iCell] = 10*log10(cellPropTexBody[iCell])-cellPropDbzBody[iCell];  // FIXME this is immediately overwritten in the next line
-            cellPropCvBody[iCell] = cellPropTexBody[iCell]/cellPropDbzBody[iCell];
+            cellPropDbzAvgBody[iCell] /= validArea;
+            cellPropTexAvgBody[iCell] /= validArea;
+            cellPropCvBody[iCell] = 10*log10(cellPropTexAvgBody[iCell])-cellPropDbzAvgBody[iCell];  // FIXME this is immediately overwritten in the next line
+            cellPropCvBody[iCell] = cellPropTexAvgBody[iCell]/cellPropDbzAvgBody[iCell];
         }
     }
 
-    /*Determine which cells to drop from map based on low mean dBZ / high stdev / small area / high percentage clutter*/
+    /*Determine which cells to drop from map based on low mean dBZ / high stdev / small minCellArea / high percentage clutter*/
     for (iCell = 0; iCell<nCells; iCell++) {
         if (dualpolflag == 1){
-            if (cellPropAreaBody[iCell]<area){
+            if (cellPropAreaBody[iCell]<minCellArea){
                 cellPropDropBody[iCell] = 1;
             }
         }
         else {
-            if (cellPropAreaBody[iCell]<area || (cellPropDbzBody[iCell]<dbzThresCell && cellPropTexBody[iCell]>stdevThresCell && cellPropClutterAreaBody[iCell]/cellPropAreaBody[iCell]< clutcell )) {
+            if (cellPropAreaBody[iCell]<minCellArea || (cellPropDbzAvgBody[iCell]<dbzThresCell && cellPropTexAvgBody[iCell]>stdevThresCell && cellPropClutterAreaBody[iCell]/cellPropAreaBody[iCell]< clutcell )) {
                 cellPropDropBody[iCell] = 1;
             }
         }
     }
 
-    /*Sorting cell properties according to cell area. Drop small cells from map*/
-    nCellValid = updatemap(cellImageBody,c,nCells,nGlobal,area);
+    /*Sorting cell properties according to cell minCellArea. Drop small cells from map*/
+    //nCellsValid = updatemap(cellImageBody,c,nCells,nGlobal,minCellArea);
+
+    nCellsValid = Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_updateMap(*env, obj, cellImage,
+            cellPropArea, cellPropIndex, cellPropDrop, nCells, nGlobal, minCellArea);
+
 
     //Printing of cell properties to stdout.
     if (verbose==1){
         fprintf(stdout,"#Cell analysis for elevation %f:\n",elev);
-        fprintf(stdout,"#Minimum cell area in pixels   : %i\n",area);
+        fprintf(stdout,"#Minimum cell area in pixels   : %i\n",minCellArea);
         fprintf(stdout,"#Threshold for mean dBZ cell   : %g dBZ\n",dbzThresCell);
         fprintf(stdout,"#Threshold for mean stdev cel  : %g dBZ\n",stdevThresCell);
-        fprintf(stdout,"#Valid cells                   : %i/%i\n",nCellValid,nCells);
+        fprintf(stdout,"#Valid cells                   : %i/%i\n",nCellsValid,nCells);
         fprintf(stdout,"#\n");
         fprintf(stdout,"cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
 
@@ -204,10 +208,10 @@ jint verbose)
                     iCell+2,   //FIXME plus 2 why?
                     cellPropAreaBody[iCell],
                     cellPropClutterAreaBody[iCell],
-                    cellPropDbzBody[iCell],
-                    cellPropTexBody[iCell],
+                    cellPropDbzAvgBody[iCell],
+                    cellPropTexAvgBody[iCell],
                     cellPropCvBody[iCell],
-                    cellPropMaxBody[iCell],
+                    cellPropDbzMaxBody[iCell],
                     cellPropIRangOfMaxBody[iCell],
                     cellPropIAzimOfMaxBody[iCell],
                     cellPropDropBody[iCell]);
@@ -226,5 +230,5 @@ jint verbose)
 
 
 
-    return nCellValid;
+    return nCellsValid;
 } //analysecells
