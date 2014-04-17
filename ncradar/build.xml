@@ -130,8 +130,8 @@
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
         	<arg line="-I${jnihdir}/linux" />
-        	<arg line="-L../../../dist" />
             <arg line="-shared" />
+            <arg line="libfringecells.c" />
             <arg line="-o" />
             <arg line="../../../dist/libfringecells.so" />
         </exec>
