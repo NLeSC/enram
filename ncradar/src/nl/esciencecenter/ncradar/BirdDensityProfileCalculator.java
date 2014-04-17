@@ -60,6 +60,16 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
         float dist;
         dist = dist(12,14,67,24,4.5f,2.2f);
         System.err.println("(Java) dist = "+ dist);
+        
+        
+        int[] cellImage = new int[] {2,3,0,1,2,3,4,5};
+        int nRang = 4;
+        int nAzim = 2;
+        float aScale = 0.4f;
+        float rScale = 0.9f;
+        float fringe = 2;
+        fringecells(cellImage, nRang, nAzim, aScale, rScale, fringe);
+        
 
 //        RadarScan rsz = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
 //        RadarScan rsv = new RadarScan("/home/wbouten/tmp","T_PAHZ60_C_OKPR_20110815000447.hdf",3);

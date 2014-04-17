@@ -41,6 +41,7 @@
         <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
+    	<copy file="lib/vol2bird/libfringecells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libsortcells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libdist.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
@@ -112,7 +113,7 @@
         </exec>
     </target>
 
-    <target name="dist" depends="jniheaders" description="compile the C-language source file libtestnji.c into a shared object">
+    <target name="dist" depends="jniheaders" description="compile the C-language source file libdist.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -124,7 +125,19 @@
         </exec>
     </target>
 
-    <target name="buildlibs" depends="calctexture,findcells,sortcells,dist" description="compile the C-language source file libsortcells.c into a shared object" />
+    <target name="fringecells" depends="jniheaders" description="compile the C-language source file libfringecells.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+        	<arg line="-I${jnihdir}/linux" />
+        	<arg line="-L../../../dist" />
+            <arg line="-shared" />
+            <arg line="-o" />
+            <arg line="../../../dist/libfringecells.so" />
+        </exec>
+    </target>
+
+    <target name="buildlibs" depends="calctexture,findcells,sortcells,dist,fringecells" description="compile the C-language source file libsortcells.c into a shared object" />
 
     <target name="makejar" depends="buildlibs" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />

@@ -7,6 +7,7 @@ public class JNIMethodsVol2Bird {
         System.loadLibrary("findcells");
         System.loadLibrary("sortcells");
         System.loadLibrary("dist");
+        System.loadLibrary("fringecells");
         }
          
     // Declare native methods
@@ -41,5 +42,13 @@ public class JNIMethodsVol2Bird {
                                    float rscale,
                                    float ascale);
     
+    
+    
+    final native static void fringecells(int[] cellImage, 
+                                         int nRang,
+                                         int nAzim,
+                                         float aScale,
+                                         float rScale,
+                                         float fringe);
     
 }
