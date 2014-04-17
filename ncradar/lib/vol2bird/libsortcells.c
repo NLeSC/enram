@@ -5,7 +5,7 @@
 #include "libvol2bird.h"
 //#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_sortCells(
 JNIEnv *env,
 jobject obj,
