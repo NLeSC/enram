@@ -128,8 +128,9 @@ typedef struct cellprop CELLPROP;
 //        int *cellmap,SCANMETA *zmeta,SCANMETA *vmeta,SCANMETA *texmeta,SCANMETA *cmmeta,
 //        int Ncell,int area,float dbzcell,float stdevcell, float clutcell, float vmin,float dbzclutter,
 //        unsigned char cmflag,unsigned char dualpolflag, unsigned char verbose);
-//void fringecells(int *cellmap,SCANMETA meta,float fringe);
-//float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+
+void fringecells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
+float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 //void sortcells(CELLPROP *c,int ncell, int method);
 //int updatemap(int *cellmap,CELLPROP *c, int Ncell,int Npoints, int area);
 //void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
