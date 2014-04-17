@@ -6,6 +6,7 @@ public class JNIMethodsVol2Bird {
         System.loadLibrary("calctexture");
         System.loadLibrary("findcells");
         System.loadLibrary("sortcells");
+        System.loadLibrary("dist");
         }
          
     // Declare native methods
@@ -32,5 +33,13 @@ public class JNIMethodsVol2Bird {
                                        int[] cellPropDrop, 
                                        int nCells, 
                                        int method);
+    
+    final native static float dist(int range1, 
+                                   int azim1,
+                                   int range2,
+                                   int azim2,
+                                   float rscale,
+                                   float ascale);
+    
     
 }

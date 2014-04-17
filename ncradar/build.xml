@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="ncradar" default="runit" basedir=".">
+<project name="ncradar" default="makejar" basedir=".">
     <description>
     Ant build file for ncradar project
     </description>
@@ -37,9 +37,12 @@
     </target>
 
     <target name="copyccode" depends="javacompile">
-    	<copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
-    	<copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
-    	<copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libsortcells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libdist.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
     </target>
 
@@ -60,8 +63,8 @@
             <arg line="../../../dist/libcalctexture.so" />
         </exec>
     </target>
-	
-    <target name="findcells" depends="calctexture" description="compile the C-language source file libfindcells.c into a shared object">
+    
+    <target name="findcells" depends="jniheaders" description="compile the C-language source file libfindcells.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -71,9 +74,9 @@
             <arg line="-o" />
             <arg line="../../../dist/libfindcells.so" />
         </exec>
-    </target>	
-	
-    <target name="analysecells" depends="findcells" description="compile the C-language source file libanalysecells.c into a shared object">
+    </target>    
+    
+    <target name="analysecells" depends="jniheaders" description="compile the C-language source file libanalysecells.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -84,9 +87,46 @@
             <arg line="../../../dist/libanalysecells.so" />
         </exec>
     </target>
-	
+    
+    <target name="updatemap" depends="jniheaders" description="compile the C-language source file libupdatemap.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libupdatemap.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libupdatemap.so" />
+        </exec>
+    </target>
 
-    <target name="makejar" depends="analysecells" description="make a jar out of everything">
+    <target name="sortcells" depends="jniheaders" description="compile the C-language source file libsortcells.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libsortcells.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libsortcells.so" />
+        </exec>
+    </target>
+
+    <target name="dist" depends="jniheaders" description="compile the C-language source file libtestnji.c into a shared object">
+        <exec dir="build/lib/vol2bird" executable="gcc">
+            <arg line="-fPIC" />
+            <arg line="-I${jnihdir}" />
+            <arg line="-I${jnihdir}/linux" />
+            <arg line="-shared" />
+            <arg line="libdist.c" />
+            <arg line="-o" />
+            <arg line="../../../dist/libdist.so" />
+        </exec>
+    </target>
+
+    <target name="buildlibs" depends="calctexture,findcells,sortcells,dist" description="compile the C-language source file libsortcells.c into a shared object" />
+
+    <target name="makejar" depends="buildlibs" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />
     </target>
 
