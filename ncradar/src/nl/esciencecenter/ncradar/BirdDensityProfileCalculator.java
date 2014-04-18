@@ -57,11 +57,11 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
 
         
         
-//        float dist;
-//        dist = dist(12,14,67,24,4.5f,2.2f);
-//        System.err.println("(Java) dist = "+ dist);
-//        
-//        
+        float dist;
+        dist = dist(12,14,67,24,4.5f,2.2f);
+        System.err.println("(Java) dist = "+ dist);
+        
+        
 //        int[] cellImage = new int[] {2,3,0,1,2,3,4,5};
 //        int nRang = 4;
 //        int nAzim = 2;

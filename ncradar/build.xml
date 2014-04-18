@@ -137,7 +137,7 @@
         </exec>
     </target>
 
-    <target name="buildlibs" depends="calctexture,findcells,sortcells,dist,fringecells" description="compile the C-language source file libsortcells.c into a shared object" />
+    <target name="buildlibs" depends="dist,updatemap,sortcells,fringecells" description="compile the C-language source files into shared object files" />
 
     <target name="makejar" depends="buildlibs" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />

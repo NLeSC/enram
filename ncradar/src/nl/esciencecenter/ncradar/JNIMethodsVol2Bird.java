@@ -6,8 +6,8 @@ public class JNIMethodsVol2Bird {
         //System.loadLibrary("calctexture");
         //System.loadLibrary("findcells");
         System.loadLibrary("sortcells");
-        //System.loadLibrary("dist");
-        //System.loadLibrary("fringecells");
+        System.loadLibrary("dist");
+        System.loadLibrary("fringecells");
         System.loadLibrary("updatemap");
         }
          
@@ -24,23 +24,23 @@ public class JNIMethodsVol2Bird {
 //            double dbzmin, double rcellmax, int sign, double texrScale);
 //
 //    
-//    // new interface method starts here:
-//    
-//    final native static float dist(int range1, 
-//                                   int azim1,
-//                                   int range2,
-//                                   int azim2,
-//                                   float rscale,
-//                                   float ascale);
-//
-//    
-//    
-//    final native static void fringecells(int[] cellImage, 
-//                                         int nRang,
-//                                         int nAzim,
-//                                         float aScale,
-//                                         float rScale,
-//                                         float fringe);
+    // new interface method starts here:
+    
+    final native static float dist(int range1, 
+                                   int azim1,
+                                   int range2,
+                                   int azim2,
+                                   float rscale,
+                                   float ascale);
+
+    
+    
+    final native static void fringeCells(int[] cellImage, 
+                                         int nRang,
+                                         int nAzim,
+                                         float aScale,
+                                         float rScale,
+                                         float fringe);
     
     
     final native static int updateMap(int[] cellImage,
