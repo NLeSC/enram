@@ -10,9 +10,15 @@
 //#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_fringecells(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_fringeCells(
 JNIEnv *env,
-jobject obj,jintArray cellImage, jint nRang, jint nAzim,jfloat aScale, jfloat rScale, jfloat fringe)
+jobject obj,
+jintArray cellImage,
+jint nRang,
+jint nAzim,
+jfloat aScale,
+jfloat rScale,
+jfloat fringe)
 {
     // do some Java Native interface tricks:
     jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
