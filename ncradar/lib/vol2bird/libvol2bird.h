@@ -90,12 +90,12 @@
 struct cellprop {
     int iRangOfMax;
     int iAzimOfMax;
-    float dbz;
-    float tex;
+    float dbzAvg;
+    float texAvg;
     float cv;
     float area;
-    float clutterarea;
-    float max;
+    float clutterArea;
+    float dbzMax;
     int index;
     char drop;
 };
@@ -132,7 +132,7 @@ typedef struct cellprop CELLPROP;
 void fringecells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 //void sortcells(CELLPROP *c,int ncell, int method);
-//int updatemap(int *cellmap,CELLPROP *c, int Ncell,int Npoints, int area);
+int updatemap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 //void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
 //        SCANMETA cmmeta,int *cellmap,
 //        unsigned char *zscan,unsigned char *vscan,

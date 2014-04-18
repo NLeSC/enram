@@ -8,6 +8,7 @@ public class JNIMethodsVol2Bird {
         System.loadLibrary("sortcells");
         System.loadLibrary("dist");
         System.loadLibrary("fringecells");
+        System.loadLibrary("updatemap");
         }
          
     // Declare native methods
@@ -50,5 +51,22 @@ public class JNIMethodsVol2Bird {
                                          float aScale,
                                          float rScale,
                                          float fringe);
+    
+    
+    final native static int updateMap(int[] cellImage,
+                                      int[] cellPropIRangOfMax,
+                                      int[] cellPropIAzimOfMax,
+                                      float[] cellPropDbz,
+                                      float[] cellPropTex,
+                                      float[] cellPropCv,
+                                      float[] cellPropArea,
+                                      float[] cellPropClutterArea,
+                                      float[] cellPropMax,
+                                      int[] cellPropIndex,
+                                      char[] cellPropDrop,
+                                      int nCells,
+                                      int nGlobal,
+                                      int minCellArea);
+    
     
 }
