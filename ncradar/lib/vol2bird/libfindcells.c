@@ -6,16 +6,43 @@
  */
 
 #include <jni.h>
-//#include <stdio.h>
 #include <stdlib.h>
-//#include <math.h>
 #include "libvol2bird.h"
-//#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 
 
-JNIEXPORT jintArray JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject obj, jintArray cellImage, jintArray texImage, jint texnRang, jint texnAzim, jdouble texOffset, jdouble texScale, jint texMissing, jdouble texThresMin, jintArray rhoImage, jint rhonRang, jint rhonAzim, jdouble rhoOffset, jdouble rhoScale, jint rhoMissing, jdouble rhoThresMin, jintArray zdrImage, jint zdrnRang, jint zdrnAzim, jdouble zdrOffset, jdouble zdrScale, jint zdrMissing, jdouble zdrThresMin, jdouble dbzmin, jdouble rcellmax, jint sign, jdouble texrScale)
+
+JNIEXPORT jint JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
+    JNIEnv *env,
+   jobject obj,
+ jintArray cellImage,
+jcharArray texImage,
+jcharArray rhoImage,
+jcharArray zdrImage,
+    jfloat dbzThresMin,
+      jint texMissing,
+      jint texnAzim,
+      jint texnRang,
+    jfloat texValueOffset,
+    jfloat texRangeScale,
+    jfloat texValueScale,
+    jfloat texThresMin,
+      jint rhoMissing,
+      jint rhonAzim,
+      jint rhonRang,
+    jfloat rhoValueOffset,
+    jfloat rhoValueScale,
+    jfloat rhoThresMin,
+      jint zdrMissing,
+      jint zdrnAzim,
+      jint zdrnRang,
+    jfloat zdrValueOffset,
+    jfloat zdrValueScale,
+    jfloat zdrThresMin,
+    jfloat rCellMax,
+     jchar sign
+)
 {
 
     // do some Java Native interface tricks:
@@ -23,12 +50,79 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
     jsize rhonElems = (*env)->GetArrayLength(env, rhoImage);
     jsize zdrnElems = (*env)->GetArrayLength(env, zdrImage);
 
-    jint *texImageBody = (*env)->GetIntArrayElements(env, texImage, NULL);
-    jint *rhoImageBody = (*env)->GetIntArrayElements(env, rhoImage, NULL);
-    jint *zdrImageBody = (*env)->GetIntArrayElements(env, zdrImage, NULL);
+    jchar *texImageBody = (*env)->GetCharArrayElements(env, texImage, NULL);
+    jchar *rhoImageBody = (*env)->GetCharArrayElements(env, rhoImage, NULL);
+    jchar *zdrImageBody = (*env)->GetCharArrayElements(env, zdrImage, NULL);
+
     jint *cellImageBody = (jint*)malloc(texnElems*sizeof(jint));
     // end of Java Native Interface tricks
 
+    int nCells;
+
+    SCANMETA *texMeta;
+    SCANMETA *rhoMeta;
+    SCANMETA *zdrMeta;
+
+    texMeta->missing = texMissing;
+    texMeta->nAzim = texnAzim;
+    texMeta->nRang = texnRang;
+    texMeta->valueOffset = texValueOffset;
+    texMeta->valueScale = texValueScale;
+    texMeta->rangeScale = texRangeScale;
+
+    rhoMeta->missing = rhoMissing;
+    rhoMeta->nAzim = rhonAzim;
+    rhoMeta->nRang = rhonRang;
+    rhoMeta->valueOffset = rhoValueOffset;
+    rhoMeta->valueScale = rhoValueScale;
+//    rhoMeta->rangeScale = rhoRangeScale;
+
+    zdrMeta->missing = zdrMissing;
+    zdrMeta->nAzim = zdrnAzim;
+    zdrMeta->nRang = zdrnRang;
+    zdrMeta->valueOffset = zdrValueOffset;
+    zdrMeta->valueScale = zdrValueScale;
+//    zdrMeta->rangeScale = zdrRangeScale;
+
+
+
+    nCells = findcells(texImageBody, rhoImageBody, zdrImageBody, cellImageBody,
+                       texMeta,      rhoMeta,      zdrMeta,
+                       texThresMin,  rhoThresMin,  zdrThresMin,
+                       dbzThresMin, rCellMax, sign);
+
+
+    // do some more Java Native Interface tricks:
+    (*env)->ReleaseCharArrayElements(env, texImage, texImageBody, 0);
+    (*env)->ReleaseCharArrayElements(env, rhoImage, rhoImageBody, 0);
+    (*env)->ReleaseCharArrayElements(env, zdrImage, zdrImageBody, 0);
+
+    //jintArray cellImage = (*env)->NewIntArray(env,texnElems);
+    (*env)->SetIntArrayRegion(env,cellImage,0,texnElems,cellImageBody);
+    // end of Java Native Interface tricks
+
+
+    return nCells;
+
+}
+
+
+
+
+int findcells(unsigned char *texImage,
+              unsigned char *rhoImage,
+              unsigned char *zdrImage,
+              int *cellImage,
+              SCANMETA *texMeta,
+              SCANMETA *rhoMeta,
+              SCANMETA *zdrMeta,
+              float texThresMin,
+              float rhoThresMin,
+              float zdrThresMin,
+              float dbzThresMin,
+              float rCellMax,
+              char sign)
+{
 
     int iCellIdentifier;
     int nCells;
@@ -40,25 +134,56 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
     int iAzimLocal;
     int iNeighborhood;
     int count;
-    int cellImageBodyInitialValue;
+    int cellImageInitialValue;
 
-    double texThres;
-    double rhoThres;
-    double zdrThres;
+    float texThres;
+    float rhoThres;
+    float zdrThres;
 
     int iGlobal;
     int iGlobalOther;
     int nGlobal;
     int iLocal;
 
+    int texMissing;
+    int texnAzim;
+    int texnRang;
+    float texValueOffset;
+    float texValueScale;
+    float texRangeScale;
 
-    // check whether the sizes of the input arrays are the same:
-    if (rhonElems!=texnElems || zdrnElems!=texnElems) {
-        fprintf(stderr,"error: different sized input arguments.");
-        return;
-    } else {
-        nGlobal = texnElems;
-    }
+    int rhoMissing;
+    int rhonAzim;
+    int rhonRang;
+    float rhoValueOffset;
+    float rhoValueScale;
+
+    int zdrMissing;
+    int zdrnAzim;
+    float zdrnRang;
+    float zdrValueOffset;
+    float zdrValueScale;
+
+    texMissing = texMeta->missing;
+    texnAzim = texMeta->nAzim;
+    texnRang = texMeta->nRang;
+    texValueOffset = texMeta->valueOffset;
+    texValueScale = texMeta->valueScale;
+    texRangeScale = texMeta->rangeScale;
+
+    rhoMissing = rhoMeta->missing;
+    rhonAzim = rhoMeta->nAzim;
+    rhonRang = rhoMeta->nRang;
+    rhoValueOffset = rhoMeta->valueOffset;
+    rhoValueScale = rhoMeta->valueScale;
+
+    zdrMissing = zdrMeta->missing;
+    zdrnAzim = zdrMeta->nAzim;
+    zdrnRang = zdrMeta->nRang;
+    zdrValueOffset = zdrMeta->valueOffset;
+    zdrValueScale = zdrMeta->valueScale;
+
+
 
     // check if the number of rows in each image is consistent
     if (rhonAzim != texnAzim || zdrnAzim != texnAzim) {
@@ -78,26 +203,24 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
         nRang = texnRang;
     }
 
-    // check if there are exactly enough elements in vImageBody and zImageBody;
-    if (nGlobal != nAzim*nRang) {
-        fprintf(stderr,"error: number of elements in arrays must match nRang*nAzim");
-        return;
+
+
+
+    nGlobal = nAzim*nRang;
+
+    texThres = ROUND((texThresMin-texValueOffset)/texValueScale);  // FIXME why type is int?
+
+    if (rhoImage!=NULL) {
+        rhoThres = ROUND((rhoThresMin-rhoValueOffset)/rhoValueScale);  // FIXME why type is int?
+    }
+    if (zdrImage!=NULL) {
+        zdrThres = ROUND((zdrThresMin-zdrValueOffset)/zdrValueScale);  // FIXME why type is int?
     }
 
-
-    texThres = ROUND((texThresMin-texOffset)/texScale);  // FIXME why type is int?
-
-    if (rhoImageBody!=NULL) {
-        rhoThres = ROUND((rhoThresMin-rhoOffset)/rhoScale);  // FIXME why type is int?
-    }
-    if (zdrImageBody!=NULL) {
-        zdrThres = ROUND((zdrThresMin-zdrOffset)/zdrScale);  // FIXME why type is int?
-    }
-
-    /*Initializing of connection cellImageBody.*/
-    cellImageBodyInitialValue = -1;
+    /*Initializing of connection cellImage.*/
+    cellImageInitialValue = -1;
     for (iGlobal=0; iGlobal<nGlobal; iGlobal++) {
-        cellImageBody[iGlobal] = cellImageBodyInitialValue;
+        cellImage[iGlobal] = cellImageInitialValue;
     }
 
     /*If threshold is missing, return.*/
@@ -116,18 +239,18 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
 
             iGlobal = iRang+iAzim*nRang;
 
-            if ((iRang+1)*texrScale>rcellmax) {  // FIXME what is the difference between zscale and rscale // FIXME why iRang +1 ?
+            if ((iRang+1)*texRangeScale>rCellMax) {
                 continue;
             }
-            if (texImageBody[iGlobal]==texMissing) {
+            if (texImage[iGlobal]==texMissing) {
                 continue;
             }
 
             /* count number of direct neighbors above threshold */
             count = 0;
 
-            if (rhoImageBody==NULL){
-                if (sign*texImageBody[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
+            if (rhoImage==NULL){
+                if (sign*texImage[iGlobal]>sign*texThres) {  // FIXME why sign x2? ... sort of an ABS?
                     continue;
                 }
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
@@ -137,22 +260,22 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
-                    if (sign*texImageBody[iLocal]<=sign*texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
+                    if (sign*texImage[iLocal]<=sign*texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
                         count++;
                     }
                 }
             }
             else {
-                if (rhoImageBody[iGlobal]==rhoMissing) {
+                if (rhoImage[iGlobal]==rhoMissing) {
                     continue;
                 }
-                if (zdrImageBody[iGlobal]==zdrMissing) {
+                if (zdrImage[iGlobal]==zdrMissing) {
                     continue;
                 }
-                if (texImageBody[iGlobal]<dbzmin) {  // FIXME tex v dbz why?
+                if (texImage[iGlobal]<dbzThresMin) {  // FIXME tex v dbz why?
                     continue;
                 }
-                if (!(zdrImageBody[iGlobal]>zdrThres || rhoImageBody[iGlobal]>rhoThres)) {
+                if (!(zdrImage[iGlobal]>zdrThres || rhoImage[iGlobal]>rhoThres)) {
                     continue;
                 }
 
@@ -160,11 +283,11 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
                     iRangLocal = (iRang-1+iNeighborhood%3);
                     iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
                     iLocal = iRangLocal+iAzimLocal*nRang;
-                    if (rhoImageBody[iLocal]>rhoThres || zdrImageBody[iLocal]>zdrThres) {
+                    if (rhoImage[iLocal]>rhoThres || zdrImage[iLocal]>zdrThres) {
                         count++;
                     }
                 }
-            } // if (rhoImageBody==NULL)
+            } // if (rhoImage==NULL)
 
             /* when not enough qualified neighbors, continue */
             if (count-1 < NEIGHBOURS) {
@@ -186,21 +309,21 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
                 }
 
                 /* no connection found, go to next pixel within neighborhood */
-                if (cellImageBody[iLocal] == cellImageBodyInitialValue) {
+                if (cellImage[iLocal] == cellImageInitialValue) {
                     continue;
                 }
 
                 /* if pixel still unassigned, assign same iCellIdentifier as connection */
-                if (cellImageBody[iGlobal] == cellImageBodyInitialValue) {
-                    cellImageBody[iGlobal] = cellImageBody[iLocal];
+                if (cellImage[iGlobal] == cellImageInitialValue) {
+                    cellImage[iGlobal] = cellImage[iLocal];
                 }
                 else {
                     /* if connection found but pixel is already assigned a different iCellIdentifier: */
-                    if (cellImageBody[iGlobal]!=cellImageBody[iLocal]) {
+                    if (cellImage[iGlobal]!=cellImage[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
                         for (iGlobalOther=0; iGlobalOther<nGlobal; iGlobalOther++) {
-                            if (cellImageBody[iGlobalOther]==cellImageBody[iGlobal]) {
-                                cellImageBody[iGlobalOther] = cellImageBody[iLocal];
+                            if (cellImage[iGlobalOther]==cellImage[iGlobal]) {
+                                cellImage[iGlobalOther] = cellImage[iLocal];
                             }
                             /*note: not all iCellIdentifier need to be used eventually */
                         }
@@ -209,8 +332,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
             }
 
             /*When no connections are found, give a new number.*/
-            if (cellImageBody[iGlobal] == cellImageBodyInitialValue) {
-                cellImageBody[iGlobal] = iCellIdentifier;
+            if (cellImage[iGlobal] == cellImageInitialValue) {
+                cellImage[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
 
@@ -221,15 +344,5 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(JNIEnv *env, jobject
 
     nCells = iCellIdentifier;
 
-
-    // do some more Java Native Interface tricks:
-    (*env)->ReleaseIntArrayElements(env, texImage, texImageBody, 0);
-    (*env)->ReleaseIntArrayElements(env, rhoImage, rhoImageBody, 0);
-    (*env)->ReleaseIntArrayElements(env, zdrImage, zdrImageBody, 0);
-
-    jintArray tImage = (*env)->NewIntArray(env,nGlobal);
-    (*env)->SetIntArrayRegion(env,cellImage,0,nGlobal,cellImageBody);
-    // end of Java Native Interface tricks
-
-    return cellImage;
+    return nCells;
 }//findcells

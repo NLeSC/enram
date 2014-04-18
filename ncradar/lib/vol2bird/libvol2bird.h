@@ -65,28 +65,28 @@
 ///******************************************************************************/
 ///*Structure for containing SCAN metadata:                                     */
 ///******************************************************************************/
-//
-//struct scanmeta {
-//    int date;                /*Date of scan data in YYYYMMDD.*/
-//    int time;                /*Time of scan data in HHMMSS.*/
-//    float heig;              /*Height of radar antenna in km.*/
-//    float elev;              /*Elevation of scan in deg.*/
-//    int nrang;               /*Number of range bins in scan.*/
-//    int nazim;               /*Number of azimuth rays in scan.*/
-//    float rscale;            /*Size of range bins in scan in km.*/
-//    float ascale;            /*Size of azimuth steps in scan in deg.*/
-//    int azim0;               /*Ray number with which radar scan started.*/
-//    float zoffset;           /*Offset value of quantity contained by scan.*/
-//    float zscale;            /*Scale of value of quantity contained by scan.*/
-//    int missing;             /*Missing value of quantity contained by scan.*/
-//    float PRFh;              /*High PRF used for scan in Hz.*/
-//    float PRFl;              /*Low PRF used for scan in Hz.*/
-//    float pulse;             /*Pulse length in microsec.*/
-//    float radcnst;           /*Radar constant in dB.*/
-//    float txnom;             /*Nominal maximum TX power in kW.*/
-//    float antvel;            /*Antenna velocity in deg/s.*/
-//};
-//
+
+struct scanmeta {
+    int date;                /*Date of scan data in YYYYMMDD.*/
+    int time;                /*Time of scan data in HHMMSS.*/
+    float heig;              /*Height of radar antenna in km.*/
+    float elev;              /*Elevation of scan in deg.*/
+    int nRang;               /*Number of range bins in scan.*/
+    int nAzim;               /*Number of azimuth rays in scan.*/
+    float rangeScale;        /*Size of range bins in scan in km.*/
+    float azimScale;         /*Size of azimuth steps in scan in deg.*/
+    int azim0;               /*Ray number with which radar scan started.*/
+    float valueOffset;       /*Offset value of quantity contained by scan.*/
+    float valueScale;        /*Scale of value of quantity contained by scan.*/
+    int missing;             /*Missing value of quantity contained by scan.*/
+    float PRFh;              /*High PRF used for scan in Hz.*/
+    float PRFl;              /*Low PRF used for scan in Hz.*/
+    float pulse;             /*Pulse length in microsec.*/
+    float radcnst;           /*Radar constant in dB.*/
+    float txnom;             /*Nominal maximum TX power in kW.*/
+    float antvel;            /*Antenna velocity in deg/s.*/
+};
+
 struct cellprop {
     int iRangOfMax;
     int iAzimOfMax;
@@ -100,7 +100,7 @@ struct cellprop {
     char drop;
 };
 
-//typedef struct scanmeta SCANMETA;
+typedef struct scanmeta SCANMETA;
 typedef struct cellprop CELLPROP;
 //
 ///******************************************************************************/
@@ -113,17 +113,28 @@ typedef struct cellprop CELLPROP;
 //int svd_vvp2func(float x[],int Ndx,float afunc[],int Npar);
 //int svd_vvp3func(float x[],int Ndx,float afunc[],int Npar);
 //
-///******************************************************************************/
-///*Prototypes of local functions:                                              */
-///******************************************************************************/
-//
+/******************************************************************************/
+/*Prototypes of local functions:                                              */
+/******************************************************************************/
+
 //void calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
 //        int vImage[], int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
 //        int zImage[], int zMissing, int znAzim, int znRange, double zOffset, double zScale,
 //        int nRangLocal, int nAzimLocal, int nCountMin, int textype);
-//int findcells(unsigned char *image,unsigned char *rhoimage,unsigned char *zdrimage, int *cellmap,
-//        SCANMETA *meta,SCANMETA *rhometa,SCANMETA *zdrmeta, float threstexmin,
-//        float thresrhomin,float zdrmin,float dbzmin, float rcellmax,char sign);
+
+int findcells(unsigned char *texImage,
+              unsigned char *rhoImage,
+              unsigned char *zdrImage,
+              int *cellImage,
+              SCANMETA *texMeta,
+              SCANMETA *rhoMeta,
+              SCANMETA *zdrMeta,
+              float texThresMin,
+              float rhoThresMin,
+              float zdrThresMin,
+              float dbzThresMin,
+              float rCellMax,
+              char sign);
 //int analysecells(unsigned char *imgz,unsigned char *imgv, unsigned char *imgtex, unsigned char *imgcm,
 //        int *cellmap,SCANMETA *zmeta,SCANMETA *vmeta,SCANMETA *texmeta,SCANMETA *cmmeta,
 //        int Ncell,int area,float dbzcell,float stdevcell, float clutcell, float vmin,float dbzclutter,

@@ -4,11 +4,15 @@ public class JNIMethodsVol2Bird {
 
     static {
         //System.loadLibrary("calctexture");
-        //System.loadLibrary("findcells");
-        System.loadLibrary("sortcells");
         System.loadLibrary("dist");
         System.loadLibrary("fringecells");
         System.loadLibrary("updatemap");
+        System.loadLibrary("sortcells");
+        System.loadLibrary("findcells");
+
+        
+
+
         }
          
 //    // Declare native methods
@@ -72,6 +76,31 @@ public class JNIMethodsVol2Bird {
                                        int nCells, 
                                        int method);
     
-    
-    
+    final native static int findCells(int[] cellImage,
+                                      char[] texImage,
+                                      char[] rhoImage,
+                                      char[] zdrImage,
+                                      float dbzThresMin,
+                                      int texMissing,
+                                      int texnAzim,
+                                      int texnRang,
+                                      float texValueOffset,
+                                      float texRangeScale,
+                                      float texValueScale,
+                                      float texThresMin,
+                                      int rhoMissing,
+                                      int rhonAzim,
+                                      int rhonRang,
+                                      float rhoValueOffset,
+                                      float rhoValueScale,
+                                      float rhoThresMin,
+                                      int zdrMissing,
+                                      int zdrnAzim,
+                                      int zdrnRang,
+                                      float zdrValueOffset,
+                                      float zdrValueScale,
+                                      float zdrThresMin,
+                                      float rCellMax,
+                                      char sign);
+   
 }
