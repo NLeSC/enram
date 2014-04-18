@@ -21,29 +21,29 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
         
         int[] cellPropIRangOfMax;
         int[] cellPropIAzimOfMax; 
-        double[] cellPropDbzAvg; 
-        double[] cellPropTexAvg; 
-        double[] cellPropCv; 
-        double[] cellPropArea; 
-        double[] cellPropClutterArea; 
-        double[] cellPropMax; 
+        float[] cellPropDbzAvg; 
+        float[] cellPropTexAvg; 
+        float[] cellPropCv; 
+        float[] cellPropArea; 
+        float[] cellPropClutterArea; 
+        float[] cellPropMax; 
         int[] cellPropIndex; 
-        int[] cellPropDrop; 
+        char[] cellPropDrop; 
         int nCells; 
         int method;
 
         cellPropIRangOfMax = new int[] {0,3,6,4};
         cellPropIAzimOfMax = new int[] {2,5,2,4};
-        cellPropDbzAvg = new double[] {2,11,25,6};
-        cellPropTexAvg = new double[] {1,2,4,1};
-        cellPropCv = new double[] {2,3,1,5};
-        cellPropArea = new double[] {5,3,7,2};
-        cellPropClutterArea = new double[] {0,0,0,0};
-        cellPropMax = new double[] {14,4,28,9};
+        cellPropDbzAvg = new float[] {2,11,25,6};
+        cellPropTexAvg = new float[] {1,2,4,1};
+        cellPropCv = new float[] {2,3,1,5};
+        cellPropArea = new float[] {5,3,7,2};
+        cellPropClutterArea = new float[] {0,0,0,0};
+        cellPropMax = new float[] {14,4,28,9};
         cellPropIndex = new int[] {0,1,2,3};
-        cellPropDrop = new int[] {0,0,0,0};
+        cellPropDrop = new char[] {0,0,0,0};
         nCells = 4; 
-        method = 1;
+        method = 2;
         
         sortCells(cellPropIRangOfMax, cellPropIAzimOfMax, cellPropDbzAvg, cellPropTexAvg, 
                   cellPropCv, cellPropArea, cellPropClutterArea, cellPropMax, 
@@ -57,18 +57,18 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
 
         
         
-        float dist;
-        dist = dist(12,14,67,24,4.5f,2.2f);
-        System.err.println("(Java) dist = "+ dist);
-        
-        
-        int[] cellImage = new int[] {2,3,0,1,2,3,4,5};
-        int nRang = 4;
-        int nAzim = 2;
-        float aScale = 0.4f;
-        float rScale = 0.9f;
-        float fringe = 2;
-        fringecells(cellImage, nRang, nAzim, aScale, rScale, fringe);
+//        float dist;
+//        dist = dist(12,14,67,24,4.5f,2.2f);
+//        System.err.println("(Java) dist = "+ dist);
+//        
+//        
+//        int[] cellImage = new int[] {2,3,0,1,2,3,4,5};
+//        int nRang = 4;
+//        int nAzim = 2;
+//        float aScale = 0.4f;
+//        float rScale = 0.9f;
+//        float fringe = 2;
+//        fringecells(cellImage, nRang, nAzim, aScale, rScale, fringe);
         
 
 //        RadarScan rsz = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);

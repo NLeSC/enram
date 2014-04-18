@@ -1,9 +1,7 @@
 
 #include <jni.h>
-//#include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include "libvol2bird.h"
-//#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 JNIEXPORT void JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_sortCells(
@@ -11,14 +9,14 @@ JNIEnv *env,
 jobject obj,
 jintArray cellPropIRangOfMax,
 jintArray cellPropIAzimOfMax,
-jdoubleArray cellPropDbzAvg,
-jdoubleArray cellPropTexAvg,
-jdoubleArray cellPropCv,
-jdoubleArray cellPropArea,
-jdoubleArray cellPropClutterArea,
-jdoubleArray cellPropDbzMax,
+jfloatArray cellPropDbzAvg,
+jfloatArray cellPropTexAvg,
+jfloatArray cellPropCv,
+jfloatArray cellPropArea,
+jfloatArray cellPropClutterArea,
+jfloatArray cellPropDbzMax,
 jintArray cellPropIndex,
-jintArray cellPropDrop,
+jcharArray cellPropDrop,
 jint nCells,
 jint method
 )
@@ -33,134 +31,115 @@ jint method
     // these arrays have nCells elements:
     jint *cellPropIRangOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIRangOfMax, NULL);
     jint *cellPropIAzimOfMaxBody = (*env)->GetIntArrayElements(env, cellPropIAzimOfMax, NULL);
-    jdouble *cellPropDbzAvgBody = (*env)->GetDoubleArrayElements(env, cellPropDbzAvg, NULL);
-    jdouble *cellPropTexAvgBody = (*env)->GetDoubleArrayElements(env, cellPropTexAvg, NULL);
-    jdouble *cellPropCvBody = (*env)->GetDoubleArrayElements(env, cellPropCv, NULL);
-    jdouble *cellPropAreaBody = (*env)->GetDoubleArrayElements(env, cellPropArea, NULL);
-    jdouble *cellPropClutterAreaBody = (*env)->GetDoubleArrayElements(env, cellPropClutterArea, NULL);
-    jdouble *cellPropDbzMaxBody = (*env)->GetDoubleArrayElements(env, cellPropDbzMax, NULL);
+    jfloat *cellPropDbzAvgBody = (*env)->GetFloatArrayElements(env, cellPropDbzAvg, NULL);
+    jfloat *cellPropTexAvgBody = (*env)->GetFloatArrayElements(env, cellPropTexAvg, NULL);
+    jfloat *cellPropCvBody = (*env)->GetFloatArrayElements(env, cellPropCv, NULL);
+    jfloat *cellPropAreaBody = (*env)->GetFloatArrayElements(env, cellPropArea, NULL);
+    jfloat *cellPropClutterAreaBody = (*env)->GetFloatArrayElements(env, cellPropClutterArea, NULL);
+    jfloat *cellPropDbzMaxBody = (*env)->GetFloatArrayElements(env, cellPropDbzMax, NULL);
     jint *cellPropIndexBody = (*env)->GetIntArrayElements(env, cellPropIndex, NULL);
-    jint *cellPropDropBody = (*env)->GetIntArrayElements(env, cellPropDrop, NULL);
+    jchar *cellPropDropBody = (*env)->GetCharArrayElements(env, cellPropDrop, NULL);
     // end of Java Native Interface tricks
+
+    int iCell;
+
+    CELLPROP *cellProp;
+    /*Allocating and initializing memory for cell properties.*/
+    cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
+
+    // construct the CELLPROP struct
+    for (iCell = 0; iCell<nCells;iCell++) {
+        cellProp[iCell].iRangOfMax = cellPropIRangOfMaxBody[iCell];
+        cellProp[iCell].iAzimOfMax = cellPropIAzimOfMaxBody[iCell];
+        cellProp[iCell].dbzAvg = cellPropDbzAvgBody[iCell];
+        cellProp[iCell].texAvg = cellPropTexAvgBody[iCell];
+        cellProp[iCell].cv = cellPropCvBody[iCell];
+        cellProp[iCell].area = cellPropAreaBody[iCell];
+        cellProp[iCell].clutterArea = cellPropClutterAreaBody[iCell];
+        cellProp[iCell].dbzMax = cellPropDbzMaxBody[iCell];
+        cellProp[iCell].index = cellPropIndexBody[iCell];
+        cellProp[iCell].drop = cellPropDropBody[iCell];
+    }
+
+    sortcells(cellProp,nCells,method);
+
+
+    // deconstruct the CELLPROP struct
+    for (iCell = 0; iCell<nCells;iCell++) {
+        cellPropIRangOfMaxBody[iCell] = cellProp[iCell].iRangOfMax;
+        cellPropIAzimOfMaxBody[iCell] = cellProp[iCell].iAzimOfMax;
+        cellPropDbzAvgBody[iCell] = cellProp[iCell].dbzAvg;
+        cellPropTexAvgBody[iCell] = cellProp[iCell].texAvg;
+        cellPropCvBody[iCell] = cellProp[iCell].cv;
+        cellPropAreaBody[iCell] = cellProp[iCell].area;
+        cellPropClutterAreaBody[iCell] = cellProp[iCell].clutterArea;
+        cellPropDbzMaxBody[iCell] = cellProp[iCell].dbzMax;
+        cellPropIndexBody[iCell] = cellProp[iCell].index;
+        cellPropDropBody[iCell] = cellProp[iCell].drop;
+    }
+
+
+
+    // do some more Java Native Interface tricks:
+    (*env)->ReleaseIntArrayElements(env, cellPropIRangOfMax, cellPropIRangOfMaxBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellPropIAzimOfMax, cellPropIAzimOfMaxBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropDbzAvg, cellPropDbzAvgBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropTexAvg, cellPropTexAvgBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropCv, cellPropCvBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropArea, cellPropAreaBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropClutterArea, cellPropClutterAreaBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, cellPropDbzMax, cellPropDbzMaxBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellPropIndex, cellPropIndexBody, 0);
+    (*env)->ReleaseCharArrayElements(env, cellPropDrop, cellPropDropBody, 0);
+    // end of Java Native Interface tricks
+}
+
+
+
+void sortcells(CELLPROP *cellProp, int nCells, int method)
+{
 
 
     int iCell;
     int iCellOther;
-    int tmpIRangOfMax;
-    int tmpIAzimOfMax;
-    double tmpDbzAvg;
-    double tmpTexAvg;
-    double tmpCv;
-    double tmpArea;
-    double tmpClutterArea;
-    int tmpDbzMax;
-    int tmpIndex;
-    int tmpDrop;
-    int condition;
+    CELLPROP tmp;
 
     /*Sorting of data elements using straight insertion method.*/
     if (method==BYAREA) {
         for (iCell = 1; iCell<nCells; iCell++) {
 
-            tmpIRangOfMax = cellPropIRangOfMaxBody[iCell];
-            tmpIAzimOfMax = cellPropIAzimOfMaxBody[iCell];
-            tmpDbzAvg = cellPropDbzAvgBody[iCell];
-            tmpTexAvg = cellPropTexAvgBody[iCell];
-            tmpCv = cellPropCvBody[iCell];
-            tmpArea =  cellPropAreaBody[iCell];
-            tmpClutterArea = cellPropClutterAreaBody[iCell];
-            tmpDbzMax = cellPropDbzMaxBody[iCell];
-            tmpIndex = cellPropIndexBody[iCell];
-            tmpDrop = cellPropDropBody[iCell];
+            tmp = cellProp[iCell];
 
             iCellOther = iCell-1;
 
-            while (iCellOther>=0 && cellPropAreaBody[iCellOther] * XABS(cellPropDropBody[iCellOther]-1) < tmpArea * XABS(tmpDrop-1)) {
+            while (iCellOther>=0 && cellProp[iCellOther].area * XABS(cellProp[iCellOther].drop-1) < tmp.area * XABS(tmp.drop-1)) {
 
-                cellPropIRangOfMaxBody[iCellOther+1] = cellPropIRangOfMaxBody[iCellOther];
-                cellPropIAzimOfMaxBody[iCellOther+1] = cellPropIAzimOfMaxBody[iCellOther];
-                cellPropDbzAvgBody[iCellOther+1] = cellPropDbzAvgBody[iCellOther];
-                cellPropTexAvgBody[iCellOther+1] = cellPropTexAvgBody[iCellOther];
-                cellPropCvBody[iCellOther+1] = cellPropCvBody[iCellOther];
-                cellPropAreaBody[iCellOther+1] = cellPropAreaBody[iCellOther];
-                cellPropClutterAreaBody[iCellOther+1] = cellPropClutterAreaBody[iCellOther];
-                cellPropDbzMaxBody[iCellOther+1] = cellPropDbzMaxBody[iCellOther];
-                cellPropIndexBody[iCellOther+1] = cellPropIndexBody[iCellOther];
-                cellPropDropBody[iCellOther+1] = cellPropDropBody[iCellOther];
+                cellProp[iCellOther+1] = cellProp[iCellOther];
 
                 iCellOther--;
             }
 
-            cellPropIRangOfMaxBody[iCellOther+1] = tmpIRangOfMax;
-            cellPropIAzimOfMaxBody[iCellOther+1] = tmpIAzimOfMax;
-            cellPropDbzAvgBody[iCellOther+1] = tmpDbzAvg;
-            cellPropTexAvgBody[iCellOther+1] = tmpTexAvg;
-            cellPropCvBody[iCellOther+1] = tmpCv;
-            cellPropAreaBody[iCellOther+1] =  tmpArea;
-            cellPropClutterAreaBody[iCellOther+1] = tmpClutterArea;
-            cellPropDbzMaxBody[iCellOther+1] = tmpDbzMax;
-            cellPropIndexBody[iCellOther+1] = tmpIndex;
-            cellPropDropBody[iCellOther+1] = tmpDrop;
+            cellProp[iCellOther+1] = tmp;
 
        } //for iCell
     } else if (method==BYMEAN){
         for (iCell = 1; iCell<nCells; iCell++) {
 
-            tmpIRangOfMax = cellPropIRangOfMaxBody[iCell];
-            tmpIAzimOfMax = cellPropIAzimOfMaxBody[iCell];
-            tmpDbzAvg = cellPropDbzAvgBody[iCell];
-            tmpTexAvg = cellPropTexAvgBody[iCell];
-            tmpCv = cellPropCvBody[iCell];
-            tmpArea =  cellPropAreaBody[iCell];
-            tmpClutterArea = cellPropClutterAreaBody[iCell];
-            tmpDbzMax = cellPropDbzMaxBody[iCell];
-            tmpIndex = cellPropIndexBody[iCell];
-            tmpDrop = cellPropDropBody[iCell];
+            tmp = cellProp[iCell];
 
             iCellOther = iCell-1;
 
-            while (iCellOther>=0 && cellPropDbzAvgBody[iCellOther] * XABS(cellPropDropBody[iCellOther]-1) < tmpDbzAvg * XABS(tmpDrop-1)) {
+            while (iCellOther>=0 && cellProp[iCellOther].dbzAvg * XABS(cellProp[iCellOther].drop-1) < tmp.dbzAvg * XABS(tmp.drop-1)) {
 
-                cellPropIRangOfMaxBody[iCellOther+1] = cellPropIRangOfMaxBody[iCellOther];
-                cellPropIAzimOfMaxBody[iCellOther+1] = cellPropIAzimOfMaxBody[iCellOther];
-                cellPropDbzAvgBody[iCellOther+1] = cellPropDbzAvgBody[iCellOther];
-                cellPropTexAvgBody[iCellOther+1] = cellPropTexAvgBody[iCellOther];
-                cellPropCvBody[iCellOther+1] = cellPropCvBody[iCellOther];
-                cellPropAreaBody[iCellOther+1] = cellPropAreaBody[iCellOther];
-                cellPropClutterAreaBody[iCellOther+1] = cellPropClutterAreaBody[iCellOther];
-                cellPropDbzMaxBody[iCellOther+1] = cellPropDbzMaxBody[iCellOther];
-                cellPropIndexBody[iCellOther+1] = cellPropIndexBody[iCellOther];
-                cellPropDropBody[iCellOther+1] = cellPropDropBody[iCellOther];
+                cellProp[iCellOther+1] = cellProp[iCellOther];
 
                 iCellOther--;
             }
 
-            cellPropIRangOfMaxBody[iCellOther+1] = tmpIRangOfMax;
-            cellPropIAzimOfMaxBody[iCellOther+1] = tmpIAzimOfMax;
-            cellPropDbzAvgBody[iCellOther+1] = tmpDbzAvg;
-            cellPropTexAvgBody[iCellOther+1] = tmpTexAvg;
-            cellPropCvBody[iCellOther+1] = tmpCv;
-            cellPropAreaBody[iCellOther+1] =  tmpArea;
-            cellPropClutterAreaBody[iCellOther+1] = tmpClutterArea;
-            cellPropDbzMaxBody[iCellOther+1] = tmpDbzMax;
-            cellPropIndexBody[iCellOther+1] = tmpIndex;
-            cellPropDropBody[iCellOther+1] = tmpDrop;
+            cellProp[iCellOther+1] = tmp;
 
        } //for iCell
     }
-
-    // do some more Java Native Interface tricks:
-    (*env)->ReleaseIntArrayElements(env, cellPropIRangOfMax, cellPropIRangOfMaxBody, 0);
-    (*env)->ReleaseIntArrayElements(env, cellPropIAzimOfMax, cellPropIAzimOfMaxBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropDbzAvg, cellPropDbzAvgBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropTexAvg, cellPropTexAvgBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropCv, cellPropCvBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropArea, cellPropAreaBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropClutterArea, cellPropClutterAreaBody, 0);
-    (*env)->ReleaseDoubleArrayElements(env, cellPropDbzMax, cellPropDbzMaxBody, 0);
-    (*env)->ReleaseIntArrayElements(env, cellPropIndex, cellPropIndexBody, 0);
-    (*env)->ReleaseIntArrayElements(env, cellPropDrop, cellPropDropBody, 0);
-    // end of Java Native Interface tricks
 
 
    return;

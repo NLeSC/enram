@@ -131,7 +131,7 @@ typedef struct cellprop CELLPROP;
 
 void fringecells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
-//void sortcells(CELLPROP *c,int ncell, int method);
+void sortcells(CELLPROP *cellProp,int nCells, int method);
 int updatemap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 //void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
 //        SCANMETA cmmeta,int *cellmap,
