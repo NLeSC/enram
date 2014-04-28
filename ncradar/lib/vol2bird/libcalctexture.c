@@ -13,7 +13,30 @@
 //#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 JNIEXPORT jintArray JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(JNIEnv *env, jobject obj, jint tMissing, jint tnAzim, jint tnRange, jdouble tOffset, jdouble tScale, jintArray vImage, jint vMissing, jint vnAzim, jint vnRange, jdouble vOffset, jdouble vScale, jintArray zImage, jint zMissing, jint znAzim, jint znRange, jdouble zOffset, jdouble zScale, jint nRangLocal, jint nAzimLocal, jint nCountMin, jint textype)
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
+   JNIEnv *env,
+  jobject obj,
+     jint tMissing,
+     jint tnAzim,
+     jint tnRange,
+  jdouble tOffset,
+  jdouble tScale,
+jintArray vImage,
+     jint vMissing,
+     jint vnAzim,
+     jint vnRange,
+  jdouble vOffset,
+  jdouble vScale,
+jintArray zImage,
+     jint zMissing,
+     jint znAzim,
+     jint znRange,
+  jdouble zOffset,
+  jdouble zScale,
+     jint nRangLocal,
+     jint nAzimLocal,
+     jint nCountMin,
+     jint textype)
 {
 
     // do some Java Native interface tricks:
