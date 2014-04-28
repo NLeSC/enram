@@ -18,48 +18,38 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
     
     public static void main(String[] args) throws IOException{
 
-        
-        int[] cellPropIRangOfMax;
-        int[] cellPropIAzimOfMax; 
-        float[] cellPropDbzAvg; 
-        float[] cellPropTexAvg; 
-        float[] cellPropCv; 
-        float[] cellPropArea; 
-        float[] cellPropClutterArea; 
-        float[] cellPropMax; 
-        int[] cellPropIndex; 
-        char[] cellPropDrop; 
-        int nCells; 
-        int method;
-
-        cellPropIRangOfMax = new int[] {0,3,6,4};
-        cellPropIAzimOfMax = new int[] {2,5,2,4};
-        cellPropDbzAvg = new float[] {2,11,25,6};
-        cellPropTexAvg = new float[] {1,2,4,1};
-        cellPropCv = new float[] {2,3,1,5};
-        cellPropArea = new float[] {5,3,7,2};
-        cellPropClutterArea = new float[] {0,0,0,0};
-        cellPropMax = new float[] {14,4,28,9};
-        cellPropIndex = new int[] {0,1,2,3};
-        cellPropDrop = new char[] {0,0,0,0};
-        nCells = 4; 
-        method = 2;
-        
-        sortCells(cellPropIRangOfMax, cellPropIAzimOfMax, cellPropDbzAvg, cellPropTexAvg, 
-                  cellPropCv, cellPropArea, cellPropClutterArea, cellPropMax, 
-                  cellPropIndex, cellPropDrop, nCells,method);
-        
-        int nElems = nCells;
-        for (int iElem = 0;iElem<nElems;iElem++) {
-            System.err.println("(Java) iElem "+iElem+": cellPropArea[iElem] = "+cellPropArea[iElem]+
-                                                     "; cellPropDbzAvg[iElem] = "+cellPropDbzAvg[iElem]);
-        }
-
+        // test 
+        findCells(int[] cellImage,
+                char[] texImage,
+                char[] rhoImage,
+                char[] zdrImage,
+                float dbzThresMin,
+                int texMissing,
+                int texnAzim,
+                int texnRang,
+                float texValueOffset,
+                float texRangeScale,
+                float texValueScale,
+                float texThresMin,
+                int rhoMissing,
+                int rhonAzim,
+                int rhonRang,
+                float rhoValueOffset,
+                float rhoValueScale,
+                float rhoThresMin,
+                int zdrMissing,
+                int zdrnAzim,
+                int zdrnRang,
+                float zdrValueOffset,
+                float zdrValueScale,
+                float zdrThresMin,
+                float rCellMax,
+                char sign);
         
         
-        float dist;
-        dist = dist(12,14,67,24,4.5f,2.2f);
-        System.err.println("(Java) dist = "+ dist);
+        
+        
+        
         
         
 //        int[] cellImage = new int[] {2,3,0,1,2,3,4,5};
