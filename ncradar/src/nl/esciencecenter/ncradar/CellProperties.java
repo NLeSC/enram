@@ -16,16 +16,16 @@ public class CellProperties {
     public CellProperties(int[] iRangOfMax, int[] iAzimOfMax, float[] dbzAvg, float[] texAvg, float[] cv, 
                           float[] area, float[] clutterArea, float[] max, int[] index, char[] drop) {
         
-        this.iRangOfMax = iRangOfMax;
-        this.iAzimOfMax = iAzimOfMax;
-        this.dbzAvg = dbzAvg;
-        this.texAvg = texAvg;
-        this.cv = cv;
-        this.area = area;
-        this.clutterArea = clutterArea;
-        this.max = max;
-        this.index = index;
-        this.drop = drop;
+        this.iRangOfMax = iRangOfMax.clone();
+        this.iAzimOfMax = iAzimOfMax.clone();
+        this.dbzAvg = dbzAvg.clone();
+        this.texAvg = texAvg.clone();
+        this.cv = cv.clone();
+        this.area = area.clone();
+        this.clutterArea = clutterArea.clone();
+        this.max = max.clone();
+        this.index = index.clone();
+        this.drop = drop.clone();
     
     }
 
