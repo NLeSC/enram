@@ -54,14 +54,14 @@
 
     <target name="build" description="build everything" depends="clean,mkdirs,compile" />
 
-    <target name="unit-tests" description="Run unit tests with coverage" depends="build">
+    <target name="unit-testing" description="Run unit tests with coverage" depends="build">
         <delete file="reports/jacoco/jacoco.exec" />
 
         <jacoco:coverage destfile="reports/jacoco/jacoco.exec">
             <junit printsummary="yes" fork="yes">
                 <classpath refid="default.classpath" />
 
-                <batchtest fork="yes" todir="reports">
+                <batchtest fork="yes" todir="reports/unit-testing">
                     <formatter type="xml" />
                     <formatter type="plain" />
                     <fileset dir="src">
@@ -93,7 +93,7 @@
         </jacoco:report>
     </target>
 
-    <target name="integration-tests" description="run integration tests" depends="build">
+    <target name="integration-testing" description="run integration tests" depends="build">
         <junit printsummary="yes">
             <classpath refid="default.classpath" />
 
