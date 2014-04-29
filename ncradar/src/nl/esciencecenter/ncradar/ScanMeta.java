@@ -5,7 +5,7 @@ public class ScanMeta {
     private final int date;                          /*Date of scan data in YYYYMMDD.*/
     private final int time;                          /*Time of scan data in HHMMSS.*/
     private final float radarHeight;                 /*Height of radar antenna in km.*/
-    private final float elevationAngle;              /*Elevation of scan in deg.*/
+    private final float radarElevationAngle;              /*Elevation of scan in deg.*/
     private final int numberOfRangeBins;             /*Number of range bins in scan.*/
     private final int numberOfAzimuthBins;           /*Number of azimuth rays in scan.*/
     private final float binSizeRange;                /*Size of range bins in scan in km.*/
@@ -22,7 +22,7 @@ public class ScanMeta {
     private final float radialVelocityAntenna;       /*Antenna velocity in deg/s.*/
     
     
-    public ScanMeta(int date, int time, float radarHeight, float elevationAngle, 
+    public ScanMeta(int date, int time, float radarHeight, float radarElevationAngle, 
                     int numberOfRangeBins, int numberOfAzimuthBins, float binSizeRange,  
                     float binSizeAzimuth, int iAzimFirstRay, float valueOffset, 
                     float valueScale, int missingValueValue, float pulseRepeatFrequencyHigh,
@@ -32,7 +32,7 @@ public class ScanMeta {
         this.date = date;
         this.time = time;
         this.radarHeight = radarHeight; 
-        this.elevationAngle = elevationAngle;
+        this.radarElevationAngle = radarElevationAngle;
         this.numberOfRangeBins = numberOfRangeBins;
         this.numberOfAzimuthBins = numberOfAzimuthBins;
         this.binSizeRange = binSizeRange;
@@ -70,8 +70,8 @@ public class ScanMeta {
 
 
 
-    public float getElevationAngle() {
-        return elevationAngle;
+    public float getRadarElevationAngle() {
+        return radarElevationAngle;
     }
 
 
