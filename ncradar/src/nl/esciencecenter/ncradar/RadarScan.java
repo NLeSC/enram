@@ -194,7 +194,7 @@ public class RadarScan extends NetcdfAttributeReader {
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
-    public void calcPolygons(){
+    public double[][][][] calcPolygons(){
 
         double angleTrailing = 0;
         double angleLeading = 0;
@@ -230,7 +230,7 @@ public class RadarScan extends NetcdfAttributeReader {
             }
         }
 
-        this.polygons = polygons;
+        return polygons;
 
     }
 
