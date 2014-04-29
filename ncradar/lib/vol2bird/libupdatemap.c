@@ -94,6 +94,9 @@ jint minCellArea)
     (*env)->ReleaseCharArrayElements(env, cellPropDrop, cellPropDropBody, 0);
     // end of Java Native Interface tricks
 
+    free(cellProp);
+    cellProp = NULL;
+
     return nCellsValid;
 
 
