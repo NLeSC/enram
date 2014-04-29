@@ -2,25 +2,24 @@ package nl.esciencecenter.ncradar;
 
 public class ScanMeta {
 
-    private int date;                          /*Date of scan data in YYYYMMDD.*/
-    private int time;                          /*Time of scan data in HHMMSS.*/
-    private float radarHeight;                 /*Height of radar antenna in km.*/
-    private float elevationAngle;              /*Elevation of scan in deg.*/
-    private int numberOfRangeBins;             /*Number of range bins in scan.*/
-    private int numberOfAzimuthBins;           /*Number of azimuth rays in scan.*/
-    private float binSizeRange;                /*Size of range bins in scan in km.*/
-    private float binSizeAzimuth;              /*Size of azimuth steps in scan in deg.*/
-    private int iAzimFirstRay;                 /*Ray number with which radar scan started.*/
-    private float valueOffset;                 /*Offset value of quantity contained by scan.*/
-    private float valueScale;                  /*Scale of value of quantity contained by scan.*/
-    private int missingValueValue;             /*Missing value of quantity contained by scan.*/
-    private float pulseRepeatFrequencyHigh;    /*High PRF used for scan in Hz.*/
-    private float pulseRepeatFrequencyLow;     /*Low PRF used for scan in Hz.*/
-    private float pulseLength;                 /*Pulse length in microsec.*/
-    private float radarConstant;               /*Radar constant in dB.*/
-    private float nominalMaxTransmissionPower; /*Nominal maximum TX power in kW.*/
-    private float radialVelocityAntenna;       /*Antenna velocity in deg/s.*/
-
+    private final int date;                          /*Date of scan data in YYYYMMDD.*/
+    private final int time;                          /*Time of scan data in HHMMSS.*/
+    private final float radarHeight;                 /*Height of radar antenna in km.*/
+    private final float elevationAngle;              /*Elevation of scan in deg.*/
+    private final int numberOfRangeBins;             /*Number of range bins in scan.*/
+    private final int numberOfAzimuthBins;           /*Number of azimuth rays in scan.*/
+    private final float binSizeRange;                /*Size of range bins in scan in km.*/
+    private final float binSizeAzimuth;              /*Size of azimuth steps in scan in deg.*/
+    private final int iAzimFirstRay;                 /*Ray number with which radar scan started.*/
+    private final float valueOffset;                 /*Offset value of quantity contained by scan.*/
+    private final float valueScale;                  /*Scale of value of quantity contained by scan.*/
+    private final int missingValueValue;             /*Missing value of quantity contained by scan.*/
+    private final float pulseRepeatFrequencyHigh;    /*High PRF used for scan in Hz.*/
+    private final float pulseRepeatFrequencyLow;     /*Low PRF used for scan in Hz.*/
+    private final float pulseLength;                 /*Pulse length in microsec.*/
+    private final float radarConstant;               /*Radar constant in dB.*/
+    private final float nominalMaxTransmissionPower; /*Nominal maximum TX power in kW.*/
+    private final float radialVelocityAntenna;       /*Antenna velocity in deg/s.*/
     
     
     public ScanMeta(int date, int time, float radarHeight, float elevationAngle, 
