@@ -7,7 +7,7 @@ import org.junit.Test;
 public class TestCellProperties {
 
     @Test(expected=java.lang.NullPointerException.class)
-    public void testConstructorWithEmptyInput() {
+    public void testConstructorWithEmptyInput() throws Exception {
          
         int[] iRangOfMax = {};
         int[] iAzimOfMax = {};
