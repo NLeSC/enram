@@ -52,16 +52,7 @@ public class JNIMethodsVol2Bird {
                                       int minCellArea);
     
     
-    final native static void sortCells(int[] cellPropIRangOfMax,
-                                       int[] cellPropIAzimOfMax, 
-                                       float[] cellPropDbzAvg, 
-                                       float[] cellPropTexAvg, 
-                                       float[] cellPropCv, 
-                                       float[] cellPropArea, 
-                                       float[] cellPropClutterArea, 
-                                       float[] cellPropDbzMax, 
-                                       int[] cellPropIndex, 
-                                       char[] cellPropDrop, 
+    final native static void sortCells(CellProperties cellProp, 
                                        int nCells, 
                                        int method);
     
