@@ -30,43 +30,43 @@ public class CellProperties {
     }
 
     public int[] getiRangOfMax() {
-        return iRangOfMax;
+        return iRangOfMax.clone();
     }
 
     public int[] getiAzimOfMax() {
-        return iAzimOfMax;
+        return iAzimOfMax.clone();
     }
 
     public float[] getDbzAvg() {
-        return dbzAvg;
+        return dbzAvg.clone();
     }
 
     public float[] getTexAvg() {
-        return texAvg;
+        return texAvg.clone();
     }
 
     public float[] getCv() {
-        return cv;
+        return cv.clone();
     }
 
     public float[] getArea() {
-        return area;
+        return area.clone();
     }
 
     public float[] getClutterArea() {
-        return clutterArea;
+        return clutterArea.clone();
     }
 
     public float[] getMax() {
-        return max;
+        return max.clone();
     }
 
     public int[] getIndex() {
-        return index;
+        return index.clone();
     }
 
     public char[] getDrop() {
-        return drop;
+        return drop.clone();
     }
 
 
