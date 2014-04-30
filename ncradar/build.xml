@@ -40,7 +40,7 @@
 
     <target name="copyccode" depends="javacompile">
         <copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
+<!--        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" /> -->
         <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
     	<copy file="lib/vol2bird/libfringecells.c" todir="build/lib/vol2bird" />
@@ -67,6 +67,7 @@
         </exec>
     </target>
     
+	<!--
     <target name="findcells" depends="jniheaders" description="compile the C-language source file libfindcells.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
@@ -77,7 +78,9 @@
             <arg line="-o" />
             <arg line="../../../dist/libfindcells.so" />
         </exec>
-    </target>    
+    </target>
+    
+    -->    
     
     <target name="analysecells" depends="jniheaders" description="compile the C-language source file libanalysecells.c into a shared object">
         <exec dir="build/lib/vol2bird" executable="gcc">
@@ -139,7 +142,7 @@
         </exec>
     </target>
 
-    <target name="buildlibs" depends="dist,fringecells,updatemap,sortcells,findcells" description="compile the C-language source files into shared object files" />
+    <target name="buildlibs" depends="dist,fringecells,updatemap,sortcells" description="compile the C-language source files into shared object files" />
 
     <target name="makejar" depends="buildlibs" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />
