@@ -54,8 +54,8 @@ public class TestCellProperties {
         
         for (int iCell = 0; iCell < nCells; iCell++) {
             
-            int expected = iRangOfMax[iCell];
-            int actual = cellProp.getiRangOfMax(iCell);
+            int expected = iAzimOfMax[iCell];
+            int actual = cellProp.getiAzimOfMax(iCell);
             assertEquals(expected, actual);
 
         }
@@ -87,8 +87,8 @@ public class TestCellProperties {
         
         for (int iCell = 0; iCell < nCells; iCell++) {
             
-            float expected = iRangOfMax[iCell];
-            float actual = cellProp.getiRangOfMax(iCell);
+            float expected = texAvg[iCell];
+            float actual = cellProp.getTexAvg(iCell);
             assertEquals(expected, actual, delta);
 
         }
