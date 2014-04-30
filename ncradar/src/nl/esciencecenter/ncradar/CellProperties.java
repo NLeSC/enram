@@ -18,6 +18,15 @@ public class CellProperties {
 
     protected PropertiesOfACell[] cellProperties;
 
+    public CellProperties(int nCells) throws Exception {
+
+        cellProperties = new PropertiesOfACell[nCells];
+        for (int iCell = 0; iCell<nCells; iCell++) {
+            cellProperties[iCell] = new PropertiesOfACell();
+        }
+
+    }
+    
     public CellProperties(int[] iRangOfMax, int[] iAzimOfMax, float[] dbzAvg,
             float[] texAvg, float[] cv, float[] area, float[] clutterArea,
             float[] dbzMax, int[] index, char[] drop) throws Exception {
