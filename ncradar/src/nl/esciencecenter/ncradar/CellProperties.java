@@ -94,4 +94,72 @@ public class CellProperties {
         
     }
 
+    
+    public int getiRangOfMax(int iCell) {
+        
+        return cellProperties[iCell].iRangOfMax;
+        
+    }
+
+    public int getiAzimOfMax(int iCell) {
+        
+        return cellProperties[iCell].iAzimOfMax;
+        
+    }
+    
+    public float getDbzAvg(int iCell) {
+        
+        return cellProperties[iCell].dbzAvg;
+        
+    }
+    
+    public float getTexAvg(int iCell) {
+        
+        return cellProperties[iCell].texAvg;
+        
+    }
+    
+    public float getCv(int iCell) {
+        
+        return cellProperties[iCell].cv;
+        
+    }
+    
+    public float getArea(int iCell) {
+        
+        return cellProperties[iCell].area;
+        
+    }
+    
+    public float getClutterArea(int iCell) {
+        
+        return cellProperties[iCell].clutterArea;
+        
+    }
+    
+    public float getDbzMax(int iCell) {
+        
+        return cellProperties[iCell].dbzMax;
+        
+    }
+    
+    public int getIndex(int iCell) {
+        
+        return cellProperties[iCell].index;
+        
+    }
+    
+    public char getDrop(int iCell) {
+        
+        return cellProperties[iCell].drop;
+        
+    }
+    
+    
+    
+
+    
+    
+    
+    
 }
