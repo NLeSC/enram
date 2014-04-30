@@ -17,8 +17,9 @@ public class TestCellProperties {
     private float[] clutterArea = {78f,234.5f,232.3f};
     private float[] dbzMax = {9837.2f,53.67f,8765.23f};
     private int[] index = {2,7,96};
-    private char[] drop = {0,0,1};
+    private char[] drop = {'a','b','c'};
     private CellProperties cellProp;
+    private float delta = 0.0000001f;
 
     
     @Before
@@ -44,5 +45,153 @@ public class TestCellProperties {
         }
 
     }
+    
+    @Test
+    public void testGetiAzimOfMax(){
+
+
+        int nCells = iAzimOfMax.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            int expected = iRangOfMax[iCell];
+            int actual = cellProp.getiRangOfMax(iCell);
+            assertEquals(expected, actual);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetDbzAvg(){
+
+
+        int nCells = dbzAvg.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = dbzAvg[iCell];
+            float actual = cellProp.getDbzAvg(iCell);
+             
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetTexAvg(){
+
+
+        int nCells = texAvg.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = iRangOfMax[iCell];
+            float actual = cellProp.getiRangOfMax(iCell);
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetCv(){
+
+
+        int nCells = cv.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = cv[iCell];
+            float actual = cellProp.getCv(iCell);
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetArea(){
+
+
+        int nCells = area.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = area[iCell];
+            float actual = cellProp.getArea(iCell);
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetClutterArea(){
+
+
+        int nCells = clutterArea.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = clutterArea[iCell];
+            float actual = cellProp.getClutterArea(iCell);
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetDbzMax(){
+
+
+        int nCells = dbzMax.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            float expected = dbzMax[iCell];
+            float actual = cellProp.getDbzMax(iCell);
+            assertEquals(expected, actual, delta);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetIndex(){
+
+
+        int nCells = index.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            int expected = index[iCell];
+            int actual = cellProp.getIndex(iCell);
+            assertEquals(expected, actual);
+
+        }
+
+    }
+    
+    @Test
+    public void testGetDrop(){
+
+
+        int nCells = drop.length;
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            int expected = drop[iCell];
+            int actual = cellProp.getDrop(iCell);
+            assertEquals(expected, actual);
+
+        }
+
+    }
+    
+    
+    
 
 }

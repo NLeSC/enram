@@ -25,10 +25,11 @@ public class CellProperties {
         // use length of first array
         int nCells = iRangOfMax.length;
         
+        cellProperties = new PropertiesOfACell[nCells];
+        
         assertLengths(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area,
                 clutterArea, dbzMax, index, drop);
         
-        cellProperties = new PropertiesOfACell[nCells];
 
         copyCellPropertiesFrom(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv,
                 area, clutterArea, dbzMax, index, drop);
@@ -48,7 +49,11 @@ public class CellProperties {
             throw new Exception(
                     " Length(s) of array do not match cellProperties length.");
         }
+        
         for (int iElem = 0; iElem < nElems; iElem++) {
+
+            cellProperties[iElem] = new PropertiesOfACell();
+            
             cellProperties[iElem].iRangOfMax = iRangOfMax[iElem];
             cellProperties[iElem].iAzimOfMax = iAzimOfMax[iElem];
             cellProperties[iElem].dbzAvg = dbzAvg[iElem];
@@ -154,12 +159,6 @@ public class CellProperties {
         return cellProperties[iCell].drop;
         
     }
-    
-    
-    
-
-    
-    
     
     
 }
