@@ -17,7 +17,7 @@ public class TestCellProperties {
     private float[] clutterArea = {78f,234.5f,232.3f};
     private float[] dbzMax = {9837.2f,53.67f,8765.23f};
     private int[] index = {2,7,96};
-    private char[] drop = {'a','b','c'};
+    private char[] drop = {0,0,1};
     private CellProperties cellProp;
     private float delta = 0.0000001f;
 
