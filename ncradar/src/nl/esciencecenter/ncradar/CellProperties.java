@@ -18,7 +18,7 @@ public class CellProperties {
 
     protected PropertiesOfACell[] cellProperties;
 
-    public CellProperties(int nCells) throws Exception {
+    public CellProperties(int nCells) {
 
         cellProperties = new PropertiesOfACell[nCells];
         for (int iCell = 0; iCell<nCells; iCell++) {
@@ -114,6 +114,20 @@ public class CellProperties {
         return cellProperties[iCell].iRangOfMax;
         
     }
+    
+    public int[] getAlliRangOfMax() {
+        
+        int nCells = cellProperties.length;
+        
+        int[] iRangOfMax = new int[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            iRangOfMax[iCell] = cellProperties[iCell].iRangOfMax;
+        }
+        
+        return iRangOfMax;
+        
+    }    
 
     public int getiAzimOfMax(int iCell) {
         
@@ -121,11 +135,43 @@ public class CellProperties {
         
     }
     
+    public int[] getAlliAzimOfMax() {
+        
+        int nCells = cellProperties.length;
+        
+        int[] iAzimOfMax = new int[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            iAzimOfMax[iCell] = cellProperties[iCell].iAzimOfMax;
+        }
+        
+        return iAzimOfMax;
+        
+    }    
+    
+    
+    
     public float getDbzAvg(int iCell) {
         
         return cellProperties[iCell].dbzAvg;
         
     }
+    
+    
+    public float[] getAllDbzAvg() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] dbzAvg = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            dbzAvg[iCell] = cellProperties[iCell].dbzAvg;
+        }
+        
+        return dbzAvg;
+        
+    }        
+    
     
     public float getTexAvg(int iCell) {
         
@@ -133,11 +179,48 @@ public class CellProperties {
         
     }
     
+    
+    
+    public float[] getAllTexAvg() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] texAvg = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            texAvg[iCell] = cellProperties[iCell].texAvg;
+        }
+        
+        return texAvg;
+        
+    }         
+    
+    
+    
     public float getCv(int iCell) {
         
         return cellProperties[iCell].cv;
         
     }
+
+    
+    
+    public float[] getAllCv() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] cv = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            cv[iCell] = cellProperties[iCell].cv;
+        }
+        
+        return cv;
+        
+    }         
+    
+    
+    
     
     public float getArea(int iCell) {
         
@@ -145,11 +228,43 @@ public class CellProperties {
         
     }
     
+    
+    public float[] getAllArea() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] area = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            area[iCell] = cellProperties[iCell].area;
+        }
+        
+        return area;
+        
+    }        
+    
+    
     public float getClutterArea(int iCell) {
         
         return cellProperties[iCell].clutterArea;
         
     }
+    
+    
+    public float[] getAllClutterArea() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] clutterArea = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            clutterArea[iCell] = cellProperties[iCell].clutterArea; 
+        }
+        
+        return clutterArea;
+        
+    }        
+    
     
     public float getDbzMax(int iCell) {
         
@@ -157,11 +272,44 @@ public class CellProperties {
         
     }
     
+    
+    public float[] getAllDbzMax() {
+        
+        int nCells = cellProperties.length;
+        
+        float[] dbzMax = new float[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            dbzMax[iCell] = cellProperties[iCell].dbzMax; 
+        }
+        
+        return dbzMax;
+        
+    }            
+    
     public int getIndex(int iCell) {
         
         return cellProperties[iCell].index;
         
     }
+
+    
+    
+    public int[] getAllIndex() {
+        
+        int nCells = cellProperties.length;
+        
+        int[] index = new int[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            index[iCell] = cellProperties[iCell].index; 
+        }
+        
+        return index;
+        
+    }            
+    
+    
     
     public char getDrop(int iCell) {
         
@@ -169,5 +317,43 @@ public class CellProperties {
         
     }
     
+
     
+    public char[] getAllDrop() {
+        
+        int nCells = cellProperties.length;
+        
+        char[] drop = new char[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            drop[iCell] = cellProperties[iCell].drop; 
+        }
+        
+        return drop;
+        
+    }
+    
+    public PropertiesOfACell[] clone() {
+
+        int nCells = cellProperties.length;
+        
+        PropertiesOfACell[] cellPropClone = new PropertiesOfACell[nCells];
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            cellPropClone[iCell].iRangOfMax = this.getiRangOfMax(iCell);
+            cellPropClone[iCell].iAzimOfMax = this.getiAzimOfMax(iCell);
+            cellPropClone[iCell].dbzAvg = this.getDbzAvg(iCell);
+            cellPropClone[iCell].texAvg = this.getTexAvg(iCell);
+            cellPropClone[iCell].cv = this.getCv(iCell);
+            cellPropClone[iCell].area = this.getArea(iCell);
+            cellPropClone[iCell].clutterArea = this.getClutterArea(iCell);
+            cellPropClone[iCell].dbzMax = this.getDbzMax(iCell);
+            cellPropClone[iCell].index = this.getIndex(iCell);
+            cellPropClone[iCell].drop = this.getDrop(iCell);
+        }        
+        
+        return cellPropClone;
+        
+    }
 }
