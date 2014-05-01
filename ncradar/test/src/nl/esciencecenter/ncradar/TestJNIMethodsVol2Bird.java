@@ -11,7 +11,7 @@ public class TestJNIMethodsVol2Bird extends JNIMethodsVol2Bird{
     @Test
     public void testNativeDist(){
 
-        // blah
+
         int range1 = 1;
         int azimuth1 = 2;
         int range2 = 3;
@@ -23,8 +23,14 @@ public class TestJNIMethodsVol2Bird extends JNIMethodsVol2Bird{
         
         theDist = dist(range1, azimuth1, range2, azimuth2, rangeScale, azimuthScale);
 
-        double expected = Math.sqrt(Math.pow((range1-range2)*rangeScale, 2.0) + 
-                                    Math.pow((azimuth1-azimuth2)*azimuthScale, 2.0));
+        double x1 = range1 * Math.cos(2 * Math.PI * azimuth1 * azimuthScale / 360);
+        double x2 = range2 * Math.cos(2 * Math.PI * azimuth2 * azimuthScale / 360);
+        double y1 = range1 * Math.sin(2 * Math.PI * azimuth1 * azimuthScale / 360);
+        double y2 = range2 * Math.sin(2 * Math.PI * azimuth2 * azimuthScale / 360);
+
+        double expected = Math.sqrt(Math.pow(x1-x2, 2.0) + 
+                                    Math.pow(y1-y2, 2.0));
+        
         double actual = theDist;
         
         double delta = 0.0000001;
