@@ -12,6 +12,8 @@ ncradar/.metadata/
 ncradar/build
 ncradar/*hdf.geojson.csv
 ncradar/*hdf.wkt.csv
+ncradar/test/build
+ncradar/test/dist
 other-data
 testdata/harmonized/bird
 testdata/harmonized/cluttermaps
@@ -20,7 +22,5 @@ testdata/harmonized/statistics
 #testdata/harmonized
 testdata/raw
 testdata/stations.txt
-test/build
-test/dist
 private
 visualization-output
