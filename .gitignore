@@ -20,5 +20,7 @@ testdata/harmonized/statistics
 #testdata/harmonized
 testdata/raw
 testdata/stations.txt
+test/build
+test/dist
 private
 visualization-output
