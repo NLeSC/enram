@@ -41,7 +41,7 @@
         <mkdir dir="reports/jacoco" />
     </target>
 
-    <target name="compile" description="compile the Java source ">
+    <target name="compile-tests" description="compile the Java source ">
 
         <!-- Compile the tests code from ./src into ./build/classes -->
         <javac srcdir="src" destdir="build/classes" debug="on">
@@ -52,7 +52,17 @@
         <jar jarfile="dist/ncradar-tests.jar" basedir="build/classes" />
     </target>
 
-    <target name="build" description="build everything" depends="clean,mkdirs,compile" />
+<!--    <target name="copy-native-libraries" description="take the native libraries and copy them next to the jar containing the unit tests">
+        <copy file="./../dist/libcalctexture.so" todir="./../test/dist" />
+        <copy file="./../dist/libdist.so" todir="./../test/dist" />
+        <copy file="./../dist/libfringecells.so" todir="./../test/dist" />
+        <copy file="./../dist/libsortcells.so" todir="./../test/dist" />
+        <copy file="./../dist/libupdatemap.so" todir="./../test/dist" />
+    </target>
+-->
+
+
+    <target name="build" description="build everything" depends="mkdirs,compile-tests" />
 
     <target name="unit-testing" description="Run unit tests with coverage" depends="build">
         <delete file="reports/jacoco/jacoco.exec" />

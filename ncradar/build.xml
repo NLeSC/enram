@@ -2,60 +2,56 @@
 
 <project name="ncradar" default="makejar" basedir=".">
     <description>
-    Ant build file for ncradar project
+        Ant build file for ncradar project
     </description>
 
-<!--
-    <property name="jnihdir" value="/usr/lib/jvm/java-6-openjdk-amd64/include" />
--->
-
     <property name="jnihdir" value="${java.home}/../include" />
-    
-    <echo message = "java.home is ${java.home}" />
+    <property name="gcc_dist" location="dist" />
     
     <target name="clean" description="clean up">
         <delete dir="build" />
         <delete dir="dist" />  
-        <delete dir="tmp" />
-    	<delete dir="javadoc" />
+        <delete dir="javadoc" />
     </target>
 
-    <target name="create-dirs" >
+    <target name="create-directories" >
         <tstamp />
         <mkdir dir="build" />
         <mkdir dir="build/classes" />
         <mkdir dir="build/lib" />
         <mkdir dir="build/lib/vol2bird" />
-    	<mkdir dir="dist" />
-    	<mkdir dir="javadoc" />
+        <mkdir dir="dist" />
+        <mkdir dir="javadoc" />
     </target>
 
-    <target name="copyjar" depends="create-dirs">
+    <target name="copy-netcdf-jar" >
         <copy file="lib/netcdf/netcdfAll-4.3.jar" todir="dist" />
     </target>
 
-    <target name="javacompile" depends="copyjar" description="compile the java source code">
+    <target name="compile-java-source" description="compile the java source code">
         <javac source="1.6" target="1.6" debug="true" srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
     </target>
 
-    <target name="copyccode" depends="javacompile">
-        <copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
-<!--        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" /> -->
-        <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
-    	<copy file="lib/vol2bird/libfringecells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libsortcells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libdist.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
-    </target>
-
-    <target name="jniheaders" depends="copyccode" description="Use javah to create the JNI header">
+    <target name="write-jni-header" description="Use javah to create the JNI header">
         <javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
             <class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
         </javah>
     </target>
 
-    <target name="calctexture" depends="jniheaders" description="compile the C-language source file libcalctexture.c into a shared object">
+    <target name="copy-c-code" >
+        <copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libfringecells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libsortcells.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libdist.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
+    </target>
+    
+    
+    <target name="compile-calctexture" description="compile the C-language source file libcalctexture.c into a shared object">
+        <echo message="Compiling vol2bird 'calctexture' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -63,12 +59,13 @@
             <arg line="-shared" />
             <arg line="libcalctexture.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libcalctexture.so" />
+            <arg line="${gcc_dist}/libcalctexture.so" />
         </exec>
     </target>
     
-	<!--
-    <target name="findcells" depends="jniheaders" description="compile the C-language source file libfindcells.c into a shared object">
+    <!--
+    <target name="compile-findcells" description="compile the C-language source file libfindcells.c into a shared object">
+        <echo message="Compiling vol2bird 'findcells' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -76,13 +73,15 @@
             <arg line="-shared" />
             <arg line="libfindcells.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libfindcells.so" />
+            <arg line="${gcc_dist}/libfindcells.so" />
         </exec>
     </target>
     
     -->    
     
-    <target name="analysecells" depends="jniheaders" description="compile the C-language source file libanalysecells.c into a shared object">
+<!--    
+    <target name="compile-analysecells" description="compile the C-language source file libanalysecells.c into a shared object">
+        <echo message="Compiling vol2bird 'analysecells' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -90,11 +89,14 @@
             <arg line="-shared" />
             <arg line="libanalysecells.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libanalysecells.so" />
+            <arg line="${gcc_dist}/libanalysecells.so" />
         </exec>
     </target>
     
-    <target name="updatemap" depends="jniheaders" description="compile the C-language source file libupdatemap.c into a shared object">
+-->
+    
+    <target name="compile-updatemap" description="compile the C-language source file libupdatemap.c into a shared object">
+        <echo message="Compiling vol2bird 'updatemap' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -102,11 +104,12 @@
             <arg line="-shared" />
             <arg line="libupdatemap.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libupdatemap.so" />
+            <arg line="${gcc_dist}/libupdatemap.so" />
         </exec>
     </target>
 
-    <target name="sortcells" depends="jniheaders" description="compile the C-language source file libsortcells.c into a shared object">
+    <target name="compile-sortcells" description="compile the C-language source file libsortcells.c into a shared object">
+        <echo message="Compiling vol2bird 'sortcells' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -114,11 +117,12 @@
             <arg line="-shared" />
             <arg line="libsortcells.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libsortcells.so" />
+            <arg line="${gcc_dist}/libsortcells.so" />
         </exec>
     </target>
 
-    <target name="dist" depends="jniheaders" description="compile the C-language source file libdist.c into a shared object">
+    <target name="compile-dist" description="compile the C-language source file libdist.c into a shared object">
+        <echo message="Compiling vol2bird 'dist' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
@@ -126,40 +130,55 @@
             <arg line="-shared" />
             <arg line="libdist.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libdist.so" />
+            <arg line="${gcc_dist}/libdist.so" />
         </exec>
     </target>
 
-    <target name="fringecells" depends="jniheaders" description="compile the C-language source file libfringecells.c into a shared object">
+    <target name="compile-fringecells" description="compile the C-language source file libfringecells.c into a shared object">
+        <echo message="Compiling vol2bird 'fringecells' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
-        	<arg line="-I${jnihdir}/linux" />
+            <arg line="-I${jnihdir}/linux" />
             <arg line="-shared" />
             <arg line="libfringecells.c" />
             <arg line="-o" />
-            <arg line="../../../dist/libfringecells.so" />
+            <arg line="${gcc_dist}/libfringecells.so" />
         </exec>
     </target>
 
-    <target name="buildlibs" depends="dist,fringecells,updatemap,sortcells" description="compile the C-language source files into shared object files" />
-
-    <target name="makejar" depends="buildlibs" description="make a jar out of everything">
-        <jar destfile="dist/ncradar.jar" basedir="build/classes" />
-    </target>
-
-    <target name="runit" depends="makejar" description="run the jar containing everything">
-        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
-            <sysproperty key="java.library.path" value="dist" />
-        </java>
-    </target>
-	
-    <target name="make-javadoc" depends="javacompile">
+    <target name="make-javadoc" >
         <javadoc destdir="javadoc" classpath="lib/netcdf/netcdfAll-4.3.jar" sourcepath="src" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="true" version="true" nodeprecatedlist="false" nodeprecated="false" verbose="false" >
             <link href="http://docs.oracle.com/javase/7/docs/api/" />
         </javadoc>
-    </target>	
-	
+    </target>
+
+    <target name="makejar" depends="create-directories,
+                                    copy-netcdf-jar,
+                                    compile-java-source,
+                                    write-jni-header,
+                                    copy-c-code,
+                                    compile-calctexture,
+                                    compile-updatemap,
+                                    compile-sortcells,
+                                    compile-dist,
+                                    compile-fringecells" description="make a jar out of everything">
+        <jar destfile="dist/ncradar.jar" basedir="build/classes" />
+    </target>
+
+    <target name="run-it" description="run the jar containing everything">
+        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
+            <sysproperty key="java.library.path" value="dist"/>
+                <classpath>  
+                   <filelist dir="dist">
+                       <file name="ncradar.jar" />
+                       <file name="ncradar-natives.jar" />
+                       <file name="netcdfAll-4.3.jar" />
+                   </filelist>  
+                </classpath>
+        </java>
+    </target>
+
 
 
 </project>
