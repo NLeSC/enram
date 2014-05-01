@@ -18,6 +18,7 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
     
     public static void main(String[] args) throws IOException{
 
+        
         RadarScan rsz = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
         RadarScan rsv = new RadarScan("/home/wbouten/tmp","T_PAHZ60_C_OKPR_20110815000447.hdf",3);
 
@@ -26,6 +27,9 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
         
         System.out.println("I have a BirdDensityProfileCalculator object.");
         
+        
+        
+       
     }
     
 
