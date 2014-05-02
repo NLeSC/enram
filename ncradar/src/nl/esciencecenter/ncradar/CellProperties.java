@@ -16,10 +16,13 @@ public class CellProperties {
         char drop;
     }
 
+    private int nCells;
+    
     protected PropertiesOfACell[] cellProperties;
 
     public CellProperties(int nCells) {
 
+        this.nCells = nCells;
         cellProperties = new PropertiesOfACell[nCells];
         for (int iCell = 0; iCell<nCells; iCell++) {
             cellProperties[iCell] = new PropertiesOfACell();
@@ -32,16 +35,12 @@ public class CellProperties {
             float[] dbzMax, int[] index, char[] drop) throws Exception {
 
         // use length of first array
-        int nCells = iRangOfMax.length;
+        this.nCells = iRangOfMax.length;
         
         cellProperties = new PropertiesOfACell[nCells];
-        
-        assertLengths(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area,
-                clutterArea, dbzMax, index, drop);
-        
 
         copyCellPropertiesFrom(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv,
-                area, clutterArea, dbzMax, index, drop);
+                               area, clutterArea, dbzMax, index, drop);
     }
 
     protected void copyCellPropertiesFrom(final int[] iRangOfMax, final int[] iAzimOfMax,
@@ -49,30 +48,37 @@ public class CellProperties {
             final float[] clutterArea, final float[] dbzMax,final  int[] index, final char[] drop)
             throws Exception {
 
-        int nElems = cellProperties.length;
+        int nCells = getnCells();
 
-        assertLengths(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area,
-                clutterArea, dbzMax, index, drop);
-
-        if (iRangOfMax.length != cellProperties.length) {
+        if (iRangOfMax.length != nCells || 
+            iAzimOfMax.length != nCells ||
+            dbzAvg.length != nCells ||
+            texAvg.length != nCells || 
+            cv.length != nCells || 
+            area.length != nCells ||
+            clutterArea.length != nCells || 
+            dbzMax.length != nCells ||
+            index.length != nCells || 
+            drop.length != nCells ) {
             throw new Exception(
+                    
                     " Length(s) of array do not match cellProperties length.");
         }
         
-        for (int iElem = 0; iElem < nElems; iElem++) {
+        for (int iCell = 0; iCell < nCells; iCell++) {
 
-            cellProperties[iElem] = new PropertiesOfACell();
+            cellProperties[iCell] = new PropertiesOfACell();
             
-            cellProperties[iElem].iRangOfMax = iRangOfMax[iElem];
-            cellProperties[iElem].iAzimOfMax = iAzimOfMax[iElem];
-            cellProperties[iElem].dbzAvg = dbzAvg[iElem];
-            cellProperties[iElem].texAvg = texAvg[iElem];
-            cellProperties[iElem].cv = cv[iElem];
-            cellProperties[iElem].area = area[iElem];
-            cellProperties[iElem].clutterArea = clutterArea[iElem];
-            cellProperties[iElem].dbzMax = dbzMax[iElem];
-            cellProperties[iElem].index = index[iElem];
-            cellProperties[iElem].drop = drop[iElem];
+            cellProperties[iCell].iRangOfMax = iRangOfMax[iCell];
+            cellProperties[iCell].iAzimOfMax = iAzimOfMax[iCell];
+            cellProperties[iCell].dbzAvg = dbzAvg[iCell];
+            cellProperties[iCell].texAvg = texAvg[iCell];
+            cellProperties[iCell].cv = cv[iCell];
+            cellProperties[iCell].area = area[iCell];
+            cellProperties[iCell].clutterArea = clutterArea[iCell];
+            cellProperties[iCell].dbzMax = dbzMax[iCell];
+            cellProperties[iCell].index = index[iCell];
+            cellProperties[iCell].drop = drop[iCell];
         }
         
     }
@@ -83,31 +89,23 @@ public class CellProperties {
             float[] dbzAvg, float[] texAvg, float[] cv, float[] area,
             float[] clutterArea, float[] dbzMax, int[] index, char[] drop) {
 
-        int nElems = cellProperties.length;
+        int nCells = getnCells();
 
-        for (int iElem = 0; iElem < nElems; iElem++) {
-            iRangOfMax[iElem] = cellProperties[iElem].iRangOfMax;
-            iAzimOfMax[iElem] = cellProperties[iElem].iAzimOfMax;
-            dbzAvg[iElem] = cellProperties[iElem].dbzAvg;
-            texAvg[iElem] = cellProperties[iElem].texAvg;
-            cv[iElem] = cellProperties[iElem].cv;
-            area[iElem] = cellProperties[iElem].area;
-            clutterArea[iElem] = cellProperties[iElem].clutterArea;
-            dbzMax[iElem] = cellProperties[iElem].dbzMax;
-            index[iElem] = cellProperties[iElem].index;
-            drop[iElem] = cellProperties[iElem].drop;
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            iRangOfMax[iCell] = cellProperties[iCell].iRangOfMax;
+            iAzimOfMax[iCell] = cellProperties[iCell].iAzimOfMax;
+            dbzAvg[iCell] = cellProperties[iCell].dbzAvg;
+            texAvg[iCell] = cellProperties[iCell].texAvg;
+            cv[iCell] = cellProperties[iCell].cv;
+            area[iCell] = cellProperties[iCell].area;
+            clutterArea[iCell] = cellProperties[iCell].clutterArea;
+            dbzMax[iCell] = cellProperties[iCell].dbzMax;
+            index[iCell] = cellProperties[iCell].index;
+            drop[iCell] = cellProperties[iCell].drop;
         }
 
     }
     
-    private void assertLengths(int[] iRangOfMax, int[] iAzimOfMax,
-            float[] dbzAvg, float[] texAvg, float[] cv, float[] area,
-            float[] clutterArea, float[] dbzMax, int[] index, char[] drop) throws Exception {
-
-        int nCells = this.cellProperties.length; 
-        
-    }
-
     
     public int getiRangOfMax(int iCell) {
         
@@ -333,27 +331,44 @@ public class CellProperties {
         
     }
     
-    public PropertiesOfACell[] clone() {
+    public CellProperties clone() {
 
-        int nCells = cellProperties.length;
+        int nCells = getnCells();
+        CellProperties cellPropClone = new CellProperties(nCells);
         
-        PropertiesOfACell[] cellPropClone = new PropertiesOfACell[nCells];
+        int[] iRangOfMax = this.getAlliRangOfMax();
+        int[] iAzimOfMax = this.getAlliAzimOfMax();
+        float[] dbzAvg = this.getAllDbzAvg();
+        float[] texAvg = this.getAllTexAvg();
+        float[] cv = this.getAllCv();
+        float[] area = this.getAllArea();
+        float[] clutterArea = this.getAllClutterArea();
+        float[] dbzMax = this.getAllDbzMax();
+        int[] index = this.getAllIndex();
+        char[] drop = this.getAllDrop();
         
-        for (int iCell = 0; iCell < nCells; iCell++) {
-            
-            cellPropClone[iCell].iRangOfMax = this.getiRangOfMax(iCell);
-            cellPropClone[iCell].iAzimOfMax = this.getiAzimOfMax(iCell);
-            cellPropClone[iCell].dbzAvg = this.getDbzAvg(iCell);
-            cellPropClone[iCell].texAvg = this.getTexAvg(iCell);
-            cellPropClone[iCell].cv = this.getCv(iCell);
-            cellPropClone[iCell].area = this.getArea(iCell);
-            cellPropClone[iCell].clutterArea = this.getClutterArea(iCell);
-            cellPropClone[iCell].dbzMax = this.getDbzMax(iCell);
-            cellPropClone[iCell].index = this.getIndex(iCell);
-            cellPropClone[iCell].drop = this.getDrop(iCell);
-        }        
+        try {
+            cellPropClone.copyCellPropertiesFrom(iRangOfMax,
+                                                 iAzimOfMax, 
+                                                 dbzAvg, 
+                                                 texAvg, 
+                                                 cv, 
+                                                 area, 
+                                                 clutterArea, 
+                                                 dbzMax, 
+                                                 index, 
+                                                 drop);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         return cellPropClone;
         
     }
+
+    public int getnCells() {
+        return nCells;
+    }
+
 }
