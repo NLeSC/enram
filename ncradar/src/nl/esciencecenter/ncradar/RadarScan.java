@@ -237,7 +237,7 @@ public class RadarScan extends NetcdfAttributeReader {
     }
     
     
-    private void calcVerticesAndFaces(){
+    public void calcVerticesAndFaces(){
         
         int iVertex;
         int iFace;
