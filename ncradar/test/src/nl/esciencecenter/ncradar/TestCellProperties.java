@@ -2,6 +2,7 @@ package nl.esciencecenter.ncradar;
 
 import static org.junit.Assert.*;
 
+
 import org.junit.Test;
 import org.junit.Before;
 
@@ -187,6 +188,80 @@ public class TestCellProperties {
             int actual = cellProp.getDrop(iCell);
             assertEquals(expected, actual);
 
+        }
+
+    }
+    
+    @Test
+    public void testClone(){
+
+        CellProperties cellPropClone = cellProp.clone();
+
+        int nCells = cellProp.getnCells();
+        int nCellsClone = cellPropClone.getnCells();
+
+        {
+            int expected = nCells;
+            int actual = nCellsClone;
+            assertEquals(expected, actual);
+        }
+        
+        float delta = 0.000001f;
+        
+        
+        for (int iCell = 0; iCell < nCells; iCell++) {
+            
+            {
+                int expected = cellProp.getiAzimOfMax(iCell);
+                int actual = cellPropClone.getiAzimOfMax(iCell);
+                assertEquals(expected, actual);
+            }
+            {
+                int expected = cellProp.getiRangOfMax(iCell);
+                int actual = cellPropClone.getiRangOfMax(iCell);
+                assertEquals(expected, actual);
+            }
+            {
+                float expected = cellProp.getDbzAvg(iCell);
+                float actual = cellPropClone.getDbzAvg(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                float expected = cellProp.getTexAvg(iCell);
+                float actual = cellPropClone.getTexAvg(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                float expected = cellProp.getCv(iCell);
+                float actual = cellPropClone.getCv(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                float expected = cellProp.getArea(iCell);
+                float actual = cellPropClone.getArea(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                float expected = cellProp.getClutterArea(iCell);
+                float actual = cellPropClone.getClutterArea(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                float expected = cellProp.getDbzMax(iCell);
+                float actual = cellPropClone.getDbzMax(iCell);
+                assertEquals(expected, actual, delta);
+            }
+            {
+                int expected = cellProp.getIndex(iCell);
+                int actual = cellPropClone.getIndex(iCell);
+                assertEquals(expected, actual);
+            }
+            {
+                int expected = cellProp.getDrop(iCell);
+                int actual = cellPropClone.getDrop(iCell);
+                assertEquals(expected, actual);
+            }
+            
         }
 
     }
