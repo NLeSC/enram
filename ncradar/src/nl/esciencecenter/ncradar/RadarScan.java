@@ -34,6 +34,8 @@ public class RadarScan extends NetcdfAttributeReader {
     private int missingValue;
     private long numberOfAzimuthBins;
     private long numberOfRangeBins;
+    private double[][] vertices;
+    private int[][] faces;
 
     public RadarScan(String directory,String filename,int datasetIndex) throws IOException {
 
@@ -232,6 +234,38 @@ public class RadarScan extends NetcdfAttributeReader {
 
         return polygons;
 
+    }
+    
+    
+    private void calcVerticesAndFaces(){
+        
+        int iVertex;
+        int iFace;
+        int nRang = (int) getNumberOfRangeBins();
+        int nAzim = (int) getNumberOfAzimuthBins();
+        float rangeScale = 5.0f;   //FIXME
+        float azimuthScale = 1.0f;  //FIXME
+        
+        
+        //double[][] vertices = new double[nVertices][];
+        
+        iFace = 0;
+        for (int iRang = 0; iRang < nRang; iRang++) {
+            for (int iAzim = 0; iAzim < nAzim; iAzim++) {
+                
+                iVertex = iRang * nAzim + iAzim;
+                double s = rangeScale*iRang;
+                double alpha = azimuthScale * (iAzim-0.5);
+                
+                vertices[iVertex] = new double[]{Math.sin(alpha) * s,Math.cos(alpha) * s};
+                
+                faces[iFace] = new int[]{iVertex, iVertex + nAzim + 1, iVertex + nAzim};
+                iFace = iFace + 1;
+                faces[iFace] = new int[]{iVertex, iVertex + 1, iVertex + nAzim + 1};
+                iFace = iFace + 1;
+                
+            }
+        }
     }
 
     public void printAsWKTToCSV() throws FileNotFoundException, UnsupportedEncodingException {
@@ -435,14 +469,20 @@ public class RadarScan extends NetcdfAttributeReader {
     }
     
     public int getMissingValue() {
-		return missingValue;
-	}
+        return missingValue;
+    }
 
     public long getNumberOfAzimuthBins() {
-		return numberOfAzimuthBins;
-	}
+        return numberOfAzimuthBins;
+    }
     
+    public int[][] getFaces() {
+        return faces.clone();
+    }
     
+    public double[][] getVertices() {
+        return vertices.clone();
+    }
     
     
 }
