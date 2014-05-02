@@ -40,11 +40,6 @@ public class TestScanMeta {
         
     }
     
-//    @Test
-//    public void testScanMeta() {
-//        fail("Not yet implemented");
-//    }
-
     @Test
     public void testGetDate() {
         
