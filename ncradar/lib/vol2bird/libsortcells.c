@@ -76,6 +76,7 @@ jint method
         cellPropDbzMaxBody[iCell] = cellProp[iCell].dbzMax;
         cellPropIndexBody[iCell] = cellProp[iCell].index;
         cellPropDropBody[iCell] = cellProp[iCell].drop;
+
     }
 
 
