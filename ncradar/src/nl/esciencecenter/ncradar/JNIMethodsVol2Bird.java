@@ -98,46 +98,48 @@ public class JNIMethodsVol2Bird {
                                               int nGlobal,
                                               int minCellArea);
 
-    public CellProperties sortCells(CellProperties cellProp, int method) {
+    public CellProperties sortCells(CellProperties cellPropIn, int method) throws Exception {
         
-//        int[] iRangOfMax = cellProp.getiRangOfMax();
-//        int[] iAzimOfMax = cellProp.getiAzimOfMax(); 
-//        float[] dbzAvg = cellProp.getDbzAvg();
-//        float[] texAvg = cellProp.getTexAvg();
-//        float[] cv = cellProp.getCv();
-//        float[] area = cellProp.getArea();
-//        float[] clutterArea = cellProp.getClutterArea();
-//        float[] dbzMax = cellProp.getMax();
-//        int[] index = cellProp.getIndex();
-//        char[] drop = cellProp.getDrop();
-//        
-//        int nCells = cellProp.
-//        
-//        sortCells(iRangOfMax,
-//                  iAzimOfMax,
-//                  dbzAvg,
-//                  texAvg,
-//                  cv,
-//                  area,
-//                  clutterArea,
-//                  dbzMax,
-//                  index,
-//                  drop,
-//                  nCells,
-//                  method);
-//        
-//        cellProp.setiRangOfMax(iRangOfMax);
-//        cellProp.setiAzimOfMax(iAzimOfMax);
-//        cellProp.setDbzAvg(dbzAvg);
-//        cellProp.setTexAvg(texAvg);
-//        cellProp.setCv(cv);
-//        cellProp.setArea(area);
-//        cellProp.setClutterArea(clutterArea);
-//        cellProp.setMax(dbzMax);
-//        cellProp.setIndex(index);
-//        cellProp.setDrop(drop);
+        int[] iRangOfMax = cellPropIn.getAlliRangOfMax();
+        int[] iAzimOfMax = cellPropIn.getAlliAzimOfMax(); 
+        float[] dbzAvg = cellPropIn.getAllDbzAvg();
+        float[] texAvg = cellPropIn.getAllTexAvg();
+        float[] cv = cellPropIn.getAllCv();
+        float[] area = cellPropIn.getAllArea();
+        float[] clutterArea = cellPropIn.getAllClutterArea();
+        float[] dbzMax = cellPropIn.getAllDbzMax();
+        int[] index = cellPropIn.getAllIndex();
+        char[] drop = cellPropIn.getAllDrop();
         
-        return cellProp;
+        int nCells = cellPropIn.getnCells();
+        
+        sortCells(iRangOfMax,
+                  iAzimOfMax,
+                  dbzAvg,
+                  texAvg,
+                  cv,
+                  area,
+                  clutterArea,
+                  dbzMax,
+                  index,
+                  drop,
+                  nCells,
+                  method);
+        
+        CellProperties cellPropOut = cellPropIn.clone(); 
+        
+        cellPropOut.copyCellPropertiesFrom(iRangOfMax, 
+                                           iAzimOfMax, 
+                                           dbzAvg, 
+                                           texAvg, 
+                                           cv, 
+                                           area, 
+                                           clutterArea,
+                                           dbzMax,
+                                           index, 
+                                           drop);
+        
+        return cellPropOut;
         
     };
     
