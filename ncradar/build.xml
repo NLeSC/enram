@@ -167,7 +167,10 @@
     </target>
 
     <target name="run-it" description="run the jar containing everything">
-        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">
+<!--
+        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">  
+-->
+        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScanMatlab">
             <sysproperty key="java.library.path" value="dist"/>
                 <classpath>  
                    <filelist dir="dist">
