@@ -5,11 +5,11 @@ import java.io.IOException;
 
 public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
 
-    private RadarScan rsz;
-    private RadarScan rsv;
+    private RadarScanJava rsz;
+    private RadarScanJava rsv;
     
 
-    public BirdDensityProfileCalculator(RadarScan rsz, RadarScan rsv) throws IOException {
+    public BirdDensityProfileCalculator(RadarScanJava rsz, RadarScanJava rsv) throws IOException {
 
         this.rsz = rsz;
         this.rsv = rsv;
@@ -19,8 +19,8 @@ public class BirdDensityProfileCalculator extends JNIMethodsVol2Bird {
     public static void main(String[] args) throws IOException{
 
         
-        RadarScan rsz = new RadarScan("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
-        RadarScan rsv = new RadarScan("/home/wbouten/tmp","T_PAHZ60_C_OKPR_20110815000447.hdf",3);
+        RadarScanJava rsz = new RadarScanJava("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
+        RadarScanJava rsv = new RadarScanJava("/home/wbouten/tmp","T_PAHZ60_C_OKPR_20110815000447.hdf",3);
 
         BirdDensityProfileCalculator birdprofile = new BirdDensityProfileCalculator(rsz,rsv);
         
