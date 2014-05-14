@@ -39,6 +39,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
     private int[][] faces;
     private double rangeScale;
     private double rangeOffset;
+    private long scanStartsAtAzimuthBin;
 
     public RadarScanJava(String directory,String filename,int datasetIndex) throws IOException {
 
@@ -63,6 +64,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
         this.scanDataRaw = readScanDataRaw();
         this.rangeScale = readRangeScale();
         this.rangeOffset = readRangeOffset();
+        this.scanStartsAtAzimuthBin = readScanStartsAtAzimuthBin();
     }
 
     public double[][][][] calcPolygons(){
@@ -184,7 +186,6 @@ public class RadarScanJava extends NetcdfAttributeReader {
         
     }
 
-
     public int getDatasetIndex() {
         return datasetIndex;
     }
@@ -193,6 +194,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public String getDatasetName() {
         return datasetName;
     }
+
 
     public String getDirectory() {
         return directory;
@@ -237,11 +239,11 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public String getFilename() {
         return filename;
     }
-    
+
     public double getGain() {
         return gain;
     }
-
+    
     public int getMissingValue() {
         return missingValue;
     }
@@ -253,7 +255,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public long getNumberOfRangeBins() {
         return numberOfRangeBins;
     }
-
+    
     public double getOffset() {
         return offset;
     }
@@ -265,8 +267,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public double getRadarPositionHeight() {
         return radarPositionHeight;
     }
-    
-    
+
     public double getRadarPositionLatitude() {
         return radarPositionLatitude;
     }
@@ -274,7 +275,8 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public double getRadarPositionLongitude() {
         return radarPositionLongitude;
     }
-
+    
+    
     public double getRangeOffset() {
         return rangeOffset;
     }
@@ -282,7 +284,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public double getRangeScale() {
         return rangeScale;
     }
-    
+
     public double[][] getScanData() {
         this.convertScanDataRaw();
         return scanData.clone();
@@ -292,6 +294,10 @@ public class RadarScanJava extends NetcdfAttributeReader {
         return scanDataRaw.clone();
     }
     
+    public long getScanStartsAtAzimuthBin() {
+        return scanStartsAtAzimuthBin;
+    }
+
     public String getScanType() {
         return scanType;
     }
@@ -299,15 +305,15 @@ public class RadarScanJava extends NetcdfAttributeReader {
     public String getStartDate() {
         return startDate;
     }
-
+    
     public String getStartTime() {
         return startTime;
     }
-    
+
     public double[][] getVertices() {
         return vertices.clone();
     }
-
+    
     public void printAsGeoJSONToCSV() throws FileNotFoundException, UnsupportedEncodingException {
 
        String filename = this.filename+".geojson.csv";
@@ -463,7 +469,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
         String fullAttributename = this.datasetName + "_data1_what_offset";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
+
     private double readRadarPositionHeight() throws IOException {
 
         String fullFilename = this.directory + File.separator + this.filename;
@@ -477,26 +483,26 @@ public class RadarScanJava extends NetcdfAttributeReader {
         String fullAttributename = "where_lat";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
-
+    
     private double readRadarPositionLongitude() throws IOException {
 
         String fullFilename = this.directory + File.separator + this.filename;
         String fullAttributename = "where_lon";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
+
     private double readRangeOffset() throws IOException {
         String fullFilename = this.directory + File.separator + this.filename;
         String fullAttributename = this.datasetName + "_where_rstart";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
-
+    
     private double readRangeScale() throws IOException {
         String fullFilename = this.directory + File.separator + this.filename;
         String fullAttributename = this.datasetName + "_where_rscale";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
-    
+
     private byte[][] readScanDataRaw() throws IOException {
 
         String fullFilename = this.directory + File.separator + this.filename;
@@ -526,6 +532,14 @@ public class RadarScanJava extends NetcdfAttributeReader {
         } finally {
             ncfile.close();
         }
+
+    }
+    
+    private long readScanStartsAtAzimuthBin() throws IOException {
+
+            String fullFilename = this.directory + File.separator + this.filename;
+            String fullAttributename = this.datasetName + "_where_a1gate";
+            return readLongAttribute(fullFilename,fullAttributename);
 
     }
     
