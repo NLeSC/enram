@@ -15,31 +15,31 @@ import ucar.nc2.Variable;
 public class RadarScanJava extends NetcdfAttributeReader {
 
     private int datasetIndex;
+    private String datasetName;
     private String directory;
-    private String filename;
-    private String scanType;
-    private double[][][][] polygons;
     private double elevationAngle;
-    private double gain;
-    private double offset;
-    private byte[][] scanDataRaw;
-    private double[][] scanData;
-    private String startDate;
-    private String startTime;
     private String endDate;
     private String endTime;
-    private double radarPositionHeight;
-    private double radarPositionLatitude;
-    private double radarPositionLongitude;
-    private String datasetName;
+    private int[][] faces;
+    private String filename;
+    private double gain;
     private int missingValue;
     private long numberOfAzimuthBins;
     private long numberOfRangeBins;
-    private double[][] vertices;
-    private int[][] faces;
-    private double rangeScale;
+    private double offset;
+    private double[][][][] polygons;
+    private double radarPositionHeight;
+    private double radarPositionLatitude;
+    private double radarPositionLongitude;
     private double rangeOffset;
+    private double rangeScale;
+    private double[][] scanData;
+    private byte[][] scanDataRaw;
     private long scanStartsAtAzimuthBin;
+    private String scanType;
+    private String startDate;
+    private String startTime;
+    private double[][] vertices;
 
     public RadarScanJava(String directory,String filename,int datasetIndex) throws IOException {
 
@@ -47,24 +47,24 @@ public class RadarScanJava extends NetcdfAttributeReader {
         this.datasetName = "dataset"+(datasetIndex+1);
         this.directory = directory;
         this.filename = filename;
-        this.scanType = readScanType();
-        this.gain = readGain();
-        this.offset = readOffset();
         this.elevationAngle = readElevationAngle();
-        this.startDate = readStartDate();
-        this.startTime = readStartTime();
         this.endDate = readEndDate();
         this.endTime = readEndTime();
-        this.radarPositionHeight = readRadarPositionHeight();
-        this.radarPositionLatitude = readRadarPositionLatitude();
-        this.radarPositionLongitude = readRadarPositionLongitude();
+        this.gain = readGain();
         this.missingValue = readMissingValue();
         this.numberOfAzimuthBins = readNumberOfAzimuthBins();
         this.numberOfRangeBins = readNumberOfRangeBins();
-        this.scanDataRaw = readScanDataRaw();
-        this.rangeScale = readRangeScale();
+        this.offset = readOffset();
+        this.radarPositionHeight = readRadarPositionHeight();
+        this.radarPositionLatitude = readRadarPositionLatitude();
+        this.radarPositionLongitude = readRadarPositionLongitude();
         this.rangeOffset = readRangeOffset();
+        this.rangeScale = readRangeScale();
+        this.scanDataRaw = readScanDataRaw();
         this.scanStartsAtAzimuthBin = readScanStartsAtAzimuthBin();
+        this.scanType = readScanType();
+        this.startDate = readStartDate();
+        this.startTime = readStartTime();
     }
 
     public double[][][][] calcPolygons(){
