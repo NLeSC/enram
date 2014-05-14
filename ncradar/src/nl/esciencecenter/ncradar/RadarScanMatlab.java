@@ -135,10 +135,18 @@ public class RadarScanMatlab {
         return this.radarScanJava;
     }
 
+    public double getRangeOffset() {
+        return this.radarScanJava.getRangeOffset();
+    }
+
+    public double getRangeScale() {
+        return this.radarScanJava.getRangeScale();
+    }
+    
     public double[][] getScanData() {
         return this.radarScanJava.getScanData();
     }
-
+    
     public double[][] getScanDataRaw() {
         byte[][] scanDataRaw = this.radarScanJava.getScanDataRaw();
         int nRows = (int) this.radarScanJava.getNumberOfAzimuthBins();
@@ -153,12 +161,16 @@ public class RadarScanMatlab {
         }
         return scanData; 
     }
-    
+
+    public double getScanStartsAtAzimuthBin() {
+        return (double) this.radarScanJava.getScanStartsAtAzimuthBin();
+    }
+
     public char[][] getScanType() {
         String str = this.radarScanJava.getScanType();
         return convertToMatlabString(str);
     }
-    
+
     public char[][] getStartDate() {
         String str = this.radarScanJava.getStartDate();
         return convertToMatlabString(str);
@@ -168,13 +180,10 @@ public class RadarScanMatlab {
         String str = this.radarScanJava.getStartTime();
         return convertToMatlabString(str);
     }
-
+    
     public double[][] getVertices() {
         return this.radarScanJava.getVertices();
     }
-    
-    
-    
 
 }
 
