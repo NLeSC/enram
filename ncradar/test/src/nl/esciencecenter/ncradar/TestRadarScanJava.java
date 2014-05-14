@@ -10,17 +10,21 @@ import org.junit.Test;
 public class TestRadarScanJava {
 
     private RadarScanJava rs;
+    private int datasetIndex;
+    private String directory;
+    private String filename;
+    private double delta;
     
     @Before
     public void setUp() throws IOException {
-        rs = new RadarScanJava("/home/wbouten/tmp","T_PAGZ60_C_OKPR_20110815000447.hdf",3);
+        
+        datasetIndex = 3;
+        directory = "/home/wbouten/tmp";
+        filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
+        rs = new RadarScanJava(directory,filename,datasetIndex);
+        delta = 0.0000001;
     }    
     
-    @Test
-    public void testRadarScan() {
-        fail("Not yet implemented");
-    }
-
     @Test
     public void testCalcPolygons() {
         fail("Not yet implemented");
@@ -43,12 +47,156 @@ public class TestRadarScanJava {
     }
 
     @Test
-    public void testPrintAsWKTToCSV() {
+    public void testConvertScanData() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void testPrintAsWKTToCSVString() {
+    public void testGetDatasetIndex() {
+        
+        int expected = datasetIndex;
+        int actual = rs.getDatasetIndex();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetDatasetName() {
+        String expected = "dataset4";
+        String actual = rs.getDatasetName();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetDirectory() {
+        String expected = "/home/wbouten/tmp";
+        String actual = rs.getDirectory();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetElevationAngle() {
+        double expected = 1.3;
+        double actual = rs.getElevationAngle();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetEndDate() {
+        String expected = "20110815";
+        String actual = rs.getEndDate();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetEndTime() {
+        String expected = "000333";
+        String actual = rs.getEndTime();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetFaces() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testGetFilename() {
+        String expected = "T_PAGZ60_C_OKPR_20110815000447.hdf";
+        String actual = rs.getFilename();
+        assertEquals(expected,actual);
+
+    }
+
+    @Test
+    public void testGetGain() {
+        double expected = 0.5;
+        double actual = rs.getGain();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetMissingValue() {
+        int expected = 255;
+        int actual = rs.getMissingValue();
+        assertEquals(expected,actual);
+
+    }
+
+    @Test
+    public void testGetNumberOfAzimuthBins() {
+        long expected = 360L;
+        long actual = rs.getNumberOfAzimuthBins();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetNumberOfRangeBins() {
+        long expected = 520L;
+        long actual = rs.getNumberOfRangeBins();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetOffset() {
+        double expected = -32.0;
+        double actual = rs.getOffset();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetPolygons() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testGetRadarPositionHeight() {
+        double expected = 916.0;
+        double actual = rs.getRadarPositionHeight();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetRadarPositionLatitude() {
+        double expected = 49.6583;
+        double actual = rs.getRadarPositionLatitude();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetRadarPositionLongitude() {
+        double expected = 13.8178;
+        double actual = rs.getRadarPositionLongitude();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetScanData() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testGetScanType() {
+        String expected = "DBZH";
+        String actual = rs.getScanType();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetStartDate() {
+        String expected = "20110815";
+        String actual = rs.getStartDate();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetStartTime() {
+        String expected = "000311";
+        String actual = rs.getStartTime();
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testGetVertices() {
         fail("Not yet implemented");
     }
 
@@ -63,117 +211,17 @@ public class TestRadarScanJava {
     }
 
     @Test
-    public void testConvertScanData() {
+    public void testPrintAsWKTToCSV() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void testGetDirectory() {
+    public void testPrintAsWKTToCSVString() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void testGetFilename() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetNumberOfRangeBins() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetElevationAngle() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetScanData() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetPolygons() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetDatasetIndex() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetScanType() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetStartDate() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetStartTime() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetEndDate() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetEndTime() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetRadarPositionLatitude() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetRadarPositionLongitude() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetDatasetName() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetRadarPositionHeight() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetGain() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetOffset() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetMissingValue() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetNumberOfAzimuthBins() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetFaces() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetVertices() {
+    public void testRadarScan() {
         fail("Not yet implemented");
     }
 
