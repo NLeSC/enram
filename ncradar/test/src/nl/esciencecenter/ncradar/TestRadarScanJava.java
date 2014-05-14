@@ -170,6 +170,20 @@ public class TestRadarScanJava {
     }
 
     @Test
+    public void testGetRangeOffset() {
+        double expected = 0.0;
+        double actual = rs.getRangeOffset();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
+    public void testGetRangeScale() {
+        double expected = 500.0;
+        double actual = rs.getRangeScale();
+        assertEquals(expected,actual,delta);
+    }
+
+    @Test
     public void testGetScanData() {
         fail("Not yet implemented");
     }
