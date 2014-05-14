@@ -130,13 +130,6 @@ public class TestRadarScanJava {
     }
 
     @Test
-    public void testGetScanStartsAtAzimuthBins() {
-        long expected = 238L;
-        long actual = rs.getScanStartsAtAzimuthBin();
-        assertEquals(expected,actual);
-    }
-
-    @Test
     public void testGetNumberOfRangeBins() {
         long expected = 520L;
         long actual = rs.getNumberOfRangeBins();
@@ -193,6 +186,13 @@ public class TestRadarScanJava {
     @Test
     public void testGetScanData() {
         fail("Not yet implemented");
+    }
+
+    @Test
+    public void testGetScanStartsAtAzimuthBins() {
+        long expected = 238L;
+        long actual = rs.getScanStartsAtAzimuthBin();
+        assertEquals(expected,actual);
     }
 
     @Test
