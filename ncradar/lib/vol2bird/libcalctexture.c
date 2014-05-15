@@ -29,7 +29,9 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         jfloat reflOffset,
         jfloat reflScale,
         jfloat vradOffset,
-        jfloat vradScale) {
+        jfloat vradScale,
+        jint nRang,
+        jint nAzim) {
 
     // do some Java Native interface tricks:
     jbyte *texImageBody = (*env)->GetByteArrayElements(env, texImage, NULL);
@@ -48,6 +50,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
     vradMeta.valueOffset = vradOffset;
     vradMeta.valueScale = vradScale;
+    vradMeta.nRang = nRang;
+    vradMeta.nAzim = nAzim;
 
     // end of Java Native Interface tricks
 
@@ -56,10 +60,21 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
             nRangNeighborhood, nAzimNeighborhood,
             nCountMin, texType);
 
+//    int iElem;
+//
+//    for (iElem=0; iElem<12;iElem++) {
+//        fprintf(stderr,"(C) ");
+//        fprintf(stderr,"%d, ",texImageBody[iElem]);
+//        fprintf(stderr,"%d, ",reflImageBody[iElem]);
+//        fprintf(stderr,"%d",vradImageBody[iElem]);
+//        fprintf(stderr,"\n");
+//    }
+
+
     // do some Java Native interface tricks:
     (*env)->ReleaseByteArrayElements(env, texImage, texImageBody, 0);
-    (*env)->ReleaseByteArrayElements(env, vradImage, vradImageBody, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, reflImage, reflImageBody, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, vradImage, vradImageBody, JNI_ABORT);
 
     // end of Java Native Interface tricks
 
@@ -87,7 +102,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
     int nAzim;
     int iNeighborhood;
     int count;
-    int missingValue;
+    unsigned char missingValue;
     int value;
     int index;
     double vmoment1;
@@ -108,7 +123,8 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
-    missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
+    //missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
+    missingValue = 253; //FIXME
 
     reflOffset = reflMeta->valueOffset;
     reflScale = reflMeta->valueScale;
@@ -143,6 +159,8 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 iLocal = iRangLocal + iAzimLocal * nRang;
 
+                fprintf(stderr,"iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
+
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
                 }
@@ -151,6 +169,9 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
                 }
 
                 // FIXME why difference between local and global?
+                fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d",
+                         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
+
                 vRadDiff = vradOffset + vradScale * (vradImage[iGlobal]-vradImage[iLocal]);
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
@@ -186,7 +207,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 texImage[iGlobal] = ROUND((tex-texOffset)/texScale);
 
-                fprintf(stderr,"(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",count,nCountMin,texType,vmoment1,vmoment2,tex,iGlobal,texImage[iGlobal]);
+//                fprintf(stderr,"(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",count,nCountMin,texType,vmoment1,vmoment2,tex,iGlobal,texImage[iGlobal]);
 
             } //else
         } //for
