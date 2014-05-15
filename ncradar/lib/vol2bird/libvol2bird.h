@@ -117,10 +117,10 @@ typedef struct cellprop CELLPROP;
 /*Prototypes of local functions:                                              */
 /******************************************************************************/
 
-//void calcTexture(int tMissing, int tnAzim, int tnRange, double tOffset, double tScale,
-//        int vImage[], int vMissing, int vnAzim, int vnRange, double vOffset, double vScale,
-//        int zImage[], int zMissing, int znAzim, int znRange, double zOffset, double zScale,
-//        int nRangLocal, int nAzimLocal, int nCountMin, int textype);
+void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
+        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
+        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
+        unsigned char nCountMin,unsigned char texType);
 
 //int findcells(unsigned char *texImage,
 //              unsigned char *rhoImage,
