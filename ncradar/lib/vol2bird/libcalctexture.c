@@ -10,144 +10,158 @@
 #include <stdlib.h>
 #include <math.h>
 #include "libvol2bird.h"
-//#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
-JNIEXPORT jintArray JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
-   JNIEnv *env,
-  jobject obj,
-     jint tMissing,
-     jint tnAzim,
-     jint tnRange,
-  jdouble tOffset,
-  jdouble tScale,
-jintArray vImage,
-     jint vMissing,
-     jint vnAzim,
-     jint vnRange,
-  jdouble vOffset,
-  jdouble vScale,
-jintArray zImage,
-     jint zMissing,
-     jint znAzim,
-     jint znRange,
-  jdouble zOffset,
-  jdouble zScale,
-     jint nRangLocal,
-     jint nAzimLocal,
-     jint nCountMin,
-     jint textype)
-{
+
+
+JNIEXPORT void JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_texture(
+        JNIEnv *env,
+        jobject obj,
+        jchar texImage,
+        jchar reflImage,
+        jchar vradImage,
+        jchar nRangNeighborhood,
+        jchar nAzimNeighborhood,
+        jchar nCountMin,
+        jchar texType,
+        jfloat texOffset,
+        jfloat texScale,
+        jfloat reflOffset,
+        jfloat reflScale,
+        jfloat vradOffset,
+        jfloat vradScale) {
+
+    jsize nElems = (*env)->GetArrayLength(env, vradImage);
 
     // do some Java Native interface tricks:
-    jsize nElems = (*env)->GetArrayLength(env, vImage);
+    jchar *texImageBody = (jchar*)malloc(nElems*sizeof(jchar));
+    jchar *reflImageBody = (*env)->GetCharArrayElements(env, reflImage, NULL);
+    jchar *vradImageBody = (*env)->GetCharArrayElements(env, vradImage, NULL);
 
-    jsize nv = (*env)->GetArrayLength(env, vImage);
-    jsize nz = (*env)->GetArrayLength(env, zImage);
+    SCANMETA *texMeta;
+    SCANMETA *reflMeta;
+    SCANMETA *vradMeta;
 
-    jint *vImageBody = (*env)->GetIntArrayElements(env, vImage, NULL);
-    jint *zImageBody = (*env)->GetIntArrayElements(env, zImage, NULL);
-    jint *tImageBody = (jint*)malloc(nElems*sizeof(jint));
+    texMeta->valueOffset = texOffset;
+    texMeta->valueScale = texScale;
+
+    reflMeta->valueOffset = reflOffset;
+    reflMeta->valueScale = reflScale;
+
+    vradMeta->valueOffset = vradOffset;
+    vradMeta->valueScale = vradScale;
+
     // end of Java Native Interface tricks
 
+    texture(texImageBody, vradImageBody, reflImageBody,
+            texMeta, vradMeta, reflMeta,
+            nRangNeighborhood, nAzimNeighborhood,
+            nCountMin, texType)
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseCharArrayElements(env, vradImage, vradImageBody, 0);
+    (*env)->ReleaseCharArrayElements(env, reflImage, reflImageBody, 0);
+
+    jcharArray texImage = (*env)->NewCharArray(env,nElems);
+    (*env)->SetCharArrayRegion(env,texImage,0,nElems,texImageBody);
+
+    free(texMeta);
+    texMeta = NULL;
+
+    free(reflMeta);
+    reflMeta = NULL;
+
+    free(vradMeta);
+    vradMeta = NULL;
+
+    // end of Java Native Interface tricks
+
+}
+
+
+
+/******************************************************************************/
+/*This function computes a texture parameter based on a block of (ntexrang x  */
+/* ntexazim) pixels. The texture parameter equals the local standard deviation*/
+/*in the velocity field.                                                      */
+/******************************************************************************/
+
+
+void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
+        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
+        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
+        unsigned char nCountMin,unsigned char texType)
+{
     int iRang;
-    int nRang;
     int iAzim;
-    int nAzim;
-    int iGlobal;
-    int nGlobal;
-    int iNeighborhood;
-    int nNeighborhood;
     int iRangLocal;
     int iAzimLocal;
-    int iLocal;
+    int nRang;
+    int nAzim;
+    int iNeighborhood;
     int count;
+    int missingValue;
+    int value;
+    int index;
     double vmoment1;
     double vmoment2;
     double dbz;
     double tex;
-    double vRad;
+    int iGlobal;
+    int iLocal;
+    int nGlobal;
 
-    // check whether the sizes of the input arrays are the same:
-    if (nv!=nz) {
-        fprintf(stderr,"error: different sized input arguments.");
-        return;
-    } else {
-        nGlobal = nv;
-    }
+    nRang = vradMeta->nRang;
+    nAzim = vradMeta->nAzim;
+    missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
 
-    // check if the number of rows in each image is consistent
-    if (tnAzim != vnAzim || tnAzim != znAzim || vnAzim != znAzim) {
-        fprintf(stderr,"error: nAzim arguments have different values");
-        return;
-    }
+    reflOffset = reflMeta->valueoffset;
+    reflScale = reflMeta->valueScale;
 
-    // check if the number of columns in each image is consistent
-    if (tnRange != vnRange || tnRange != znRange || vnRange != znRange) {
-        fprintf(stderr,"error: nRange arguments have different values");
-        return;
-    }
+    vradOffset = vradMeta->valueOffset;
+    vradScale = vradMeta->valueScale;
 
-    // check if there are exactly enough elements in vImageBody and zImageBody;
-    if (nGlobal != tnAzim*tnRange) {
-        fprintf(stderr,"error: number of elements in arrays must match nRange*nAzim");
-        return;
-    }
+    texOffset = texMeta->valueOffset;
+    texScale = texMeta->valueScale;
 
-    // verify that the moving window can be centered on the current row
-    if (nAzimLocal%2!=1) {
-        fprintf(stderr,"error: nAzimLocal must be odd integer.");
-        return;
-    }
+    tex = texOffset;         // FIXME why does this variable have a value?
 
-    // verify that the moving window can be centered on the current column
-    if (nRangLocal%2!=1) {
-        fprintf(stderr,"error: nRangeLocal must be odd integer.");
-        return;
-    }
+    nGlobal = nGlobal;
+    nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
 
-    // start the calculation
+    for (iAzim = 0; iAzim < nAzim; iAzim++) {
+        for (iRang = 0; iRang < nRang; iRang++) {
 
-    tex = tOffset; // FIXME why does this variable have a value?
-    nRang = vnRange;
-    nAzim = vnAzim;
+            iGlobal = iRang + iAzim * nRang;
 
-    nNeighborhood = nRangLocal*nAzimLocal;
-
-    for (iAzim=0; iAzim<nAzim; iAzim++) {
-        for (iRang=0; iRang<nRang; iRang++) {
-
-            iGlobal = iRang+iAzim*nRang;
-
-            /* count number of direct neighbors above threshold */
+            /* count number of direct neighbours above threshold */
             count = 0;
             vmoment1 = 0;
             vmoment2 = 0;
-            dbz = zOffset + zScale * zImageBody[iGlobal];
 
-            for (iNeighborhood=0; iNeighborhood<nNeighborhood; iNeighborhood++) {
+            dbz = reflOffset + reflScale * reflImage[iGlobal];
 
-                iRangLocal = (iRang-nRangLocal/2+iNeighborhood%nRangLocal);
+            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
-                // The modulo below is because the data in vImageBody forms a polar coordinate plot,
-                // therefore iAzim=0 and iAzim=nAzim-1 are neighbors
-                iAzimLocal = (nAzim+(iAzim-nAzimLocal/2+iNeighborhood/nRangLocal))%nAzim;
-                iLocal = iRangLocal+iAzimLocal*nRang;
+                iRangLocal = iRang - nRangNeighborhood/2 + iNeighborhood%nRangNeighborhood;
+                iAzimLocal = (nAzim + (iAzim - nAzimNeighborhood/2 + iNeighborhood/nRangNeighborhood))%nAzim;
+
+                iLocal = iRangLocal + iAzimLocal * nRang;
 
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
                 }
-                if (vImageBody[iLocal]==vMissing || zImageBody[iLocal]==zMissing) {
+                if (vradImage[iLocal]==missingValue || reflImage[iLocal]==missingValue) {
                     continue;
                 }
 
                 // FIXME why difference between local and global?
-                vRad = vOffset + vScale * (vImageBody[iGlobal]-vImageBody[iLocal]);
-                vmoment1 += vRad;
-                vmoment2 += SQUARE(vRad);
+                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal]-vradImage[iLocal]);
+                vmoment1 += vRadDiff;
+                vmoment2 += SQUARE(vRadDiff);
 
-                // FIXME dbz at iRang,iAzim is counted double?
-                dbz += zOffset + zScale * zImageBody[iLocal];
+                dbz += reflOffset + reflScale * reflImage[iLocal];
+
                 count++;
 
             }
@@ -156,41 +170,30 @@ jintArray zImage,
             vmoment2 /= count;
             dbz /= count;
 
-            /* when not enough neighbors, continue */
+            /* when not enough neighbours, continue */
             if (count < nCountMin) {
-                tImageBody[iGlobal] = (int)tMissing;
+                texImage[iGlobal] = missingValue;
             }
             else {
-                if (textype == TEXCV){
+                if (texType == TEXCV){
+
                     tex = 10*log10(sqrt(XABS(vmoment2-SQUARE(vmoment1))))-dbz;
-                    if (tex < tOffset + tScale) {
-                        tex = tOffset + tScale;  // FIXME not sure this is right
+
+                    if (tex < texOffset + texScale) {    // FIXME tex < texOffset would make more sense
+                        tex = texOffset + texScale;
                     }
+
                 }
-                if (textype == TEXSTDEV){
+
+                if (texType == TEXSTDEV){
                     tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
-                } else {
-                    fprintf(stderr,"error: seems like you have an invalid 'textype'.");
-                    return;
                 }
-                tImageBody[iGlobal] = (int)ROUND((tex-tOffset)/tScale);
-            } // else
-            fprintf(stderr,"count = %d; nCountMin = %d; textype = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; tImageBody[%d] = %d\n",count,nCountMin,textype,vmoment1,vmoment2,tex,iGlobal,tImageBody[iGlobal]);
 
-        } // for iRang
-    } // for iAzim
+                texImage[iGlobal] = ROUND((tex-texOffset)/texScale);
 
+                fprintf(stderr,"(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",count,nCountMin,texType,vmoment1,vmoment2,tex,iGlobal,texImage[iGlobal]);
 
-    // do some more Java Native Interface tricks:
-    (*env)->ReleaseIntArrayElements(env, vImage, vImageBody, 0);
-    (*env)->ReleaseIntArrayElements(env, zImage, zImageBody, 0);
-
-    jintArray tImage = (*env)->NewIntArray(env,nElems);
-    (*env)->SetIntArrayRegion(env,tImage,0,nElems,tImageBody);
-    // end of Java Native Interface tricks
-
-
-    return tImage;
-}
-
-
+            } //else
+        } //for
+    } //for
+}//texture
