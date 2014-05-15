@@ -14,16 +14,16 @@
 
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_texture(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         JNIEnv *env,
         jobject obj,
-        jchar texImage,
-        jchar reflImage,
-        jchar vradImage,
-        jchar nRangNeighborhood,
-        jchar nAzimNeighborhood,
-        jchar nCountMin,
-        jchar texType,
+        jbyteArray texImage,
+        jbyteArray reflImage,
+        jbyteArray vradImage,
+        jbyte nRangNeighborhood,
+        jbyte nAzimNeighborhood,
+        jbyte nCountMin,
+        jbyte texType,
         jfloat texOffset,
         jfloat texScale,
         jfloat reflOffset,
@@ -31,48 +31,35 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_texture(
         jfloat vradOffset,
         jfloat vradScale) {
 
-    jsize nElems = (*env)->GetArrayLength(env, vradImage);
-
     // do some Java Native interface tricks:
-    jchar *texImageBody = (jchar*)malloc(nElems*sizeof(jchar));
-    jchar *reflImageBody = (*env)->GetCharArrayElements(env, reflImage, NULL);
-    jchar *vradImageBody = (*env)->GetCharArrayElements(env, vradImage, NULL);
+    jbyte *texImageBody = (*env)->GetByteArrayElements(env, texImage, NULL);
+    jbyte *reflImageBody = (*env)->GetByteArrayElements(env, reflImage, NULL);
+    jbyte *vradImageBody = (*env)->GetByteArrayElements(env, vradImage, NULL);
 
-    SCANMETA *texMeta;
-    SCANMETA *reflMeta;
-    SCANMETA *vradMeta;
+    SCANMETA texMeta;
+    SCANMETA reflMeta;
+    SCANMETA vradMeta;
 
-    texMeta->valueOffset = texOffset;
-    texMeta->valueScale = texScale;
+    texMeta.valueOffset = texOffset;
+    texMeta.valueScale = texScale;
 
-    reflMeta->valueOffset = reflOffset;
-    reflMeta->valueScale = reflScale;
+    reflMeta.valueOffset = reflOffset;
+    reflMeta.valueScale = reflScale;
 
-    vradMeta->valueOffset = vradOffset;
-    vradMeta->valueScale = vradScale;
+    vradMeta.valueOffset = vradOffset;
+    vradMeta.valueScale = vradScale;
 
     // end of Java Native Interface tricks
 
     texture(texImageBody, vradImageBody, reflImageBody,
-            texMeta, vradMeta, reflMeta,
+            &texMeta, &vradMeta, &reflMeta,
             nRangNeighborhood, nAzimNeighborhood,
-            nCountMin, texType)
+            nCountMin, texType);
 
     // do some Java Native interface tricks:
-    (*env)->ReleaseCharArrayElements(env, vradImage, vradImageBody, 0);
-    (*env)->ReleaseCharArrayElements(env, reflImage, reflImageBody, 0);
-
-    jcharArray texImage = (*env)->NewCharArray(env,nElems);
-    (*env)->SetCharArrayRegion(env,texImage,0,nElems,texImageBody);
-
-    free(texMeta);
-    texMeta = NULL;
-
-    free(reflMeta);
-    reflMeta = NULL;
-
-    free(vradMeta);
-    vradMeta = NULL;
+    (*env)->ReleaseByteArrayElements(env, texImage, texImageBody, 0);
+    (*env)->ReleaseByteArrayElements(env, vradImage, vradImageBody, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, reflImage, reflImageBody, JNI_ABORT);
 
     // end of Java Native Interface tricks
 
@@ -80,17 +67,17 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_texture(
 
 
 
-/******************************************************************************/
-/*This function computes a texture parameter based on a block of (ntexrang x  */
-/* ntexazim) pixels. The texture parameter equals the local standard deviation*/
-/*in the velocity field.                                                      */
-/******************************************************************************/
+/*****************************************************************************************/
+/* This function computes a texture parameter based on a block of (nRangNeighborhood x   */
+/* nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation  */
+/* in the velocity field (when texType==STDEV).                                          */
+/*****************************************************************************************/
 
 
 void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
-        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
-        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
-        unsigned char nCountMin,unsigned char texType)
+             SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
+             unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
+             unsigned char nCountMin,unsigned char texType)
 {
     int iRang;
     int iAzim;
@@ -110,12 +97,20 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
     int iGlobal;
     int iLocal;
     int nGlobal;
+    int nNeighborhood;
+    float texOffset;
+    float texScale;
+    float reflOffset;
+    float reflScale;
+    float vradOffset;
+    float vradScale;
+    float vRadDiff;
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
     missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
 
-    reflOffset = reflMeta->valueoffset;
+    reflOffset = reflMeta->valueOffset;
     reflScale = reflMeta->valueScale;
 
     vradOffset = vradMeta->valueOffset;
@@ -124,7 +119,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
     texOffset = texMeta->valueOffset;
     texScale = texMeta->valueScale;
 
-    tex = texOffset;         // FIXME why does this variable have a value?
+    tex = texOffset;         // FIXME why does this variable have a value at this point?
 
     nGlobal = nGlobal;
     nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
