@@ -63,7 +63,7 @@
         </exec>
     </target>
     
-    <!--
+
     <target name="compile-findcells" description="compile the C-language source file libfindcells.c into a shared object">
         <echo message="Compiling vol2bird 'findcells' method..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
@@ -77,7 +77,7 @@
         </exec>
     </target>
     
-    -->    
+
     
 <!--    
     <target name="compile-analysecells" description="compile the C-language source file libanalysecells.c into a shared object">
@@ -159,6 +159,7 @@
                                     write-jni-header,
                                     copy-c-code,
                                     compile-calctexture,
+                                    compile-findcells,
                                     compile-updatemap,
                                     compile-sortcells,
                                     compile-dist,
