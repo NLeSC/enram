@@ -84,12 +84,13 @@ jcharArray zdrImage,
     zdrMeta->valueScale = zdrValueScale;
 //    zdrMeta->rangeScale = zdrRangeScale;
 
+    fprintf(stdout,"(C) texMeta->missing = %d\n",texMeta->missing);
 
 
-    nCells = findcells(texImageBody, rhoImageBody, zdrImageBody, cellImageBody,
-                       texMeta,      rhoMeta,      zdrMeta,
-                       texThresMin,  rhoThresMin,  zdrThresMin,
-                       dbzThresMin, rCellMax, sign);
+//    nCells = findcells(texImageBody, rhoImageBody, zdrImageBody, cellImageBody,
+//                       texMeta,      rhoMeta,      zdrMeta,
+//                       texThresMin,  rhoThresMin,  zdrThresMin,
+//                       dbzThresMin, rCellMax, sign);
 
 
     // do some more Java Native Interface tricks:
