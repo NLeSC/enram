@@ -124,8 +124,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
     nGlobal = nAzim*nRang;
-    //missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
-    missingValue = 253; //FIXME
+    missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
 
     reflOffset = reflMeta->valueOffset;
     reflScale = reflMeta->valueScale;
@@ -159,7 +158,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 iLocal = iRangLocal + iAzimLocal * nRang;
 
-                fprintf(stderr,"    iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
+                //fprintf(stderr,"    iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
 
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
@@ -169,8 +168,8 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
                 }
 
                 // FIXME why difference between local and global?
-                fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d",
-                         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
+                //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
+                //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
 
                 vRadDiff = vradOffset + vradScale * (vradImage[iGlobal]-vradImage[iLocal]);
                 vmoment1 += vRadDiff;
