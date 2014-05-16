@@ -89,61 +89,6 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected void calcTexture(RadarScanJava radarScanReflectivity,
-            RadarScanJava radarScanRadialVelocity, byte nRangNeighborhood,
-            byte nAzimNeighborhood, byte nCountMin, byte texType,
-            float texOffset, float texScale) {
-
-        byte[][] reflImage2D = radarScanReflectivity.getScanDataRaw();
-        byte[][] vradImage2D = radarScanReflectivity.getScanDataRaw();
-
-        int nAzim = (int) radarScanReflectivity.getNumberOfAzimuthBins();
-        int nRang = (int) radarScanReflectivity.getNumberOfRangeBins();
-
-        byte[] texImage = new byte[nAzim * nRang];
-        byte[] reflImage = new byte[nAzim * nRang];
-        byte[] vradImage = new byte[nAzim * nRang];
-
-        int iGlobal = 0;
-        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
-            for (int iRang = 0; iRang < nRang; iRang++) {
-                reflImage[iGlobal] = reflImage2D[iAzim][iRang];
-                vradImage[iGlobal] = vradImage2D[iAzim][iRang];
-                iGlobal++;
-            }
-        }
-
-        float reflOffset = (float) radarScanReflectivity.getOffset();
-        float reflScale = (float) radarScanReflectivity.getGain();
-        float vradOffset = (float) radarScanRadialVelocity.getOffset();
-        float vradScale = (float) radarScanRadialVelocity.getGain();
-
-        calcTexture(texImage, reflImage, vradImage, nRangNeighborhood,
-                nAzimNeighborhood, nCountMin, texType, texOffset, texScale,
-                reflOffset, reflScale, vradOffset, vradScale, nRang, nAzim);
-
-        iGlobal = 0;
-        byte[][] texImage2D = new byte[nAzim][nRang];
-        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
-            for (int iRang = 0; iRang < nRang; iRang++) {
-                texImage2D[iAzim][iRang] = texImage[iGlobal];
-                iGlobal++;
-            }
-        }
-
-        texture = texImage2D.clone();
-
-    }
-
-
-
-    protected byte[][] getTexture() {
-
-        return texture.clone();
-    };
-
-
-
     protected CellProperties sortCells(CellProperties cellPropIn, int method)
             throws Exception {
 
