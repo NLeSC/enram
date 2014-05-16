@@ -14,94 +14,82 @@
 
 JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
-    JNIEnv *env,
-   jobject obj,
- jintArray cellImage,
-jcharArray texImage,
-jcharArray rhoImage,
-jcharArray zdrImage,
-    jfloat dbzThresMin,
-      jint texMissing,
-      jint texnAzim,
-      jint texnRang,
-    jfloat texValueOffset,
-    jfloat texRangeScale,
-    jfloat texValueScale,
-    jfloat texThresMin,
-      jint rhoMissing,
-      jint rhonAzim,
-      jint rhonRang,
-    jfloat rhoValueOffset,
-    jfloat rhoValueScale,
-    jfloat rhoThresMin,
-      jint zdrMissing,
-      jint zdrnAzim,
-      jint zdrnRang,
-    jfloat zdrValueOffset,
-    jfloat zdrValueScale,
-    jfloat zdrThresMin,
-    jfloat rCellMax,
-     jchar sign
-)
+        JNIEnv *env,
+        jobject obj,
+        jbyteArray texImage,
+        jbyteArray rhoImage,
+        jbyteArray zdrImage,
+        jintArray cellImage,
+        jint texMissing,
+        jint texnAzim,
+        jint texnRang,
+        jfloat texValueOffset,
+        jfloat texRangeScale,
+        jfloat texValueScale,
+        jfloat texThresMin,
+        jint rhoMissing,
+        jint rhonAzim,
+        jint rhonRang,
+        jfloat rhoValueOffset,
+        jfloat rhoValueScale,
+        jfloat rhoThresMin,
+        jint zdrMissing,
+        jint zdrnAzim,
+        jint zdrnRang,
+        jfloat zdrValueOffset,
+        jfloat zdrValueScale,
+        jfloat zdrThresMin,
+        jfloat reflThresMin,
+        jfloat rCellMax,
+        jbyte sign)
 {
 
     // do some Java Native interface tricks:
-    jsize texnElems = (*env)->GetArrayLength(env, texImage);
-    jsize rhonElems = (*env)->GetArrayLength(env, rhoImage);
-    jsize zdrnElems = (*env)->GetArrayLength(env, zdrImage);
-
-    jchar *texImageBody = (*env)->GetCharArrayElements(env, texImage, NULL);
-    jchar *rhoImageBody = (*env)->GetCharArrayElements(env, rhoImage, NULL);
-    jchar *zdrImageBody = (*env)->GetCharArrayElements(env, zdrImage, NULL);
-
-    jint *cellImageBody = (jint*)malloc(texnElems*sizeof(jint));
+    jbyte *texImageBody = (*env)->GetByteArrayElements(env, texImage, NULL);
+    jbyte *rhoImageBody = (*env)->GetByteArrayElements(env, rhoImage, NULL);
+    jbyte *zdrImageBody = (*env)->GetByteArrayElements(env, zdrImage, NULL);
+    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     // end of Java Native Interface tricks
+
+    SCANMETA texMeta;
+    SCANMETA rhoMeta;
+    SCANMETA zdrMeta;
+
+    texMeta.missing = texMissing;
+    texMeta.nAzim = texnAzim;
+    texMeta.nRang = texnRang;
+    texMeta.valueOffset = texValueOffset;
+    texMeta.valueScale = texValueScale;
+    texMeta.rangeScale = texRangeScale;
+
+    rhoMeta.missing = rhoMissing;
+    rhoMeta.nAzim = rhonAzim;
+    rhoMeta.nRang = rhonRang;
+    rhoMeta.valueOffset = rhoValueOffset;
+    rhoMeta.valueScale = rhoValueScale;
+
+    zdrMeta.missing = zdrMissing;
+    zdrMeta.nAzim = zdrnAzim;
+    zdrMeta.nRang = zdrnRang;
+    zdrMeta.valueOffset = zdrValueOffset;
+    zdrMeta.valueScale = zdrValueScale;
 
     int nCells;
 
-    SCANMETA *texMeta;
-    SCANMETA *rhoMeta;
-    SCANMETA *zdrMeta;
 
-    texMeta->missing = texMissing;
-    texMeta->nAzim = texnAzim;
-    texMeta->nRang = texnRang;
-    texMeta->valueOffset = texValueOffset;
-    texMeta->valueScale = texValueScale;
-    texMeta->rangeScale = texRangeScale;
-
-    rhoMeta->missing = rhoMissing;
-    rhoMeta->nAzim = rhonAzim;
-    rhoMeta->nRang = rhonRang;
-    rhoMeta->valueOffset = rhoValueOffset;
-    rhoMeta->valueScale = rhoValueScale;
-//    rhoMeta->rangeScale = rhoRangeScale;
-
-    zdrMeta->missing = zdrMissing;
-    zdrMeta->nAzim = zdrnAzim;
-    zdrMeta->nRang = zdrnRang;
-    zdrMeta->valueOffset = zdrValueOffset;
-    zdrMeta->valueScale = zdrValueScale;
-//    zdrMeta->rangeScale = zdrRangeScale;
-
-    fprintf(stdout,"(C) texMeta->missing = %d\n",texMeta->missing);
+    nCells = findcells(texImageBody, rhoImageBody, zdrImageBody, cellImageBody,
+                       &texMeta,     &rhoMeta,     &zdrMeta,
+                       texThresMin,  rhoThresMin,  zdrThresMin,
+                       reflThresMin, rCellMax, sign);
 
 
-//    nCells = findcells(texImageBody, rhoImageBody, zdrImageBody, cellImageBody,
-//                       texMeta,      rhoMeta,      zdrMeta,
-//                       texThresMin,  rhoThresMin,  zdrThresMin,
-//                       dbzThresMin, rCellMax, sign);
+    // do some Java Native interface tricks:
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, 0);
+    (*env)->ReleaseByteArrayElements(env, texImage, texImageBody, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, rhoImage, rhoImageBody, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, zdrImage, zdrImageBody, JNI_ABORT);
 
-
-    // do some more Java Native Interface tricks:
-    (*env)->ReleaseCharArrayElements(env, texImage, texImageBody, 0);
-    (*env)->ReleaseCharArrayElements(env, rhoImage, rhoImageBody, 0);
-    (*env)->ReleaseCharArrayElements(env, zdrImage, zdrImageBody, 0);
-
-    //jintArray cellImage = (*env)->NewIntArray(env,texnElems);
-    (*env)->SetIntArrayRegion(env,cellImage,0,texnElems,cellImageBody);
     // end of Java Native Interface tricks
-
 
     return nCells;
 
@@ -120,7 +108,7 @@ int findcells(unsigned char *texImage,
               float texThresMin,
               float rhoThresMin,
               float zdrThresMin,
-              float dbzThresMin,
+              float reflThresMin,
               float rCellMax,
               char sign)
 {
@@ -185,28 +173,6 @@ int findcells(unsigned char *texImage,
     zdrValueScale = zdrMeta->valueScale;
 
 
-
-    // check if the number of rows in each image is consistent
-    if (rhonAzim != texnAzim || zdrnAzim != texnAzim) {
-        fprintf(stderr,"error: nAzim arguments have different values");
-        return;
-    }
-    else {
-        nAzim = texnAzim;
-    }
-
-    // check if the number of columns in each image is consistent
-    if (rhonRang != texnRang || zdrnRang != texnRang) {
-        fprintf(stderr,"error: nRang arguments have different values");
-        return;
-    }
-    else {
-        nRang = texnRang;
-    }
-
-
-
-
     nGlobal = nAzim*nRang;
 
     texThres = ROUND((texThresMin-texValueOffset)/texValueScale);  // FIXME why type is int?
@@ -257,7 +223,7 @@ int findcells(unsigned char *texImage,
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
                     iRangLocal = (iRang-1+iNeighborhood%3);
                     iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
-                    iLocal = iRangLocal+iAzimLocal*nRang;
+                    iLocal = iRangLocal+iAzimLocal*nRang;  // FIXME see issue #32
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
@@ -273,7 +239,7 @@ int findcells(unsigned char *texImage,
                 if (zdrImage[iGlobal]==zdrMissing) {
                     continue;
                 }
-                if (texImage[iGlobal]<dbzThresMin) {  // FIXME tex v dbz why?
+                if (texImage[iGlobal]<reflThresMin) {  // FIXME tex v refl why?
                     continue;
                 }
                 if (!(zdrImage[iGlobal]>zdrThres || rhoImage[iGlobal]>rhoThres)) {
@@ -283,7 +249,7 @@ int findcells(unsigned char *texImage,
                 for (iNeighborhood=0; iNeighborhood<9; iNeighborhood++) {
                     iRangLocal = (iRang-1+iNeighborhood%3);
                     iAzimLocal = (nAzim+(iAzim-1+iNeighborhood/3))%nAzim;
-                    iLocal = iRangLocal+iAzimLocal*nRang;
+                    iLocal = iRangLocal+iAzimLocal*nRang;     // FIXME see issue #32
                     if (rhoImage[iLocal]>rhoThres || zdrImage[iLocal]>zdrThres) {
                         count++;
                     }
@@ -305,7 +271,7 @@ int findcells(unsigned char *texImage,
                 iLocal = iRangLocal+iAzimLocal*nRang;
 
                 /* index out of range, go to next pixel within neighborhood */
-                if (iRangLocal<0 || iRangLocal>=nRang || iAzimLocal<0 || iAzimLocal>=nAzim) {
+                if (iRangLocal<0 || iRangLocal>=nRang || iAzimLocal<0 || iAzimLocal>=nAzim) {   // FIXME possibly affected by issue #32
                     continue;
                 }
 
