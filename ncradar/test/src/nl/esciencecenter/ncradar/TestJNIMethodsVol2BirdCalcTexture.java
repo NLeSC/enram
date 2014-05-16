@@ -73,9 +73,12 @@ public class TestJNIMethodsVol2BirdCalcTexture extends JNIMethodsVol2Bird{
                     vradScale,
                     nRang,
                     nAzim);
-
-        System.out.println("saasd");
         
+        
+        fail("Not complete yet");
+        
+
+       
     }
 
 
