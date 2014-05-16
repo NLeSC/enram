@@ -26,7 +26,7 @@ public class TestBirdDensityProfile {
         birdProfile = new BirdDensityProfile(radarScanReflectivity,
                 radarScanRadialVelocity);
 
-        System.out.println("I have a BirdDensityProfileCalculator object.");
+        System.out.println("I have a BirdDensityProfile object.");
 
     }
 
@@ -43,11 +43,10 @@ public class TestBirdDensityProfile {
         float texScale = 1;
         byte[][] tex;
 
-        birdProfile.calcTexture(radarScanReflectivity, radarScanRadialVelocity,
-                nRangNeighborhood, nAzimNeighborhood, nCountMin, texType,
-                texOffset, texScale);
+        birdProfile.calcTexture(nRangNeighborhood, nAzimNeighborhood,
+                nCountMin, texType, texOffset, texScale);
 
-        tex = birdProfile.getTexture();
+        tex = birdProfile.getTextureRaw();
 
         fail("Not yet complete");
 
