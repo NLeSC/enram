@@ -22,7 +22,7 @@ public class TestJNIMethodsVol2BirdDist extends JNIMethodsVol2Bird{
         
         float theDist;
         
-        theDist = dist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
+        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
         
         float DEG2RAD = (float) (2 * Math.PI / 360);
 
@@ -60,7 +60,7 @@ public class TestJNIMethodsVol2BirdDist extends JNIMethodsVol2Bird{
         
         float theDist;
         
-        theDist = dist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
+        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
 
         float range1 = iRang1 * rangeScale;
         float range2 = iRang2 * rangeScale;
@@ -102,7 +102,7 @@ public class TestJNIMethodsVol2BirdDist extends JNIMethodsVol2Bird{
         
         float theDist;
         
-        theDist = dist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
+        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
 
         float range1 = iRang1 * rangeScale;
         float range2 = iRang2 * rangeScale;
@@ -143,7 +143,7 @@ public class TestJNIMethodsVol2BirdDist extends JNIMethodsVol2Bird{
         
         float theDist;
         
-        theDist = dist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
+        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
 
         float range1 = iRang1 * rangeScale;
         float range2 = iRang2 * rangeScale;
@@ -185,7 +185,7 @@ public class TestJNIMethodsVol2BirdDist extends JNIMethodsVol2Bird{
 
         float theDist;
 
-        theDist = dist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
+        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
 
         float range1 = iRang1 * rangeScale;
         float range2 = iRang2 * rangeScale;
