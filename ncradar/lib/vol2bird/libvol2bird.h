@@ -122,19 +122,20 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
         unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
         unsigned char nCountMin,unsigned char texType);
 
-//int findcells(unsigned char *texImage,
-//              unsigned char *rhoImage,
-//              unsigned char *zdrImage,
-//              int *cellImage,
-//              SCANMETA *texMeta,
-//              SCANMETA *rhoMeta,
-//              SCANMETA *zdrMeta,
-//              float texThresMin,
-//              float rhoThresMin,
-//              float zdrThresMin,
-//              float dbzThresMin,
-//              float rCellMax,
-//              char sign);
+int findcells(unsigned char *texImage,
+              unsigned char *rhoImage,
+              unsigned char *zdrImage,
+              int *cellImage,
+              SCANMETA *texMeta,
+              SCANMETA *rhoMeta,
+              SCANMETA *zdrMeta,
+              float texThresMin,
+              float rhoThresMin,
+              float zdrThresMin,
+              float reflThresMin,
+              float rCellMax,
+              char sign);
+
 //int analysecells(unsigned char *imgz,unsigned char *imgv, unsigned char *imgtex, unsigned char *imgcm,
 //        int *cellmap,SCANMETA *zmeta,SCANMETA *vmeta,SCANMETA *texmeta,SCANMETA *cmmeta,
 //        int Ncell,int area,float dbzcell,float stdevcell, float clutcell, float vmin,float dbzclutter,
