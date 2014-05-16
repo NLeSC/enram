@@ -123,6 +123,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
+    nGlobal = nAzim*nRang;
     //missingValue = vradMeta->missing;  // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
     missingValue = 253; //FIXME
 
@@ -137,7 +138,6 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
     tex = texOffset;         // FIXME why does this variable have a value at this point?
 
-    nGlobal = nGlobal;
     nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
 
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -159,7 +159,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 iLocal = iRangLocal + iAzimLocal * nRang;
 
-                fprintf(stderr,"iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
+                fprintf(stderr,"    iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
 
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
