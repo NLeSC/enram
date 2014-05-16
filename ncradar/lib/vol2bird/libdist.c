@@ -9,7 +9,7 @@
 //#include "nl_esciencecenter_ncradar_JNIMethodsVol2Bird.h" // maybe only used when calling java from c?
 
 JNIEXPORT jfloat JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_dist(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcDist(
 JNIEnv *env,
 jobject obj,
 jint range1,
