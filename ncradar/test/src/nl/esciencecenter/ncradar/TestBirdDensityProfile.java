@@ -41,15 +41,13 @@ public class TestBirdDensityProfile {
         byte texType = 1;
         float texOffset = 0;
         float texScale = 1;
-        byte[][] tex;
 
         birdProfile.calcTexture(nRangNeighborhood, nAzimNeighborhood,
                 nCountMin, texType, texOffset, texScale);
 
-        tex = birdProfile.getTextureRaw();
+        birdProfile.findCells();
 
         fail("Not yet complete");
 
     }
-
 }
