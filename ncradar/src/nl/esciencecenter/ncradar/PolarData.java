@@ -18,9 +18,10 @@ public class PolarData {
 
 
 
-    public PolarData(double dataOffset, byte[] dataRaw, double dataScale, int iAzimFirstRay,
-            byte missingValueValue, int numberOfAzimuthBins, int numberOfRangeBins,
-            double rangeOffset, double rangeScale) {
+    public PolarData(int numberOfAzimuthBins, int numberOfRangeBins, byte[] dataRaw,
+            double dataOffset, double dataScale,
+            double rangeOffset, double rangeScale,
+            byte missingValueValue, int iAzimFirstRay) {
 
         this.azimuthScaleDeg = 360 / numberOfAzimuthBins;
         this.azimuthScaleRad = 2 * Math.PI / numberOfAzimuthBins;
