@@ -10,110 +10,108 @@ import ucar.nc2.Variable;
 
 public class RadarScanJava extends NetcdfAttributeReader {
 
-    private final int datasetIndex;
-    private final String datasetName;
-    private final String directory;
-    private final double elevationAngle;
-    private final String endDate;
-    private final String endTime;
-    private final String filename;
-    private final String scanType;
-    private final String startDate;
-    private final String startTime;
     private final PolarData polarData;
-    // stuff about the radar
-    // private final double elevationAngles;
-    private final float nominalMaxTransmissionPower;
-    private final float pulseLength;
-    private final float pulseRepeatFrequencyHigh;
-    private final float pulseRepeatFrequencyLow;
-    private final float radarConstant;
-    private final double radarPositionHeight;
-    private final double radarPositionLatitude;
-    private final double radarPositionLongitude;
-    private final float radialVelocityAntenna;
+    private final ScanMeta scanMeta;
+    private final RadarMeta radarMeta;
 
 
 
     public RadarScanJava(String directory, String filename, int datasetIndex) throws IOException {
 
-        this.datasetIndex = datasetIndex;
-        this.datasetName = "dataset" + (datasetIndex + 1);
-        this.directory = directory;
-        this.filename = filename;
-        this.elevationAngle = readElevationAngle();
-        this.endDate = readEndDate();
-        this.endTime = readEndTime();
-        this.radarPositionHeight = readRadarPositionHeight();
-        this.radarPositionLatitude = readRadarPositionLatitude();
-        this.radarPositionLongitude = readRadarPositionLongitude();
-        this.scanType = readScanType();
-        this.startDate = readStartDate();
-        this.startTime = readStartTime();
-        this.pulseRepeatFrequencyHigh = -1f;
-        this.pulseRepeatFrequencyLow = -1f;
-        this.pulseLength = -1f;
-        this.radarConstant = -1f;
-        this.nominalMaxTransmissionPower = -1f;
-        this.radialVelocityAntenna = -1f;
+        String datasetName = "dataset" + (datasetIndex + 1);
+        String fullFilename = directory + File.separator + filename;
 
-        double dataOffset = readDataOffset();
-        byte[] scanDataRaw = readScanDataRaw();
-        double dataScale = readDataScale();
-        byte missingValueValue = readMissingValueValue();
-        int numberOfAzimuthBins = readNumberOfAzimuthBins();
-        int numberOfRangeBins = readNumberOfRangeBins();
-        double rangeOffset = readRangeOffset();
-        double rangeScale = readRangeScale();
-        int iAzimFirstRay = readiAzimFirstRay();
+        this.radarMeta = new RadarMeta(fullFilename);
+
+        double dataOffset = readDataOffset(fullFilename, datasetName);
+        byte[] scanDataRaw = readScanDataRaw(fullFilename, datasetName);
+        double dataScale = readDataScale(fullFilename, datasetName);
+        byte missingValueValue = readMissingValueValue(fullFilename, datasetName);
+        int numberOfAzimuthBins = readNumberOfAzimuthBins(fullFilename, datasetName);
+        int numberOfRangeBins = readNumberOfRangeBins(fullFilename, datasetName);
+        double rangeOffset = readRangeOffset(fullFilename, datasetName);
+        double rangeScale = readRangeScale(fullFilename, datasetName);
+        int iAzimFirstRay = readiAzimFirstRay(fullFilename, datasetName);
 
         this.polarData = new PolarData(numberOfAzimuthBins, numberOfRangeBins, scanDataRaw,
                 dataOffset, dataScale,
                 rangeOffset, rangeScale,
                 missingValueValue, iAzimFirstRay);
 
+        double elevationAngle = readElevationAngle(fullFilename, datasetName);
+        String endDate = readEndDate(fullFilename, datasetName);
+        String endTime = readEndTime(fullFilename, datasetName);
+        String scanType = readScanType(fullFilename, datasetName);
+        String startDate = readStartDate(fullFilename, datasetName);
+        String startTime = readStartTime(fullFilename, datasetName);
+
+        this.scanMeta = new ScanMeta(datasetIndex, datasetName, directory,
+                elevationAngle, endDate, endTime,
+                filename, scanType, startDate, startTime);
+
+    }
+
+
+
+    public void calcVerticesAndFaces() {
+
+        polarData.calcVerticesAndFaces();
+    }
+
+
+
+    public double getDataOffset() {
+
+        return polarData.getDataOffset();
+    }
+
+
+
+    public double getDataScale() {
+
+        return polarData.getDataScale();
     }
 
 
 
     public int getDatasetIndex() {
 
-        return datasetIndex;
+        return scanMeta.getDatasetIndex();
     }
 
 
 
     public String getDatasetName() {
 
-        return datasetName;
+        return scanMeta.getDatasetName();
     }
 
 
 
     public String getDirectory() {
 
-        return directory;
+        return scanMeta.getDirectory();
     }
 
 
 
     public double getElevationAngle() {
 
-        return elevationAngle;
+        return scanMeta.getElevationAngle();
     }
 
 
 
     public String getEndDate() {
 
-        return endDate;
+        return scanMeta.getEndDate();
     }
 
 
 
     public String getEndTime() {
 
-        return endTime;
+        return scanMeta.getEndTime();
     }
 
 
@@ -149,19 +147,19 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
     public String getFilename() {
 
-        return filename;
+        return scanMeta.getFilename();
     }
 
 
 
-    public long getiAzimFirstRay() {
+    public int getiAzimFirstRay() {
 
         return polarData.getiAzimFirstRay();
     }
 
 
 
-    public int getMissingValueValue() {
+    public byte getMissingValueValue() {
 
         return polarData.getMissingValueValue();
     }
@@ -170,7 +168,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
     public float getNominalMaxTransmissionPower() {
 
-        return nominalMaxTransmissionPower;
+        return radarMeta.getNominalMaxTransmissionPower();
     }
 
 
@@ -189,58 +187,65 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
+    public PolarData getPolarData() {
+
+        return polarData.clone();
+    }
+
+
+
     public float getPulseLength() {
 
-        return pulseLength;
+        return radarMeta.getPulseLength();
     }
 
 
 
     public float getPulseRepeatFrequencyHigh() {
 
-        return pulseRepeatFrequencyHigh;
+        return radarMeta.getPulseRepeatFrequencyHigh();
     }
 
 
 
     public float getPulseRepeatFrequencyLow() {
 
-        return pulseRepeatFrequencyLow;
+        return radarMeta.getPulseRepeatFrequencyLow();
     }
 
 
 
     public float getRadarConstant() {
 
-        return radarConstant;
+        return radarMeta.getRadarConstant();
     }
 
 
 
     public double getRadarPositionHeight() {
 
-        return radarPositionHeight;
+        return radarMeta.getRadarPositionHeight();
     }
 
 
 
     public double getRadarPositionLatitude() {
 
-        return radarPositionLatitude;
+        return radarMeta.getRadarPositionLatitude();
     }
 
 
 
     public double getRadarPositionLongitude() {
 
-        return radarPositionLongitude;
+        return radarMeta.getRadarPositionLongitude();
     }
 
 
 
     public float getRadialVelocityAntenna() {
 
-        return radialVelocityAntenna;
+        return radarMeta.getRadialVelocityAntenna();
     }
 
 
@@ -289,35 +294,21 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
     public String getScanType() {
 
-        return scanType;
+        return scanMeta.getScanType();
     }
 
 
 
     public String getStartDate() {
 
-        return startDate;
+        return scanMeta.getStartDate();
     }
 
 
 
     public String getStartTime() {
 
-        return startTime;
-    }
-
-
-
-    public double getDataOffset() {
-
-        return polarData.getDataOffset();
-    }
-
-
-
-    public double getDataScale() {
-
-        return polarData.getDataScale();
+        return scanMeta.getStartTime();
     }
 
 
@@ -329,67 +320,66 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    private double readElevationAngle() throws IOException {
+    private double readDataOffset(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_elangle";
+        String fullAttributename = datasetName + "_data1_what_offset";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private String readEndDate() throws IOException {
+    private double readDataScale(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_what_enddate";
+        String fullAttributename = datasetName + "_data1_what_gain";
+        return readDoubleAttribute(fullFilename, fullAttributename);
+    }
+
+
+
+    private double readElevationAngle(String fullFilename, String datasetName) throws IOException {
+
+        String fullAttributename = datasetName + "_where_elangle";
+        return readDoubleAttribute(fullFilename, fullAttributename);
+    }
+
+
+
+    private String readEndDate(String fullFilename, String datasetName) throws IOException {
+
+        String fullAttributename = datasetName + "_what_enddate";
         return readStringAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private String readEndTime() throws IOException {
+    private String readEndTime(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_what_endtime";
+        String fullAttributename = datasetName + "_what_endtime";
         return readStringAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private int readiAzimFirstRay() throws IOException {
+    private int readiAzimFirstRay(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_a1gate";
+        String fullAttributename = datasetName + "_where_a1gate";
         return (int) readLongAttribute(fullFilename, fullAttributename);
 
     }
 
 
 
-    private byte readMissingValueValue() throws IOException {
+    private byte readMissingValueValue(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_data1_what_nodata";
+        String fullAttributename = datasetName + "_data1_what_nodata";
         return (byte) readIntegerAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private int readNumberOfAzimuthBins() throws IOException {
+    private int readNumberOfAzimuthBins(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_nrays";
-
-        return (int) readLongAttribute(fullFilename, fullAttributename);
-
-    }
-
-
-
-    private int readNumberOfRangeBins() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_nbins";
+        String fullAttributename = datasetName + "_where_nrays";
 
         return (int) readLongAttribute(fullFilename, fullAttributename);
 
@@ -397,54 +387,33 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    private double readRadarPositionHeight() throws IOException {
+    private int readNumberOfRangeBins(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = "where_height";
+        String fullAttributename = datasetName + "_where_nbins";
+
+        return (int) readLongAttribute(fullFilename, fullAttributename);
+
+    }
+
+
+
+    private double readRangeOffset(String fullFilename, String datasetName) throws IOException {
+
+        String fullAttributename = datasetName + "_where_rstart";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private double readRadarPositionLatitude() throws IOException {
+    private double readRangeScale(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = "where_lat";
+        String fullAttributename = datasetName + "_where_rscale";
         return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private double readRadarPositionLongitude() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = "where_lon";
-        return readDoubleAttribute(fullFilename, fullAttributename);
-    }
-
-
-
-    private double readRangeOffset() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_rstart";
-        return readDoubleAttribute(fullFilename, fullAttributename);
-    }
-
-
-
-    private double readRangeScale() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_where_rscale";
-        return readDoubleAttribute(fullFilename, fullAttributename);
-    }
-
-
-
-    private byte[] readScanDataRaw() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
+    private byte[] readScanDataRaw(String fullFilename, String datasetName) throws IOException {
 
         NetcdfFile ncfile = null;
         try {
@@ -478,47 +447,26 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    private String readScanType() throws IOException {
+    private String readScanType(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_data1_what_quantity";
+        String fullAttributename = datasetName + "_data1_what_quantity";
         return readStringAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private String readStartDate() throws IOException {
+    private String readStartDate(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_what_startdate";
+        String fullAttributename = datasetName + "_what_startdate";
         return readStringAttribute(fullFilename, fullAttributename);
     }
 
 
 
-    private String readStartTime() throws IOException {
+    private String readStartTime(String fullFilename, String datasetName) throws IOException {
 
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_what_starttime";
+        String fullAttributename = datasetName + "_what_starttime";
         return readStringAttribute(fullFilename, fullAttributename);
-    }
-
-
-
-    private double readDataOffset() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_data1_what_offset";
-        return readDoubleAttribute(fullFilename, fullAttributename);
-    }
-
-
-
-    private double readDataScale() throws IOException {
-
-        String fullFilename = this.directory + File.separator + this.filename;
-        String fullAttributename = this.datasetName + "_data1_what_gain";
-        return readDoubleAttribute(fullFilename, fullAttributename);
     }
 
 }
