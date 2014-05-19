@@ -19,11 +19,11 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
         this.corrCoefRho = null;
         this.differentialReflectivity = null;
 
-        nAzim = (int) reflectivity.getNumberOfAzimuthBins();
-        nRang = (int) reflectivity.getNumberOfRangeBins();
+        nAzim = reflectivity.getNumberOfAzimuthBins();
+        nRang = reflectivity.getNumberOfRangeBins();
 
-        int nAzim = (int) reflectivity.getNumberOfAzimuthBins();
-        int nRang = (int) reflectivity.getNumberOfRangeBins();
+        int nAzim = reflectivity.getNumberOfAzimuthBins();
+        int nRang = reflectivity.getNumberOfRangeBins();
 
         if (nAzim != this.nAzim) {
             throw new Exception("Number of azimuth bins differ.");
@@ -43,12 +43,12 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
         this.corrCoefRho = corrCoeffRho;
         this.differentialReflectivity = differentialReflectivity;
 
-        nAzim = (int) reflectivity.getNumberOfAzimuthBins();
-        nRang = (int) reflectivity.getNumberOfRangeBins();
+        nAzim = reflectivity.getNumberOfAzimuthBins();
+        nRang = reflectivity.getNumberOfRangeBins();
 
         {
-            int nAzim = (int) radialVelocity.getNumberOfAzimuthBins();
-            int nRang = (int) radialVelocity.getNumberOfRangeBins();
+            int nAzim = radialVelocity.getNumberOfAzimuthBins();
+            int nRang = radialVelocity.getNumberOfRangeBins();
 
             if (nAzim != this.nAzim) {
                 throw new Exception("Number of azimuth bins differ (vrad).");
@@ -58,8 +58,8 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
             }
         }
         {
-            int nAzim = (int) corrCoeffRho.getNumberOfAzimuthBins();
-            int nRang = (int) corrCoeffRho.getNumberOfRangeBins();
+            int nAzim = corrCoeffRho.getNumberOfAzimuthBins();
+            int nRang = corrCoeffRho.getNumberOfRangeBins();
 
             if (nAzim != this.nAzim) {
                 throw new Exception("Number of azimuth bins differ (rho).");
@@ -69,8 +69,8 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
             }
         }
         {
-            int nAzim = (int) differentialReflectivity.getNumberOfAzimuthBins();
-            int nRang = (int) differentialReflectivity.getNumberOfRangeBins();
+            int nAzim = differentialReflectivity.getNumberOfAzimuthBins();
+            int nRang = differentialReflectivity.getNumberOfRangeBins();
 
             if (nAzim != this.nAzim) {
                 throw new Exception("Number of azimuth bins differ (zdr).");
@@ -86,8 +86,8 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
 
     public void calcTexture(byte nRangNeighborhood, byte nAzimNeighborhood, byte nCountMin, byte texType, float texOffset, float texScale) {
 
-        byte[][] reflImage2D = reflectivity.getScanDataRaw();
-        byte[][] vradImage2D = reflectivity.getScanDataRaw();
+        byte[][] reflImage2D = reflectivity.getScanDataRaw2D();
+        byte[][] vradImage2D = reflectivity.getScanDataRaw2D();
 
         byte[] texImage = new byte[nAzim * nRang];
         byte[] reflImage = new byte[nAzim * nRang];
@@ -102,10 +102,10 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
             }
         }
 
-        float reflOffset = (float) reflectivity.getValueOffset();
-        float reflScale = (float) reflectivity.getValueScale();
-        float vradOffset = (float) radialVelocity.getValueOffset();
-        float vradScale = (float) radialVelocity.getValueScale();
+        float reflOffset = (float) reflectivity.getDataOffset();
+        float reflScale = (float) reflectivity.getDataScale();
+        float vradOffset = (float) radialVelocity.getDataOffset();
+        float vradScale = (float) radialVelocity.getDataScale();
 
         calcTexture(texImage, reflImage, vradImage, nRangNeighborhood, nAzimNeighborhood, nCountMin, texType, texOffset, texScale, reflOffset, reflScale, vradOffset, vradScale, nRang, nAzim);
 
@@ -132,16 +132,16 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
         float texValueScale = 1f;
 
         int rhoMissing = this.corrCoefRho.getMissingValueValue();
-        int rhonAzim = (int) this.corrCoefRho.getNumberOfAzimuthBins();
-        int rhonRang = (int) this.corrCoefRho.getNumberOfRangeBins();
-        float rhoValueOffset = (float) this.corrCoefRho.getValueOffset();
-        float rhoValueScale = (float) this.corrCoefRho.getValueScale();
+        int rhonAzim = this.corrCoefRho.getNumberOfAzimuthBins();
+        int rhonRang = this.corrCoefRho.getNumberOfRangeBins();
+        float rhoValueOffset = (float) this.corrCoefRho.getDataOffset();
+        float rhoValueScale = (float) this.corrCoefRho.getDataScale();
 
         int zdrMissing = this.differentialReflectivity.getMissingValueValue();
-        int zdrnAzim = (int) this.differentialReflectivity.getNumberOfAzimuthBins();
-        int zdrnRang = (int) this.differentialReflectivity.getNumberOfRangeBins();
-        float zdrValueOffset = (float) this.differentialReflectivity.getValueOffset();
-        float zdrValueScale = (float) this.differentialReflectivity.getValueScale();
+        int zdrnAzim = this.differentialReflectivity.getNumberOfAzimuthBins();
+        int zdrnRang = this.differentialReflectivity.getNumberOfRangeBins();
+        float zdrValueOffset = (float) this.differentialReflectivity.getDataOffset();
+        float zdrValueScale = (float) this.differentialReflectivity.getDataScale();
 
         float texThresMin = 0f;
         float reflThresMin = 0f;
