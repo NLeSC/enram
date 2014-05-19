@@ -36,7 +36,8 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
 
 
 
-    public BirdDensityProfile(RadarScanJava reflectivity, RadarScanJava radialVelocity, RadarScanJava corrCoeffRho, RadarScanJava differentialReflectivity) throws Exception {
+    public BirdDensityProfile(RadarScanJava reflectivity, RadarScanJava radialVelocity,
+            RadarScanJava corrCoeffRho, RadarScanJava differentialReflectivity) throws Exception {
 
         this.reflectivity = reflectivity;
         this.radialVelocity = radialVelocity;
