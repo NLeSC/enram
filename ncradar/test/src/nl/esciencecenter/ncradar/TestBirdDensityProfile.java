@@ -45,9 +45,10 @@ public class TestBirdDensityProfile {
         birdProfile.calcTexture(nRangNeighborhood, nAzimNeighborhood,
                 nCountMin, texType, texOffset, texScale);
 
-        birdProfile.findCells();
+        // birdProfile.findCells();
 
         fail("Not yet complete");
 
     }
+
 }
