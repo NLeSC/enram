@@ -160,6 +160,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 //fprintf(stderr,"    iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
 
+                // FIXME iLocal is wrong at the iRang = 0 and iRang = nRang-1 edges: issue #32
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
                 }
@@ -171,7 +172,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
                 //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
                 //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
 
-                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal]-vradImage[iLocal]);
+                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
 
@@ -206,7 +207,7 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
                 texImage[iGlobal] = ROUND((tex-texOffset)/texScale);
 
-//                fprintf(stderr,"(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",count,nCountMin,texType,vmoment1,vmoment2,tex,iGlobal,texImage[iGlobal]);
+                fprintf(stderr,"(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",count,nCountMin,texType,vmoment1,vmoment2,tex,iGlobal,texImage[iGlobal]);
 
             } //else
         } //for
