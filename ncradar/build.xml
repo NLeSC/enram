@@ -39,114 +39,40 @@
     </target>
 
     <target name="copy-c-code" >
-        <copy file="lib/vol2bird/libcalctexture.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libfindcells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libanalysecells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libupdatemap.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libfringecells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libsortcells.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libdist.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libvol2birdjni.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
     </target>
     
     
-    <target name="compile-calctexture" description="compile the C-language source file libcalctexture.c into a shared object">
-        <echo message="Compiling vol2bird 'calctexture' method..." />
+    <target name="compile-libvol2bird" description="compile the C-language source file libvol2bird.c into a shared object">
+        <echo message="Compiling vol2bird.c..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
             <arg line="-I${jnihdir}/linux" />
             <arg line="-shared" />
-            <arg line="libcalctexture.c" />
+            <arg line="libvol2bird.c" />
             <arg line="-o" />
-            <arg line="${gcc_dist}/libcalctexture.so" />
+            <arg line="${gcc_dist}/libvol2bird.so" />
         </exec>
     </target>
     
 
-    <target name="compile-findcells" description="compile the C-language source file libfindcells.c into a shared object">
-        <echo message="Compiling vol2bird 'findcells' method..." />
+
+    <target name="compile-libvol2birdjni" description="compile the C-language source file libvol2birdjni.c into a shared object">
+        <echo message="Compiling vol2bird JNI methods..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
             <arg line="-fPIC" />
             <arg line="-I${jnihdir}" />
             <arg line="-I${jnihdir}/linux" />
             <arg line="-shared" />
-            <arg line="libfindcells.c" />
+            <arg line="libvol2birdjni.c" />
             <arg line="-o" />
-            <arg line="${gcc_dist}/libfindcells.so" />
+            <arg line="${gcc_dist}/libvol2birdjni.so" />
         </exec>
     </target>
     
-
-    
-<!--    
-    <target name="compile-analysecells" description="compile the C-language source file libanalysecells.c into a shared object">
-        <echo message="Compiling vol2bird 'analysecells' method..." />
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libanalysecells.c" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libanalysecells.so" />
-        </exec>
-    </target>
-    
--->
-    
-    <target name="compile-updatemap" description="compile the C-language source file libupdatemap.c into a shared object">
-        <echo message="Compiling vol2bird 'updatemap' method..." />
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libupdatemap.c" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libupdatemap.so" />
-        </exec>
-    </target>
-
-    <target name="compile-sortcells" description="compile the C-language source file libsortcells.c into a shared object">
-        <echo message="Compiling vol2bird 'sortcells' method..." />
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libsortcells.c" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libsortcells.so" />
-        </exec>
-    </target>
-
-    <target name="compile-dist" description="compile the C-language source file libdist.c into a shared object">
-        <echo message="Compiling vol2bird 'dist' method..." />
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libdist.c" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libdist.so" />
-        </exec>
-    </target>
-
-    <target name="compile-fringecells" description="compile the C-language source file libfringecells.c into a shared object">
-        <echo message="Compiling vol2bird 'fringecells' method..." />
-        <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libfringecells.c" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libfringecells.so" />
-        </exec>
-    </target>
-
     <target name="make-javadoc" >
         <javadoc destdir="javadoc" classpath="lib/netcdf/netcdfAll-4.3.jar" sourcepath="src" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="true" version="true" nodeprecatedlist="false" nodeprecated="false" verbose="false" >
             <link href="http://docs.oracle.com/javase/7/docs/api/" />
@@ -158,19 +84,12 @@
                                     compile-java-source,
                                     write-jni-header,
                                     copy-c-code,
-                                    compile-calctexture,
-                                    compile-findcells,
-                                    compile-updatemap,
-                                    compile-sortcells,
-                                    compile-dist,
-                                    compile-fringecells" description="make a jar out of everything">
+                                    compile-libvol2bird,
+                                    compile-libvol2birdjni" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />
     </target>
 
     <target name="run-it" description="run the jar containing everything">
-<!--
-        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.BirdDensityProfileCalculator">  
--->
         <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScanMatlab">
             <sysproperty key="java.library.path" value="dist"/>
                 <classpath>  
