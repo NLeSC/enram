@@ -763,8 +763,8 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
 /* rain, fringes, empty and valid gates. It returns the classification        */
 /* and layer counters                                                         */
 /******************************************************************************/
-void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
-        SCANMETA cmmeta,int *cellmap,
+void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
+        SCANMETA clutterMeta,int *cellmap,
         unsigned char *zscan,unsigned char *vscan,
         unsigned char *uzscan,unsigned char *cmscan,
         float *zdata,int *nzdata,
@@ -776,36 +776,80 @@ void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
         int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
         int *Npntrainp,int *NpntrainNoFringep,
         unsigned char cmflag,unsigned char uzflag,unsigned char xflag)
+// FIXME *nzdata unused
+// FIXME *fracclut  unused
+// FIXME *fracrain  unused
+// FIXME *fracbird  unused
+// FIXME *fracfringe  unused
+// FIXME HLAYER suggests preprocessor but isn't
+// FIXME XOFFSET suggests preprocessor but isn't
+// FIXME XSCALE suggests preprocessor but isn't
+// FIXME XMEAN suggests preprocessor but isn't
+// FIXME DBZNOISE suggests preprocessor but isn't
+// FIXME NGAPMIN suggests preprocessor but isn't
+// FIXME NGAPBIN suggests preprocessor but isn't
+// FIXME NDBZMIN suggests preprocessor but isn't
+// FIXME id unused
+
+
 {
-    int i,j,ij,ia,llayer,l,ndat,ir,n;
-    int Npnt,Npntall,Npntclut,Npntrain,NpntrainNoFringe;
-    float dBZ,range,heigbeam,azim;
-    float FNAN=0.0/0.0;
+    int iAzim;
+    int llayer;
+    int l;
+    int iRang;
+    int n;
+    int Npnt;
+    int Npntall;
+    int Npntclut;
+    int Npntrain;
+    int NpntrainNoFringe;
+    float dBZ;
+    float range;
+    float heigbeam;
+    float azim;
+    float FNAN;
 
-    n=*np;
-    Npnt=*Npntp;
-    Npntall=*Npntallp;
-    Npntclut=*Npntclutp;
-    Npntrain=*Npntrainp;
-    NpntrainNoFringe=*NpntrainNoFringep;
+    FNAN = 0.0/0.0;
 
-    l=layer;
-    llayer=l*NDATA;
+    n = *np;
+    Npnt = *Npntp;
+    Npntall = *Npntallp;
+    Npntclut = *Npntclutp;
+    Npntrain = *Npntrainp;
+    NpntrainNoFringe = *NpntrainNoFringep;
 
-    for (ir=0 ; ir<zmeta.nrang ; ir++) {
-        range=(ir+0.5)*zmeta.rscale;
-        if (range<rminscan||range>rmaxscan) continue;
-        heigbeam=range*sin(zmeta.elev*DEG2RAD)+zmeta.heig;
-        if (fabs(height-heigbeam)>0.5*HLAYER) continue;
-        for (ia=0 ; ia<zmeta.nazim ; ia++) {
-            azim=ia*zmeta.ascale;
+    l = layer;  // FIXME why the obsession with brevity?
+    llayer = l*NDATA;
+
+    for (iRang = 0; iRang < dbzMeta.nrang; iRang++) {
+
+        range = (iRang+0.5)*dbzMeta.rscale;
+
+        if (range<rminscan||range>rmaxscan) {
+            continue;
+        }
+
+        heigbeam = range*sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
+
+        if (fabs(height-heigbeam)>0.5*HLAYER) {
+            continue;
+        }
+
+        for (iAzim = 0; iAzim < dbzMeta.nazim; iAzim++) {
+
+            azim = iAzim*dbzMeta.ascale;
+
             n++;
-            if (azim<=amin||azim>amax) continue;
+
+            if (azim <= amin || azim > amax) {
+                continue;
+            }
+
             Npntall++;
             //cluttermap points:
-            if (cmflag==1){
-                if (ir<cmmeta.nrang && ia<cmmeta.nazim){
-                    if (cmmeta.zscale*cmscan[ir+ia*vmeta.nrang]+cmmeta.zoffset>dbzclutter){
+            if (cmflag == 1){
+                if (iRang < clutterMeta.nrang && iAzim < clutterMeta.nazim) {
+                    if (clutterMeta.zscale*cmscan[iRang+iAzim*vradMeta.nrang] + clutterMeta.zoffset > dbzclutter){
                         Npntclut++;
                         continue;
                     }
@@ -813,53 +857,75 @@ void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
             }
             //points without valid reflectivity data, but WITH raw reflectivity data are points
             //dropped by the signal preprocessor. These will be treated as clutter.
-            if (uzflag==1){
-                if (zscan[ir+ia*zmeta.nrang]==zmeta.missing &&
-                        uzscan[ir+ia*uzmeta.nrang]!=uzmeta.missing){
+            if (uzflag == 1){
+                if (zscan[iRang+iAzim*dbzMeta.nrang] == dbzMeta.missing &&
+                        uzscan[iRang+iAzim*uzmeta.nrang] != uzmeta.missing){
                     Npntclut++;
                     continue;
                 }
             }
             //if non-zero reflectivity but doppler data missing, treat as clutter:
-            if (zscan[ir+ia*zmeta.nrang]!=zmeta.missing &&
-                    vscan[ir+ia*zmeta.nrang]==vmeta.missing){
+            if (zscan[iRang+iAzim*dbzMeta.nrang] != dbzMeta.missing &&
+                    vscan[iRang+iAzim*dbzMeta.nrang] == vradMeta.missing){
                 Npntclut++;
                 continue;
             }
-            dBZ=zmeta.zscale*zscan[ir+ia*zmeta.nrang]+zmeta.zoffset;
-            if (dBZ < dBZmin) dBZ=DBZNOISE;
+
+            dBZ = dbzMeta.zscale*zscan[iRang+iAzim*dbzMeta.nrang] + dbzMeta.zoffset;
+
+            if (dBZ < dBZmin) {
+                dBZ = DBZNOISE;
+            }
+
             //treat zero doppler speed as clutter:
-            if (vscan[ir+ia*vmeta.nrang]!=vmeta.missing&&
-                    fabs(vmeta.zscale*vscan[ir+ia*vmeta.nrang]+vmeta.zoffset)<vmin){
+            if (vscan[iRang+iAzim*vradMeta.nrang] != vradMeta.missing &&
+                    fabs(vradMeta.zscale*vscan[iRang+iAzim*vradMeta.nrang] + vradMeta.zoffset) < vmin){
                 Npntclut++;
                 continue;
             }
-            if (cellmap[ir+ia*vmeta.nrang]>0 || dBZ > dBZx) {
-                if (cellmap[ir+ia*vmeta.nrang]>1) { //cluttermap without added fringes
-                    if (isnan(zdata[1+llayer])) zdata[1+llayer]=0;
-                    zdata[1+llayer]+=exp(0.1*log(10)*dBZ);
+
+            if (cellmap[iRang+iAzim*vradMeta.nrang] > 0 || dBZ > dBZx) {
+                if (cellmap[iRang+iAzim*vradMeta.nrang] > 1) { //cluttermap without added fringes
+                    if (isnan(zdata[1+llayer])) {
+                        zdata[1+llayer] = 0;
+                    }
+                    zdata[1+llayer] += exp(0.1*log(10)*dBZ);
                     NpntrainNoFringe++;
                 }
-                if (isnan(zdata[2+llayer])) zdata[2+llayer]=0;
-                zdata[2+llayer]+=exp(0.1*log(10)*dBZ);
+
+                if (isnan(zdata[2+llayer])) {
+                    zdata[2+llayer] = 0;
+                }
+                zdata[2+llayer] += exp(0.1*log(10)*dBZ);
                 Npntrain++;
                 continue;
             }
-            if (isnan(zdata[0+llayer])) zdata[0+llayer]=0;
-            if (isnan(zdata[2+llayer])) zdata[2+llayer]=0;
-            if (xflag==1) zdata[0+llayer]+=exp(0.1*log(10)*dBZ)*XMEAN/(XOFFSET+XSCALE/range);
-            else zdata[0+llayer]+=exp(0.1*log(10)*dBZ);
-            zdata[2+llayer]+=exp(0.1*log(10)*dBZ);
-            Npnt++;
-        }//for ia
-    }//for ir
 
-    *np=n;
-    *Npntp=Npnt;
-    *Npntallp=Npntall;
-    *Npntclutp=Npntclut;
-    *Npntrainp=Npntrain;
-    *NpntrainNoFringep=NpntrainNoFringe;
+            if (isnan(zdata[0+llayer])) {
+                zdata[0+llayer] = 0;
+            }
+
+            if (isnan(zdata[2+llayer])) {
+                zdata[2+llayer] = 0;
+            }
+
+            if (xflag==1) {
+                zdata[0+llayer] += exp(0.1*log(10)*dBZ)*XMEAN/(XOFFSET+XSCALE/range);
+            }
+            else {
+                zdata[0+llayer] += exp(0.1*log(10)*dBZ);
+            }
+            zdata[2+llayer] += exp(0.1*log(10)*dBZ);
+            Npnt++;
+        }//for iAzim
+    }//for iRang
+
+    *np = n;
+    *Npntp = Npnt;
+    *Npntallp = Npntall;
+    *Npntclutp = Npntclut;
+    *Npntrainp = Npntrain;
+    *NpntrainNoFringep = NpntrainNoFringe;
 
     return;
 }//classification
