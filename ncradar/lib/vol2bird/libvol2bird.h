@@ -117,10 +117,28 @@ typedef struct cellprop CELLPROP;
 /*Prototypes of local functions:                                              */
 /******************************************************************************/
 
-void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
-        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
-        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
-        unsigned char nCountMin,unsigned char texType);
+int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
+                 unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
+                 SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
+                 int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
+                 float vradMinValue,float dbzClutterMin, unsigned char cmFlag,
+                 unsigned char dualPolFlag, unsigned char verbose);
+
+void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
+        SCANMETA clutterMeta, int *cellmap,
+        unsigned char *zscan, unsigned char *vscan,
+        unsigned char *uzscan, unsigned char *cmscan,
+        float *zdata, int *nzdata,
+        float *fracclut, float *fracrain, float *fracbird, float *fracfringe,
+        float rminscan, float rmaxscan, float HLAYER, float XOFFSET,
+        float XSCALE, float XMEAN, float height,
+        float amin, float amax, float vmin, float dbzclutter, float dBZmin,
+        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
+        int layer, int id, int *np, int *Npntp, int *Npntallp, int *Npntclutp,
+        int *Npntrainp, int *NpntrainNoFringep,
+        unsigned char cmflag, unsigned char uzflag, unsigned char xflag);
+
+float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 int findcells(unsigned char *texImage,
               unsigned char *rhoImage,
@@ -136,25 +154,14 @@ int findcells(unsigned char *texImage,
               float rCellMax,
               char sign);
 
-//int analysecells(unsigned char *imgz,unsigned char *imgv, unsigned char *imgtex, unsigned char *imgcm,
-//        int *cellmap,SCANMETA *zmeta,SCANMETA *vmeta,SCANMETA *texmeta,SCANMETA *cmmeta,
-//        int Ncell,int area,float dbzcell,float stdevcell, float clutcell, float vmin,float dbzclutter,
-//        unsigned char cmflag,unsigned char dualpolflag, unsigned char verbose);
-
 void fringecells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
-float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+
 void sortcells(CELLPROP *cellProp,int nCells, int method);
+
+void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
+        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
+        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
+        unsigned char nCountMin,unsigned char texType);
+
 int updatemap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
-//void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
-//        SCANMETA cmmeta,int *cellmap,
-//        unsigned char *zscan,unsigned char *vscan,
-//        unsigned char *uzscan,unsigned char *cmscan,
-//        float *zdata,int *nzdata,
-//        float *fracclut,float *fracrain,float *fracbird, float *fracfringe,
-//        float rminscan,float rmaxscan,float HLAYER,float XOFFSET,
-//        float XSCALE,float XMEAN,float height,
-//        float amin,float amax,float vmin,float dbzclutter,float dBZmin,
-//        float dBZx,float DBZNOISE,int NGAPMIN,int NGAPBIN,int NDBZMIN,
-//        int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
-//        int *Npntrainp,int *NpntrainNoFringep,
-//        unsigned char cmflag,unsigned char uzflag,unsigned char xflag);
+
