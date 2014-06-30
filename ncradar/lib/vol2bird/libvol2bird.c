@@ -753,3 +753,118 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
     return nCellsValid;
 } //updatemap
 
+
+
+
+
+
+/******************************************************************************/
+/* This function classifies the range gates, distinguishing between clutter,   */
+/* rain, fringes, empty and valid gates. It returns the classification        */
+/* and layer counters                                                         */
+/******************************************************************************/
+void classification(SCANMETA zmeta, SCANMETA vmeta, SCANMETA uzmeta,
+        SCANMETA cmmeta,int *cellmap,
+        unsigned char *zscan,unsigned char *vscan,
+        unsigned char *uzscan,unsigned char *cmscan,
+        float *zdata,int *nzdata,
+        float *fracclut,float *fracrain,float *fracbird, float *fracfringe,
+        float rminscan,float rmaxscan,float HLAYER,float XOFFSET,
+        float XSCALE,float XMEAN,float height,
+        float amin,float amax,float vmin,float dbzclutter,float dBZmin,
+        float dBZx,float DBZNOISE,int NGAPMIN,int NGAPBIN,int NDBZMIN,
+        int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
+        int *Npntrainp,int *NpntrainNoFringep,
+        unsigned char cmflag,unsigned char uzflag,unsigned char xflag)
+{
+    int i,j,ij,ia,llayer,l,ndat,ir,n;
+    int Npnt,Npntall,Npntclut,Npntrain,NpntrainNoFringe;
+    float dBZ,range,heigbeam,azim;
+    float FNAN=0.0/0.0;
+
+    n=*np;
+    Npnt=*Npntp;
+    Npntall=*Npntallp;
+    Npntclut=*Npntclutp;
+    Npntrain=*Npntrainp;
+    NpntrainNoFringe=*NpntrainNoFringep;
+
+    l=layer;
+    llayer=l*NDATA;
+
+    for (ir=0 ; ir<zmeta.nrang ; ir++) {
+        range=(ir+0.5)*zmeta.rscale;
+        if (range<rminscan||range>rmaxscan) continue;
+        heigbeam=range*sin(zmeta.elev*DEG2RAD)+zmeta.heig;
+        if (fabs(height-heigbeam)>0.5*HLAYER) continue;
+        for (ia=0 ; ia<zmeta.nazim ; ia++) {
+            azim=ia*zmeta.ascale;
+            n++;
+            if (azim<=amin||azim>amax) continue;
+            Npntall++;
+            //cluttermap points:
+            if (cmflag==1){
+                if (ir<cmmeta.nrang && ia<cmmeta.nazim){
+                    if (cmmeta.zscale*cmscan[ir+ia*vmeta.nrang]+cmmeta.zoffset>dbzclutter){
+                        Npntclut++;
+                        continue;
+                    }
+                }
+            }
+            //points without valid reflectivity data, but WITH raw reflectivity data are points
+            //dropped by the signal preprocessor. These will be treated as clutter.
+            if (uzflag==1){
+                if (zscan[ir+ia*zmeta.nrang]==zmeta.missing &&
+                        uzscan[ir+ia*uzmeta.nrang]!=uzmeta.missing){
+                    Npntclut++;
+                    continue;
+                }
+            }
+            //if non-zero reflectivity but doppler data missing, treat as clutter:
+            if (zscan[ir+ia*zmeta.nrang]!=zmeta.missing &&
+                    vscan[ir+ia*zmeta.nrang]==vmeta.missing){
+                Npntclut++;
+                continue;
+            }
+            dBZ=zmeta.zscale*zscan[ir+ia*zmeta.nrang]+zmeta.zoffset;
+            if (dBZ < dBZmin) dBZ=DBZNOISE;
+            //treat zero doppler speed as clutter:
+            if (vscan[ir+ia*vmeta.nrang]!=vmeta.missing&&
+                    fabs(vmeta.zscale*vscan[ir+ia*vmeta.nrang]+vmeta.zoffset)<vmin){
+                Npntclut++;
+                continue;
+            }
+            if (cellmap[ir+ia*vmeta.nrang]>0 || dBZ > dBZx) {
+                if (cellmap[ir+ia*vmeta.nrang]>1) { //cluttermap without added fringes
+                    if (isnan(zdata[1+llayer])) zdata[1+llayer]=0;
+                    zdata[1+llayer]+=exp(0.1*log(10)*dBZ);
+                    NpntrainNoFringe++;
+                }
+                if (isnan(zdata[2+llayer])) zdata[2+llayer]=0;
+                zdata[2+llayer]+=exp(0.1*log(10)*dBZ);
+                Npntrain++;
+                continue;
+            }
+            if (isnan(zdata[0+llayer])) zdata[0+llayer]=0;
+            if (isnan(zdata[2+llayer])) zdata[2+llayer]=0;
+            if (xflag==1) zdata[0+llayer]+=exp(0.1*log(10)*dBZ)*XMEAN/(XOFFSET+XSCALE/range);
+            else zdata[0+llayer]+=exp(0.1*log(10)*dBZ);
+            zdata[2+llayer]+=exp(0.1*log(10)*dBZ);
+            Npnt++;
+        }//for ia
+    }//for ir
+
+    *np=n;
+    *Npntp=Npnt;
+    *Npntallp=Npntall;
+    *Npntclutp=Npntclut;
+    *Npntrainp=Npntrain;
+    *NpntrainNoFringep=NpntrainNoFringe;
+
+    return;
+}//classification
+
+
+
+
+
