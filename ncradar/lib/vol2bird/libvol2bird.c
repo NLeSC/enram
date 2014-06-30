@@ -10,8 +10,6 @@
 // This function analyses the cellImage array found by the 'findcells' procedure.
 // Smalls cells are rejected and the cells are re-numbered according to size.
 // The final number of cells in cellImage is returned as an integer.
-
-
 int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
                  SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
@@ -763,19 +761,19 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
 /* rain, fringes, empty and valid gates. It returns the classification        */
 /* and layer counters                                                         */
 /******************************************************************************/
-void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
-        SCANMETA clutterMeta,int *cellmap,
-        unsigned char *zscan,unsigned char *vscan,
-        unsigned char *uzscan,unsigned char *cmscan,
-        float *zdata,int *nzdata,
-        float *fracclut,float *fracrain,float *fracbird, float *fracfringe,
-        float rminscan,float rmaxscan,float HLAYER,float XOFFSET,
-        float XSCALE,float XMEAN,float height,
-        float amin,float amax,float vmin,float dbzclutter,float dBZmin,
-        float dBZx,float DBZNOISE,int NGAPMIN,int NGAPBIN,int NDBZMIN,
-        int layer,int id,int *np,int *Npntp,int *Npntallp,int *Npntclutp,
-        int *Npntrainp,int *NpntrainNoFringep,
-        unsigned char cmflag,unsigned char uzflag,unsigned char xflag)
+void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
+        SCANMETA clutterMeta, int *cellImage,
+        unsigned char *dbzImage, unsigned char *vradImage,
+        unsigned char *rawReflImage, unsigned char *clutterImage,
+        float *zdata, int *nzdata,
+        float *fracclut, float *fracrain, float *fracbird, float *fracfringe,
+        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
+        float XSCALE, float XMEAN, float height,
+        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
+        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
+        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
+        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag)
 // FIXME *nzdata unused
 // FIXME *fracclut  unused
 // FIXME *fracrain  unused
@@ -790,114 +788,125 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
 // FIXME NGAPBIN suggests preprocessor but isn't
 // FIXME NDBZMIN suggests preprocessor but isn't
 // FIXME id unused
+// FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
 
 
 {
     int iAzim;
-    int llayer;
-    int l;
+    int nAzim;
     int iRang;
+    int nRang;
+    int llayer;
     int n;
-    int Npnt;
-    int Npntall;
-    int Npntclut;
-    int Npntrain;
-    int NpntrainNoFringe;
-    float dBZ;
+    int nPoints;
+    int nPointsAll;
+    int nPointsClutter;
+    int nPointsRain;
+    int nPointsRainNoFringe;
+    int iGlobal;
     float range;
-    float heigbeam;
+    float heightBeam;
     float azim;
     float FNAN;
+    float dbzValue;
+    float vradValue;
+    float clutterValue;
 
     FNAN = 0.0/0.0;
 
-    n = *np;
-    Npnt = *Npntp;
-    Npntall = *Npntallp;
-    Npntclut = *Npntclutp;
-    Npntrain = *Npntrainp;
-    NpntrainNoFringe = *NpntrainNoFringep;
+    n = *np;                      // FIXME I think this information is already contained in iGlobal
+    nPoints = *nPointsPtr;        // FIXME I think this information is already contained in iGlobal
+    nPointsAll = *nPointsAllPtr;  // FIXME I think this information is already contained in iGlobal
+    nPointsClutter = *nPointsClutterPtr;
+    nPointsRain = *nPointsRainPtr;
+    nPointsRainNoFringe = *nPointsRainNoFringePtr;
 
-    l = layer;  // FIXME why the obsession with brevity?
-    llayer = l*NDATA;
+    llayer = layer * NDATA;
 
-    for (iRang = 0; iRang < dbzMeta.nrang; iRang++) {
+    nRang = dbzMeta.nRang;
+    nAzim = dbzMeta.nAzim;
 
-        range = (iRang+0.5)*dbzMeta.rscale;
+    for (iRang = 0; iRang < nRang; iRang++) {
 
-        if (range<rminscan||range>rmaxscan) {
+        range = (iRang+0.5) * dbzMeta.rangeScale;
+
+        if (range < rangeMin || range > rangeMax) {
             continue;
         }
 
-        heigbeam = range*sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
+        heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
-        if (fabs(height-heigbeam)>0.5*HLAYER) {
+        if (fabs(height-heightBeam) > 0.5*HLAYER) {
             continue;
         }
 
-        for (iAzim = 0; iAzim < dbzMeta.nazim; iAzim++) {
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
-            azim = iAzim*dbzMeta.ascale;
+            iGlobal = iRang + iAzim * nRang;
+
+            dbzValue = dbzMeta.valueScale*dbzImage[iGlobal] + dbzMeta.valueOffset;
+            vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
+            clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
+
+            azim = iAzim * dbzMeta.azimScale;
 
             n++;
 
-            if (azim <= amin || azim > amax) {
+            if (azim <= azimMin || azim > azimMax) {
+                // FIXME what is this clause for?
                 continue;
             }
 
-            Npntall++;
+            nPointsAll++;
             //cluttermap points:
-            if (cmflag == 1){
-                if (iRang < clutterMeta.nrang && iAzim < clutterMeta.nazim) {
-                    if (clutterMeta.zscale*cmscan[iRang+iAzim*vradMeta.nrang] + clutterMeta.zoffset > dbzclutter){
-                        Npntclut++;
-                        continue;
-                    }
+            if (clutterFlag == 1){
+                if (clutterValue > dbzClutter){
+                    nPointsClutter++;
+                    continue;
                 }
             }
+
             //points without valid reflectivity data, but WITH raw reflectivity data are points
             //dropped by the signal preprocessor. These will be treated as clutter.
-            if (uzflag == 1){
-                if (zscan[iRang+iAzim*dbzMeta.nrang] == dbzMeta.missing &&
-                        uzscan[iRang+iAzim*uzmeta.nrang] != uzmeta.missing){
-                    Npntclut++;
+            if (rawReflFlag == 1){
+                if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
+                    nPointsClutter++;
                     continue;
                 }
             }
             //if non-zero reflectivity but doppler data missing, treat as clutter:
-            if (zscan[iRang+iAzim*dbzMeta.nrang] != dbzMeta.missing &&
-                    vscan[iRang+iAzim*dbzMeta.nrang] == vradMeta.missing){
-                Npntclut++;
+            if (dbzImage[iGlobal] != dbzMeta.missing && vradImage[iGlobal] == vradMeta.missing){
+                nPointsClutter++;
                 continue;
             }
 
-            dBZ = dbzMeta.zscale*zscan[iRang+iAzim*dbzMeta.nrang] + dbzMeta.zoffset;
-
-            if (dBZ < dBZmin) {
-                dBZ = DBZNOISE;
+            if (dbzValue < dbzMin) {
+                dbzValue = DBZNOISE;
             }
 
             //treat zero doppler speed as clutter:
-            if (vscan[iRang+iAzim*vradMeta.nrang] != vradMeta.missing &&
-                    fabs(vradMeta.zscale*vscan[iRang+iAzim*vradMeta.nrang] + vradMeta.zoffset) < vmin){
-                Npntclut++;
+            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
+                nPointsClutter++;
                 continue;
             }
 
-            if (cellmap[iRang+iAzim*vradMeta.nrang] > 0 || dBZ > dBZx) {
-                if (cellmap[iRang+iAzim*vradMeta.nrang] > 1) { //cluttermap without added fringes
+            // FIXME what does dBZx represent?
+            if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
+                if (cellImage[iGlobal] > 1) { //cluttermap without added fringes  // FIXME "cluttermap"? I think you mean cellmap
+                    // FIXME what does "1+llayer" represent?
                     if (isnan(zdata[1+llayer])) {
                         zdata[1+llayer] = 0;
                     }
-                    zdata[1+llayer] += exp(0.1*log(10)*dBZ);
-                    NpntrainNoFringe++;
+                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+                    nPointsRainNoFringe++;
                 }
 
                 if (isnan(zdata[2+llayer])) {
+                    // FIXME what does "2+llayer" represent?
                     zdata[2+llayer] = 0;
                 }
-                zdata[2+llayer] += exp(0.1*log(10)*dBZ);
-                Npntrain++;
+                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);  // FIXME "log(10)" or "log10()"?
+                nPointsRain++;
                 continue;
             }
 
@@ -910,22 +919,22 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
             }
 
             if (xflag==1) {
-                zdata[0+llayer] += exp(0.1*log(10)*dBZ)*XMEAN/(XOFFSET+XSCALE/range);
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range); // FIXME "log(10)" or "log10()"?
             }
             else {
-                zdata[0+llayer] += exp(0.1*log(10)*dBZ);
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
             }
-            zdata[2+llayer] += exp(0.1*log(10)*dBZ);
-            Npnt++;
+            zdata[2+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+            nPoints++;
         }//for iAzim
     }//for iRang
 
     *np = n;
-    *Npntp = Npnt;
-    *Npntallp = Npntall;
-    *Npntclutp = Npntclut;
-    *Npntrainp = Npntrain;
-    *NpntrainNoFringep = NpntrainNoFringe;
+    *nPointsPtr = nPoints;
+    *nPointsAllPtr = nPointsAll;
+    *nPointsClutterPtr = nPointsClutter;
+    *nPointsRainPtr = nPointsRain;
+    *nPointsRainNoFringePtr = nPointsRainNoFringe;
 
     return;
 }//classification

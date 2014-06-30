@@ -125,18 +125,18 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char dualPolFlag, unsigned char verbose);
 
 void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
-        SCANMETA clutterMeta, int *cellmap,
-        unsigned char *zscan, unsigned char *vscan,
-        unsigned char *uzscan, unsigned char *cmscan,
+        SCANMETA clutterMeta, int *cellImage,
+        unsigned char *dbzImage, unsigned char *vradImage,
+        unsigned char *uzscan, unsigned char *clutterImage,
         float *zdata, int *nzdata,
         float *fracclut, float *fracrain, float *fracbird, float *fracfringe,
-        float rminscan, float rmaxscan, float HLAYER, float XOFFSET,
+        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
         float XSCALE, float XMEAN, float height,
-        float amin, float amax, float vmin, float dbzclutter, float dBZmin,
+        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
         float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
-        int layer, int id, int *np, int *Npntp, int *Npntallp, int *Npntclutp,
-        int *Npntrainp, int *NpntrainNoFringep,
-        unsigned char cmflag, unsigned char uzflag, unsigned char xflag);
+        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
+        unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
 
 float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 

@@ -298,6 +298,224 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
 
+JNIEXPORT jfloat JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_classify(
+JNIEnv *env,
+jobject obj,
+jint dbznRang,
+jint dbznAzim,
+jfloat dbzRangeScale,
+jfloat dbzElev,
+jfloat dbzHeig,
+jfloat dbzValueScale,
+jfloat dbzValueOffset,
+jfloat dbzAzimScale,
+jint dbzMissing,
+jfloat vradValueScale,
+jfloat vradValueOffset,
+jint vradMissing,
+jint rawReflMissing,
+jfloat clutterValueScale,
+jfloat clutterValueOffset,
+jintArray cellImageInt,
+jintArray dbzImageInt,
+jintArray vradImageInt,
+jintArray rawReflImageInt,
+jintArray clutterImageInt,
+jfloatArray zdata,
+jintArray nzdata,
+jfloat rangeMin,
+jfloat rangeMax,
+jfloat HLAYER,
+jfloat XOFFSET,
+jfloat XSCALE,
+jfloat XMEAN,
+jfloat height,
+jfloat azimMin,
+jfloat azimMax,
+jfloat vradMin,
+jfloat dbzClutter,
+jfloat dbzMin,
+jfloat dBZx,
+jfloat DBZNOISE,
+jint NGAPMIN,
+jint NGAPBIN,
+jint NDBZMIN,
+jint layer,
+jint id,
+jint np,
+jint nPointsPtr,
+jint nPointsAllPtr,
+jint nPointsClutterPtr,
+jint nPointsRainPtr,
+jint nPointsRainNoFringePtr,
+jint clutterFlagInt,
+jint rawReflFlagInt,
+jint xflagInt
+)
+{
+
+    // do some Java Native interface tricks:
+    jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
+    jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
+    jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
+    jint *rawReflImageIntBody = (*env)->GetIntArrayElements(env, rawReflImageInt, NULL);
+    jint *clutterImageIntBody = (*env)->GetIntArrayElements(env, clutterImageInt, NULL);
+
+    jfloat *zdataBody = (*env)->GetFloatArrayElements(env, zdata, NULL);
+    jint *nzdataBody = (*env)->GetIntArrayElements(env, nzdata, NULL);
+
+    jsize nGlobal = (*env)->GetArrayLength(env, cellImageInt);
+
+    // end of Java Native Interface tricks
+
+
+    unsigned char dbzImageBody[nGlobal];
+    unsigned char vradImageBody[nGlobal];
+    unsigned char rawReflImageBody[nGlobal];
+    unsigned char clutterImageBody[nGlobal];
+    unsigned char clutterFlag;
+    unsigned char rawReflFlag;
+    unsigned char xflag;
+
+    float *fracclut;
+    float *fracrain;
+    float *fracbird;
+    float *fracfringe;
+
+    int iGlobal;
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++){
+
+            if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
+                dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
+            }
+            else {
+                fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).");
+                return -1;
+            }
+
+            if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
+                vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
+            }
+            else {
+                fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).");
+                return -1;
+            }
+
+            if (0<=rawReflImageIntBody[iGlobal] && rawReflImageIntBody[iGlobal]<=255) {
+                rawReflImageBody[iGlobal] = (unsigned char) rawReflImageIntBody[iGlobal];
+            }
+            else {
+                fprintf(stderr,"Error converting type (rawReflImageIntBody[iGlobal]).");
+                return -1;
+            }
+
+            if (0<=clutterImageIntBody[iGlobal] && clutterImageIntBody[iGlobal]<=255) {
+                clutterImageBody[iGlobal] = (unsigned char) clutterImageIntBody[iGlobal];
+            }
+            else {
+                fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).");
+                return -1;
+            }
+
+    }
+
+    SCANMETA dbzMeta;
+    SCANMETA vradMeta;
+    SCANMETA rawReflMeta;
+    SCANMETA clutterMeta;
+
+    dbzMeta.nRang = dbznRang;
+    dbzMeta.nAzim = dbznAzim;
+    dbzMeta.rangeScale = dbzRangeScale;
+    dbzMeta.elev = dbzElev;
+    dbzMeta.heig = dbzHeig;
+    dbzMeta.valueScale = dbzValueScale;
+    dbzMeta.valueOffset = dbzValueOffset;
+    dbzMeta.azimScale = dbzAzimScale;
+    dbzMeta.missing = dbzMissing;
+
+    vradMeta.valueScale = vradValueScale;
+    vradMeta.valueOffset = vradValueOffset;
+    vradMeta.missing = vradMissing;
+
+    rawReflMeta.missing = rawReflMissing;
+
+    clutterMeta.valueScale = clutterValueScale;
+    clutterMeta.valueOffset = clutterValueOffset;
+
+
+
+    // cast to unsigned char
+    if (0<=clutterFlagInt && clutterFlagInt<=255) {
+        clutterFlag = (unsigned char) clutterFlagInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type.");
+        return -1;
+    }
+
+    // cast to unsigned char
+    if (0<=rawReflFlagInt && rawReflFlagInt<=255) {
+        rawReflFlag = (unsigned char) rawReflFlagInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type.");
+        return -1;
+    }
+
+    // cast to unsigned char
+    if (0<=xflagInt && xflagInt<=255) {
+        xflag = (unsigned char) xflagInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type.");
+        return -1;
+    }
+
+    classification(dbzMeta, vradMeta, rawReflMeta,
+            clutterMeta, cellImageIntBody, &dbzImageBody[0], &vradImageBody[0],
+            &rawReflImageBody[0], &clutterImageBody[0],
+            &zdataBody[0], &nzdataBody[0],
+            fracclut, fracrain, fracbird, fracfringe,
+            rangeMin, rangeMax, HLAYER, XOFFSET,
+            XSCALE, XMEAN, height,
+            azimMin, azimMax, vradMin, dbzClutter, dbzMin,
+            dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN,
+            layer, id, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
+            &nPointsRainPtr, &nPointsRainNoFringePtr,
+            clutterFlag, rawReflFlag, xflag);
+
+    // cast back to integer type:
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        dbzImageIntBody[iGlobal] = (jint) dbzImageBody[iGlobal];
+        vradImageIntBody[iGlobal] = (jint) vradImageBody[iGlobal];
+        rawReflImageIntBody[iGlobal] = (jint) rawReflImageBody[iGlobal];
+        clutterImageIntBody[iGlobal] = (jint) clutterImageBody[iGlobal];
+    }
+
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseIntArrayElements(env, dbzImageInt, dbzImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, rawReflImageInt, rawReflImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, clutterImageInt, clutterImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, JNI_ABORT);
+
+    (*env)->ReleaseFloatArrayElements(env, zdata, zdataBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, nzdata, nzdataBody, JNI_ABORT);
+    // end of Java Native Interface tricks
+
+    return;
+
+}
+
+
+
+
+
+
+
 
 JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
