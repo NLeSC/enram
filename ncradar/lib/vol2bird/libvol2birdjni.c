@@ -317,7 +317,7 @@ jint vradMissing,
 jint rawReflMissing,
 jfloat clutterValueScale,
 jfloat clutterValueOffset,
-jintArray cellImageInt,
+jintArray cellImage,
 jintArray dbzImageInt,
 jintArray vradImageInt,
 jintArray rawReflImageInt,
@@ -355,18 +355,34 @@ jint xflagInt
 )
 {
 
+//    fprintf(stderr, "hello jni\n");
+//    fprintf(stderr, "dbznRang = %d\n", dbznRang);
+//    fprintf(stderr, "dbznAzim = %d\n", dbznAzim);
+//    fprintf(stderr, "dbzRangeScale = %f\n", dbzRangeScale);
+//    fprintf(stderr, "dbzElev = %f\n", dbzElev);
+//    fprintf(stderr, "dbzHeig = %f\n", dbzHeig);
+//    fprintf(stderr, "dbzValueScale = %f\n", dbzValueScale);
+//    fprintf(stderr, "dbzValueOffset = %f\n", dbzValueOffset);
+//    fprintf(stderr, "dbzAzimScale = %f\n", dbzAzimScale);
+//    fprintf(stderr, "dbzMissing = %d\n", dbzMissing);
+//    fprintf(stderr, "vradValueScale = %f\n", vradValueScale);
+//    fprintf(stderr, "vradValueOffset = %f\n", vradValueOffset);
+//    fprintf(stderr, "vradMissing = %d\n", vradMissing);
+//    fprintf(stderr, "rawReflMissing = %d\n", rawReflMissing);
+//    fprintf(stderr, "clutterValueScale = %f\n", clutterValueScale);
+//    fprintf(stderr, "clutterValueOffset = %f\n", clutterValueOffset);
+//    fprintf(stderr, "cellImage = %p\n", cellImage);
+
+
     // do some Java Native interface tricks:
-    jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
+    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
     jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
     jint *rawReflImageIntBody = (*env)->GetIntArrayElements(env, rawReflImageInt, NULL);
     jint *clutterImageIntBody = (*env)->GetIntArrayElements(env, clutterImageInt, NULL);
-
     jfloat *zdataBody = (*env)->GetFloatArrayElements(env, zdata, NULL);
     jint *nzdataBody = (*env)->GetIntArrayElements(env, nzdata, NULL);
-
-    jsize nGlobal = (*env)->GetArrayLength(env, cellImageInt);
-
+    jsize nGlobal = (*env)->GetArrayLength(env, cellImage);
     // end of Java Native Interface tricks
 
 
@@ -384,6 +400,8 @@ jint xflagInt
     float *fracfringe;
 
     int iGlobal;
+
+
     for (iGlobal = 0; iGlobal < nGlobal; iGlobal++){
 
             if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
@@ -473,8 +491,11 @@ jint xflagInt
         return -1;
     }
 
+
+    fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
+
     classification(dbzMeta, vradMeta, rawReflMeta,
-            clutterMeta, cellImageIntBody, &dbzImageBody[0], &vradImageBody[0],
+            clutterMeta, cellImageBody, &dbzImageBody[0], &vradImageBody[0],
             &rawReflImageBody[0], &clutterImageBody[0],
             &zdataBody[0], &nzdataBody[0],
             fracclut, fracrain, fracbird, fracfringe,
@@ -486,6 +507,8 @@ jint xflagInt
             &nPointsRainPtr, &nPointsRainNoFringePtr,
             clutterFlag, rawReflFlag, xflag);
 
+    fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
+
     // cast back to integer type:
     for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
         dbzImageIntBody[iGlobal] = (jint) dbzImageBody[iGlobal];
@@ -496,12 +519,11 @@ jint xflagInt
 
 
     // do some Java Native interface tricks:
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, dbzImageInt, dbzImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, rawReflImageInt, rawReflImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, clutterImageInt, clutterImageIntBody, JNI_ABORT);
-    (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, JNI_ABORT);
-
     (*env)->ReleaseFloatArrayElements(env, zdata, zdataBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, nzdata, nzdataBody, JNI_ABORT);
     // end of Java Native Interface tricks

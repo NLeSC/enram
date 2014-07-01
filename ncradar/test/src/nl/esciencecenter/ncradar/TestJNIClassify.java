@@ -1,5 +1,6 @@
 package nl.esciencecenter.ncradar;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +22,7 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
     private int rawReflMissing;
     private float clutterValueScale;
     private float clutterValueOffset;
-    private int[] cellImageInt;
+    private int[] cellImage;
     private int[] dbzImageInt;
     private int[] vradImageInt;
     private int[] rawReflImageInt;
@@ -64,56 +65,56 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
 
         // TODO fill in values
 
-        int dbznRang;
-        int dbznAzim;
-        float dbzRangeScale;
-        float dbzElev;
-        float dbzHeig;
-        float dbzValueScale;
-        float dbzValueOffset;
-        float dbzAzimScale;
-        int dbzMissing;
-        float vradValueScale;
-        float vradValueOffset;
-        int vradMissing;
-        int rawReflMissing;
-        float clutterValueScale;
-        float clutterValueOffset;
-        int[] cellImageInt;
-        int[] dbzImageInt;
-        int[] vradImageInt;
-        int[] rawReflImageInt;
-        int[] clutterImageInt;
-        float[] zdata;
-        int[] nzdata;
-        float rangeMin;
-        float rangeMax;
-        float HLAYER;
-        float XOFFSET;
-        float XSCALE;
-        float XMEAN;
-        float height;
-        float azimMin;
-        float azimMax;
-        float vradMin;
-        float dbzClutter;
-        float dbzMin;
-        float dBZx;
-        float DBZNOISE;
-        int NGAPMIN;
-        int NGAPBIN;
-        int NDBZMIN;
-        int layer;
-        int id;
-        int np;
-        int nPointsPtr;
-        int nPointsAllPtr;
-        int nPointsClutterPtr;
-        int nPointsRainPtr;
-        int nPointsRainNoFringePtr;
-        int clutterFlagInt;
-        int rawReflFlagInt;
-        int xflagInt;
+        dbznRang = 4;
+        dbznAzim = 5;
+        dbzRangeScale = 1.0f;
+        dbzElev = 0.0f;
+        dbzHeig = 0.0f;
+        dbzValueScale = 1.0f;
+        dbzValueOffset = 0.0f;
+        dbzAzimScale = (float) (2 * Math.PI / 360);
+        dbzMissing = 255;
+        vradValueScale = 1.0f;
+        vradValueOffset = 0.0f;
+        vradMissing = 255;
+        rawReflMissing = 255;
+        clutterValueScale = 10.0f;
+        clutterValueOffset = 100.0f;
+        cellImage = new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        dbzImageInt = new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        vradImageInt = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        rawReflImageInt = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        clutterImageInt = new int[] { 0, 0, 43, 4, 22, 0, 112, 0, 0, 45, 0, 23, 0, 0, 12, 0, 0, 0, 0, 0 };
+        zdata = new float[] { 0, 0, 0, 0 };
+        nzdata = new int[] { 0, 0, 0 };
+        rangeMin = 0.0f;
+        rangeMax = 10000.0f;
+        HLAYER = 0.0f;
+        XOFFSET = 0.0f;
+        XSCALE = 0.0f;
+        XMEAN = 0.0f;
+        height = 0.0f;
+        azimMin = 0.0f;
+        azimMax = (float) (2 * Math.PI);
+        vradMin = 0.0f;
+        dbzClutter = 100.0f;
+        dbzMin = 0.0f;
+        dBZx = 0.0f;
+        DBZNOISE = 0.0f;
+        NGAPMIN = 0;
+        NGAPBIN = 0;
+        NDBZMIN = 0;
+        layer = 0;
+        id = 0;
+        np = 0;
+        nPointsPtr = 0;
+        nPointsAllPtr = 0;
+        nPointsClutterPtr = 0;
+        nPointsRainPtr = 0;
+        nPointsRainNoFringePtr = 0;
+        clutterFlagInt = 1;
+        rawReflFlagInt = 0;
+        xflagInt = 0;
 
     }
 
@@ -122,14 +123,23 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
     @Test
     public void testNativeClassify() throws Exception {
 
+        int[] cellImageOrig = cellImage.clone();
+        int nGlobal = cellImage.length;
+
         classify(dbznRang, dbznAzim, dbzRangeScale, dbzElev, dbzHeig, dbzValueScale, dbzValueOffset,
                 dbzAzimScale, dbzMissing, vradValueScale, vradValueOffset, vradMissing, rawReflMissing,
-                clutterValueScale, clutterValueOffset, cellImageInt, dbzImageInt, vradImageInt,
+                clutterValueScale, clutterValueOffset, cellImage, dbzImageInt, vradImageInt,
                 rawReflImageInt, clutterImageInt, zdata, nzdata, rangeMin, rangeMax,
                 HLAYER, XOFFSET, XSCALE, XMEAN, height, azimMin, azimMax, vradMin, dbzClutter,
                 dbzMin, dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN, layer, id, np, nPointsPtr,
                 nPointsAllPtr, nPointsClutterPtr, nPointsRainPtr, nPointsRainNoFringePtr,
                 clutterFlagInt, rawReflFlagInt, xflagInt);
+
+        for (int iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+
+            assertEquals(cellImage[iGlobal], cellImageOrig[iGlobal]);
+
+        }
 
     }
 

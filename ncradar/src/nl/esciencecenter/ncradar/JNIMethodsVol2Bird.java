@@ -40,6 +40,21 @@ public class JNIMethodsVol2Bird {
 
 
 
+    protected static final native void classify(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
+            float dbzHeig, float dbzValueScale, float dbzValueOffset, float dbzAzimScale,
+            int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
+            int rawReflMissing, float clutterValueScale, float clutterValueOffset,
+            int[] cellImageInt, int[] dbzImageInt, int[] vradImageInt,
+            int[] rawReflImageInt, int[] clutterImageInt, float[] zdata, int[] nzdata,
+            float rangeMin, float rangeMax, float HLAYER, float XOFFSET, float XSCALE,
+            float XMEAN, float height, float azimMin, float azimMax, float vradMin,
+            float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int NGAPMIN,
+            int NGAPBIN, int NDBZMIN, int layer, int id, int np, int nPointsPtr,
+            int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
+            int clutterFlagInt, int rawReflFlagInt, int xflagInt);
+
+
+
     protected static final native int findCells(int[] texImage,
             int[] rhoImage, int[] zdrImage, int[] cellImage, int texMissing,
             int texnAzim, int texnRang, float texValueOffset,

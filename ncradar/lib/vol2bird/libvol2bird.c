@@ -821,6 +821,9 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     nPointsRain = *nPointsRainPtr;
     nPointsRainNoFringe = *nPointsRainNoFringePtr;
 
+
+    fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
+
     llayer = layer * NDATA;
 
     nRang = dbzMeta.nRang;
@@ -828,19 +831,27 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
     for (iRang = 0; iRang < nRang; iRang++) {
 
-        range = (iRang+0.5) * dbzMeta.rangeScale;
-
-        if (range < rangeMin || range > rangeMax) {
-            continue;
-        }
-
-        heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
-
-        if (fabs(height-heightBeam) > 0.5*HLAYER) {
-            continue;
-        }
-
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+            range = (iRang+0.5) * dbzMeta.rangeScale;
+            azim = iAzim * dbzMeta.azimScale;    // FIXME why not iAzim+0.5?
+            heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
+
+            fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
+
+            if (range < rangeMin || range > rangeMax) {
+                continue;
+            }
+
+            if (azim <= azimMin || azim > azimMax) {
+                // FIXME what is this clause for?
+                continue;
+            }
+
+            if (fabs(height-heightBeam) > 0.5*HLAYER) {
+                continue;
+            }
+
 
             iGlobal = iRang + iAzim * nRang;
 
@@ -848,20 +859,18 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
             clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
 
-            azim = iAzim * dbzMeta.azimScale;
+
+            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
 
             n++;
 
-            if (azim <= azimMin || azim > azimMax) {
-                // FIXME what is this clause for?
-                continue;
-            }
-
             nPointsAll++;
+
             //cluttermap points:
             if (clutterFlag == 1){
                 if (clutterValue > dbzClutter){
                     nPointsClutter++;
+                    fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
                     continue;
                 }
             }
