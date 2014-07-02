@@ -7,16 +7,19 @@
 
 
 
-// This function analyses the cellImage array found by the 'findcells' procedure.
-// Smalls cells are rejected and the cells are re-numbered according to size.
-// The final number of cells in cellImage is returned as an integer.
 int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
                  SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
                  int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
                  float vradMinValue,float dbzClutterMin, unsigned char cmFlag,
-                 unsigned char dualPolFlag, unsigned char verbose)
-{
+                 unsigned char dualPolFlag, unsigned char verbose) {
+
+    //  *********************************************************************************
+    //  This function analyses the cellImage array found by the 'findcells' procedure.
+    //  Smalls cells are rejected and the cells are re-numbered according to size.
+    //  The final number of cells in cellImage is returned as an integer.
+    //  *********************************************************************************
+
     CELLPROP *cellProp;
     int iCell;
     int iGlobal;
@@ -175,11 +178,14 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
 
 
 
-/******************************************************************************/
-/*This function calculates the distance in km between two gates               */
-/******************************************************************************/
 float dist(int range1, int azim1, int range2, int azim2, float rscale,
         float ascale) {
+
+    //  ******************************************************************************
+    //  This function calculates the distance in km between two gates
+    //  ******************************************************************************
+
+
     // FIXME looks like this calculation is wrong (issue #31)
     float x1;
     float x2;
@@ -202,6 +208,15 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
         SCANMETA *rhoMeta, SCANMETA *zdrMeta, float texThresMin,
         float rhoThresMin, float zdrThresMin, float reflThresMin,
         float rCellMax, char sign) {
+
+
+    //  *****************************************************************************
+    //  This function detects the cells in 'image' using an integer threshold value
+    //  of 'thres' and a non-recursive algorithm which looks for neighboring pixels
+    //  above threshold. On return the marked cells are contained by 'cellmap'. The
+    //  number of detected cells/highest index value is returned.
+    //  *****************************************************************************
+
 
 
     int iCellIdentifier;
@@ -412,14 +427,22 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     return nCells;
 } //findcells
 
-/******************************************************************************/
-/*This function enlarges cellImage by additional fringe.                        */
-/*First a block around each pixel is searched for pixels within a distance    */
-/*equal to 'fringe'.                                                          */
-/*                                                                            */
-/******************************************************************************/
+
+
+
+
+
+
 void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
         float rScale, float fringe) {
+
+    //  ******************************************************************************
+    //  This function enlarges cellImage by additional fringe.
+    //  First a block around each pixel is searched for pixels within a distance
+    //  equal to 'fringe'.
+    //  ******************************************************************************
+
+
     int iRang;
     int iAzim;
     int iNeighborhood;
@@ -513,7 +536,19 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
     return;
 } //fringecells
 
+
+
+
+
+
 void sortcells(CELLPROP *cellProp, int nCells, int method) {
+
+
+    //  *****************************************************************************
+    //  Sorting of the cell properties using cell area or mean.
+    //  Assume an area or mean equal to zero for cells that are marked 'dropped'
+    //  *****************************************************************************
+
 
     int iCell;
     int iCellOther;
@@ -565,16 +600,24 @@ void sortcells(CELLPROP *cellProp, int nCells, int method) {
     return;
 } //sortcells
 
-/*****************************************************************************************/
-/* This function computes a texture parameter based on a block of (nRangNeighborhood x   */
-/* nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation  */
-/* in the velocity field (when texType==STDEV).                                          */
-/*****************************************************************************************/
+
+
+
+
 void texture(unsigned char *texImage, unsigned char *vradImage,
         unsigned char *reflImage, SCANMETA *texMeta, SCANMETA *vradMeta,
         SCANMETA *reflMeta, unsigned char nRangNeighborhood,
         unsigned char nAzimNeighborhood, unsigned char nCountMin,
         unsigned char texType) {
+
+
+    //  ****************************************************************************************
+    //  This function computes a texture parameter based on a block of (nRangNeighborhood x
+    //  nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation
+    //  in the velocity field (when texType==STDEV).
+    //  ****************************************************************************************
+
+
     int iRang;
     int iAzim;
     int iRangLocal;
@@ -704,12 +747,19 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
     } //for
 } //texture
 
+
+
+
+
 int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
         int minCellArea) {
-    /******************************************************************************/
-    /*This function updates the cellImage by dropping cells and reindexing the map  */
-    /*Leaving index 0 unused, will be used for assigning cell fringes             */
-    /******************************************************************************/
+
+    //  *****************************************************************************
+    //  This function updates the cellImage by dropping cells and reindexing the map
+    //  Leaving index 0 unused, will be used for assigning cell fringes
+    //  *****************************************************************************
+
+
     int iGlobal;
     int iCellValid;
     int nCellsValid;
@@ -766,11 +816,6 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
 
 
 
-/******************************************************************************/
-/* This function classifies the range gates, distinguishing between clutter,   */
-/* rain, fringes, empty and valid gates. It returns the classification        */
-/* and layer counters                                                         */
-/******************************************************************************/
 void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
@@ -783,25 +828,31 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
         int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
-        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag)
-// FIXME *nzdata unused
-// FIXME *fracclut  unused
-// FIXME *fracrain  unused
-// FIXME *fracbird  unused
-// FIXME *fracfringe  unused
-// FIXME HLAYER suggests preprocessor but isn't
-// FIXME XOFFSET suggests preprocessor but isn't
-// FIXME XSCALE suggests preprocessor but isn't
-// FIXME XMEAN suggests preprocessor but isn't
-// FIXME DBZNOISE suggests preprocessor but isn't
-// FIXME NGAPMIN suggests preprocessor but isn't
-// FIXME NGAPBIN suggests preprocessor but isn't
-// FIXME NDBZMIN suggests preprocessor but isn't
-// FIXME id unused
-// FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
+        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
 
 
-{
+    //  *****************************************************************************
+    //  This function classifies the range gates, distinguishing between clutter,
+    //  rain, fringes, empty and valid gates. It returns the classification
+    //  and layer counters
+    //  *****************************************************************************
+
+    // FIXME *nzdata unused
+    // FIXME *fracclut  unused
+    // FIXME *fracrain  unused
+    // FIXME *fracbird  unused
+    // FIXME *fracfringe  unused
+    // FIXME HLAYER suggests preprocessor but isn't
+    // FIXME XOFFSET suggests preprocessor but isn't
+    // FIXME XSCALE suggests preprocessor but isn't
+    // FIXME XMEAN suggests preprocessor but isn't
+    // FIXME DBZNOISE suggests preprocessor but isn't
+    // FIXME NGAPMIN suggests preprocessor but isn't
+    // FIXME NGAPBIN suggests preprocessor but isn't
+    // FIXME NDBZMIN suggests preprocessor but isn't
+    // FIXME id unused
+    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
+
     int iAzim;
     int nAzim;
     int iRang;
