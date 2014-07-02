@@ -110,7 +110,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
         if (validArea > 0){
             cellProp[iCell].dbzAvg /= validArea;
             cellProp[iCell].texAvg /= validArea;
-            // FIXME why have this calculation two times
+            // FIXME why have this next calculation two times, different methods?
             cellProp[iCell].cv = 10 * log10(cellProp[iCell].texAvg) - cellProp[iCell].dbzAvg;
             cellProp[iCell].cv = cellProp[iCell].texAvg / cellProp[iCell].dbzAvg;
         }
@@ -317,22 +317,28 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
             iGlobal = iRang + iAzim * nRang;
 
             if ((iRang + 1) * texRangeScale > rCellMax) {
+                // FIXME the left hand side of the condition above is a distance; the
+                // right hand side's data type suggests a number of array elements
                 continue;
             }
 
+            fprintf(stderr,"iGlobal = %d\n",iGlobal);
+
             if (rhoImage == NULL) {
 
-                /* count number of direct neighbors above threshold */
-                count = 0;
-
                 if (texImage[iGlobal] == texMissing) {
+                    fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
                     continue;
                 }
 
                 if (sign * texImage[iGlobal] > sign * texThres) { // FIXME why sign x2? ... sort of an ABS?
+                    fprintf(stderr,"sign * texImage[%d] > sign * texThres\n",iGlobal);
+                    fprintf(stderr,"sign = %d; texImage[%d] = %d; texThres = %f\n",sign,iGlobal,texImage[iGlobal],texThres);
                     continue;
                 }
 
+                /* count number of direct neighbors above threshold */
+                count = 0;
                 for (iNeighborhood = 0; iNeighborhood < 9; iNeighborhood++) {
                     iRangLocal = (iRang - 1 + iNeighborhood % 3);
                     iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
@@ -340,7 +346,12 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
-                    if (sign * texImage[iLocal] <= sign * texThres) { // FIXME sign 2x ? // FIXME why <= instead of >
+//                    if (sign * texImage[iLocal] <= sign * texThres) {
+//                        // FIXME sign 2x ?
+//                        // FIXME shouldn't it be '>' instead of '<='?
+//                        count++;
+//                    }
+                    if (sign * texImage[iLocal] > sign * texThres) {
                         count++;
                     }
                 }
@@ -348,21 +359,28 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 if (count - 1 < NEIGHBOURS) {
                     continue;
                 }
+                fprintf(stderr,"iGlobal = %d, count = %d\n",iGlobal,count);
 
-            } else {
+            }
+            else {
                 if (rhoImage[iGlobal] == rhoMissing) {
+                    fprintf(stderr,"rhoImage[%d] == rhoMissing\n",iGlobal);
                     continue;
                 }
                 if (zdrImage[iGlobal] == zdrMissing) {
+                    fprintf(stderr,"zdrImage[%d] == zdrMissing\n",iGlobal);
                     continue;
                 }
                 if (texImage[iGlobal] == texMissing) {
+                    fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
                     continue;
                 }
                 if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?
+                    fprintf(stderr,"texImage[%d] < dbzThresMin\n",iGlobal);
                     continue;
                 }
                 if (!(zdrImage[iGlobal] > zdrThres || rhoImage[iGlobal] > rhoThres)) {
+                    fprintf(stderr,"!(zdrImage[%d] > zdrThres || rhoImage[%d] > rhoThres)\n",iGlobal,iGlobal);
                     continue;
                 }
 
@@ -406,12 +424,12 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 /* if pixel still unassigned, assign same iCellIdentifier as connection */
                 if (cellImage[iGlobal] == cellImageInitialValue) {
                     cellImage[iGlobal] = cellImage[iLocal];
-                } else {
+                }
+                else {
                     /* if connection found but pixel is already assigned a different iCellIdentifier: */
                     if (cellImage[iGlobal] != cellImage[iLocal]) {
                         /* merging cells detected: replace all other occurences by value of connection: */
-                        for (iGlobalOther = 0; iGlobalOther < nGlobal;
-                                iGlobalOther++) {
+                        for (iGlobalOther = 0; iGlobalOther < nGlobal; iGlobalOther++) {
                             if (cellImage[iGlobalOther] == cellImage[iGlobal]) {
                                 cellImage[iGlobalOther] = cellImage[iLocal];
                             }
@@ -685,14 +703,10 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
 
             dbz = reflOffset + reflScale * reflImage[iGlobal];
 
-            for (iNeighborhood = 0; iNeighborhood < nNeighborhood;
-                    iNeighborhood++) {
+            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
-                iRangLocal = iRang - nRangNeighborhood / 2
-                        + iNeighborhood % nRangNeighborhood;
-                iAzimLocal = (nAzim
-                        + (iAzim - nAzimNeighborhood / 2
-                                + iNeighborhood / nRangNeighborhood)) % nAzim;
+                iRangLocal = iRang - nRangNeighborhood / 2 + iNeighborhood % nRangNeighborhood;
+                iAzimLocal = (nAzim + (iAzim - nAzimNeighborhood / 2 + iNeighborhood / nRangNeighborhood)) % nAzim;
 
                 iLocal = iRangLocal + iAzimLocal * nRang;
 
@@ -702,8 +716,7 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
                 if (iLocal >= nGlobal || iLocal < 0) {
                     continue;
                 }
-                if (vradImage[iLocal] == missingValue
-                        || reflImage[iLocal] == missingValue) {
+                if (vradImage[iLocal] == missingValue || reflImage[iLocal] == missingValue) {
                     continue;
                 }
 
@@ -711,8 +724,7 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
                 //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
                 //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
 
-                vRadDiff = vradOffset
-                        + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
+                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
 
@@ -732,8 +744,7 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
             } else {
                 if (texType == TEXCV) {
 
-                    tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1))))
-                            - dbz;
+                    tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
 
                     if (tex < texOffset + texScale) { // FIXME tex < texOffset would make more sense
                         tex = texOffset + texScale;
