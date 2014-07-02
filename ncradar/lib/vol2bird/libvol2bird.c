@@ -192,11 +192,17 @@ float dist(int range1, int azim1, int range2, int azim2, float rscale,
     return sqrt(SQUARE(x1-x2) + SQUARE(y1 - y2));
 } //dist
 
+
+
+
+
+
 int findcells(unsigned char *texImage, unsigned char *rhoImage,
         unsigned char *zdrImage, int *cellImage, SCANMETA *texMeta,
         SCANMETA *rhoMeta, SCANMETA *zdrMeta, float texThresMin,
         float rhoThresMin, float zdrThresMin, float reflThresMin,
         float rCellMax, char sign) {
+
 
     int iCellIdentifier;
     int nCells;
@@ -257,15 +263,19 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     zdrValueOffset = zdrMeta->valueOffset;
     zdrValueScale = zdrMeta->valueScale;
 
+
+    nAzim = texnAzim;
+    nRang = texnRang;
+
     nGlobal = nAzim * nRang;
 
-    texThres = ROUND((texThresMin - texValueOffset) / texValueScale); // FIXME why type is int?
+    texThres = ROUND((texThresMin - texValueOffset) / texValueScale);
 
     if (rhoImage != NULL) {
-        rhoThres = ROUND((rhoThresMin - rhoValueOffset) / rhoValueScale); // FIXME why type is int?
+        rhoThres = ROUND((rhoThresMin - rhoValueOffset) / rhoValueScale);
     }
     if (zdrImage != NULL) {
-        zdrThres = ROUND((zdrThresMin - zdrValueOffset) / zdrValueScale); // FIXME why type is int?
+        zdrThres = ROUND((zdrThresMin - zdrValueOffset) / zdrValueScale);
     }
 
     /*Initializing of connection cellImage.*/
