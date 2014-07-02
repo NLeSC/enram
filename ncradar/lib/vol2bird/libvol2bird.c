@@ -206,15 +206,16 @@ float dist(int range1, int azim1, int range2, int azim2, float rscale,
 int findcells(unsigned char *texImage, unsigned char *rhoImage,
         unsigned char *zdrImage, int *cellImage, SCANMETA *texMeta,
         SCANMETA *rhoMeta, SCANMETA *zdrMeta, float texThresMin,
-        float rhoThresMin, float zdrThresMin, float reflThresMin,
+        float rhoThresMin, float zdrThresMin, float dbzThresMin,
         float rCellMax, char sign) {
 
 
     //  *****************************************************************************
-    //  This function detects the cells in 'image' using an integer threshold value
-    //  of 'thres' and a non-recursive algorithm which looks for neighboring pixels
-    //  above threshold. On return the marked cells are contained by 'cellmap'. The
-    //  number of detected cells/highest index value is returned.
+    //  This function detects the cells in '[tex|rho|zdr]Image' using an integer
+    //  threshold value of '[tex|rho|zdr]Thres' and a non-recursive algorithm which
+    //  looks for neighboring pixels above threshold. On return the marked cells are
+    //  contained by 'cellImage'. The number of detected cells/highest index value is
+    //  returned.
     //  *****************************************************************************
 
 
@@ -299,9 +300,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
         cellImage[iGlobal] = cellImageInitialValue;
     }
 
-    /*If threshold is missing, return.*/
+    /*If threshold value is equal to missing value, return.*/
     if (texThres == texMissing) {
-        return 0; // FIXME return zero is traditionally used to signal "everything is great!"
+        return -1;
     }
 
     /*Labeling of groups of connected pixels using horizontal, vertical, and */
@@ -318,21 +319,23 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
             if ((iRang + 1) * texRangeScale > rCellMax) {
                 continue;
             }
-            if (texImage[iGlobal] == texMissing) {
-                continue;
-            }
-
-            /* count number of direct neighbors above threshold */
-            count = 0;
 
             if (rhoImage == NULL) {
+
+                /* count number of direct neighbors above threshold */
+                count = 0;
+
+                if (texImage[iGlobal] == texMissing) {
+                    continue;
+                }
+
                 if (sign * texImage[iGlobal] > sign * texThres) { // FIXME why sign x2? ... sort of an ABS?
                     continue;
                 }
+
                 for (iNeighborhood = 0; iNeighborhood < 9; iNeighborhood++) {
                     iRangLocal = (iRang - 1 + iNeighborhood % 3);
-                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3))
-                            % nAzim;
+                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
                     iLocal = iRangLocal + iAzimLocal * nRang; // FIXME see issue #32
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
@@ -341,6 +344,11 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                         count++;
                     }
                 }
+                /* when not enough qualified neighbors, continue */
+                if (count - 1 < NEIGHBOURS) {
+                    continue;
+                }
+
             } else {
                 if (rhoImage[iGlobal] == rhoMissing) {
                     continue;
@@ -348,30 +356,31 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 if (zdrImage[iGlobal] == zdrMissing) {
                     continue;
                 }
-                if (texImage[iGlobal] < reflThresMin) { // FIXME tex v refl why?
+                if (texImage[iGlobal] == texMissing) {
                     continue;
                 }
-                if (!(zdrImage[iGlobal] > zdrThres
-                        || rhoImage[iGlobal] > rhoThres)) {
+                if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?
+                    continue;
+                }
+                if (!(zdrImage[iGlobal] > zdrThres || rhoImage[iGlobal] > rhoThres)) {
                     continue;
                 }
 
                 for (iNeighborhood = 0; iNeighborhood < 9; iNeighborhood++) {
                     iRangLocal = (iRang - 1 + iNeighborhood % 3);
-                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3))
-                            % nAzim;
+                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
                     iLocal = iRangLocal + iAzimLocal * nRang; // FIXME see issue #32
-                    if (rhoImage[iLocal] > rhoThres
-                            || zdrImage[iLocal] > zdrThres) {
+                    if (zdrImage[iLocal] > zdrThres || rhoImage[iLocal] > rhoThres ) {
                         count++;
                     }
                 }
+                /* when not enough qualified neighbors, continue */
+                if (count - 1 < NEIGHBOURS) {
+                    continue;
+                }
+
             } // if (rhoImage==NULL)
 
-            /* when not enough qualified neighbors, continue */
-            if (count - 1 < NEIGHBOURS) {
-                continue;
-            }
 
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
             /*connections.*/
@@ -383,8 +392,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 iLocal = iRangLocal + iAzimLocal * nRang;
 
                 /* index out of range, go to next pixel within neighborhood */
-                if (iRangLocal < 0 || iRangLocal >= nRang || iAzimLocal < 0
-                        || iAzimLocal >= nAzim) { // FIXME possibly affected by issue #32
+                if (iRangLocal < 0 || iRangLocal >= nRang ||
+                    iAzimLocal < 0 || iAzimLocal >= nAzim) {
+                    // FIXME possibly affected by issue #32
                     continue;
                 }
 
