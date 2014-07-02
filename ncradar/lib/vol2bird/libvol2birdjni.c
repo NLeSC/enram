@@ -656,12 +656,10 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         return -1;
     }
 
-    nCells = findcells(&texImageBody[0], &rhoImageBody[0], &zdrImageBody[0], cellImageIntBody,
+    nCells = findcells(&texImageBody[0], &rhoImageBody[0], &zdrImageBody[0], &cellImageIntBody[0],
                        &texMeta,     &rhoMeta,     &zdrMeta,
                        texThresMin,  rhoThresMin,  zdrThresMin,
                        reflThresMin, rCellMax, sign);
-
-
 
     for (iAzim = 0;iAzim<nAzim;iAzim++){
         for (iRang= 0 ; iRang<nRang;iRang++){
