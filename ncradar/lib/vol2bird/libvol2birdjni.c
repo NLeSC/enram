@@ -551,8 +551,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         jint texnAzim,
         jint texnRang,
         jfloat texValueOffset,
-        jfloat texRangeScale,
         jfloat texValueScale,
+        jfloat texRangeScale,
         jfloat texThresMin,
         jint rhoMissing,
         jint rhonAzim,
@@ -566,60 +566,102 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         jfloat zdrValueOffset,
         jfloat zdrValueScale,
         jfloat zdrThresMin,
-        jfloat reflThresMin,
+        jfloat dbzThresMin,
         jfloat rCellMax,
         jint signInt)
 {
-
-    // do some Java Native interface tricks:
-    jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
-    jint *rhoImageIntBody = (*env)->GetIntArrayElements(env, rhoImageInt, NULL);
-    jint *zdrImageIntBody = (*env)->GetIntArrayElements(env, zdrImageInt, NULL);
-    jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
-    jsize nGlobal = (*env)->GetArrayLength(env, texImageInt);
-    // end of Java Native Interface tricks
-
-    unsigned char texImageBody[nGlobal];
-    unsigned char rhoImageBody[nGlobal];
-    unsigned char zdrImageBody[nGlobal];
-    unsigned char sign;
 
     int nAzim = texnAzim;
     int nRang = texnRang;
     int iAzim;
     int iRang;
     int iGlobal;
+    int nGlobal;
 
-    for (iAzim = 0;iAzim<nAzim;iAzim++){
-        for (iRang= 0 ; iRang<nRang;iRang++){
-            iGlobal = iAzim*nRang + iRang;
+    int rhoImageIsNull;
+    int zdrImageIsNull;
 
-            if (0<=texImageIntBody[iGlobal] && texImageIntBody[iGlobal]<=255) {
-                texImageBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
-            }
-            else {
-                fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
-                return -1;
-            }
+    if (rhoImageInt == NULL) {
+        fprintf(stderr,"rhoImage is null.\n");
+        rhoImageIsNull = 1;
+    }
+    else {
+        rhoImageIsNull = 0;
+    }
 
-            if (0<=rhoImageIntBody[iGlobal] && rhoImageIntBody[iGlobal]<=255) {
-                rhoImageBody[iGlobal] = (unsigned char) rhoImageIntBody[iGlobal];
-            }
-            else {
-                fprintf(stderr,"Error converting type (rhoImageIntBody[iGlobal]).");
-                return -1;
-            }
+    if (zdrImageInt == NULL) {
+        fprintf(stderr,"zdrImage is null.\n");
+        zdrImageIsNull = 1;
+    }
+    else {
+        zdrImageIsNull = 0;
+    }
 
-            if (0<=zdrImageIntBody[iGlobal] && zdrImageIntBody[iGlobal]<=255) {
-                zdrImageBody[iGlobal] = (unsigned char) zdrImageIntBody[iGlobal];
-            }
-            else {
-                fprintf(stderr,"Error converting type (zdrImageIntBody[iGlobal]).");
-                return -1;
-            }
 
+    nGlobal = nAzim * nRang;
+
+    // do some Java Native interface tricks:
+
+    jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
+    unsigned char texImageBody[nGlobal];
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+         for (iRang= 0 ; iRang<nRang;iRang++){
+             iGlobal = iAzim*nRang + iRang;
+             if (0<=texImageIntBody[iGlobal] && texImageIntBody[iGlobal]<=255) {
+                 texImageBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
+             }
+             else {
+                 fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
+                 return -1;
+             }
+         }
+     }
+
+
+    unsigned char rhoImageBody[nGlobal];
+    jint *rhoImageIntBody;
+    if (rhoImageInt != NULL) {
+        rhoImageIntBody = (*env)->GetIntArrayElements(env, rhoImageInt, NULL);
+        for (iAzim = 0;iAzim<nAzim;iAzim++){
+            for (iRang= 0 ; iRang<nRang;iRang++){
+                iGlobal = iAzim*nRang + iRang;
+                if (0<=rhoImageIntBody[iGlobal] && rhoImageIntBody[iGlobal]<=255) {
+                    rhoImageBody[iGlobal] = (unsigned char) rhoImageIntBody[iGlobal];
+                }
+                else {
+                    fprintf(stderr,"Error converting type (rhoImageIntBody[iGlobal]).");
+                    return -1;
+                }
+            }
         }
     }
+
+    unsigned char zdrImageBody[nGlobal];
+    jint *zdrImageIntBody;
+    if (zdrImageInt != NULL) {
+        zdrImageIntBody = (*env)->GetIntArrayElements(env, zdrImageInt, NULL);
+        for (iAzim = 0;iAzim<nAzim;iAzim++){
+            for (iRang= 0 ; iRang<nRang;iRang++){
+                iGlobal = iAzim*nRang + iRang;
+                if (0<=zdrImageIntBody[iGlobal] && zdrImageIntBody[iGlobal]<=255) {
+                    zdrImageBody[iGlobal] = (unsigned char) zdrImageIntBody[iGlobal];
+                }
+                else {
+                    fprintf(stderr,"Error converting type (zdrImageIntBody[iGlobal]).");
+                    return -1;
+                }
+            }
+        }
+    }
+
+
+    jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
+    // end of Java Native Interface tricks
+
+
+    unsigned char sign;
+
+
 
     // Allocating and initializing memory for cell properties.
 
@@ -656,28 +698,55 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         return -1;
     }
 
-    nCells = findcells(&texImageBody[0], &rhoImageBody[0], &zdrImageBody[0], &cellImageIntBody[0],
-                       &texMeta,     &rhoMeta,     &zdrMeta,
-                       texThresMin,  rhoThresMin,  zdrThresMin,
-                       reflThresMin, rCellMax, sign);
+    if (rhoImageIsNull == 1 && zdrImageIsNull == 0) {
+            nCells = findcells(&texImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
+                               &texMeta,     &rhoMeta,     &zdrMeta,
+                               texThresMin,  rhoThresMin,  zdrThresMin,
+                               dbzThresMin, rCellMax, sign);
+    }
+    if (rhoImageIsNull == 0 && zdrImageIsNull == 1) {
+            nCells = findcells(&texImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
+                               &texMeta,     &rhoMeta,     &zdrMeta,
+                               texThresMin,  rhoThresMin,  zdrThresMin,
+                               dbzThresMin, rCellMax, sign);
+    }
+    if (rhoImageIsNull == 1 && zdrImageIsNull == 1) {
+            nCells = findcells(&texImageBody[0], NULL, NULL, &cellImageIntBody[0],
+                               &texMeta,     &rhoMeta,     &zdrMeta,
+                               texThresMin,  rhoThresMin,  zdrThresMin,
+                               dbzThresMin, rCellMax, sign);
+    }
 
-    for (iAzim = 0;iAzim<nAzim;iAzim++){
+
+
+
+
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
         for (iRang= 0 ; iRang<nRang;iRang++){
+
             iGlobal = iAzim*nRang + iRang;
 
             texImageIntBody[iGlobal] = (jint) texImageBody[iGlobal];
-            rhoImageIntBody[iGlobal] = (jint) rhoImageBody[iGlobal];
-            zdrImageIntBody[iGlobal] = (jint) zdrImageBody[iGlobal];
-
+            if (rhoImageIsNull == 0) {
+                rhoImageIntBody[iGlobal] = (jint) rhoImageBody[iGlobal];
+            }
+            if (zdrImageIsNull == 0) {
+                zdrImageIntBody[iGlobal] = (jint) zdrImageBody[iGlobal];
+            }
         }
     }
+
 
 
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, 0);
     (*env)->ReleaseIntArrayElements(env, texImageInt, texImageIntBody, JNI_ABORT);
-    (*env)->ReleaseIntArrayElements(env, rhoImageInt, rhoImageIntBody, JNI_ABORT);
-    (*env)->ReleaseIntArrayElements(env, zdrImageInt, zdrImageIntBody, JNI_ABORT);
+    if (rhoImageIsNull == 0) {
+        (*env)->ReleaseIntArrayElements(env, rhoImageInt, rhoImageIntBody, JNI_ABORT);
+    }
+    if (zdrImageIsNull == 0) {
+        (*env)->ReleaseIntArrayElements(env, zdrImageInt, zdrImageIntBody, JNI_ABORT);
+    }
     // end of Java Native Interface tricks
 
 
