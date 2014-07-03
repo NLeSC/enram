@@ -80,7 +80,7 @@ jint verboseInt
                 dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -88,7 +88,7 @@ jint verboseInt
                 vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -96,7 +96,7 @@ jint verboseInt
                 texImageBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -104,7 +104,7 @@ jint verboseInt
                 clutterImageBody[iGlobal] = (unsigned char) clutterImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -265,7 +265,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
             texImageUCharBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
         }
         else {
-            fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
+            fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).\n");
             return;
         }
 
@@ -273,7 +273,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
             reflImageUCharBody[iGlobal] = (unsigned char) reflImageIntBody[iGlobal];
         }
         else {
-            fprintf(stderr,"Error converting type (reflImageIntBody[iGlobal]).");
+            fprintf(stderr,"Error converting type (reflImageIntBody[iGlobal]).\n");
             return;
         }
 
@@ -281,7 +281,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
             vradImageUCharBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
         }
         else {
-            fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).");
+            fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
             return;
         }
     }
@@ -295,7 +295,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         nRangNeighborhoodUChar = (unsigned char) nRangNeighborhoodInt;
     }
     else {
-        fprintf(stderr,"Error converting type (nRangNeighborhoodInt).");
+        fprintf(stderr,"Error converting type (nRangNeighborhoodInt).\n");
         return;
     }
 
@@ -304,7 +304,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         nAzimNeighborhoodUChar = (unsigned char) nAzimNeighborhoodInt;
     }
     else {
-        fprintf(stderr,"Error converting type (nAzimNeighborhoodInt).");
+        fprintf(stderr,"Error converting type (nAzimNeighborhoodInt).\n");
         return;
     }
 
@@ -312,7 +312,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         nCountMinUChar = (unsigned char) nCountMinInt;
     }
     else {
-        fprintf(stderr,"Error converting type (nCountMinInt).");
+        fprintf(stderr,"Error converting type (nCountMinInt).\n");
         return;
     }
 
@@ -320,7 +320,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         texTypeUChar = (unsigned char) texTypeInt;
     }
     else {
-        fprintf(stderr,"Error converting type (texTypeInt).");
+        fprintf(stderr,"Error converting type (texTypeInt).\n");
         return;
     }
 
@@ -492,7 +492,7 @@ jint xflagInt
                 dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -500,7 +500,7 @@ jint xflagInt
                 vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -508,7 +508,7 @@ jint xflagInt
                 rawReflImageBody[iGlobal] = (unsigned char) rawReflImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (rawReflImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (rawReflImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -516,7 +516,7 @@ jint xflagInt
                 clutterImageBody[iGlobal] = (unsigned char) clutterImageIntBody[iGlobal];
             }
             else {
-                fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).");
+                fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).\n");
                 return -1;
             }
 
@@ -553,7 +553,7 @@ jint xflagInt
         clutterFlag = (unsigned char) clutterFlagInt;
     }
     else {
-        fprintf(stderr,"Error converting type.");
+        fprintf(stderr,"Error converting type.\n");
         return -1;
     }
 
@@ -562,7 +562,7 @@ jint xflagInt
         rawReflFlag = (unsigned char) rawReflFlagInt;
     }
     else {
-        fprintf(stderr,"Error converting type.");
+        fprintf(stderr,"Error converting type.\n");
         return -1;
     }
 
@@ -571,7 +571,7 @@ jint xflagInt
         xflag = (unsigned char) xflagInt;
     }
     else {
-        fprintf(stderr,"Error converting type.");
+        fprintf(stderr,"Error converting type.\n");
         return -1;
     }
 
@@ -695,7 +695,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
                  texImageBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
              }
              else {
-                 fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
+                 fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).\n");
                  return -1;
              }
          }
@@ -713,7 +713,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
                     rhoImageBody[iGlobal] = (unsigned char) rhoImageIntBody[iGlobal];
                 }
                 else {
-                    fprintf(stderr,"Error converting type (rhoImageIntBody[iGlobal]).");
+                    fprintf(stderr,"Error converting type (rhoImageIntBody[iGlobal]).\n");
                     return -1;
                 }
             }
@@ -731,7 +731,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
                     zdrImageBody[iGlobal] = (unsigned char) zdrImageIntBody[iGlobal];
                 }
                 else {
-                    fprintf(stderr,"Error converting type (zdrImageIntBody[iGlobal]).");
+                    fprintf(stderr,"Error converting type (zdrImageIntBody[iGlobal]).\n");
                     return -1;
                 }
             }
@@ -778,7 +778,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         sign = (char) signInt;
     }
     else {
-        fprintf(stderr,"Error converting type.");
+        fprintf(stderr,"Error converting type.\n");
         return -1;
     }
 
