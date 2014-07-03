@@ -690,8 +690,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
     int nCells;
 
-    if (0<=signInt && signInt<=255) {
-        sign = (unsigned char) signInt;
+    if (-128<=signInt && signInt<=127) {
+        sign = (char) signInt;
     }
     else {
         fprintf(stderr,"Error converting type.");
