@@ -230,13 +230,13 @@ JNIEXPORT void JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         JNIEnv *env,
         jobject obj,
-        jbyteArray texImage,
-        jbyteArray reflImage,
-        jbyteArray vradImage,
-        jbyte nRangNeighborhood,
-        jbyte nAzimNeighborhood,
-        jbyte nCountMin,
-        jbyte texType,
+        jintArray texImageInt,
+        jintArray reflImageInt,
+        jintArray vradImageInt,
+        jint nRangNeighborhoodInt,
+        jint nAzimNeighborhoodInt,
+        jint nCountMinInt,
+        jint texTypeInt,
         jfloat texOffset,
         jfloat texScale,
         jfloat reflOffset,
@@ -247,9 +247,84 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         jint nAzim) {
 
     // do some Java Native interface tricks:
-    jbyte *texImageBody = (*env)->GetByteArrayElements(env, texImage, NULL);
-    jbyte *reflImageBody = (*env)->GetByteArrayElements(env, reflImage, NULL);
-    jbyte *vradImageBody = (*env)->GetByteArrayElements(env, vradImage, NULL);
+    jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
+    jint *reflImageIntBody = (*env)->GetIntArrayElements(env, reflImageInt, NULL);
+    jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
+    jsize nGlobal = (*env)->GetArrayLength(env, texImageInt);
+    // end of Java Native Interface tricks
+
+    unsigned char texImageUCharBody[nGlobal];
+    unsigned char reflImageUCharBody[nGlobal];
+    unsigned char vradImageUCharBody[nGlobal];
+
+    int iGlobal;
+
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++){
+
+        if (0<=texImageIntBody[iGlobal] && texImageIntBody[iGlobal]<=255) {
+            texImageUCharBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
+        }
+        else {
+            fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).");
+            return;
+        }
+
+        if (0<=reflImageIntBody[iGlobal] && reflImageIntBody[iGlobal]<=255) {
+            reflImageUCharBody[iGlobal] = (unsigned char) reflImageIntBody[iGlobal];
+        }
+        else {
+            fprintf(stderr,"Error converting type (reflImageIntBody[iGlobal]).");
+            return;
+        }
+
+        if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
+            vradImageUCharBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
+        }
+        else {
+            fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).");
+            return;
+        }
+    }
+
+    unsigned char nRangNeighborhoodUChar;
+    unsigned char nAzimNeighborhoodUChar;
+    unsigned char nCountMinUChar;
+    unsigned char texTypeUChar;
+
+    if (0<=nRangNeighborhoodInt && nRangNeighborhoodInt<=255) {
+        nRangNeighborhoodUChar = (unsigned char) nRangNeighborhoodInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type (nRangNeighborhoodInt).");
+        return;
+    }
+
+
+    if (0<=nAzimNeighborhoodInt && nAzimNeighborhoodInt<=255) {
+        nAzimNeighborhoodUChar = (unsigned char) nAzimNeighborhoodInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type (nAzimNeighborhoodInt).");
+        return;
+    }
+
+    if (0<=nCountMinInt && nCountMinInt<=255) {
+        nCountMinUChar = (unsigned char) nCountMinInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type (nCountMinInt).");
+        return;
+    }
+
+    if (0<=texTypeInt && texTypeInt<=255) {
+        texTypeUChar = (unsigned char) texTypeInt;
+    }
+    else {
+        fprintf(stderr,"Error converting type (texTypeInt).");
+        return;
+    }
+
+
 
     SCANMETA texMeta;
     SCANMETA reflMeta;
@@ -266,12 +341,12 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
     vradMeta.nRang = nRang;
     vradMeta.nAzim = nAzim;
 
-    // end of Java Native Interface tricks
 
-    texture(texImageBody, vradImageBody, reflImageBody,
+
+    texture(texImageUCharBody, vradImageUCharBody, reflImageUCharBody,
             &texMeta, &vradMeta, &reflMeta,
-            nRangNeighborhood, nAzimNeighborhood,
-            nCountMin, texType);
+            nRangNeighborhoodUChar, nAzimNeighborhoodUChar,
+            nCountMinUChar, texTypeUChar);
 
 //    int iElem;
 //
@@ -284,11 +359,20 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 //    }
 
 
-    // do some Java Native interface tricks:
-    (*env)->ReleaseByteArrayElements(env, texImage, texImageBody, 0);
-    (*env)->ReleaseByteArrayElements(env, reflImage, reflImageBody, JNI_ABORT);
-    (*env)->ReleaseByteArrayElements(env, vradImage, vradImageBody, JNI_ABORT);
 
+    // cast back to integer type:
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        texImageIntBody[iGlobal] = (jint) texImageUCharBody[iGlobal];
+        vradImageIntBody[iGlobal] = (jint) vradImageUCharBody[iGlobal];
+        reflImageIntBody[iGlobal] = (jint) reflImageUCharBody[iGlobal];
+    }
+
+
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseIntArrayElements(env, texImageInt, texImageIntBody, 0);
+    (*env)->ReleaseIntArrayElements(env, reflImageInt, reflImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
     // end of Java Native Interface tricks
 
 }

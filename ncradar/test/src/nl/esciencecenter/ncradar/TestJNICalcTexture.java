@@ -7,13 +7,13 @@ import org.junit.Test;
 
 public class TestJNICalcTexture extends JNIMethodsVol2Bird {
 
-    private byte[] texImage;
-    private byte[] reflImage;
-    private byte[] vradImage;
-    private byte nRangNeighborhood;
-    private byte nAzimNeighborhood;
-    private byte nCountMin;
-    private byte texType;
+    private int[] texImage;
+    private int[] reflImage;
+    private int[] vradImage;
+    private int nRangNeighborhood;
+    private int nAzimNeighborhood;
+    private int nCountMin;
+    private int texType;
     private float texOffset;
     private float texScale;
     private float reflOffset;
@@ -28,17 +28,17 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
     @Before
     public void setUp() throws Exception {
 
-        texImage = new byte[] { 0, 0, 0, 0,
+        texImage = new int[] { 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0 };
-        reflImage = new byte[] { 3, 46, 56, 7,
+        reflImage = new int[] { 3, 46, 56, 7,
                 84, 6, 78, 72,
                 3, 5, 23, 56,
                 67, 23, 5, 67,
                 89, 7, 2, 5 };
-        vradImage = new byte[] { 8, 94, 56, 65,
+        vradImage = new int[] { 8, 94, 56, 65,
                 23, 2, 46, 73,
                 5, 6, 34, 53,
                 0, 89, 42, 3,
@@ -82,10 +82,10 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 nRang,
                 nAzim);
 
-        byte[][] actual = reshapeTo2D(texImage.clone(), nAzim, nRang);
+        int[][] actual = reshapeTo2D(texImage.clone(), nAzim, nRang);
 
-        byte[][] texImage2D = new byte[nAzim][nRang];
-        byte[][] vradImage2D = reshapeTo2D(vradImage, nAzim, nRang);
+        int[][] texImage2D = new int[nAzim][nRang];
+        int[][] vradImage2D = reshapeTo2D(vradImage, nAzim, nRang);
 
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 0 + nRangNeighborhood / 2; iRang < nRang - nRangNeighborhood / 2; iRang++) {
@@ -120,7 +120,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
             }
         }
 
-        byte[][] expected = texImage2D.clone();
+        int[][] expected = texImage2D.clone();
 
         int differsByOne = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -164,10 +164,10 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 nRang,
                 nAzim);
 
-        byte[][] actual = reshapeTo2D(texImage.clone(), nAzim, nRang);
+        int[][] actual = reshapeTo2D(texImage.clone(), nAzim, nRang);
 
-        byte[][] texImage2D = new byte[nAzim][nRang];
-        byte[][] vradImage2D = reshapeTo2D(vradImage, nAzim, nRang);
+        int[][] texImage2D = new int[nAzim][nRang];
+        int[][] vradImage2D = reshapeTo2D(vradImage, nAzim, nRang);
 
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 0 + nRangNeighborhood / 2; iRang < nRang - nRangNeighborhood / 2; iRang++) {
@@ -196,7 +196,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
             }
         }
 
-        byte[][] expected = texImage2D.clone();
+        int[][] expected = texImage2D.clone();
 
         int differsByOne = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -216,9 +216,9 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
 
 
 
-    private byte[][] reshapeTo2D(byte[] inputArray, int nRows, int nCols) {
+    private int[][] reshapeTo2D(int[] inputArray, int nRows, int nCols) {
 
-        byte[][] outputArray = new byte[nRows][nCols];
+        int[][] outputArray = new int[nRows][nCols];
         int iGlobal = 0;
         for (int iRow = 0; iRow < nRows; iRow++) {
             for (int iCol = 0; iCol < nCols; iCol++) {

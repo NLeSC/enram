@@ -5,6 +5,8 @@
 #include "libvol2bird.h"
 
 
+//#define FPRINTFON
+
 
 
 int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
@@ -325,18 +327,23 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 continue;
             }
 
+#ifdef FPRINTFON
             fprintf(stderr,"iGlobal = %d\n",iGlobal);
-
+#endif
             if (rhoImage == NULL) {
 
                 if (texImage[iGlobal] == texMissing) {
+#ifdef FPRINTFON
                     fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
+#endif
                     continue;
                 }
 
                 if (sign * texImage[iGlobal] > sign * texThres) { // FIXME why sign x2? ... sort of an ABS?
+#ifdef FPRINTFON
                     fprintf(stderr,"sign * texImage[%d] > sign * texThres\n",iGlobal);
                     fprintf(stderr,"sign = %d; texImage[%d] = %d; texThres = %f\n",sign,iGlobal,texImage[iGlobal],texThres);
+#endif
                     continue;
                 }
 
@@ -360,28 +367,40 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                 if (count - 1 < NEIGHBOURS) {
                     continue;
                 }
+#ifdef FPRINTFON
                 fprintf(stderr,"iGlobal = %d, count = %d\n",iGlobal,count);
+#endif
 
             }
             else {
                 if (rhoImage[iGlobal] == rhoMissing) {
+#ifdef FPRINTFON
                     fprintf(stderr,"rhoImage[%d] == rhoMissing\n",iGlobal);
+#endif
                     continue;
                 }
                 if (zdrImage[iGlobal] == zdrMissing) {
+#ifdef FPRINTFON
                     fprintf(stderr,"zdrImage[%d] == zdrMissing\n",iGlobal);
+#endif
                     continue;
                 }
                 if (texImage[iGlobal] == texMissing) {
+#ifdef FPRINTFON
                     fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
+#endif
                     continue;
                 }
                 if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?
+#ifdef FPRINTFON
                     fprintf(stderr,"texImage[%d] < dbzThresMin\n",iGlobal);
+#endif
                     continue;
                 }
                 if (!(zdrImage[iGlobal] > zdrThres || rhoImage[iGlobal] > rhoThres)) {
+#ifdef FPRINTFON
                     fprintf(stderr,"!(zdrImage[%d] > zdrThres || rhoImage[%d] > rhoThres)\n",iGlobal,iGlobal);
+#endif
                     continue;
                 }
 
@@ -442,7 +461,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
             /*When no connections are found, give a new number.*/
             if (cellImage[iGlobal] == cellImageInitialValue) {
+#ifdef FPRINTFON
                 fprintf(stderr, "new cell found...assigning number %d\n",iCellIdentifier);
+#endif
                 cellImage[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
