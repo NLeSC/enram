@@ -220,6 +220,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
 
 
+    // FIXME it seems the algorithm only works as intended if sign is equal
+    // to -1 (or minus anything for that matter). Why is it an input argument then?
+
     int iCellIdentifier;
     int nCells;
     int iRang;
@@ -346,14 +349,12 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
-//                    if (sign * texImage[iLocal] <= sign * texThres) {
-//                        // FIXME sign 2x ?
-//                        // FIXME shouldn't it be '>' instead of '<='?
-//                        count++;
-//                    }
-                    if (sign * texImage[iLocal] > sign * texThres) {
+                    if (sign * texImage[iLocal] <= sign * texThres) {
+                        // FIXME sign 2x ?
+                        // FIXME shouldn't it be '>' instead of '<='?
                         count++;
                     }
+
                 }
                 /* when not enough qualified neighbors, continue */
                 if (count - 1 < NEIGHBOURS) {
@@ -441,6 +442,7 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
             /*When no connections are found, give a new number.*/
             if (cellImage[iGlobal] == cellImageInitialValue) {
+                fprintf(stderr, "new cell found...assigning number %d\n",iCellIdentifier);
                 cellImage[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
