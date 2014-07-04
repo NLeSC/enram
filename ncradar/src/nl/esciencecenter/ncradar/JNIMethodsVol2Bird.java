@@ -32,9 +32,9 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected static final native void calcTexture(byte[] texImage,
-            byte[] reflImage, byte[] vradImage, byte nRangNeighborhood,
-            byte nAzimNeighborhood, byte nCountMin, byte texType,
+    protected static final native void calcTexture(int[] texImage,
+            int[] dbzImage, int[] vradImage, int nRangNeighborhood,
+            int nAzimNeighborhood, int nCountMin, int texType,
             float texOffset, float texScale, float reflOffset, float reflScale,
             float vradOffset, float vradScale, int nRang, int nAzim);
 
