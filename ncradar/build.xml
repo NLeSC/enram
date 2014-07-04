@@ -53,7 +53,6 @@
             <arg value="-I${jnihdir}/linux" />
             <arg value="-shared" />
             <arg value="libvol2bird.c" />
-            <arg value="-DDEBUG__76" />
             <arg value="-o" />
             <arg value="${gcc_dist}/libvol2bird.so" />
         </exec>
