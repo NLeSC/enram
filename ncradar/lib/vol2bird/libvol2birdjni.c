@@ -7,9 +7,6 @@
 
 
 
-
-
-
 JNIEXPORT jfloat JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyseCells(
 JNIEnv *env,
@@ -161,15 +158,21 @@ jint verboseInt
         return -1;
     }
 
+#ifdef FPRINTFON
+    fprintf(stderr,"before\n");
+#endif
 
 
     nCellsValid = analysecells(&dbzImageBody[0], &vradImageBody[0], &texImageBody[0],
-                               &clutterImageBody[0], cellImageIntBody,
+                               &clutterImageBody[0], &cellImageIntBody[0],
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
                                vradMinValue, dbzClutterMin, cmFlag,
                                dualPolFlag, verbose);
 
+#ifdef FPRINTFON
+    fprintf(stderr,"after\n");
+#endif
 
 
 
@@ -231,7 +234,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         JNIEnv *env,
         jobject obj,
         jintArray texImageInt,
-        const jintArray reflImageInt,
+        const jintArray dbzImageInt,
         const jintArray vradImageInt,
         const jint nRangNeighborhoodInt,
         const jint nAzimNeighborhoodInt,
@@ -239,8 +242,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         const jint texTypeInt,
         const jfloat texOffset,
         const jfloat texScale,
-        const jfloat reflOffset,
-        const jfloat reflScale,
+        const jfloat dbzOffset,
+        const jfloat dbzScale,
         const jfloat vradOffset,
         const jfloat vradScale,
         const jint nRang,
@@ -248,13 +251,13 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
     // do some Java Native interface tricks:
     jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
-    jint *reflImageIntBody = (*env)->GetIntArrayElements(env, reflImageInt, NULL);
+    jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
     jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
     jsize nGlobal = (*env)->GetArrayLength(env, texImageInt);
     // end of Java Native Interface tricks
 
     unsigned char texImageUCharBody[nGlobal];
-    unsigned char reflImageUCharBody[nGlobal];
+    unsigned char dbzImageUCharBody[nGlobal];
     unsigned char vradImageUCharBody[nGlobal];
 
     int iGlobal;
@@ -269,11 +272,11 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
             return;
         }
 
-        if (0<=reflImageIntBody[iGlobal] && reflImageIntBody[iGlobal]<=255) {
-            reflImageUCharBody[iGlobal] = (unsigned char) reflImageIntBody[iGlobal];
+        if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
+            dbzImageUCharBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
         }
         else {
-            fprintf(stderr,"Error converting type (reflImageIntBody[iGlobal]).\n");
+            fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
             return;
         }
 
@@ -327,14 +330,14 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
     SCANMETA texMeta;
-    SCANMETA reflMeta;
+    SCANMETA dbzMeta;
     SCANMETA vradMeta;
 
     texMeta.valueOffset = texOffset;
     texMeta.valueScale = texScale;
 
-    reflMeta.valueOffset = reflOffset;
-    reflMeta.valueScale = reflScale;
+    dbzMeta.valueOffset = dbzOffset;
+    dbzMeta.valueScale = dbzScale;
 
     vradMeta.valueOffset = vradOffset;
     vradMeta.valueScale = vradScale;
@@ -343,8 +346,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
 
-    texture(texImageUCharBody, vradImageUCharBody, reflImageUCharBody,
-            &texMeta, &vradMeta, &reflMeta,
+    texture(texImageUCharBody, vradImageUCharBody, dbzImageUCharBody,
+            &texMeta, &vradMeta, &dbzMeta,
             nRangNeighborhoodUChar, nAzimNeighborhoodUChar,
             nCountMinUChar, texTypeUChar);
 
@@ -353,7 +356,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 //    for (iElem=0; iElem<12;iElem++) {
 //        fprintf(stderr,"(C) ");
 //        fprintf(stderr,"%d, ",texImageBody[iElem]);
-//        fprintf(stderr,"%d, ",reflImageBody[iElem]);
+//        fprintf(stderr,"%d, ",dbzImageBody[iElem]);
 //        fprintf(stderr,"%d",vradImageBody[iElem]);
 //        fprintf(stderr,"\n");
 //    }
@@ -364,14 +367,14 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
     for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
         texImageIntBody[iGlobal] = (jint) texImageUCharBody[iGlobal];
         vradImageIntBody[iGlobal] = (jint) vradImageUCharBody[iGlobal];
-        reflImageIntBody[iGlobal] = (jint) reflImageUCharBody[iGlobal];
+        dbzImageIntBody[iGlobal] = (jint) dbzImageUCharBody[iGlobal];
     }
 
 
 
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, texImageInt, texImageIntBody, 0);
-    (*env)->ReleaseIntArrayElements(env, reflImageInt, reflImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, dbzImageInt, dbzImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
     // end of Java Native Interface tricks
 
