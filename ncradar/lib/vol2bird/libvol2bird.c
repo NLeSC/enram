@@ -5,7 +5,7 @@
 #include "libvol2bird.h"
 
 
-//#define FPRINTFON
+#define FPRINTFON
 
 
 
@@ -21,6 +21,11 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     //  Smalls cells are rejected and the cells are re-numbered according to size.
     //  The final number of cells in cellImage is returned as an integer.
     //  *********************************************************************************
+
+#ifdef FPRINTFON
+    fprintf(stderr,"Begin of analysecells in C.\n");
+#endif
+
 
     CELLPROP *cellProp;
     int iCell;
@@ -70,7 +75,16 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
             clutterValue = clutterMeta->valueScale * clutterImage[iGlobal] + clutterMeta->valueOffset;
             texValue = texMeta->valueScale * texImage[iGlobal] + texMeta->valueOffset;
 
+#ifdef FPRINTFON
+            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f; texValue = %f\n",dbzValue,vradValue,clutterValue,texValue);
+#endif
+
             iCell = cellImage[iGlobal];
+
+
+#ifdef FPRINTFON
+            fprintf(stderr,"iGlobal = %d, iCell = %d\n",iGlobal,iCell);
+#endif
 
             if (iCell<0) {
                 continue;
@@ -81,6 +95,9 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
             //low radial velocities are treated as clutter, not included in calculation cell properties
             if (fabs(vradValue) < vradMinValue){
                 cellProp[iCell].clutterArea += 1;
+#ifdef FPRINTFON
+                fprintf(stderr,"iGlobal = %d: vrad too low...treating as clutter\n",iGlobal);
+#endif
                 continue;
             }
 
@@ -97,9 +114,12 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
 
 
             if (dbzValue > cellProp[iCell].dbzMax) {
+#ifdef FPRINTFON
+                fprintf(stderr,"%d: new dbzMax value of %f found for this cell (%d).\n",iGlobal,dbzValue,iCell);
+#endif
                 cellProp[iCell].dbzMax = dbzValue;
                 cellProp[iCell].iRangOfMax = iGlobal%nAzim; // FIXME mod nAzim? I expected nRang
-                cellProp[iCell].iAzimOfMax = iGlobal/nAzim; // FIXME mod nAzim? I expected nRang
+                cellProp[iCell].iAzimOfMax = iGlobal/nAzim; // FIXME div nAzim? I expected nRang
             }
             cellProp[iCell].dbzAvg += dbzValue;
             cellProp[iCell].texAvg += texValue;
@@ -168,6 +188,11 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     }
 
     free(cellProp);
+
+#ifdef FPRINTFON
+    fprintf(stderr,"End of analysecells in C.\n");
+#endif
+
 
     return nCellsValid;
 } //analysecells
