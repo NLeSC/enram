@@ -203,6 +203,202 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
 
 
 
+void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
+        SCANMETA clutterMeta, int *cellImage,
+        unsigned char *dbzImage, unsigned char *vradImage,
+        unsigned char *rawReflImage, unsigned char *clutterImage,
+        float *zdata, int *nzdata,
+        float *fracclut, float *fracrain, float *fracbird, float *fracfringe,
+        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
+        float XSCALE, float XMEAN, float height,
+        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
+        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
+        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
+        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
+
+
+    //  *****************************************************************************
+    //  This function classifies the range gates, distinguishing between clutter,
+    //  rain, fringes, empty and valid gates. It returns the classification
+    //  and layer counters
+    //  *****************************************************************************
+
+    // FIXME *nzdata unused
+    // FIXME *fracclut  unused
+    // FIXME *fracrain  unused
+    // FIXME *fracbird  unused
+    // FIXME *fracfringe  unused
+    // FIXME HLAYER suggests preprocessor but isn't
+    // FIXME XOFFSET suggests preprocessor but isn't
+    // FIXME XSCALE suggests preprocessor but isn't
+    // FIXME XMEAN suggests preprocessor but isn't
+    // FIXME DBZNOISE suggests preprocessor but isn't
+    // FIXME NGAPMIN suggests preprocessor but isn't
+    // FIXME NGAPBIN suggests preprocessor but isn't
+    // FIXME NDBZMIN suggests preprocessor but isn't
+    // FIXME id unused
+    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
+
+    int iAzim;
+    int nAzim;
+    int iRang;
+    int nRang;
+    int llayer;
+    int n;
+    int nPoints;
+    int nPointsAll;
+    int nPointsClutter;
+    int nPointsRain;
+    int nPointsRainNoFringe;
+    int iGlobal;
+    float range;
+    float heightBeam;
+    float azim;
+    float FNAN;
+    float dbzValue;
+    float vradValue;
+    float clutterValue;
+
+    FNAN = 0.0/0.0;
+
+    n = *np;                      // FIXME I think this information is already contained in iGlobal
+    nPoints = *nPointsPtr;        // FIXME I think this information is already contained in iGlobal
+    nPointsAll = *nPointsAllPtr;  // FIXME I think this information is already contained in iGlobal
+    nPointsClutter = *nPointsClutterPtr;
+    nPointsRain = *nPointsRainPtr;
+    nPointsRainNoFringe = *nPointsRainNoFringePtr;
+
+
+    fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
+
+    llayer = layer * NDATA;
+
+    nRang = dbzMeta.nRang;
+    nAzim = dbzMeta.nAzim;
+
+    for (iRang = 0; iRang < nRang; iRang++) {
+
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+            range = (iRang+0.5) * dbzMeta.rangeScale;
+            azim = iAzim * dbzMeta.azimScale;    // FIXME why not iAzim+0.5?
+            heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
+
+            fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
+
+            if (range < rangeMin || range > rangeMax) {
+                continue;
+            }
+
+            if (azim <= azimMin || azim > azimMax) {
+                // FIXME what is this clause for?
+                continue;
+            }
+
+            if (fabs(height-heightBeam) > 0.5*HLAYER) {
+                continue;
+            }
+
+
+            iGlobal = iRang + iAzim * nRang;
+
+            dbzValue = dbzMeta.valueScale*dbzImage[iGlobal] + dbzMeta.valueOffset;
+            vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
+            clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
+
+
+            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
+
+            n++;
+
+            nPointsAll++;
+
+            //cluttermap points:
+            if (clutterFlag == 1){
+                if (clutterValue > dbzClutter){
+                    nPointsClutter++;
+                    fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
+                    continue;
+                }
+            }
+
+            //points without valid reflectivity data, but WITH raw reflectivity data are points
+            //dropped by the signal preprocessor. These will be treated as clutter.
+            if (rawReflFlag == 1){
+                if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
+                    nPointsClutter++;
+                    continue;
+                }
+            }
+            //if non-zero reflectivity but doppler data missing, treat as clutter:
+            if (dbzImage[iGlobal] != dbzMeta.missing && vradImage[iGlobal] == vradMeta.missing){
+                nPointsClutter++;
+                continue;
+            }
+
+            if (dbzValue < dbzMin) {
+                dbzValue = DBZNOISE;
+            }
+
+            //treat zero doppler speed as clutter:
+            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
+                nPointsClutter++;
+                continue;
+            }
+
+            // FIXME what does dBZx represent?
+            if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
+                if (cellImage[iGlobal] > 1) { //cluttermap without added fringes  // FIXME "cluttermap"? I think you mean cellmap
+                    // FIXME what does "1+llayer" represent?
+                    if (isnan(zdata[1+llayer])) {
+                        zdata[1+llayer] = 0;
+                    }
+                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+                    nPointsRainNoFringe++;
+                }
+
+                if (isnan(zdata[2+llayer])) {
+                    // FIXME what does "2+llayer" represent?
+                    zdata[2+llayer] = 0;
+                }
+                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);  // FIXME "log(10)" or "log10()"?
+                nPointsRain++;
+                continue;
+            }
+
+            if (isnan(zdata[0+llayer])) {
+                zdata[0+llayer] = 0;
+            }
+
+            if (isnan(zdata[2+llayer])) {
+                zdata[2+llayer] = 0;
+            }
+
+            if (xflag==1) {
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range); // FIXME "log(10)" or "log10()"?
+            }
+            else {
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+            }
+            zdata[2+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+            nPoints++;
+        }//for iAzim
+    }//for iRang
+
+    *np = n;
+    *nPointsPtr = nPoints;
+    *nPointsAllPtr = nPointsAll;
+    *nPointsClutterPtr = nPointsClutter;
+    *nPointsRainPtr = nPointsRain;
+    *nPointsRainNoFringePtr = nPointsRainNoFringe;
+
+    return;
+}//classification
+
+
+
+
 
 
 float dist(int range1, int azim1, int range2, int azim2, float rscale,
@@ -885,200 +1081,113 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
 
 
 
-void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
-        SCANMETA clutterMeta, int *cellImage,
-        unsigned char *dbzImage, unsigned char *vradImage,
-        unsigned char *rawReflImage, unsigned char *clutterImage,
-        float *zdata, int *nzdata,
-        float *fracclut, float *fracrain, float *fracbird, float *fracfringe,
-        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
-        float XSCALE, float XMEAN, float height,
-        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
-        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
-        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
-        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
-        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
+void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
+        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
+        float vradMin, int iData, int layer, int id, int *nPoints)
+{
 
+    // FIXME NGAPBIN not used
+    // FIXME id not used
+    // FIXME HLAYER suggests preprocessor but is not
+    // FIXME NGAPBIN suggest preprocessor but is not
 
-    //  *****************************************************************************
-    //  This function classifies the range gates, distinguishing between clutter,
-    //  rain, fringes, empty and valid gates. It returns the classification
-    //  and layer counters
-    //  *****************************************************************************
-
-    // FIXME *nzdata unused
-    // FIXME *fracclut  unused
-    // FIXME *fracrain  unused
-    // FIXME *fracbird  unused
-    // FIXME *fracfringe  unused
-    // FIXME HLAYER suggests preprocessor but isn't
-    // FIXME XOFFSET suggests preprocessor but isn't
-    // FIXME XSCALE suggests preprocessor but isn't
-    // FIXME XMEAN suggests preprocessor but isn't
-    // FIXME DBZNOISE suggests preprocessor but isn't
-    // FIXME NGAPMIN suggests preprocessor but isn't
-    // FIXME NGAPBIN suggests preprocessor but isn't
-    // FIXME NDBZMIN suggests preprocessor but isn't
-    // FIXME id unused
-    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
+    /******************************************************************************/
+    /* This function computes the wind velocity components                        */
+    /******************************************************************************/
 
     int iAzim;
-    int nAzim;
-    int iRang;
-    int nRang;
     int llayer;
-    int n;
-    int nPoints;
-    int nPointsAll;
-    int nPointsClutter;
-    int nPointsRain;
-    int nPointsRainNoFringe;
-    int iGlobal;
+    int iRang;
+    int iPoint;
+    int nPointsMax;    // nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
+    float beamHeight;
     float range;
-    float heightBeam;
     float azim;
-    float FNAN;
-    float dbzValue;
-    float vradValue;
-    float clutterValue;
-
-    FNAN = 0.0/0.0;
-
-    n = *np;                      // FIXME I think this information is already contained in iGlobal
-    nPoints = *nPointsPtr;        // FIXME I think this information is already contained in iGlobal
-    nPointsAll = *nPointsAllPtr;  // FIXME I think this information is already contained in iGlobal
-    nPointsClutter = *nPointsClutterPtr;
-    nPointsRain = *nPointsRainPtr;
-    nPointsRainNoFringe = *nPointsRainNoFringePtr;
+    int nRang;
+    int nAzim;
+    float rangeScale;
+    float azimuthScale;
+    float elev;
+    int missing;
+    float height;
+    int iGlobal;
 
 
-    fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
+    iPoint = *nPoints;
+    nPointsMax = *nPointsMaxPtr;
 
     llayer = layer * NDATA;
 
-    nRang = dbzMeta.nRang;
-    nAzim = dbzMeta.nAzim;
+    nRang = vradMeta.nrang;
+    nAzim = vradMeta.nazim;
+    rangeScale = vradMeta.rangeScale;
+    azimuthScale = vradMeta.azimuthScale;
+    elev = vradMeta.elev;
+    missing = vradMeta.missing;
+    height = vradMeta.heig;
+    valueOffset = vradMeta.valueOffset;
+    valueScale = vradMeta.valueScale;
+
 
     for (iRang = 0; iRang < nRang; iRang++) {
 
+        range = (iRang + 0.5) * rangeScale;
+        beamHeight = range * sin(elev*DEG2RAD) + height;
+
+        if (range < rangeMin || range > rangeMax) {
+            continue;
+        }
+        if (fabs(heightInputPar-beamHeight) > 0.5*HLAYER) {
+            continue;
+        }
+
+
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
-            range = (iRang+0.5) * dbzMeta.rangeScale;
-            azim = iAzim * dbzMeta.azimScale;    // FIXME why not iAzim+0.5?
-            heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
-
-            fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
-
-            if (range < rangeMin || range > rangeMax) {
-                continue;
-            }
-
-            if (azim <= azimMin || azim > azimMax) {
-                // FIXME what is this clause for?
-                continue;
-            }
-
-            if (fabs(height-heightBeam) > 0.5*HLAYER) {
-                continue;
-            }
-
-
             iGlobal = iRang + iAzim * nRang;
+            azim = (iAzim + 0.5) * azimuthScale;
 
-            dbzValue = dbzMeta.valueScale*dbzImage[iGlobal] + dbzMeta.valueOffset;
-            vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
-            clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
-
-
-            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
-
-            n++;
-
-            nPointsAll++;
-
-            //cluttermap points:
-            if (clutterFlag == 1){
-                if (clutterValue > dbzClutter){
-                    nPointsClutter++;
-                    fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
-                    continue;
-                }
-            }
-
-            //points without valid reflectivity data, but WITH raw reflectivity data are points
-            //dropped by the signal preprocessor. These will be treated as clutter.
-            if (rawReflFlag == 1){
-                if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
-                    nPointsClutter++;
-                    continue;
-                }
-            }
-            //if non-zero reflectivity but doppler data missing, treat as clutter:
-            if (dbzImage[iGlobal] != dbzMeta.missing && vradImage[iGlobal] == vradMeta.missing){
-                nPointsClutter++;
+            if (vradImage[iGlobal] == missing) {
                 continue;
             }
 
-            if (dbzValue < dbzMin) {
-                dbzValue = DBZNOISE;
-            }
-
-            //treat zero doppler speed as clutter:
-            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
-                nPointsClutter++;
-                continue;
-            }
-
-            // FIXME what does dBZx represent?
-            if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
-                if (cellImage[iGlobal] > 1) { //cluttermap without added fringes  // FIXME "cluttermap"? I think you mean cellmap
-                    // FIXME what does "1+llayer" represent?
-                    if (isnan(zdata[1+llayer])) {
-                        zdata[1+llayer] = 0;
-                    }
-                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
-                    nPointsRainNoFringe++;
+            switch (iData) {
+            case 0:
+                if (cellmap[iGlobal]>0) {
+                    continue; // outside rain clutter map only
                 }
-
-                if (isnan(zdata[2+llayer])) {
-                    // FIXME what does "2+llayer" represent?
-                    zdata[2+llayer] = 0;
+                break;
+            case 1:
+                if (cellmap[iGlobal]<2) {
+                    continue; // inside rain clutter map without fringe only
                 }
-                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);  // FIXME "log(10)" or "log10()"?
-                nPointsRain++;
-                continue;
+                break;
             }
 
-            if (isnan(zdata[0+llayer])) {
-                zdata[0+llayer] = 0;
+            // so at this point we've checked a couple of things and we see no reason
+            // why vRadImage[iGlobal] shouldn't be part of the points array
+
+            points[iPoint * nDims + 0] = azim;
+            points[iPoint * nDims + 1] = elev;   // FIXME but this elevation is the elevation angle, really... maybe wrong?
+            if (nDims > 2) {
+                points[iPoint * nDims + 2] = range;
             }
-
-            if (isnan(zdata[2+llayer])) {
-                zdata[2+llayer] = 0;
+            if (nDims > 3) {
+                points[iPoint * nDims + 3] = heightInputPar-height;
             }
+            yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
+            c[iPoint] = cellmap[iGlobal];
 
-            if (xflag==1) {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range); // FIXME "log(10)" or "log10()"?
+            if (fabs(yObs[iPoint]) >= vradMin) {
+                iPoint++;
             }
-            else {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
-            }
-            zdata[2+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
-            nPoints++;
-        }//for iAzim
-    }//for iRang
+        }  //for iAzim
+    } //for iRang
 
-    *np = n;
-    *nPointsPtr = nPoints;
-    *nPointsAllPtr = nPointsAll;
-    *nPointsClutterPtr = nPointsClutter;
-    *nPointsRainPtr = nPointsRain;
-    *nPointsRainNoFringePtr = nPointsRainNoFringe;
+    *nPoints = iPoint;
+    *nPointsMaxPtr = nPointsMax;
 
-    return;
-}//classification
-
-
-
+} //vvp
 
 
