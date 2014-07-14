@@ -58,9 +58,9 @@
 /*Definition of parameters for fitting:                                       */
 /******************************************************************************/
 
-#define NPARMX     (16)      /*Maximum number of fit parameters.*/
-#define SVDTOL     (1e-5)    /*Accuracy in SV decomposition.*/
-#define SVDMIN     (1e-5)    /*Minimum valid SV standard deviation.*/
+#define NPARSFITTEDMAX (16)      /*Maximum number of fit parameters.*/
+#define SVDTOL       (1e-5)      /*Accuracy in SV decomposition.*/
+#define SVDMIN       (1e-5)      /*Minimum valid SV standard deviation.*/
 
 ///******************************************************************************/
 ///*Structure for containing SCAN metadata:                                     */
