@@ -21,9 +21,9 @@
 /******************************************************************************/
 
 #define DEG2RAD    (0.017453293)  /*Degrees to radians.*/
-#define RAD2DEG    (57.29578)     /*Radians to degrees.*/
-#define NSCANX     (64)           /*Maximum number of elevation scans.*/
-#define RADIUS43   (8495.0)       /*Earth radius used for height calculations.*/
+#define RAD2DEG    (57.29578)     /*Radians to degrees.*/                           // FIXME variable is not used
+#define NSCANX     (64)           /*Maximum number of elevation scans.*/            // FIXME variable is not used
+#define RADIUS43   (8495.0)       /*Earth radius used for height calculations.*/    // FIXME variable is not used
 
 /******************************************************************************/
 /*Definition of general macros:                                               */
@@ -44,7 +44,7 @@
 #define TEXSTDEV    (2)
 #define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
                              /*with dBZ>DBZRAIN [1-8]                         */
-#define NLAYER      (30)     /*Number of stacked height layers.               */
+#define NLAYER      (30)     /*Number of stacked height layers.               */   // FIXME variable is not used
 #define NDATA       (3)      /*Data dimension height layers.                  */
 
 /******************************************************************************/
@@ -59,24 +59,24 @@
 ///******************************************************************************/
 
 struct scanmeta {
-    int date;                /*Date of scan data in YYYYMMDD.*/
-    int time;                /*Time of scan data in HHMMSS.*/
-    float heig;              /*Height of radar antenna in km.*/
-    float elev;              /*Elevation of scan in deg.*/
-    int nRang;               /*Number of range bins in scan.*/
-    int nAzim;               /*Number of azimuth rays in scan.*/
-    float rangeScale;        /*Size of range bins in scan in km.*/
-    float azimScale;         /*Size of azimuth steps in scan in deg.*/
-    int azim0;               /*Ray number with which radar scan started.*/
-    float valueOffset;       /*Offset value of quantity contained by scan.*/
-    float valueScale;        /*Scale of value of quantity contained by scan.*/
-    int missing;             /*Missing value of quantity contained by scan.*/
-    float PRFh;              /*High PRF used for scan in Hz.*/
-    float PRFl;              /*Low PRF used for scan in Hz.*/
-    float pulse;             /*Pulse length in microsec.*/
-    float radcnst;           /*Radar constant in dB.*/
-    float txnom;             /*Nominal maximum TX power in kW.*/
-    float antvel;            /*Antenna velocity in deg/s.*/
+    int date;                // Date of scan data in YYYYMMDD.                    // FIXME field remains unused
+    int time;                // Time of scan data in HHMMSS.                      // FIXME field remains unused
+    float heig;              // Height of radar antenna in km.
+    float elev;              // Elevation of scan in deg.
+    int nRang;               // Number of range bins in scan.
+    int nAzim;               // Number of azimuth rays in scan.
+    float rangeScale;        // Size of range bins in scan in km.
+    float azimScale;         // Size of azimuth steps in scan in deg.
+    int azim0;               // Ray number with which radar scan started.         // FIXME field remains unused
+    float valueOffset;       // Offset value of quantity contained by scan.
+    float valueScale;        // Scale of value of quantity contained by scan.
+    int missing;             // Missing value of quantity contained by scan.
+    float PRFh;              // High PRF used for scan in Hz.                     // FIXME field remains unused
+    float PRFl;              // Low PRF used for scan in Hz.                      // FIXME field remains unused
+    float pulse;             // Pulse length in microsec.                         // FIXME field remains unused
+    float radcnst;           // Radar constant in dB.                             // FIXME field remains unused
+    float txnom;             // Nominal maximum TX power in kW.                   // FIXME field remains unused
+    float antvel;            // Antenna velocity in deg/s.                        // FIXME field remains unused
 };
 
 struct cellprop {
