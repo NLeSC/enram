@@ -1124,7 +1124,6 @@ jintArray c,
 jintArray cellImage,
 jint nDims,
 jint nPointsMaxPtr,
-jint NGAPBIN,
 jfloat rangeMin,
 jfloat rangeMax,
 jfloat HLAYER,
@@ -1132,7 +1131,6 @@ jfloat heightInputPar,
 jfloat vradMin,
 jint iData,
 jint layer,
-jint id,
 jint nPointsPtr)
 {
 
@@ -1180,6 +1178,9 @@ jint nPointsPtr)
     vradMeta.valueOffset = valueOffset;
     vradMeta.valueScale = valueScale;
 
+
+    int NGAPBIN = NULL;
+    int id = NULL;
 
     vvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
         nDims, &nPointsMaxPtr, NGAPBIN, rangeMin, rangeMax, HLAYER, heightInputPar,

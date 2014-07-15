@@ -91,7 +91,7 @@ public class JNIMethodsVol2Bird {
 
     protected static final native void vvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
             int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
-            float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, int NGAPBIN, float rangeMin, float rangeMax,
-            float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int id, int nPointsPtr);
+            float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, float rangeMin, float rangeMax,
+            float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int nPointsPtr);
 
 }
