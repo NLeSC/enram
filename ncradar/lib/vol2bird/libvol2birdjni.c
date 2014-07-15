@@ -1103,3 +1103,97 @@ const jint minCellArea)
 // TODO add jni to vvp method
 
 
+
+JNIEXPORT void JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_vvp(
+JNIEnv *env,
+jobject obj,
+jint nRang,
+jint nAzim,
+jfloat rangeScale,
+jfloat azimuthScale,
+jfloat elevAngle,
+jint missing,
+jfloat radarHeight,
+jfloat valueOffset,
+jfloat valueScale,
+jintArray vradImageInt,
+jfloatArray points,
+jfloatArray yObs,
+jintArray c,
+jintArray cellImage,
+jint nDims,
+jint nPointsMaxPtr,
+jint NGAPBIN,
+jfloat rangeMin,
+jfloat rangeMax,
+jfloat HLAYER,
+jfloat heightInputPar,
+jfloat vradMin,
+jint iData,
+jint layer,
+jint id,
+jint nPointsPtr)
+{
+
+    int iAzim;
+    int iRang;
+    int iGlobal;
+
+    // do some Java Native interface tricks:
+    jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
+    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
+    jfloat *yObsBody = (*env)->GetFloatArrayElements(env, yObs, NULL);
+    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
+    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
+    jsize nGlobal = (*env)->GetArrayLength(env, vradImageInt);
+    // end of Java Native Interface tricks
+
+    unsigned char vradImageBody[nGlobal];
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+         for (iRang = 0; iRang < nRang; iRang++){
+             iGlobal = iAzim*nRang + iRang;
+             if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
+                 vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
+             }
+             else {
+                 fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
+             }
+         }
+     }
+
+
+    // TODO define size pointsBody as nPoints*nDims?
+    // TODO define size yObsBody as nPoints?
+    // TODO define size cBody as nPoints?
+
+
+    SCANMETA vradMeta;
+
+    vradMeta.nRang = nRang;
+    vradMeta.nAzim = nAzim;
+    vradMeta.rangeScale = rangeScale;
+    vradMeta.azimScale = azimuthScale;
+    vradMeta.elev = elevAngle;
+    vradMeta.missing = missing;
+    vradMeta.heig = radarHeight;
+    vradMeta.valueOffset = valueOffset;
+    vradMeta.valueScale = valueScale;
+
+
+    vvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
+        nDims, &nPointsMaxPtr, NGAPBIN, rangeMin, rangeMax, HLAYER, heightInputPar,
+        vradMin, iData, layer, id, &nPointsPtr);
+
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);            // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);                // FIXME maybe don't use ABORT?
+    (*env)->ReleaseIntArrayElements(env, c, cBody, JNI_ABORT);                        // FIXME maybe don't use ABORT?
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);        // FIXME maybe don't use ABORT?
+    // end of Java Native Interface tricks
+
+
+}
+
