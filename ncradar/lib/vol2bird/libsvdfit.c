@@ -39,6 +39,9 @@ int svd_vad1func(float points[],int nDims,float afunc[],int nParsFitted) {
     // This function is intended to be supplied to the fitting routine 'svdfit'.
     // In this case, a three-parameter linear VAD fit is performed on a one
     // dimensional vector space 'X'.
+    //
+    // FIXME this description is unclear
+    //
     // ************************************************************************************
 
 
@@ -73,6 +76,9 @@ int svd_vad2func(float points[],int nDims,float afunc[],int nParsFitted) {
     // This function is intended to be supplied to the fitting routine 'svdfit'.
     // In this case, a five-parameter linear VAD fit is performed on a one
     // dimensional vector space 'X'.
+    //
+    // FIXME this description is unclear
+    //
     // ************************************************************************************
 
     if (nDims != 1) {
@@ -110,6 +116,9 @@ int svd_vvp1func(float points[],int nDims,float afunc[],int nParsFitted) {
     // In this case, a three-parameter linear Area-VVP fit is performed on a two
     // dimensional vector space 'X' in radar coordinates: azimuth (alpha), and
     // elevation (gamma).
+    //
+    // FIXME this description is unclear
+    //
     // *************************************************************************************
 
     float sinAlpha;
@@ -154,6 +163,9 @@ int svd_vvp2func(float points[],int nDims,float afunc[],int nParsFitted) {
     // In this case, a six-parameter linear Area-VVP fit is performed on a three
     // dimensional vector space 'X' in radar coordinates: azimuth (alpha),
     // elevation (gamma), and range (rho).
+    //
+    // FIXME this description is unclear
+    //
     // ************************************************************************************
 
 
@@ -205,6 +217,9 @@ int svd_vvp3func(float points[],int nDims,float afunc[],int nParsFitted) {
     // In this case, a nine-parameter linear Area-VVP fit is performed on a four
     // dimensional vector space 'X' in radar coordinates: azimuth (alpha),
     // elevation (gamma), range (rho), and height above radar (Znull).
+    //
+    // FIXME this description is unclear
+    //
     // ************************************************************************************
 
     float sinAlpha;
@@ -260,21 +275,26 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
     // ************************************************************************************
 
 
+    //
+    // FIXME it would be nice to have more meaningful variable names
+    //
+
+
+    float anorm;
+    float c;
+    float f;
     int flag;
+    float g;
+    float h;
     int i;
     int iIteration;
-    int nIterationsMax;
     int j;
     int jj;
     int k;
     int l;
+    int nIterationsMax;
     int nm;
     float *rv1;
-    float anorm;
-    float c;
-    float f;
-    float g;
-    float h;
     float s;
     float scale;
     float x;
@@ -600,6 +620,9 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     // The user supplies a function with the fit model 'funcs(points,nDims,afunc,nParsFitted)'
     // that returns the 'nParsFitted' basis functions evaluated at points[0..nDims-1] in the
     // array afunc[0..nParsFitted-1].
+    //
+    // FIXME this description is unclear
+    //
     // ************************************************************************************************
 
     // FIXME There is no matrix called 'cvm' perhaps he means 'avar'?
