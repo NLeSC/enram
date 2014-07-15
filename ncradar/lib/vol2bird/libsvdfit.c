@@ -55,7 +55,7 @@ int svd_vad1func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[1] = sin(DEG2RAD * points[0]);
     afunc[2] = cos(DEG2RAD * points[0]);
 
-    return 1;
+    return 1;    // FIXME return 0 would be better
 
 } //svd_vad1func
 
@@ -90,7 +90,7 @@ int svd_vad2func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[3] = sin(2*points[0] * DEG2RAD);
     afunc[4] = cos(2*points[0] * DEG2RAD);
 
-    return 1;
+    return 1;    // FIXME return 0 would be better
 
 } //svd_vad2func
 
@@ -134,7 +134,7 @@ int svd_vvp1func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[1] = sinAlpha * cosGamma;
     afunc[2] = cosAlpha * cosGamma;
 
-    return 1;
+    return 1;    // FIXME return 0 would be better
 
 } //svd_vvp1func
 
@@ -184,7 +184,7 @@ int svd_vvp2func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[4] = 0.5 * rho * (2.0 * sinAlpha * cosAlpha) * cosGamma;
     afunc[5] = 0.5 * rho * (SQUARE(cosAlpha) - SQUARE(sinAlpha)) * cosGamma;
 
-    return 1;
+    return 1;    // FIXME return 0 would be better
 
 } //svd_vvp2func
 
@@ -239,7 +239,7 @@ int svd_vvp3func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[7] = cosAlpha * cosGamma * dheig;
     afunc[8] = sinGamma * dheig;
 
-    return 1;
+    return 1;    // FIXME return 0 would be better
 
 } //svd_vvp3func
 
