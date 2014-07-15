@@ -1054,7 +1054,7 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
         }
         // FIXME this may be a bug: the line below reads an identifier number
         // from cellImage, which is then used as an index into cellProp[].
-        // I image the cellProp array starts at index 0, which should contain
+        // I imagine the cellProp array starts at index 0, which should contain
         // the properties of the cell which is identifiable in cellImage by
         // its value...2!  (0 and 1 are reserved for other stuff it seems)
 
@@ -1064,7 +1064,7 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
         }
     }
 
-    /*Sort the cells by minCellArea and determine number of valid cells*/
+    /*Sort the cells by area and determine number of valid cells*/
     sortcells(cellProp, nCells, BYAREA);
 
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
@@ -1097,11 +1097,15 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
 
 
 void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
+        int *c, int *cellImage, int nDims, int *nPointsMaxPtr, int NGAPBIN,
         float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
         float vradMin, int iData, int layer, int id, int *nPoints)
 {
 
+    // FIXME this function's name suggest that the vvp analysis takes place in its body, but
+    // that is not the case -- the function merely handles the selection of valid gates, which
+    // are then supposedly passed on to svdfit()
+    // FIXME heightInputPar could be the height for which you want to calculate the VVP
     // FIXME NGAPBIN not used
     // FIXME id not used
     // FIXME HLAYER suggests preprocessor but is not
@@ -1115,17 +1119,17 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
     int llayer;
     int iRang;
     int iPoint;
-    int nPointsMax;    // nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
-    float beamHeight;
-    float range;
-    float azim;
+    int nPointsMax;    // FIXME nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
+    float gateHeight;
+    float gateRange;
+    float gateAzim;
     int nRang;
     int nAzim;
     float rangeScale;
     float azimuthScale;
-    float elev;
+    float elevAngle;
     int missing;
-    float height;
+    float radarHeight;
     int iGlobal;
     float valueOffset;
     float valueScale;
@@ -1133,28 +1137,33 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
     iPoint = *nPoints;
     nPointsMax = *nPointsMaxPtr;
 
-    llayer = layer * NDATA;
+    llayer = layer * NDATA;  // FIXME variable remains unused
 
     nRang = vradMeta.nRang;
     nAzim = vradMeta.nAzim;
     rangeScale = vradMeta.rangeScale;
     azimuthScale = vradMeta.azimScale;
-    elev = vradMeta.elev;
+    elevAngle = vradMeta.elev;
     missing = vradMeta.missing;
-    height = vradMeta.heig;
+    radarHeight = vradMeta.heig;
     valueOffset = vradMeta.valueOffset;
     valueScale = vradMeta.valueScale;
 
 
     for (iRang = 0; iRang < nRang; iRang++) {
 
-        range = (iRang + 0.5) * rangeScale;
-        beamHeight = range * sin(elev*DEG2RAD) + height;
+        // so gateRange represents a distance along the view direction (not necessarily horizontal)
+        gateRange = (iRang + 0.5) * rangeScale;
 
-        if (range < rangeMin || range > rangeMax) {
+        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
+        gateHeight = gateRange * sin(elevAngle*DEG2RAD) + radarHeight;
+
+        if (gateRange < rangeMin || gateRange > rangeMax) {
             continue;
         }
-        if (fabs(heightInputPar-beamHeight) > 0.5*HLAYER) {
+        if (fabs(heightInputPar-gateHeight) > 0.5*HLAYER) {
+            // FIXME what does this if statement mean?  Maybe "if the height of the current gate
+            // is too far away from the requested height, continue with the next gate"?
             continue;
         }
 
@@ -1162,7 +1171,7 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
             iGlobal = iRang + iAzim * nRang;
-            azim = (iAzim + 0.5) * azimuthScale;
+            gateAzim = (iAzim + 0.5) * azimuthScale;
 
             if (vradImage[iGlobal] == missing) {
                 continue;
@@ -1170,12 +1179,12 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
 
             switch (iData) {
             case 0:
-                if (cellmap[iGlobal]>0) {
+                if (cellImage[iGlobal]>0) {
                     continue; // outside rain clutter map only
                 }
                 break;
             case 1:
-                if (cellmap[iGlobal]<2) {
+                if (cellImage[iGlobal]<2) {
                     continue; // inside rain clutter map without fringe only
                 }
                 break;
@@ -1184,18 +1193,21 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
             // so at this point we've checked a couple of things and we see no reason
             // why vRadImage[iGlobal] shouldn't be part of the points array
 
-            points[iPoint * nDims + 0] = azim;
-            points[iPoint * nDims + 1] = elev;   // FIXME but this elevation is the elevation angle, really... maybe wrong?
+            points[iPoint * nDims + 0] = gateAzim;
+            points[iPoint * nDims + 1] = elevAngle;
             if (nDims > 2) {
-                points[iPoint * nDims + 2] = range;
+                points[iPoint * nDims + 2] = gateRange;
             }
             if (nDims > 3) {
-                points[iPoint * nDims + 3] = heightInputPar-height;
+                points[iPoint * nDims + 3] = heightInputPar-radarHeight;
             }
             yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
-            c[iPoint] = cellmap[iGlobal];
+            c[iPoint] = cellImage[iGlobal];
 
             if (fabs(yObs[iPoint]) >= vradMin) {
+                // FIXME why fabs?
+                // FIXME at this point, you've already added the point. What if the condition is false, but there
+                // are no more gates to overwrite points[iPoint+whatever], yObs[iPoint] and c[iPoint] later?
                 iPoint++;
             }
         }  //for iAzim
