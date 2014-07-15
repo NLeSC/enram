@@ -137,3 +137,11 @@ void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *re
 
 int updatemap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 
+void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
+        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
+        float vradMin, int iData, int layer, int id, int *nPoints);
+
+
+
+
