@@ -39,6 +39,8 @@
     </target>
 
     <target name="copy-c-code" >
+        <copy file="lib/vol2bird/libsvdfit.c" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libsvdfit.h" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2birdjni.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
@@ -53,6 +55,7 @@
             <arg value="-I${jnihdir}/linux" />
             <arg value="-shared" />
             <arg value="libvol2bird.c" />
+            <arg value="libsvdfit.c" />
             <arg value="-o" />
             <arg value="${gcc_dist}/libvol2bird.so" />
         </exec>

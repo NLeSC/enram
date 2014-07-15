@@ -22,7 +22,6 @@
 
 #define DEG2RAD    (0.017453293)  /*Degrees to radians.*/
 #define RAD2DEG    (57.29578)     /*Radians to degrees.*/
-#define LSTR       (128)          /*Length of all strings used.*/
 #define NSCANX     (64)           /*Maximum number of elevation scans.*/
 #define RADIUS43   (8495.0)       /*Earth radius used for height calculations.*/
 
@@ -54,13 +53,6 @@
 #define BYAREA      (1)
 #define BYMEAN      (2)
 
-/******************************************************************************/
-/*Definition of parameters for fitting:                                       */
-/******************************************************************************/
-
-#define NPARSFITTEDMAX (16)      /*Maximum number of fit parameters.*/
-#define SVDTOL       (1e-5)      /*Accuracy in SV decomposition.*/
-#define SVDMIN       (1e-5)      /*Minimum valid SV standard deviation.*/
 
 ///******************************************************************************/
 ///*Structure for containing SCAN metadata:                                     */
@@ -102,20 +94,13 @@ struct cellprop {
 
 typedef struct scanmeta SCANMETA;
 typedef struct cellprop CELLPROP;
-//
-///******************************************************************************/
-///*Basis functions for Singular Value Decomposition linear fitting.            */
-///******************************************************************************/
-//
-//int svd_vad1func(float x[],int Ndx,float afunc[],int Npar);
-//int svd_vad2func(float x[],int Ndx,float afunc[],int Npar);
-//int svd_vvp1func(float x[],int Ndx,float afunc[],int Npar);
-//int svd_vvp2func(float x[],int Ndx,float afunc[],int Npar);
-//int svd_vvp3func(float x[],int Ndx,float afunc[],int Npar);
-//
-/******************************************************************************/
-/*Prototypes of local functions:                                              */
-/******************************************************************************/
+
+
+
+
+// *****************************************************************************
+// Function prototypes
+// *****************************************************************************
 
 int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,

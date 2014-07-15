@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013 Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -794,8 +810,7 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
                     continue;
                 }
                 //if not within range or already in cellImage or already a fringe, do nothing
-                if (dist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale)
-                        > fringe || cellImage[iLocal] >= 1) {
+                if (dist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale) > fringe || cellImage[iLocal] >= 1) {
                     // FIXME note that this condition contains a call to dist(), which
                     // is known to be wrong (issue #31)
                     continue;
@@ -1112,17 +1127,18 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
     int missing;
     float height;
     int iGlobal;
-
+    float valueOffset;
+    float valueScale;
 
     iPoint = *nPoints;
     nPointsMax = *nPointsMaxPtr;
 
     llayer = layer * NDATA;
 
-    nRang = vradMeta.nrang;
-    nAzim = vradMeta.nazim;
+    nRang = vradMeta.nRang;
+    nAzim = vradMeta.nAzim;
     rangeScale = vradMeta.rangeScale;
-    azimuthScale = vradMeta.azimuthScale;
+    azimuthScale = vradMeta.azimScale;
     elev = vradMeta.elev;
     missing = vradMeta.missing;
     height = vradMeta.heig;
