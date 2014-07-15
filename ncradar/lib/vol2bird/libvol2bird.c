@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON
+#define FPRINTFON (1)
 
 
 
@@ -1215,6 +1215,13 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
 
     *nPoints = iPoint;
     *nPointsMaxPtr = nPointsMax;
+
+#ifdef FPRINTFON
+            //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
+            fprintf(stderr, "points[0] = %f\n",points[0]);
+            //}
+#endif
+
 
 } //vvp
 

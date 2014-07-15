@@ -1182,17 +1182,35 @@ jint nPointsPtr)
     int NGAPBIN = NULL;
     int id = NULL;
 
+    fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
+
     vvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
         nDims, &nPointsMaxPtr, NGAPBIN, rangeMin, rangeMax, HLAYER, heightInputPar,
         vradMin, iData, layer, id, &nPointsPtr);
 
+    fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
+
+
+    // cast to the right type:
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+        for (iRang = 0; iRang < nRang; iRang++){
+
+            iGlobal = iAzim*nRang + iRang;
+            vradImageIntBody[iGlobal] = (jint) vradImageBody[iGlobal];
+
+        }
+    }
+
+
 
     // do some Java Native interface tricks:
-    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+
     (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);            // FIXME maybe don't use ABORT?
     (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);                // FIXME maybe don't use ABORT?
     (*env)->ReleaseIntArrayElements(env, c, cBody, JNI_ABORT);                        // FIXME maybe don't use ABORT?
     (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);        // FIXME maybe don't use ABORT?
+
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
     // end of Java Native Interface tricks
 
 
