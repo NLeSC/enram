@@ -29,7 +29,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
                  SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
                  int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
-                 float vradMinValue,float dbzClutterMin, unsigned char cmFlag,
+                 float vradMinValue,float dbzClutterMin, unsigned char clutterFlag,
                  unsigned char dualPolFlag, unsigned char verbose) {
 
     //  *********************************************************************************
@@ -65,7 +65,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
         printf("Requested memory could not be allocated!\n");
-        exit(10);
+        exit(10);  // FIXME "return 10;" seems more appropriate
     }
     for (iCell = 0; iCell < nCells; iCell++) {
         cellProp[iCell].iRangOfMax = 0;
@@ -118,7 +118,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
             }
 
             //pixels in clutter map not included in calculation cell properties
-            if (cmFlag == 1){
+            if (clutterFlag == 1){
                 if (iAzim < nAzim && iRang < nRang){
                     if (clutterValue > dbzClutterMin){
                         cellProp[iCell].clutterArea += 1;
@@ -417,24 +417,24 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-float dist(int range1, int azim1, int range2, int azim2, float rscale,
-        float ascale) {
+float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScale) {
 
     //  ******************************************************************************
     //  This function calculates the distance in km between two gates
     //  ******************************************************************************
 
+    // FIXME looks like this calculation is wrong (issue #31). Seems mostly due to iRang1
+    // and iRang2 being indices rather than distances
 
-    // FIXME looks like this calculation is wrong (issue #31)
     float x1;
     float x2;
     float y1;
     float y2;
-    x1 = range1 * cos(azim1 * ascale * DEG2RAD);
-    x2 = range2 * cos(azim2 * ascale * DEG2RAD);
-    y1 = range1 * sin(azim1 * ascale * DEG2RAD);
-    y2 = range2 * sin(azim2 * ascale * DEG2RAD);
-    return sqrt(SQUARE(x1-x2) + SQUARE(y1 - y2));
+    x1 = iRang1 * cos(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+    x2 = iRang2 * cos(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+    y1 = iRang1 * sin(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+    y2 = iRang2 * sin(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+    return sqrt(SQUARE(x1 - x2) + SQUARE(y1 - y2));
 } //dist
 
 
