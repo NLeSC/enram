@@ -134,8 +134,8 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                 fprintf(stderr,"%d: new dbzMax value of %f found for this cell (%d).\n",iGlobal,dbzValue,iCell);
 #endif
                 cellProp[iCell].dbzMax = dbzValue;
-                cellProp[iCell].iRangOfMax = iGlobal%nAzim; // FIXME mod nAzim? I expected nRang
-                cellProp[iCell].iAzimOfMax = iGlobal/nAzim; // FIXME div nAzim? I expected nRang
+                cellProp[iCell].iRangOfMax = iGlobal%nRang;
+                cellProp[iCell].iAzimOfMax = iGlobal/nRang;
             }
             cellProp[iCell].dbzAvg += dbzValue;
             cellProp[iCell].texAvg += texValue;
@@ -149,6 +149,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
             cellProp[iCell].dbzAvg /= validArea;
             cellProp[iCell].texAvg /= validArea;
             // FIXME why have this next calculation two times, different methods?
+            // FIXME equivalent lines in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 1164--1165
             cellProp[iCell].cv = 10 * log10(cellProp[iCell].texAvg) - cellProp[iCell].dbzAvg;
             cellProp[iCell].cv = cellProp[iCell].texAvg / cellProp[iCell].dbzAvg;
         }
