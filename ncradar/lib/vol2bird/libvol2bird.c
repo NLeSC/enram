@@ -158,7 +158,8 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     /*Determine which cells to drop from map based on low mean dBZ / high stdev /
      * small area / high percentage clutter*/
     for (iCell = 0; iCell < nCells; iCell++) {
-        if (dualPolFlag == 1){
+        if (dualPolFlag == 1){  // FIXME can I delete all dual polarity related stuff from
+                                // FIXME vol2bird...seems like we're not using any of that at the moment
             if (cellProp[iCell].area < areaMin) {
                 cellProp[iCell].drop = 1;
             }
@@ -169,7 +170,9 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                  cellProp[iCell].texAvg > cellStdDevMax &&
                  (cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
                 // FIXME I don't see how this condition is correct -- why are terms 2,3 and
-                // 4 combined with &&
+                // FIXME 4 combined with &&
+                // FIXME equivalent lines in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 1175
+
                 cellProp[iCell].drop = 1;
             }
         }
