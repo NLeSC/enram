@@ -11,41 +11,6 @@ public class TestJNIDist extends JNIMethodsVol2Bird {
 
 
     @Test
-    public void testNativeDist1() {
-
-        // test the Java equivalent of the calculation as it is in C, regardless
-        // of whether this is correct
-
-        int iRang1 = 10;
-        int iAzim1 = 90;
-        int iRang2 = 20;
-        int iAzim2 = iAzim1 + 180;
-        float rangeScale = 5.0f; // km per gate
-        float azimuthScaleDeg = 1.0f; // degree per gate
-
-        float theDist;
-
-        theDist = calcDist(iRang1, iAzim1, iRang2, iAzim2, rangeScale, azimuthScaleDeg);
-
-        float DEG2RAD = (float) (2 * Math.PI / 360);
-
-        double x1 = iRang1 * Math.cos(iAzim1 * azimuthScaleDeg * DEG2RAD);
-        double x2 = iRang2 * Math.cos(iAzim2 * azimuthScaleDeg * DEG2RAD);
-        double y1 = iRang1 * Math.sin(iAzim1 * azimuthScaleDeg * DEG2RAD);
-        double y2 = iRang2 * Math.sin(iAzim2 * azimuthScaleDeg * DEG2RAD);
-
-        double expected = Math.sqrt(Math.pow(x1 - x2, 2.0) +
-                Math.pow(y1 - y2, 2.0));
-
-        double actual = theDist;
-
-        assertEquals(expected, actual, delta);
-
-    }
-
-
-
-    @Test
     public void testNativeDist2() {
 
         // test the same input numbers as in test 1, but now compare to how I
