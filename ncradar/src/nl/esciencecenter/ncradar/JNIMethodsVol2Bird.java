@@ -45,7 +45,7 @@ public class JNIMethodsVol2Bird {
             int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
             int rawReflMissing, float clutterValueScale, float clutterValueOffset,
             int[] cellImageInt, int[] dbzImageInt, int[] vradImageInt,
-            int[] rawReflImageInt, int[] clutterImageInt, float[] zdata, int[] nzdata,
+            int[] rawReflImageInt, int[] clutterImageInt, float[] zdata,
             float rangeMin, float rangeMax, float HLAYER, float XOFFSET, float XSCALE,
             float XMEAN, float height, float azimMin, float azimMax, float vradMin,
             float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int NGAPMIN,

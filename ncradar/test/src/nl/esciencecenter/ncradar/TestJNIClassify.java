@@ -129,7 +129,7 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
         classify(dbznRang, dbznAzim, dbzRangeScale, dbzElev, dbzHeig, dbzValueScale, dbzValueOffset,
                 dbzAzimScale, dbzMissing, vradValueScale, vradValueOffset, vradMissing, rawReflMissing,
                 clutterValueScale, clutterValueOffset, cellImage, dbzImageInt, vradImageInt,
-                rawReflImageInt, clutterImageInt, zdata, nzdata, rangeMin, rangeMax,
+                rawReflImageInt, clutterImageInt, zdata, rangeMin, rangeMax,
                 HLAYER, XOFFSET, XSCALE, XMEAN, height, azimMin, azimMax, vradMin, dbzClutter,
                 dbzMin, dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN, layer, id, np, nPointsPtr,
                 nPointsAllPtr, nPointsClutterPtr, nPointsRainPtr, nPointsRainNoFringePtr,

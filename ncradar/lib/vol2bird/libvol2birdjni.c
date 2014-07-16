@@ -410,7 +410,6 @@ const jintArray vradImageInt,
 const jintArray rawReflImageInt,
 const jintArray clutterImageInt,
 jfloatArray zdata,
-const jintArray nzdata,
 const jfloat rangeMin,
 const jfloat rangeMax,
 const jfloat HLAYER,
@@ -468,7 +467,6 @@ const jint xflagInt
     jint *rawReflImageIntBody = (*env)->GetIntArrayElements(env, rawReflImageInt, NULL);
     jint *clutterImageIntBody = (*env)->GetIntArrayElements(env, clutterImageInt, NULL);
     jfloat *zdataBody = (*env)->GetFloatArrayElements(env, zdata, NULL);
-    jint *nzdataBody = (*env)->GetIntArrayElements(env, nzdata, NULL);
     jsize nGlobal = (*env)->GetArrayLength(env, cellImage);
     // end of Java Native Interface tricks
 
@@ -480,11 +478,6 @@ const jint xflagInt
     unsigned char clutterFlag;
     unsigned char rawReflFlag;
     unsigned char xflag;
-
-    float *fracclut;
-    float *fracrain;
-    float *fracbird;
-    float *fracfringe;
 
     int iGlobal;
 
@@ -584,8 +577,7 @@ const jint xflagInt
     classification(dbzMeta, vradMeta, rawReflMeta,
             clutterMeta, cellImageBody, &dbzImageBody[0], &vradImageBody[0],
             &rawReflImageBody[0], &clutterImageBody[0],
-            &zdataBody[0], &nzdataBody[0],
-            fracclut, fracrain, fracbird, fracfringe,
+            &zdataBody[0],
             rangeMin, rangeMax, HLAYER, XOFFSET,
             XSCALE, XMEAN, height,
             azimMin, azimMax, vradMin, dbzClutter, dbzMin,
@@ -612,7 +604,6 @@ const jint xflagInt
     (*env)->ReleaseIntArrayElements(env, rawReflImageInt, rawReflImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, clutterImageInt, clutterImageIntBody, JNI_ABORT);
     (*env)->ReleaseFloatArrayElements(env, zdata, zdataBody, JNI_ABORT);
-    (*env)->ReleaseIntArrayElements(env, nzdata, nzdataBody, JNI_ABORT);
     // end of Java Native Interface tricks
 
     return;
