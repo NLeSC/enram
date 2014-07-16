@@ -54,11 +54,11 @@ int svd_vvp1func(float points[],int nDims,float afunc[],int nParsFitted) {
 
     if (nDims != 2) {
         fprintf(stderr, "Number of dimensions is wrong!\n");
-        return 0;   //FIXME return 1 or -1 would be better
+        return -1;
     }
     if (nParsFitted != 3) {
         fprintf(stderr, "Number of parameters is wrong!\n");
-        return 0;   //FIXME return 1 or -1 would be better
+        return -1;
     }
 
     sinAlpha = sin(points[0] * DEG2RAD);
@@ -69,7 +69,7 @@ int svd_vvp1func(float points[],int nDims,float afunc[],int nParsFitted) {
     afunc[1] = sinAlpha * cosGamma;
     afunc[2] = cosAlpha * cosGamma;
 
-    return 1;    // FIXME return 0 would be better
+    return 0;
 
 } //svd_vvp1func
 
@@ -127,7 +127,7 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
     rv1 = (float *)malloc(n*sizeof(float));
     if (rv1 == NULL) {
         fprintf(stderr, "Requested memory could not be allocated!\n");
-        return 0;  //FIXME return 1 or -1 would be better
+        return -1;
     }
 
     /*Start of very stable algorithm by Forsythe et al.*/
@@ -331,7 +331,7 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
             }
             if (iIteration == nIterationsMax) {
                 fprintf(stderr, "No convergence in %d svdcmp iterations!\n",nIterationsMax);
-                return 0;    //FIXME return 1 or -1 would be better
+                return -1;
             }
             x = w[l];
             nm = k - 1;
@@ -410,7 +410,7 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
 
     free(rv1);
 
-    return 1;    //FIXME return 0 would be better
+    return 0;
 
 } //svdcmp
 
