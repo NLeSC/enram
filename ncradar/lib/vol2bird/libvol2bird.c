@@ -417,7 +417,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
+float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
 
     //  ******************************************************************************
     //  This function calculates the distance in km between two gates
@@ -438,7 +438,7 @@ float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, floa
                 pow(range2,2) -
                 2 * (range1 * range2) * cos(azimuth1-azimuth2));
 
-} //dist
+} //calcDist
 
 
 
@@ -593,6 +593,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                     iRangLocal = (iRang - 1 + iNeighborhood % 3);
                     iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
                     iLocal = iRangLocal + iAzimLocal * nRang; // FIXME see issue #32
+
+                    // TODO make a method that can calculate iLocal given size of window and size of main array
+
                     if (iLocal >= nGlobal || iLocal < 0) {
                         continue;
                     }
@@ -745,6 +748,7 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
     int edge;
     int iGlobal;
     float tmp;
+    float theDist;
 
     rBlock = ROUND(fringe / rScale);
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -813,9 +817,8 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
                     continue;
                 }
                 //if not within range or already in cellImage or already a fringe, do nothing
-                if (dist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale) > fringe || cellImage[iLocal] >= 1) {
-                    // FIXME note that this condition contains a call to dist(), which
-                    // is known to be wrong (issue #31)
+                theDist = calcDist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale);
+                if (theDist > fringe || cellImage[iLocal] >= 1) {
                     continue;
                 }
                 //include pixel (iRangLocal,iAzimLocal) in fringe

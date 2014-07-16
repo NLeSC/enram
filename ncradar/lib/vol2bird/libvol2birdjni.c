@@ -222,7 +222,7 @@ const jfloat rscale,
 const jfloat ascale)
 {
 
-    return dist(range1, azim1, range2, azim2, rscale, ascale);
+    return calcDist(range1, azim1, range2, azim2, rscale, ascale);
 
 }
 
