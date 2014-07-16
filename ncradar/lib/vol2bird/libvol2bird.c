@@ -417,7 +417,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScale) {
+float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
 
     //  ******************************************************************************
     //  This function calculates the distance in km between two gates
@@ -426,15 +426,31 @@ float dist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, floa
     // FIXME looks like this calculation is wrong (issue #31). Seems mostly due to iRang1
     // and iRang2 being indices rather than distances
 
-    float x1;
-    float x2;
-    float y1;
-    float y2;
-    x1 = iRang1 * cos(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
-    x2 = iRang2 * cos(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
-    y1 = iRang1 * sin(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
-    y2 = iRang2 * sin(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
-    return sqrt(SQUARE(x1 - x2) + SQUARE(y1 - y2));
+//    float x1;
+//    float x2;
+//    float y1;
+//    float y2;
+//    x1 = iRang1 * cos(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+//    x2 = iRang2 * cos(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+//    y1 = iRang1 * sin(iAzim1 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+//    y2 = iRang2 * sin(iAzim2 * azimScale * DEG2RAD);   // FIXME x and y are the opposite of what you'd expect, but not wrong per se
+//    return sqrt(SQUARE(x1 - x2) + SQUARE(y1 - y2));
+
+    float range1;
+    float range2;
+    float azimuth1;
+    float azimuth2;
+
+    range1 = iRang1 * rangScale;
+    range2 = iRang2 * rangScale;
+
+    azimuth1 = iAzim1 * azimScaleDeg * DEG2RAD;
+    azimuth2 = iAzim2 * azimScaleDeg * DEG2RAD;
+
+    return sqrt(pow(range1,2) +
+                pow(range2,2) -
+                2 * (range1 * range2) * cos(azimuth1-azimuth2));
+
 } //dist
 
 
