@@ -243,11 +243,6 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     //  and layer counters
     //  *****************************************************************************
 
-    // FIXME *nzdata unused
-    // FIXME *fracclut  unused
-    // FIXME *fracrain  unused
-    // FIXME *fracbird  unused
-    // FIXME *fracfringe  unused
     // FIXME HLAYER suggests preprocessor but isn't
     // FIXME XOFFSET suggests preprocessor but isn't
     // FIXME XSCALE suggests preprocessor but isn't
@@ -301,7 +296,8 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
             range = (iRang+0.5) * dbzMeta.rangeScale;
-            azim = iAzim * dbzMeta.azimScale;    // FIXME why not iAzim+0.5?
+            // FIXME equivalent line in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 491
+            azim = iAzim * dbzMeta.azimScale;                                    // FIXME why not iAzim+0.5?
             heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
             fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
@@ -369,16 +365,17 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             // FIXME what does dBZx represent?
             if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
                 if (cellImage[iGlobal] > 1) { //cluttermap without added fringes  // FIXME "cluttermap"? I think you mean cellmap
-                    // FIXME what does "1+llayer" represent?
+                    // FIXME what does "1+llayer" represent? ANSWER: pseudocolumn 1 in zdata
                     if (isnan(zdata[1+llayer])) {
                         zdata[1+llayer] = 0;
                     }
                     zdata[1+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+                    // FIXME equivalent line in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 530
                     nPointsRainNoFringe++;
                 }
 
                 if (isnan(zdata[2+llayer])) {
-                    // FIXME what does "2+llayer" represent?
+                    // FIXME what does "2+llayer" represent?  ANSWER: pseudocolumn 2 in zdata
                     zdata[2+llayer] = 0;
                 }
                 zdata[2+llayer] += exp(0.1*log(10)*dbzValue);  // FIXME "log(10)" or "log10()"?
