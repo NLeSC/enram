@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON (1)
+//#define FPRINTFON (1)
 
 
 
@@ -720,6 +720,66 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
     return nCells;
 } //findcells
+
+
+
+
+
+
+int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
+                        const int nAzimChild,  const int nRangChild,  const int iChild) {
+
+
+
+    if (nRangChild%2 != 1) {
+#ifdef FPRINTFON
+        fprintf(stderr, "nRangChild must be an odd integer number.\n");
+#endif
+        return -1;
+    }
+
+    if (nAzimChild%2 != 1) {
+#ifdef FPRINTFON
+        fprintf(stderr, "nAzimChild must be an odd integer number.\n");
+#endif
+        return -2;
+    }
+
+    if (iChild > nAzimChild * nRangChild - 1) {
+#ifdef FPRINTFON
+        fprintf(stderr, "iChild is outside the child window.\n");
+#endif
+        return -3;
+    }
+
+
+    const int iAzimParent = iParent / nRangParent;
+    const int iRangParent = iParent % nRangParent;
+
+    const int iAzimChild = iChild / nRangChild;
+    const int iRangChild = iChild % nRangChild;
+
+    const int iAzimReturn = (iAzimParent - nAzimChild/2 + iAzimChild + nAzimParent) % nAzimParent;
+    const int iRangReturn = iRangParent - nRangChild/2 + iRangChild;
+
+
+    if (iRangReturn > nRangParent - 1) {
+#ifdef FPRINTFON
+        fprintf(stderr, "iChild is outside the parent array on the right-hand side.\n");
+#endif
+        return -4;
+    }
+    if (iRangReturn < 0) {
+#ifdef FPRINTFON
+        fprintf(stderr, "iChild is outside the parent array on the left-hand side.\n");
+#endif
+        return -5;
+    }
+
+    return iAzimReturn * nRangParent + iRangReturn;
+
+}
+
 
 
 
