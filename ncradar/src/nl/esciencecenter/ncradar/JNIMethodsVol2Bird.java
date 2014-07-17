@@ -49,7 +49,7 @@ public class JNIMethodsVol2Bird {
             float rangeMin, float rangeMax, float HLAYER, float XOFFSET, float XSCALE,
             float XMEAN, float height, float azimMin, float azimMax, float vradMin,
             float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int NGAPMIN,
-            int NGAPBIN, int NDBZMIN, int layer, int id, int np, int nPointsPtr,
+            int NGAPBIN, int NDBZMIN, int layer, int np, int nPointsPtr,
             int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
 

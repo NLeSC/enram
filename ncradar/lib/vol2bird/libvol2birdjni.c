@@ -428,7 +428,6 @@ const jint NGAPMIN,
 const jint NGAPBIN,
 const jint NDBZMIN,
 const jint layer,
-const jint id,
 jint np,
 jint nPointsPtr,
 jint nPointsAllPtr,
@@ -582,7 +581,7 @@ const jint xflagInt
             XSCALE, XMEAN, height,
             azimMin, azimMax, vradMin, dbzClutter, dbzMin,
             dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN,
-            layer, id, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
+            layer, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
             &nPointsRainPtr, &nPointsRainNoFringePtr,
             clutterFlag, rawReflFlag, xflag);
 

@@ -47,7 +47,6 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
     private int NGAPBIN;
     private int NDBZMIN;
     private int layer;
-    private int id;
     private int np;
     private int nPointsPtr;
     private int nPointsAllPtr;
@@ -105,7 +104,6 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
         NGAPBIN = 0;
         NDBZMIN = 0;
         layer = 0;
-        id = 0;
         np = 0;
         nPointsPtr = 0;
         nPointsAllPtr = 0;
@@ -131,7 +129,7 @@ public class TestJNIClassify extends JNIMethodsVol2Bird {
                 clutterValueScale, clutterValueOffset, cellImage, dbzImageInt, vradImageInt,
                 rawReflImageInt, clutterImageInt, zdata, rangeMin, rangeMax,
                 HLAYER, XOFFSET, XSCALE, XMEAN, height, azimMin, azimMax, vradMin, dbzClutter,
-                dbzMin, dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN, layer, id, np, nPointsPtr,
+                dbzMin, dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN, layer, np, nPointsPtr,
                 nPointsAllPtr, nPointsClutterPtr, nPointsRainPtr, nPointsRainNoFringePtr,
                 clutterFlagInt, rawReflFlagInt, xflagInt);
 

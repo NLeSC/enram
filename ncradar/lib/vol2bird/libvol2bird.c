@@ -232,7 +232,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         float XSCALE, float XMEAN, float height,
         float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
         float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
-        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
 
@@ -766,6 +766,7 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
     const int iAzimChild = iChild / nRangChild;
     const int iRangChild = iChild % nRangChild;
 
+    // the azimuth dimension is wrapped (polar plot); iAzim = 0 is adjacent to iAzim = nAzim-1:
     const int iAzimReturn = (iAzimParent - nAzimChild/2 + iAzimChild + nAzimParent) % nAzimParent;
     const int iRangReturn = iRangParent - nRangChild/2 + iRangChild;
 
