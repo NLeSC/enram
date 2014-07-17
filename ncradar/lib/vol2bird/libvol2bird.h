@@ -105,7 +105,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         float XSCALE, float XMEAN, float height,
         float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
         float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
-        int layer, int id, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
 
