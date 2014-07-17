@@ -1105,7 +1105,7 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     int iCellValid;
     int nCellsValid;
     int cellImageValue;
-    int[] cellImageOld[nGlobal];
+    int cellImageOld[nGlobal];
 
     nCellsValid = nCells;
 
