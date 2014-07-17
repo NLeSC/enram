@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-//#define FPRINTFON (1)
+#define FPRINTFON (1)
 
 
 
@@ -1102,6 +1102,8 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
 
 
     int iGlobal;
+    int iCell;
+    int iCellNew;
     int iCellValid;
     int nCellsValid;
     int cellImageValue;
@@ -1121,7 +1123,17 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
         // its value...2!  (0 and 1 are reserved for other stuff it seems)
 
         cellImageValue = cellImage[iGlobal];
-        if (cellProp[cellImageValue].drop) {
+
+        if (cellImageValue > nCells - 1) {
+
+#ifdef FPRINTFON
+            fprintf(stderr, "You just asked for the properties of cell %d, which does not exist.\n", cellImageValue);
+#endif
+            continue;
+        }
+
+        if (cellProp[cellImageValue].drop == 1) {
+
             cellImage[iGlobal] = -1;
         }
     }
@@ -1142,15 +1154,20 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     }
     // re-index the map
     for (iCellValid = 0; iCellValid < nCellsValid; iCellValid++) {
+
+        iCellNew = iCellValid + 1;
         for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
             if (cellImageOld[iGlobal] == cellProp[iCellValid].index) {
-                cellImage[iGlobal] = iCellValid + 1;
+                cellImage[iGlobal] = iCellNew;
             }
         }
-        // re-index the cellproperties object
-        cellProp[iCellValid].index = iCellValid + 1;
     }
+    for (iCellValid = 0; iCellValid < nCellsValid; iCellValid++) {
 
+        iCellNew = iCellValid + 1;
+        // re-index the cellproperties object
+        cellProp[iCellValid].index = iCellNew;
+    }
 
     return nCellsValid;
 } //updatemap
