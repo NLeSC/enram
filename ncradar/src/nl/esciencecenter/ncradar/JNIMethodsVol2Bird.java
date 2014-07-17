@@ -67,6 +67,11 @@ public class JNIMethodsVol2Bird {
 
 
 
+    protected static final native int findNearbyGateIndex(int nAzimParent, int nRangParent, int iParent,
+            int nAzimChild, int nRangChild, int iChild);
+
+
+
     protected static final native void fringeCells(int[] cellImage, int nRange,
             int nAzim, float azimuthScale, float rangeScale, float fringe);
 
