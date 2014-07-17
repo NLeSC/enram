@@ -65,7 +65,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
         printf("Requested memory could not be allocated!\n");
-        exit(10);  // FIXME "return 10;" seems more appropriate
+        return(10);
     }
     for (iCell = 0; iCell < nCells; iCell++) {
         cellProp[iCell].iRangOfMax = 0;
@@ -474,6 +474,7 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     int iRangLocal;
     int iAzimLocal;
     int iNeighborhood;
+    int nNeighborhood;
     int count;
     int cellImageInitialValue;
 
@@ -505,6 +506,9 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     float zdrValueOffset;
     float zdrValueScale;
 
+    int nAzimNeighborhood;
+    int nRangNeighborhood;
+
     texMissing = texMeta->missing;
     texnAzim = texMeta->nAzim;
     texnRang = texMeta->nRang;
@@ -529,6 +533,10 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     nRang = texnRang;
 
     nGlobal = nAzim * nRang;
+    nAzimNeighborhood = 3;
+    nRangNeighborhood = 3;
+    nNeighborhood = nAzimNeighborhood * nRangNeighborhood;
+
 
     texThres = ROUND((texThresMin - texValueOffset) / texValueScale);
 
@@ -589,14 +597,12 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
                 /* count number of direct neighbors above threshold */
                 count = 0;
-                for (iNeighborhood = 0; iNeighborhood < 9; iNeighborhood++) {
-                    iRangLocal = (iRang - 1 + iNeighborhood % 3);
-                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
-                    iLocal = iRangLocal + iAzimLocal * nRang; // FIXME see issue #32
+                for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
-                    // TODO make a method that can calculate iLocal given size of window and size of main array
+                    iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
-                    if (iLocal >= nGlobal || iLocal < 0) {
+                    if (iLocal < 0) {
+                        // iLocal below zero are error codes
                         continue;
                     }
                     if (sign * texImage[iLocal] <= sign * texThres) {
@@ -647,10 +653,15 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
                     continue;
                 }
 
-                for (iNeighborhood = 0; iNeighborhood < 9; iNeighborhood++) {
-                    iRangLocal = (iRang - 1 + iNeighborhood % 3);
-                    iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
-                    iLocal = iRangLocal + iAzimLocal * nRang; // FIXME see issue #32
+                for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
+
+                    iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
+
+                    if (iLocal < 0) {
+                        // iLocal less than zero are error codes
+                        continue;
+                    }
+
                     if (zdrImage[iLocal] > zdrThres || rhoImage[iLocal] > rhoThres ) {
                         count++;
                     }
@@ -668,14 +679,10 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
 
             for (iNeighborhood = 0; iNeighborhood < 4; iNeighborhood++) {
 
-                iRangLocal = (iRang - 1 + iNeighborhood % 3);
-                iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
-                iLocal = iRangLocal + iAzimLocal * nRang;
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
-                /* index out of range, go to next pixel within neighborhood */
-                if (iRangLocal < 0 || iRangLocal >= nRang ||
-                    iAzimLocal < 0 || iAzimLocal >= nAzim) {
-                    // FIXME possibly affected by issue #32
+                if (iLocal < 0) {
+                    // iLocal less than zero are error codes
                     continue;
                 }
 
@@ -800,6 +807,7 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
     int iRang;
     int iAzim;
     int iNeighborhood;
+    int nNeighborhood;
     int iRangLocal;
     int iAzimLocal;
     int iLocal;
@@ -809,6 +817,9 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
     int iGlobal;
     float tmp;
     float theDist;
+    int nAzimChild;
+    int nRangChild;
+
 
     rBlock = ROUND(fringe / rScale);
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -828,23 +839,18 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
             edge = 0;
             for (iNeighborhood = 0; iNeighborhood < 9 && !edge;
                     iNeighborhood++) {
-                iRangLocal = iRang - 1 + iNeighborhood % 3;
-                iAzimLocal = (nAzim + (iAzim - 1 + iNeighborhood / 3)) % nAzim;
-                iLocal = iRangLocal + iAzimLocal * nRang;
 
-                fprintf(stderr,
-                        "iAzimLocal = %d; iRangLocal = %d; iLocal = %d\n",
-                        iAzimLocal, iRangLocal, iLocal);
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,3,3,iNeighborhood);
 
-                if (iRangLocal < 0 || iRangLocal >= nRang) {
-                    // In the condition above, check only the range dimension,
-                    // because the azimuth dimension is wrapped (polar plot);
-                    // iAzim = 0  is adjacent to iAzim = nAzim-1.
+                if (iLocal < 0) {
+                    // iLocal less than zero are error codes
                     continue;
                 }
+
                 if (cellImage[iLocal] < 1) {
                     edge = 1; //FIXME THIS SHOULD BE <=1, BUT THEN TAKES MUCH MUCH LONGER
                 }
+
             } //NOW ONLY CELL PIXELS WITHOUT ANY BORDERING FRINGE ARE 'FRINGED'
 
             if (!edge) {
@@ -861,21 +867,22 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
 
             fprintf(stderr, "aBlock = %d; rBlock = %d\n", aBlock, rBlock);
 
-            for (iNeighborhood = 0;
-                    iNeighborhood < (2 * rBlock + 1) * (2 * aBlock + 1);
-                    iNeighborhood++) {
+            nAzimChild = 2 * aBlock + 1;
+            nRangChild = 2 * rBlock + 1;
+            nNeighborhood = nAzimChild * nRangChild;
 
-                iRangLocal = iRang - rBlock + iNeighborhood % (2 * rBlock + 1);
-                iAzimLocal = (nAzim
-                        + (iAzim - aBlock + iNeighborhood / (2 * rBlock + 1)))
-                        % nAzim;
-                iLocal = iRangLocal + iAzimLocal * nRang;
-                if (iRangLocal < 0 || iRangLocal >= nRang) {
-                    // In the condition above, check only the range dimension,
-                    // because the azimuth dimension is wrapped (polar plot);
-                    // iAzim = 0  is adjacent to iAzim = nAzim-1.
+            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
+
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimChild,nRangChild,iNeighborhood);
+
+                if (iLocal < 0) {
+                    // iLocal less than zero are error codes
                     continue;
                 }
+
+                iAzimLocal = iLocal / nRang;
+                iRangLocal = iLocal % nRang;
+
                 //if not within range or already in cellImage or already a fringe, do nothing
                 theDist = calcDist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale);
                 if (theDist > fringe || cellImage[iLocal] >= 1) {
@@ -915,10 +922,7 @@ void sortcells(CELLPROP *cellProp, int nCells, int method) {
 
             iCellOther = iCell - 1;
 
-            while (iCellOther >= 0
-                    && cellProp[iCellOther].area
-                            * XABS(cellProp[iCellOther].drop - 1)
-                            < tmp.area * XABS(tmp.drop - 1)) {
+            while (iCellOther >= 0 && cellProp[iCellOther].area * XABS(cellProp[iCellOther].drop - 1) < tmp.area * XABS(tmp.drop - 1)) {
 
                 cellProp[iCellOther + 1] = cellProp[iCellOther];
 
@@ -935,10 +939,7 @@ void sortcells(CELLPROP *cellProp, int nCells, int method) {
 
             iCellOther = iCell - 1;
 
-            while (iCellOther >= 0
-                    && cellProp[iCellOther].dbzAvg
-                            * XABS(cellProp[iCellOther].drop - 1)
-                            < tmp.dbzAvg * XABS(tmp.drop - 1)) {
+            while (iCellOther >= 0 && cellProp[iCellOther].dbzAvg * XABS(cellProp[iCellOther].drop - 1) < tmp.dbzAvg * XABS(tmp.drop - 1)) {
 
                 cellProp[iCellOther + 1] = cellProp[iCellOther];
 
@@ -973,11 +974,10 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
 
     int iRang;
     int iAzim;
-    int iRangLocal;
-    int iAzimLocal;
     int nRang;
     int nAzim;
     int iNeighborhood;
+    int nNeighborhood;
     int count;
     unsigned char missingValue;
     int value;
@@ -987,9 +987,8 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
     double dbz;
     double tex;
     int iGlobal;
-    int iLocal;
     int nGlobal;
-    int nNeighborhood;
+    int iLocal;
     float texOffset;
     float texScale;
     float reflOffset;
@@ -1030,17 +1029,13 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
 
             for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
-                iRangLocal = iRang - nRangNeighborhood / 2 + iNeighborhood % nRangNeighborhood;
-                iAzimLocal = (nAzim + (iAzim - nAzimNeighborhood / 2 + iNeighborhood / nRangNeighborhood)) % nAzim;
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
-                iLocal = iRangLocal + iAzimLocal * nRang;
-
-                //fprintf(stderr,"    iAzim=%d,iRang=%d,iNeighborhood=%d;iAzimLocal=%d,iRangLocal=%d:iLocal=%d\n",iAzim, iRang, iNeighborhood, iAzimLocal,iRangLocal,iLocal);
-
-                // FIXME iLocal is wrong at the iRang = 0 and iRang = nRang-1 edges: issue #32
-                if (iLocal >= nGlobal || iLocal < 0) {
+                if (iLocal < 0) {
+                    // iLocal less than zero are error codes
                     continue;
                 }
+
                 if (vradImage[iLocal] == missingValue || reflImage[iLocal] == missingValue) {
                     continue;
                 }
