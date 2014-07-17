@@ -1093,8 +1093,7 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
 
 
 
-int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
-        int minCellArea) {
+int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int minCellArea) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map
@@ -1106,6 +1105,7 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
     int iCellValid;
     int nCellsValid;
     int cellImageValue;
+    int[] cellImageOld[nGlobal];
 
     nCellsValid = nCells;
 
@@ -1136,19 +1136,21 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal,
         nCellsValid--;
     }
 
-    /*reindex the map*/
+    // make a copy of the cellImage map
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        cellImageOld[iGlobal] = cellImage[iGlobal];
+    }
+    // re-index the map
     for (iCellValid = 0; iCellValid < nCellsValid; iCellValid++) {
         for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-            // FIXME: inline changing of array elements...very flaky
-            if (cellImage[iGlobal] == cellProp[iCellValid].index) {
+            if (cellImageOld[iGlobal] == cellProp[iCellValid].index) {
                 cellImage[iGlobal] = iCellValid + 1;
             }
         }
-    }
-    /*reindex the cellproperties object*/
-    for (iCellValid = 0; iCellValid < nCells; iCellValid++) {
+        // re-index the cellproperties object
         cellProp[iCellValid].index = iCellValid + 1;
     }
+
 
     return nCellsValid;
 } //updatemap
