@@ -42,7 +42,6 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
     @Test
     public void testNativeUpdateMap1() throws Exception {
 
-        // test with indices into cellProp starting at 0
         int[] cellImage = new int[] { 0, 0, -1, -1,
                 0, 0, 0, -1,
                 -1, 0, -1, -1,
@@ -80,7 +79,6 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
     @Test
     public void testNativeUpdateMap2() throws Exception {
 
-        // test with indices into cellProp starting at 2
         int[] cellImage = new int[] { 2, 2, -1, -1,
                 2, 2, 2, -1,
                 -1, 2, -1, -1,
@@ -118,13 +116,12 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
     @Test
     public void testNativeUpdateMap3() throws Exception {
 
-        // test with indices into cellProp starting at 2 but with
-        // out-of-order areas
         int[] cellImage = new int[] { 3, 3, -1, -1,
                 3, 3, 3, -1,
                 -1, 3, -1, -1,
                 -1, -1, -1, 2,
                 4, 4, -1, -1 };
+        // negative areas are dummies of course
         float[] area = new float[] { 1.0f, 6.0f, 2.0f, -1.0f, -2.0f };
         char[] drop = new char[] { 0, 0, 0, 0, 0 };
         int[] index = new int[] { 2, 3, 4, 0, 1 };
@@ -145,6 +142,44 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
                 { 2, 2, -1, -1 } };
 
         int[] indexExpected = new int[] { 1, 2, 3, 0, 1 };
+
+        runTests(nCellsValidActual, nCellsValidExpected,
+                cellImageActual, cellImageExpected,
+                index, indexExpected);
+
+    }
+
+
+
+    @Test
+    public void testNativeUpdateMap4() throws Exception {
+
+        int[] cellImage = new int[] { 3, 3, -1, -1,
+                3, 3, 3, -1,
+                -1, 3, -1, -1,
+                -1, -1, -1, 2,
+                4, 4, -1, -1 };
+        // negative areas are dummies of course
+        float[] area = new float[] { 1.0f, 6.0f, 2.0f, -1.0f, -2.0f };
+        char[] drop = new char[] { 0, 0, 0, 0, 0 };
+        int[] index = new int[] { 2, 3, 4, 0, 1 };
+        int minCellArea = 2;
+        int nCells = 5;
+
+        int nCellsValidActual = updateMap(cellImage, iRangOfMax, iAzimOfMax, dbzAvg,
+                texAvg, cv, area, clutterArea, dbzMax, index, drop,
+                nCells, nGlobal, minCellArea);
+
+        int nCellsValidExpected = 2;
+
+        int[][] cellImageActual = reshapeTo2D(cellImage, nAzim, nRang);
+        int[][] cellImageExpected = new int[][] { { 1, 1, -1, -1 },
+                { 1, 1, 1, -1 },
+                { -1, 1, -1, -1 },
+                { -1, -1, -1, -1 },
+                { 2, 2, -1, -1 } };
+
+        int[] indexExpected = new int[] { 1, 2, -1, -1, -1 };
 
         runTests(nCellsValidActual, nCellsValidExpected,
                 cellImageActual, cellImageExpected,
