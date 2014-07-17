@@ -14,7 +14,6 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
     private float[] cv;
     private float[] clutterArea;
     private float[] dbzMax;
-    private int nCells;
     private int nGlobal;
     private int nAzim;
     private int nRang;
@@ -36,8 +35,6 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
         clutterArea = new float[] { 78f, 234.5f, 232.3f };
         dbzMax = new float[] { 9837.2f, 53.67f, 8765.23f };
 
-        nCells = 3;
-
     }
 
 
@@ -55,6 +52,7 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
         char[] drop = new char[] { 0, 0, 0 };
         int[] index = new int[] { 0, 1, 2 };
         int minCellArea = 0;
+        int nCells = 3;
 
         int nCellsValidActual = updateMap(cellImage, iRangOfMax, iAzimOfMax, dbzAvg,
                 texAvg, cv, area, clutterArea, dbzMax, index, drop,
@@ -86,12 +84,13 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
         int[] cellImage = new int[] { 2, 2, -1, -1,
                 2, 2, 2, -1,
                 -1, 2, -1, -1,
-                -1, -1, -1, 4,
-                3, 3, -1, -1 };
+                -1, -1, -1, 1,
+                0, 0, -1, -1 };
         float[] area = new float[] { 6.0f, 2.0f, 1.0f };
         char[] drop = new char[] { 0, 0, 0 };
-        int[] index = new int[] { 2, 3, 4 };
+        int[] index = new int[] { 2, 0, 1 };
         int minCellArea = 0;
+        int nCells = 3;
 
         int nCellsValidActual = updateMap(cellImage, iRangOfMax, iAzimOfMax, dbzAvg,
                 texAvg, cv, area, clutterArea, dbzMax, index, drop,
@@ -126,10 +125,11 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
                 -1, 3, -1, -1,
                 -1, -1, -1, 2,
                 4, 4, -1, -1 };
-        float[] area = new float[] { 1.0f, 6.0f, 2.0f };
-        char[] drop = new char[] { 0, 0, 0 };
-        int[] index = new int[] { 2, 3, 4 };
+        float[] area = new float[] { 1.0f, 6.0f, 2.0f, -1.0f, -2.0f };
+        char[] drop = new char[] { 0, 0, 0, 0, 0 };
+        int[] index = new int[] { 2, 3, 4, 0, 1 };
         int minCellArea = 0;
+        int nCells = 5;
 
         int nCellsValidActual = updateMap(cellImage, iRangOfMax, iAzimOfMax, dbzAvg,
                 texAvg, cv, area, clutterArea, dbzMax, index, drop,
@@ -144,7 +144,7 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
                 { -1, -1, -1, 3 },
                 { 2, 2, -1, -1 } };
 
-        int[] indexExpected = new int[] { 2, 3, 1 };
+        int[] indexExpected = new int[] { 1, 2, 3, 0, 1 };
 
         runTests(nCellsValidActual, nCellsValidExpected,
                 cellImageActual, cellImageExpected,
@@ -188,7 +188,7 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
         }
 
         // then see if the indices have been changed correctly
-        for (int iCell = 0; iCell < nCells; iCell++) {
+        for (int iCell = 0; iCell < nCellsValidActual; iCell++) {
             assertEquals(indexActual[iCell], indexExpected[iCell]);
         }
 
