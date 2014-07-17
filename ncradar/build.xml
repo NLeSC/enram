@@ -100,7 +100,7 @@
                        <file name="ncradar.jar" />
                        <file name="ncradar-natives.jar" />
                        <file name="netcdfAll-4.3.jar" />
-                   </filelist>  
+                   </filelist>
                 </classpath>
         </java>
     </target>
