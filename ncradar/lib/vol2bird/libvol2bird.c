@@ -1104,7 +1104,6 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     int iGlobal;
     int iCell;
     int iCellNew;
-    int iCellValid;
     int nCellsValid;
     int cellImageValue;
     int cellImageOld[nGlobal];
@@ -1153,20 +1152,33 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
         cellImageOld[iGlobal] = cellImage[iGlobal];
     }
     // re-index the map
-    for (iCellValid = 0; iCellValid < nCellsValid; iCellValid++) {
+    for (iCell = 0; iCell < nCells; iCell++) {
 
-        iCellNew = iCellValid + 1;
+        if (iCell < nCellsValid) {
+            iCellNew = iCell + 1;
+        }
+        else {
+            iCellNew = -1;
+        }
+
         for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-            if (cellImageOld[iGlobal] == cellProp[iCellValid].index) {
+            if (cellImageOld[iGlobal] == cellProp[iCell].index) {
                 cellImage[iGlobal] = iCellNew;
             }
         }
     }
-    for (iCellValid = 0; iCellValid < nCellsValid; iCellValid++) {
 
-        iCellNew = iCellValid + 1;
+    for (iCell = 0; iCell < nCells; iCell++) {
+
+        if (iCell < nCellsValid) {
+            iCellNew = iCell + 1;
+        }
+        else {
+            iCellNew = -1;
+        }
+
         // re-index the cellproperties object
-        cellProp[iCellValid].index = iCellNew;
+        cellProp[iCell].index = iCellNew;
     }
 
     return nCellsValid;
