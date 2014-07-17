@@ -836,6 +836,28 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
 
 
+JNIEXPORT jint JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findNearbyGateIndex(
+JNIEnv *env,
+jobject obj,
+const jint nAzimParent,
+const jint nRangParent,
+const jint iParent,
+const jint nAzimChild,
+const jint nRangChild,
+const jint iChild)
+{
+
+    return findNearbyGateIndex(nAzimParent, nRangParent, iParent,
+                               nAzimChild,  nRangChild,  iChild);
+
+}
+
+
+
+
+
+
 
 
 JNIEXPORT void JNICALL
