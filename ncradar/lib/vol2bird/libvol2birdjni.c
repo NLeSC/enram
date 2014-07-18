@@ -892,19 +892,19 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     }
 
     if (rhoImageIsNull == 1 && zdrImageIsNull == 0) {
-            nCells = findcells(&texImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
+            nCells = findCells(&texImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
                                &texMeta,     &rhoMeta,     &zdrMeta,
                                texThresMin,  rhoThresMin,  zdrThresMin,
                                dbzThresMin, rCellMax, sign);
     }
     if (rhoImageIsNull == 0 && zdrImageIsNull == 1) {
-            nCells = findcells(&texImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
+            nCells = findCells(&texImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
                                &texMeta,     &rhoMeta,     &zdrMeta,
                                texThresMin,  rhoThresMin,  zdrThresMin,
                                dbzThresMin, rCellMax, sign);
     }
     if (rhoImageIsNull == 1 && zdrImageIsNull == 1) {
-            nCells = findcells(&texImageBody[0], NULL, NULL, &cellImageIntBody[0],
+            nCells = findCells(&texImageBody[0], NULL, NULL, &cellImageIntBody[0],
                                &texMeta,     &rhoMeta,     &zdrMeta,
                                texThresMin,  rhoThresMin,  zdrThresMin,
                                dbzThresMin, rCellMax, sign);
