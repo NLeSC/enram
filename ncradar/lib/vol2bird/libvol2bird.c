@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON (1)
+// #define FPRINTFON (1)
 
 
 
@@ -721,6 +721,8 @@ int findCells(unsigned char *texImage, unsigned char *rhoImage,
         float rhoThresMin, float zdrThresMin, float dbzThresMin,
         float rCellMax, char sign) {
 
+    // FIXME see issue #48
+
 
     //  *****************************************************************************
     //  This function detects the cells in '[tex|rho|zdr]Image' using an integer
@@ -910,7 +912,7 @@ int findCells(unsigned char *texImage, unsigned char *rhoImage,
 #endif
                     continue;
                 }
-                if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?
+                if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?   // FIXME see issue #48, also: might be dbzThres
 #ifdef FPRINTFON
                     fprintf(stderr,"texImage[%d] < dbzThresMin\n",iGlobal);
 #endif
