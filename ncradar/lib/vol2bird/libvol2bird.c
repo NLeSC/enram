@@ -25,12 +25,12 @@
 
 
 
-int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
-                 unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
-                 SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
-                 int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
-                 float vradMinValue,float dbzClutterMin, unsigned char clutterFlag,
-                 unsigned char dualPolFlag, unsigned char verbose) {
+int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
+        const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
+        const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
+        const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
+        const float vradMinValue, const float dbzClutterMin, const unsigned char clutterFlag,
+        const unsigned char dualPolFlag, const unsigned char verbose) {
 
     //  *********************************************************************************
     //  This function analyses the cellImage array found by the 'findCells' procedure.
