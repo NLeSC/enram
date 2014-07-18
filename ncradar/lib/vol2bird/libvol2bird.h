@@ -98,10 +98,10 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
-void calcTexture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
-        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
-        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
-        unsigned char nCountMin,unsigned char texType);
+void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
+        const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
+        const unsigned char nRangNeighborhood, const unsigned char nAzimNeighborhood,
+        const unsigned char nCountMin, const unsigned char texType);
 
 void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
@@ -131,7 +131,7 @@ int findCells(unsigned char *texImage,
               float texThresMin,
               float rhoThresMin,
               float zdrThresMin,
-              float reflThresMin,
+              float dbzThresMin,
               float rCellMax,
               char sign);
 

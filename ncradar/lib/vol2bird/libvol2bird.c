@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-// #define FPRINTFON (1)
+#define FPRINTFON (1)
 
 
 
@@ -33,15 +33,10 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char dualPolFlag, unsigned char verbose) {
 
     //  *********************************************************************************
-    //  This function analyses the cellImage array found by the 'findcells' procedure.
+    //  This function analyses the cellImage array found by the 'findCells' procedure.
     //  Smalls cells are rejected and the cells are re-numbered according to size.
     //  The final number of cells in cellImage is returned as an integer.
     //  *********************************************************************************
-
-#ifdef FPRINTFON
-    fprintf(stderr,"Begin of analyzeCells in C.\n");
-#endif
-
 
     CELLPROP *cellProp;
     int iCell;
@@ -204,10 +199,6 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
 
     free(cellProp);
 
-#ifdef FPRINTFON
-    fprintf(stderr,"End of analyzeCells in C.\n");
-#endif
-
 
     return nCellsValid;
 } // analyzeCells
@@ -246,11 +237,11 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
 
 
 
-void calcTexture(unsigned char *texImage, unsigned char *vradImage,
-        unsigned char *dbzImage, SCANMETA *texMeta, SCANMETA *vradMeta,
-        SCANMETA *dbzMeta, unsigned char nRangNeighborhood,
-        unsigned char nAzimNeighborhood, unsigned char nCountMin,
-        unsigned char texType) {
+void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
+        const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
+        const SCANMETA *dbzMeta, const unsigned char nRangNeighborhood,
+        const unsigned char nAzimNeighborhood, const unsigned char nCountMin,
+        const unsigned char texType) {
 
 
     //  ****************************************************************************************
