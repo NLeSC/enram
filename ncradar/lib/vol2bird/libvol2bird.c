@@ -267,7 +267,7 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
     int iNeighborhood;
     int nNeighborhood;
     int count;
-    unsigned char missingValue;
+    int missingValue;
     int value;
     int index;
     double vmoment1;
@@ -313,11 +313,13 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
             vmoment1 = 0;
             vmoment2 = 0;
 
-            dbz = dbzOffset + dbzScale * dbzImage[iGlobal];
+            dbz = dbzOffset + dbzScale * dbzImage[iGlobal]; // FIXME issue #44
 
             for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
+
+                fprintf(stderr, "iLocal = %d; ",iLocal);
 
                 if (iLocal < 0) {
                     // iLocal less than zero are error codes
@@ -328,14 +330,11 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
                     continue;
                 }
 
-                // FIXME why difference between local and global?
-                //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
-                //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
-
                 vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
 
+                // FIXME double counted dbz when iLocal == iGlobal
                 dbz += dbzOffset + dbzScale * dbzImage[iLocal];
 
                 count++;
@@ -349,7 +348,8 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
             /* when not enough neighbours, continue */
             if (count < nCountMin) {
                 texImage[iGlobal] = missingValue;
-            } else {
+            }
+            else {
                 if (texType == TEXCV) {
 
                     tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
@@ -367,7 +367,7 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
                 texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
 
                 fprintf(stderr,
-                        "(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
+                        "\n(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
                         count, nCountMin, texType, vmoment1, vmoment2, tex,
                         iGlobal, texImage[iGlobal]);
 
