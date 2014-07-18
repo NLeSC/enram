@@ -367,10 +367,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-tex.txt");
+        int[] texImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-dbz.txt");
         int[] rhoImage = null;
         int[] zdrImage = null;
         int[] cellImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern0.txt");
+        int[][] cellImageExpected = reshapeTo2D(readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-cell.txt"), nAzim, nRang);
         int texMissing = missing;
         int texnAzim = nAzim;
         int texnRang = nRang;
@@ -401,32 +402,21 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
                 dbzThresMin, rCellMax, sign);
 
-        // TODO complete this once issue #36 has been resolved
+        // first test the number of detected cells:
+        // (one cell is cut in two due to too thin a connection between the two
+        // parts of the cell)
+        int nCellsExpected = 3 + 1;
+        assertEquals(nCellsActual, nCellsExpected);
 
-        // // first test the number of detected cells:
-        // int nCellsExpected = 3;
-        // assertEquals(nCellsActual, nCellsExpected);
-        //
-        // // then test the contents of 'cellImage':
-        // int[][] cellImageActual = reshapeTo2D(cellImage, nAzim, nRang);
-        // int[][] cellImageExpected = { { -1, -1, -1, -1, -1 },
-        // { -1, -1, 0, -1, -1 },
-        // { -1, 0, 0, 0, -1 },
-        // { -1, -1, 0, -1, -1 },
-        // { -1, -1, -1, -1, -1 },
-        // { -1, -1, 1, -1, -1 },
-        // { -1, 1, 1, 1, -1 },
-        // { -1, -1, 1, -1, -1 },
-        // { -1, -1, -1, -1, -1 },
-        // { -1, -1, 2, -1, -1 },
-        // { -1, 2, 2, 2, -1 },
-        // { -1, -1, 2, -1, -1 } };
-        // for (int iAzim = 0; iAzim < nAzim; iAzim++) {
-        // for (int iRang = 0; iRang < nRang; iRang++) {
-        // assertEquals(cellImageActual[iAzim][iRang],
-        // cellImageExpected[iAzim][iRang]);
-        // }
-        // }
+        // then test the contents of 'cellImage':
+        int[][] cellImageActual = reshapeTo2D(cellImage, nAzim, nRang);
+
+        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
+            for (int iRang = 0; iRang < nRang; iRang++) {
+                assertEquals(cellImageActual[iAzim][iRang],
+                        cellImageExpected[iAzim][iRang]);
+            }
+        }
     }
 
 }
