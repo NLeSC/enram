@@ -145,8 +145,8 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
         texType = 2; // 2 = STDDEV of VRAD
         texOffset = 0.0f;
         texScale = 1.0f;
-        dbzOffset = 2.0f;
-        dbzScale = -34.0f;
+        dbzOffset = 0.0f;
+        dbzScale = 1.0f;
         vradOffset = 0.0f;
         vradScale = 1.0f;
         vradMissing = 255;
