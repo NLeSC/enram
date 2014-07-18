@@ -83,7 +83,7 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         float clutterValueOffset = 0.0f;
         float texValueScale = 1.0f;
         float texValueOffset = 0.0f;
-        int nCells = 2;
+        int nCells = 4;
         int areaMin = 0;
         float cellDbzMin = 0;
         float cellStdDevMax = 0;
