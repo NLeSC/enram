@@ -26,6 +26,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
     private float dbzScale;
     private float vradOffset;
     private float vradScale;
+    private int vradMissing;
     private int nRang;
     private int nAzim;
 
@@ -148,6 +149,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
         dbzScale = -34.0f;
         vradOffset = 0.0f;
         vradScale = 1.0f;
+        vradMissing = 255;
         nRang = 4;
         nAzim = 5;
 
@@ -174,6 +176,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 dbzScale,
                 vradOffset,
                 vradScale,
+                vradMissing,
                 nRang,
                 nAzim);
 
@@ -256,6 +259,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 dbzScale,
                 vradOffset,
                 vradScale,
+                vradMissing,
                 nRang,
                 nAzim);
 
@@ -336,6 +340,7 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 dbzScale,
                 vradOffset,
                 vradScale,
+                vradMissing,
                 nRang,
                 nAzim);
 
