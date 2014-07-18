@@ -220,22 +220,13 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
 
         int[][] expected = texImage2D.clone();
 
-        int differsByOne = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 1; iRang < nRang - 1; iRang++) {
 
                 assertEquals(expected[iAzim][iRang], actual[iAzim][iRang], 1);
 
-                if (expected[iAzim][iRang] != actual[iAzim][iRang]) {
-
-                    differsByOne += 1;
-
-                }
-
             }
         }
-
-        System.out.println("A total of " + differsByOne + " array entries differed by 1 from the C result.");
 
     }
 
@@ -297,19 +288,13 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
 
         int[][] expected = texImage2D.clone();
 
-        int differsByOne = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 1; iRang < nRang - 1; iRang++) {
 
                 assertEquals(expected[iAzim][iRang], actual[iAzim][iRang], 1);
 
-                if (expected[iAzim][iRang] != actual[iAzim][iRang]) {
-                    differsByOne += 1;
-                }
             }
         }
-
-        System.out.println("A total of " + differsByOne + " array entries differed by 1 from the C result.");
 
     }
 
@@ -378,19 +363,13 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
 
         int[][] expected = texImage2D.clone();
 
-        int differsByOne = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 1; iRang < nRang - 1; iRang++) {
 
                 assertEquals(expected[iAzim][iRang], actual[iAzim][iRang], 1);
 
-                if (expected[iAzim][iRang] != actual[iAzim][iRang]) {
-                    differsByOne += 1;
-                }
             }
         }
-
-        System.out.println("A total of " + differsByOne + " array entries differed by 1 from the C result.");
 
     }
 
