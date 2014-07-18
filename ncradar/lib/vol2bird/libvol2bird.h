@@ -89,14 +89,14 @@ typedef struct cellprop CELLPROP;
 // Function prototypes
 // *****************************************************************************
 
-int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
+int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
                  SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
                  int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
                  float vradMinValue,float dbzClutterMin, unsigned char cmFlag,
                  unsigned char dualPolFlag, unsigned char verbose);
 
-void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
+void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
         unsigned char *uzscan, unsigned char *clutterImage,
@@ -109,9 +109,9 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
 
-float dist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
-int findcells(unsigned char *texImage,
+int findCells(unsigned char *texImage,
               unsigned char *rhoImage,
               unsigned char *zdrImage,
               int *cellImage,
@@ -125,18 +125,18 @@ int findcells(unsigned char *texImage,
               float rCellMax,
               char sign);
 
-void fringecells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
+void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-void sortcells(CELLPROP *cellProp,int nCells, int method);
+void sortCells(CELLPROP *cellProp,int nCells, int method);
 
-void texture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
+void calcTexture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
         SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
         unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
         unsigned char nCountMin,unsigned char texType);
 
-int updatemap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
+int updateMap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 
-void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
         float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
         float vradMin, int iData, int layer, int id, int *nPoints);

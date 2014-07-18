@@ -8,7 +8,7 @@
 
 
 JNIEXPORT jfloat JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyseCells(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyzeCells(
 JNIEnv *env,
 jobject obj,
 jintArray dbzImageInt,
@@ -163,7 +163,7 @@ jint verboseInt
 #endif
 
 
-    nCellsValid = analysecells(&dbzImageBody[0], &vradImageBody[0], &texImageBody[0],
+    nCellsValid = analyzeCells(&dbzImageBody[0], &vradImageBody[0], &texImageBody[0],
                                &clutterImageBody[0], &cellImageIntBody[0],
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
@@ -346,7 +346,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
 
-    texture(texImageUCharBody, vradImageUCharBody, dbzImageUCharBody,
+    calcTexture(texImageUCharBody, vradImageUCharBody, dbzImageUCharBody,
             &texMeta, &vradMeta, &dbzMeta,
             nRangNeighborhoodUChar, nAzimNeighborhoodUChar,
             nCountMinUChar, texTypeUChar);
@@ -573,7 +573,7 @@ const jint xflagInt
 
     fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
 
-    classification(dbzMeta, vradMeta, rawReflMeta,
+    classify(dbzMeta, vradMeta, rawReflMeta,
             clutterMeta, cellImageBody, &dbzImageBody[0], &vradImageBody[0],
             &rawReflImageBody[0], &clutterImageBody[0],
             &zdataBody[0],
@@ -875,7 +875,7 @@ const jfloat fringe)
     jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     // end of Java Native Interface tricks
 
-    fringecells(cellImageBody,nRang,nAzim,aScale,rScale,fringe);
+    fringeCells(cellImageBody,nRang,nAzim,aScale,rScale,fringe);
 
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, 0);
@@ -954,7 +954,7 @@ const jint method
         }
     }
 
-    sortcells(cellProp,nCells,method);
+    sortCells(cellProp,nCells,method);
 
     for (iCell=0;iCell<nCells;iCell++) {
         if (method == BYAREA) {
@@ -1068,7 +1068,7 @@ const jint minCellArea)
         cellProp[iCell].drop = cellPropDropBody[iCell];
     }
 
-    nCellsValid = updatemap(cellImageBody,cellProp,nCells,nGlobal,minCellArea);
+    nCellsValid = updateMap(cellImageBody,cellProp,nCells,nGlobal,minCellArea);
 
 
     // deconstruct the CELLPROP struct
@@ -1117,7 +1117,7 @@ const jint minCellArea)
 
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_vvp(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcVvp(
 JNIEnv *env,
 jobject obj,
 jint nRang,
@@ -1196,7 +1196,7 @@ jint nPointsPtr)
 
     fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
 
-    vvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
+    calcVvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
         nDims, &nPointsMaxPtr, NGAPBIN, rangeMin, rangeMax, HLAYER, heightInputPar,
         vradMin, iData, layer, id, &nPointsPtr);
 

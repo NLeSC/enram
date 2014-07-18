@@ -94,7 +94,7 @@ public class TestJNIVvp extends JNIMethodsVol2Bird {
         int layer = 0;
         int nPointsPtr = 0;
 
-        vvp(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, radarHeight, valueOffset,
+        calcVvp(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, radarHeight, valueOffset,
                 valueScale, vradImageInt, points, yObs, c, cellImage, nDims, nPointsMaxPtr,
                 rangeMin, rangeMax, HLAYER, heightInputPar, vradMin, iData, layer,
                 nPointsPtr);

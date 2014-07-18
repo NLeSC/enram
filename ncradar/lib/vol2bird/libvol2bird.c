@@ -25,7 +25,7 @@
 
 
 
-int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
+int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
                  unsigned char *texImage, unsigned char *clutterImage, int *cellImage,
                  SCANMETA *dbzMeta, SCANMETA *vradMeta, SCANMETA *texMeta, SCANMETA *clutterMeta,
                  int nCells, int areaMin, float cellDbzMin, float cellStdDevMax, float cellClutterFraction,
@@ -39,7 +39,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     //  *********************************************************************************
 
 #ifdef FPRINTFON
-    fprintf(stderr,"Begin of analysecells in C.\n");
+    fprintf(stderr,"Begin of analyzeCells in C.\n");
 #endif
 
 
@@ -205,12 +205,12 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
     free(cellProp);
 
 #ifdef FPRINTFON
-    fprintf(stderr,"End of analysecells in C.\n");
+    fprintf(stderr,"End of analyzeCells in C.\n");
 #endif
 
 
     return nCellsValid;
-} //analysecells
+} // analyzeCells
 
 
 
@@ -218,7 +218,7 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
 
 
 
-void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
+void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
         unsigned char *rawReflImage, unsigned char *clutterImage,
@@ -238,6 +238,8 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     //  and layer counters
     //  *****************************************************************************
 
+    // FIXME regarding the 'classify' method name...classify what?
+
     // FIXME HLAYER suggests preprocessor but isn't
     // FIXME XOFFSET suggests preprocessor but isn't
     // FIXME XSCALE suggests preprocessor but isn't
@@ -247,7 +249,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     // FIXME NGAPBIN suggests preprocessor but isn't
     // FIXME NDBZMIN suggests preprocessor but isn't
     // FIXME id unused
-    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA'?
+    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA" (x4)?
 
     int iAzim;
     int nAzim;
@@ -404,7 +406,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     *nPointsRainNoFringePtr = nPointsRainNoFringe;
 
     return;
-}//classification
+} // classify
 
 
 
@@ -432,14 +434,14 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
                 pow(range2,2) -
                 2 * (range1 * range2) * cos(azimuth1-azimuth2));
 
-} //calcDist
+} // calcDist
 
 
 
 
 
 
-int findcells(unsigned char *texImage, unsigned char *rhoImage,
+int findCells(unsigned char *texImage, unsigned char *rhoImage,
         unsigned char *zdrImage, int *cellImage, SCANMETA *texMeta,
         SCANMETA *rhoMeta, SCANMETA *zdrMeta, float texThresMin,
         float rhoThresMin, float zdrThresMin, float dbzThresMin,
@@ -720,7 +722,7 @@ int findcells(unsigned char *texImage, unsigned char *rhoImage,
     nCells = iCellIdentifier;
 
     return nCells;
-} //findcells
+} // findCells
 
 
 
@@ -780,7 +782,7 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
     return iAzimReturn * nRangParent + iRangReturn;
 
-}
+} // findNearbyGateIndex
 
 
 
@@ -789,7 +791,7 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 
 
-void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
+void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
         float rScale, float fringe) {
 
     //  ******************************************************************************
@@ -889,14 +891,14 @@ void fringecells(int *cellImage, int nRang, int nAzim, float aScale,
         }
     } //for
     return;
-} //fringecells
+} // fringeCells
 
 
 
 
 
 
-void sortcells(CELLPROP *cellProp, int nCells, int method) {
+void sortCells(CELLPROP *cellProp, int nCells, int method) {
 
 
     //  *****************************************************************************
@@ -947,13 +949,13 @@ void sortcells(CELLPROP *cellProp, int nCells, int method) {
     }
 
     return;
-} //sortcells
+} // sortCells
 
 
 
 
 
-void texture(unsigned char *texImage, unsigned char *vradImage,
+void calcTexture(unsigned char *texImage, unsigned char *vradImage,
         unsigned char *reflImage, SCANMETA *texMeta, SCANMETA *vradMeta,
         SCANMETA *reflMeta, unsigned char nRangNeighborhood,
         unsigned char nAzimNeighborhood, unsigned char nCountMin,
@@ -1081,13 +1083,13 @@ void texture(unsigned char *texImage, unsigned char *vradImage,
             } //else
         } //for
     } //for
-} //texture
+} // calcTexture
 
 
 
 
 
-int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int minCellArea) {
+int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int minCellArea) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map
@@ -1183,7 +1185,7 @@ int updatemap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
 
 
 
-void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellImage, int nDims, int *nPointsMaxPtr, int NGAPBIN,
         float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
         float vradMin, int iData, int layer, int id, int *nPoints)
@@ -1310,6 +1312,6 @@ void vvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs
 #endif
 
 
-} //vvp
+} //calcVvp
 
 

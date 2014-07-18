@@ -15,7 +15,7 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected static final native int analyseCells(int[] dbzImageInt, int[] vradImageInt, int[] texImageInt,
+    protected static final native int analyzeCells(int[] dbzImageInt, int[] vradImageInt, int[] texImageInt,
             int[] clutterImageInt, int[] cellImageInt, int dbznRang, int dbznAzim,
             float dbzElev, float dbzValueScale, float dbzValueOffset,
             float vradValueScale, float vradValueOffset,
@@ -94,7 +94,7 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected static final native void vvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
+    protected static final native void calcVvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
             int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
             float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, float rangeMin, float rangeMax,
             float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int nPointsPtr);

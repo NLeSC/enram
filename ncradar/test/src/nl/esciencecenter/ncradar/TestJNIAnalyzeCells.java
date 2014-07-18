@@ -96,7 +96,7 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
 
         // TODO FIXME analyseCells still hangs sometimes due to bugs...
 
-        int nCellsValid = analyseCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
+        int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
                 dbznRang, dbznAzim,
                 dbzElev, dbzValueScale, dbzValueOffset,
                 vradValueScale, vradValueOffset,
