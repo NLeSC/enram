@@ -11,6 +11,24 @@ import org.junit.Test;
 
 public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
 
+    private void print(int[] inputArray, int nRows, int nCols) {
+
+        int[][] outputArray = reshapeTo2D(inputArray, nRows, nCols);
+
+        for (int iRow = 0; iRow < nRows; iRow++) {
+            for (int iCol = 0; iCol < nCols; iCol++) {
+
+                System.out.printf("%4d", outputArray[iRow][iCol]);
+
+            }
+            System.out.print("\n");
+
+        }
+
+    }
+
+
+
     private int[] readDataFromFile(String filename) throws IOException {
 
         List<Integer> arrList = new ArrayList<Integer>();
@@ -88,26 +106,25 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         float cellDbzMin = 0;
         float cellStdDevMax = 0;
         float cellClutterFraction = 0;
-        float vradMinValue = 0; //
+        float vradMinValue = 0;
         float dbzClutterMin = 0;
         int cmFlag = 0;
         int dualPolFlag = 0;
         int verbose = 0;
 
-        // TODO FIXME analyseCells still hangs sometimes due to bugs...
-
         int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
-                dbznRang, dbznAzim,
-                dbzElev, dbzValueScale, dbzValueOffset,
-                vradValueScale, vradValueOffset,
-                clutterValueScale, clutterValueOffset,
-                texValueScale, texValueOffset,
-                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
-                vradMinValue, dbzClutterMin, cmFlag, dualPolFlag, verbose);
+                dbznRang, dbznAzim, dbzElev, dbzValueScale, dbzValueOffset,
+                vradValueScale, vradValueOffset, clutterValueScale, clutterValueOffset,
+                texValueScale, texValueOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
+                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag, dualPolFlag, verbose);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
         int[][] expected = {};
+
+        print(cellImage, nAzim, nRang);
+
+        // TODO complete the unit test
 
     }
 
