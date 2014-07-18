@@ -246,6 +246,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         const jfloat dbzScale,
         const jfloat vradOffset,
         const jfloat vradScale,
+        const jint vradMissing,
         const jint nRang,
         const jint nAzim) {
 
@@ -343,6 +344,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
     vradMeta.valueScale = vradScale;
     vradMeta.nRang = nRang;
     vradMeta.nAzim = nAzim;
+    vradMeta.missing = vradMissing;
 
 
 
