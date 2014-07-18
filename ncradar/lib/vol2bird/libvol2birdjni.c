@@ -158,10 +158,6 @@ jint verboseInt
         return -1;
     }
 
-#ifdef FPRINTFON
-    fprintf(stderr,"before\n");
-#endif
-
 
     nCellsValid = analyzeCells(&dbzImageBody[0], &vradImageBody[0], &texImageBody[0],
                                &clutterImageBody[0], &cellImageIntBody[0],
@@ -169,10 +165,6 @@ jint verboseInt
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
                                vradMinValue, dbzClutterMin, cmFlag,
                                dualPolFlag, verbose);
-
-#ifdef FPRINTFON
-    fprintf(stderr,"after\n");
-#endif
 
 
 
