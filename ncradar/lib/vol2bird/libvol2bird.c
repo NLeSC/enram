@@ -174,7 +174,7 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
     }
 
     /*Sorting cell properties according to cell area. Drop small cells from map*/
-    nCellsValid = updatemap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
+    nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
 
     //Printing of cell properties to stdout.
     if (verbose==1){
@@ -1280,7 +1280,7 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     }
 
     /*Sort the cells by area and determine number of valid cells*/
-    sortcells(cellProp, nCells, BYAREA);
+    sortCells(cellProp, nCells, BYAREA);
 
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
 
@@ -1324,7 +1324,7 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     }
 
     return nCellsValid;
-} //updatemap
+} //updateMap
 
 
 
