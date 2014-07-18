@@ -121,19 +121,19 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
 
-int findCells(unsigned char *texImage,
-              unsigned char *rhoImage,
-              unsigned char *zdrImage,
+int findCells(const unsigned char *texImage,
+              const unsigned char *rhoImage,
+              const unsigned char *zdrImage,
               int *cellImage,
-              SCANMETA *texMeta,
-              SCANMETA *rhoMeta,
-              SCANMETA *zdrMeta,
-              float texThresMin,
-              float rhoThresMin,
-              float zdrThresMin,
-              float dbzThresMin,
-              float rCellMax,
-              char sign);
+              const SCANMETA *texMeta,
+              const SCANMETA *rhoMeta,
+              const SCANMETA *zdrMeta,
+              const float texThresMin,
+              const float rhoThresMin,
+              const float zdrThresMin,
+              const float dbzThresMin,
+              const float rCellMax,
+              const char sign);
 
 int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                         const int nAzimChild,  const int nRangChild,  const int iChild);

@@ -706,11 +706,11 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-int findCells(unsigned char *texImage, unsigned char *rhoImage,
-        unsigned char *zdrImage, int *cellImage, SCANMETA *texMeta,
-        SCANMETA *rhoMeta, SCANMETA *zdrMeta, float texThresMin,
-        float rhoThresMin, float zdrThresMin, float dbzThresMin,
-        float rCellMax, char sign) {
+int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
+        const unsigned char *zdrImage, int *cellImage, const SCANMETA *texMeta,
+        const SCANMETA *rhoMeta, const SCANMETA *zdrMeta, const float texThresMin,
+        const float rhoThresMin, const float zdrThresMin, const float dbzThresMin,
+        const float rCellMax, const char sign) {
 
     // FIXME see issue #48
 
