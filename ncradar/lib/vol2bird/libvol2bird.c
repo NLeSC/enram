@@ -364,8 +364,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                     if (isnan(zdata[1+llayer])) {
                         zdata[1+llayer] = 0;
                     }
-                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
-                    // FIXME equivalent line in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 530
+                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue);
                     nPointsRainNoFringe++;
                 }
 
@@ -373,7 +372,7 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                     // FIXME what does "2+llayer" represent?  ANSWER: pseudocolumn 2 in zdata
                     zdata[2+llayer] = 0;
                 }
-                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);  // FIXME "log(10)" or "log10()"?
+                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);
                 nPointsRain++;
                 continue;
             }
@@ -387,12 +386,12 @@ void classification(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             }
 
             if (xflag==1) {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range); // FIXME "log(10)" or "log10()"?
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range);
             }
             else {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+                zdata[0+llayer] += exp(0.1*log(10)*dbzValue);
             }
-            zdata[2+llayer] += exp(0.1*log(10)*dbzValue); // FIXME "log(10)" or "log10()"?
+            zdata[2+llayer] += exp(0.1*log(10)*dbzValue);
             nPoints++;
         }//for iAzim
     }//for iRang
