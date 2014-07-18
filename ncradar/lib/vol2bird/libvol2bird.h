@@ -96,6 +96,18 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
                  float vradMinValue,float dbzClutterMin, unsigned char cmFlag,
                  unsigned char dualPolFlag, unsigned char verbose);
 
+float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+
+void calcTexture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
+        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
+        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
+        unsigned char nCountMin,unsigned char texType);
+
+void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
+        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
+        float vradMin, int iData, int layer, int id, int *nPoints);
+
 void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
@@ -108,8 +120,6 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
-
-float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 int findCells(unsigned char *texImage,
               unsigned char *rhoImage,
@@ -125,21 +135,15 @@ int findCells(unsigned char *texImage,
               float rCellMax,
               char sign);
 
+int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
+                        const int nAzimChild,  const int nRangChild,  const int iChild);
+
 void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
 void sortCells(CELLPROP *cellProp,int nCells, int method);
 
-void calcTexture(unsigned char *texImage,unsigned char *vradImage, unsigned char *reflImage,
-        SCANMETA *texMeta,SCANMETA *vradMeta,SCANMETA *reflMeta,
-        unsigned char nRangNeighborhood,unsigned char nAzimNeighborhood,
-        unsigned char nCountMin,unsigned char texType);
-
 int updateMap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 
-void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
-        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
-        float vradMin, int iData, int layer, int id, int *nPoints);
 
 
 

@@ -40,6 +40,13 @@ public class JNIMethodsVol2Bird {
 
 
 
+    protected static final native void calcVvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
+            int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
+            float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, float rangeMin, float rangeMax,
+            float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int nPointsPtr);
+
+
+
     protected static final native void classify(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
             float dbzHeig, float dbzValueScale, float dbzValueOffset, float dbzAzimScale,
             int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
@@ -91,12 +98,5 @@ public class JNIMethodsVol2Bird {
             float[] cellPropArea, float[] cellPropClutterArea,
             float[] cellPropDbzMax, int[] cellPropIndex, char[] cellPropDrop,
             int nCells, int nGlobal, int minCellArea);
-
-
-
-    protected static final native void calcVvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
-            int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
-            float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, float rangeMin, float rangeMax,
-            float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int nPointsPtr);
 
 }

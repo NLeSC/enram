@@ -218,6 +218,298 @@ int analyzeCells(unsigned char *dbzImage,unsigned char *vradImage,
 
 
 
+float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
+
+    //  ******************************************************************************
+    //  This function calculates the distance in km between two gates
+    //  ******************************************************************************
+
+    float range1;
+    float range2;
+    float azimuth1;
+    float azimuth2;
+
+    range1 = iRang1 * rangScale;
+    range2 = iRang2 * rangScale;
+
+    azimuth1 = iAzim1 * azimScaleDeg * DEG2RAD;
+    azimuth2 = iAzim2 * azimScaleDeg * DEG2RAD;
+
+    return sqrt(pow(range1,2) +
+                pow(range2,2) -
+                2 * (range1 * range2) * cos(azimuth1-azimuth2));
+
+} // calcDist
+
+
+
+
+
+
+void calcTexture(unsigned char *texImage, unsigned char *vradImage,
+        unsigned char *dbzImage, SCANMETA *texMeta, SCANMETA *vradMeta,
+        SCANMETA *dbzMeta, unsigned char nRangNeighborhood,
+        unsigned char nAzimNeighborhood, unsigned char nCountMin,
+        unsigned char texType) {
+
+
+    //  ****************************************************************************************
+    //  This function computes a texture parameter based on a block of (nRangNeighborhood x
+    //  nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation
+    //  in the velocity field (when texType==STDEV).
+    //  ****************************************************************************************
+
+
+    int iRang;
+    int iAzim;
+    int nRang;
+    int nAzim;
+    int iNeighborhood;
+    int nNeighborhood;
+    int count;
+    unsigned char missingValue;
+    int value;
+    int index;
+    double vmoment1;
+    double vmoment2;
+    double dbz;
+    double tex;
+    int iGlobal;
+    int nGlobal;
+    int iLocal;
+    float texOffset;
+    float texScale;
+    float dbzOffset;
+    float dbzScale;
+    float vradOffset;
+    float vradScale;
+    float vRadDiff;
+
+    nRang = vradMeta->nRang;
+    nAzim = vradMeta->nAzim;
+    nGlobal = nAzim * nRang;
+    missingValue = vradMeta->missing; // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
+
+    dbzOffset = dbzMeta->valueOffset;
+    dbzScale = dbzMeta->valueScale;
+
+    vradOffset = vradMeta->valueOffset;
+    vradScale = vradMeta->valueScale;
+
+    texOffset = texMeta->valueOffset;
+    texScale = texMeta->valueScale;
+
+    tex = texOffset; // FIXME why does this variable have a value at this point?
+
+    nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
+
+    for (iAzim = 0; iAzim < nAzim; iAzim++) {
+        for (iRang = 0; iRang < nRang; iRang++) {
+
+            iGlobal = iRang + iAzim * nRang;
+
+            /* count number of direct neighbours above threshold */
+            count = 0;
+            vmoment1 = 0;
+            vmoment2 = 0;
+
+            dbz = dbzOffset + dbzScale * dbzImage[iGlobal];
+
+            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
+
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
+
+                if (iLocal < 0) {
+                    // iLocal less than zero are error codes
+                    continue;
+                }
+
+                if (vradImage[iLocal] == missingValue || dbzImage[iLocal] == missingValue) {
+                    continue;
+                }
+
+                // FIXME why difference between local and global?
+                //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
+                //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
+
+                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
+                vmoment1 += vRadDiff;
+                vmoment2 += SQUARE(vRadDiff);
+
+                dbz += dbzOffset + dbzScale * dbzImage[iLocal];
+
+                count++;
+
+            }
+
+            vmoment1 /= count;
+            vmoment2 /= count;
+            dbz /= count;
+
+            /* when not enough neighbours, continue */
+            if (count < nCountMin) {
+                texImage[iGlobal] = missingValue;
+            } else {
+                if (texType == TEXCV) {
+
+                    tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
+
+                    if (tex < texOffset + texScale) { // FIXME tex < texOffset would make more sense
+                        tex = texOffset + texScale;
+                    }
+
+                }
+
+                if (texType == TEXSTDEV) {
+                    tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
+                }
+
+                texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
+
+                fprintf(stderr,
+                        "(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
+                        count, nCountMin, texType, vmoment1, vmoment2, tex,
+                        iGlobal, texImage[iGlobal]);
+
+            } //else
+        } //for
+    } //for
+} // calcTexture
+
+
+
+void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellImage, int nDims, int *nPointsMaxPtr, int NGAPBIN,
+        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
+        float vradMin, int iData, int layer, int id, int *nPoints)
+{
+
+    // FIXME this function's name suggest that the vvp analysis takes place in its body, but
+    // that is not the case -- the function merely handles the selection of valid gates, which
+    // are then supposedly passed on to svdfit()
+    // FIXME heightInputPar could be the height for which you want to calculate the VVP
+    // FIXME NGAPBIN not used
+    // FIXME id not used
+    // FIXME HLAYER suggests preprocessor but is not
+    // FIXME NGAPBIN suggest preprocessor but is not
+
+    /******************************************************************************/
+    /* This function computes the wind velocity components                        */
+    /******************************************************************************/
+
+    int iAzim;
+    int llayer;
+    int iRang;
+    int iPoint;
+    int nPointsMax;    // FIXME nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
+    float gateHeight;
+    float gateRange;
+    float gateAzim;
+    int nRang;
+    int nAzim;
+    float rangeScale;
+    float azimuthScale;
+    float elevAngle;
+    int missing;
+    float radarHeight;
+    int iGlobal;
+    float valueOffset;
+    float valueScale;
+
+    iPoint = *nPoints;
+    nPointsMax = *nPointsMaxPtr;
+
+    llayer = layer * NDATA;  // FIXME variable remains unused
+
+    nRang = vradMeta.nRang;
+    nAzim = vradMeta.nAzim;
+    rangeScale = vradMeta.rangeScale;
+    azimuthScale = vradMeta.azimScale;
+    elevAngle = vradMeta.elev;
+    missing = vradMeta.missing;
+    radarHeight = vradMeta.heig;
+    valueOffset = vradMeta.valueOffset;
+    valueScale = vradMeta.valueScale;
+
+
+    for (iRang = 0; iRang < nRang; iRang++) {
+
+        // so gateRange represents a distance along the view direction (not necessarily horizontal)
+        gateRange = (iRang + 0.5) * rangeScale;
+
+        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
+        gateHeight = gateRange * sin(elevAngle*DEG2RAD) + radarHeight;
+
+        if (gateRange < rangeMin || gateRange > rangeMax) {
+            continue;
+        }
+        if (fabs(heightInputPar-gateHeight) > 0.5*HLAYER) {
+            // FIXME what does this if statement mean?  Maybe "if the height of the current gate
+            // is too far away from the requested height, continue with the next gate"?
+            continue;
+        }
+
+
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+            iGlobal = iRang + iAzim * nRang;
+            gateAzim = (iAzim + 0.5) * azimuthScale;
+
+            if (vradImage[iGlobal] == missing) {
+                continue;
+            }
+
+            switch (iData) {
+            case 0:
+                if (cellImage[iGlobal]>0) {
+                    continue; // outside rain clutter map only
+                }
+                break;
+            case 1:
+                if (cellImage[iGlobal]<2) {
+                    continue; // inside rain clutter map without fringe only
+                }
+                break;
+            }
+
+            // so at this point we've checked a couple of things and we see no reason
+            // why vRadImage[iGlobal] shouldn't be part of the points array
+
+            points[iPoint * nDims + 0] = gateAzim;
+            points[iPoint * nDims + 1] = elevAngle;
+            if (nDims > 2) {
+                points[iPoint * nDims + 2] = gateRange;
+            }
+            if (nDims > 3) {
+                points[iPoint * nDims + 3] = heightInputPar-radarHeight;
+            }
+            yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
+            c[iPoint] = cellImage[iGlobal];
+
+            if (fabs(yObs[iPoint]) >= vradMin) {
+                // FIXME why fabs?
+                // FIXME at this point, you've already added the point. What if the condition is false, but there
+                // are no more gates to overwrite points[iPoint+whatever], yObs[iPoint] and c[iPoint] later?
+                iPoint++;
+            }
+        }  //for iAzim
+    } //for iRang
+
+    *nPoints = iPoint;
+    *nPointsMaxPtr = nPointsMax;
+
+#ifdef FPRINTFON
+            //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
+            fprintf(stderr, "points[0] = %f\n",points[0]);
+            //}
+#endif
+
+
+} //calcVvp
+
+
+
+
 void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
@@ -407,34 +699,6 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
     return;
 } // classify
-
-
-
-
-
-
-float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
-
-    //  ******************************************************************************
-    //  This function calculates the distance in km between two gates
-    //  ******************************************************************************
-
-    float range1;
-    float range2;
-    float azimuth1;
-    float azimuth2;
-
-    range1 = iRang1 * rangScale;
-    range2 = iRang2 * rangScale;
-
-    azimuth1 = iAzim1 * azimScaleDeg * DEG2RAD;
-    azimuth2 = iAzim2 * azimScaleDeg * DEG2RAD;
-
-    return sqrt(pow(range1,2) +
-                pow(range2,2) -
-                2 * (range1 * range2) * cos(azimuth1-azimuth2));
-
-} // calcDist
 
 
 
@@ -955,140 +1219,6 @@ void sortCells(CELLPROP *cellProp, int nCells, int method) {
 
 
 
-void calcTexture(unsigned char *texImage, unsigned char *vradImage,
-        unsigned char *reflImage, SCANMETA *texMeta, SCANMETA *vradMeta,
-        SCANMETA *reflMeta, unsigned char nRangNeighborhood,
-        unsigned char nAzimNeighborhood, unsigned char nCountMin,
-        unsigned char texType) {
-
-
-    //  ****************************************************************************************
-    //  This function computes a texture parameter based on a block of (nRangNeighborhood x
-    //  nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation
-    //  in the velocity field (when texType==STDEV).
-    //  ****************************************************************************************
-
-
-    int iRang;
-    int iAzim;
-    int nRang;
-    int nAzim;
-    int iNeighborhood;
-    int nNeighborhood;
-    int count;
-    unsigned char missingValue;
-    int value;
-    int index;
-    double vmoment1;
-    double vmoment2;
-    double dbz;
-    double tex;
-    int iGlobal;
-    int nGlobal;
-    int iLocal;
-    float texOffset;
-    float texScale;
-    float reflOffset;
-    float reflScale;
-    float vradOffset;
-    float vradScale;
-    float vRadDiff;
-
-    nRang = vradMeta->nRang;
-    nAzim = vradMeta->nAzim;
-    nGlobal = nAzim * nRang;
-    missingValue = vradMeta->missing; // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
-
-    reflOffset = reflMeta->valueOffset;
-    reflScale = reflMeta->valueScale;
-
-    vradOffset = vradMeta->valueOffset;
-    vradScale = vradMeta->valueScale;
-
-    texOffset = texMeta->valueOffset;
-    texScale = texMeta->valueScale;
-
-    tex = texOffset; // FIXME why does this variable have a value at this point?
-
-    nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
-
-    for (iAzim = 0; iAzim < nAzim; iAzim++) {
-        for (iRang = 0; iRang < nRang; iRang++) {
-
-            iGlobal = iRang + iAzim * nRang;
-
-            /* count number of direct neighbours above threshold */
-            count = 0;
-            vmoment1 = 0;
-            vmoment2 = 0;
-
-            dbz = reflOffset + reflScale * reflImage[iGlobal];
-
-            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
-
-                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
-
-                if (iLocal < 0) {
-                    // iLocal less than zero are error codes
-                    continue;
-                }
-
-                if (vradImage[iLocal] == missingValue || reflImage[iLocal] == missingValue) {
-                    continue;
-                }
-
-                // FIXME why difference between local and global?
-                //fprintf(stderr,"vradOffset=%f, vradScale = %f, vradImage[iGlobal]=%d, vradImage[iLocal]=%d\n",
-                //         vradOffset, vradScale, vradImage[iGlobal], vradImage[iLocal]);
-
-                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
-                vmoment1 += vRadDiff;
-                vmoment2 += SQUARE(vRadDiff);
-
-                dbz += reflOffset + reflScale * reflImage[iLocal];
-
-                count++;
-
-            }
-
-            vmoment1 /= count;
-            vmoment2 /= count;
-            dbz /= count;
-
-            /* when not enough neighbours, continue */
-            if (count < nCountMin) {
-                texImage[iGlobal] = missingValue;
-            } else {
-                if (texType == TEXCV) {
-
-                    tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
-
-                    if (tex < texOffset + texScale) { // FIXME tex < texOffset would make more sense
-                        tex = texOffset + texScale;
-                    }
-
-                }
-
-                if (texType == TEXSTDEV) {
-                    tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
-                }
-
-                texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
-
-                fprintf(stderr,
-                        "(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
-                        count, nCountMin, texType, vmoment1, vmoment2, tex,
-                        iGlobal, texImage[iGlobal]);
-
-            } //else
-        } //for
-    } //for
-} // calcTexture
-
-
-
-
-
 int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int minCellArea) {
 
     //  *****************************************************************************
@@ -1183,135 +1313,5 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
 
 
 
-
-
-void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellImage, int nDims, int *nPointsMaxPtr, int NGAPBIN,
-        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
-        float vradMin, int iData, int layer, int id, int *nPoints)
-{
-
-    // FIXME this function's name suggest that the vvp analysis takes place in its body, but
-    // that is not the case -- the function merely handles the selection of valid gates, which
-    // are then supposedly passed on to svdfit()
-    // FIXME heightInputPar could be the height for which you want to calculate the VVP
-    // FIXME NGAPBIN not used
-    // FIXME id not used
-    // FIXME HLAYER suggests preprocessor but is not
-    // FIXME NGAPBIN suggest preprocessor but is not
-
-    /******************************************************************************/
-    /* This function computes the wind velocity components                        */
-    /******************************************************************************/
-
-    int iAzim;
-    int llayer;
-    int iRang;
-    int iPoint;
-    int nPointsMax;    // FIXME nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
-    float gateHeight;
-    float gateRange;
-    float gateAzim;
-    int nRang;
-    int nAzim;
-    float rangeScale;
-    float azimuthScale;
-    float elevAngle;
-    int missing;
-    float radarHeight;
-    int iGlobal;
-    float valueOffset;
-    float valueScale;
-
-    iPoint = *nPoints;
-    nPointsMax = *nPointsMaxPtr;
-
-    llayer = layer * NDATA;  // FIXME variable remains unused
-
-    nRang = vradMeta.nRang;
-    nAzim = vradMeta.nAzim;
-    rangeScale = vradMeta.rangeScale;
-    azimuthScale = vradMeta.azimScale;
-    elevAngle = vradMeta.elev;
-    missing = vradMeta.missing;
-    radarHeight = vradMeta.heig;
-    valueOffset = vradMeta.valueOffset;
-    valueScale = vradMeta.valueScale;
-
-
-    for (iRang = 0; iRang < nRang; iRang++) {
-
-        // so gateRange represents a distance along the view direction (not necessarily horizontal)
-        gateRange = (iRang + 0.5) * rangeScale;
-
-        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
-        gateHeight = gateRange * sin(elevAngle*DEG2RAD) + radarHeight;
-
-        if (gateRange < rangeMin || gateRange > rangeMax) {
-            continue;
-        }
-        if (fabs(heightInputPar-gateHeight) > 0.5*HLAYER) {
-            // FIXME what does this if statement mean?  Maybe "if the height of the current gate
-            // is too far away from the requested height, continue with the next gate"?
-            continue;
-        }
-
-
-        for (iAzim = 0; iAzim < nAzim; iAzim++) {
-
-            iGlobal = iRang + iAzim * nRang;
-            gateAzim = (iAzim + 0.5) * azimuthScale;
-
-            if (vradImage[iGlobal] == missing) {
-                continue;
-            }
-
-            switch (iData) {
-            case 0:
-                if (cellImage[iGlobal]>0) {
-                    continue; // outside rain clutter map only
-                }
-                break;
-            case 1:
-                if (cellImage[iGlobal]<2) {
-                    continue; // inside rain clutter map without fringe only
-                }
-                break;
-            }
-
-            // so at this point we've checked a couple of things and we see no reason
-            // why vRadImage[iGlobal] shouldn't be part of the points array
-
-            points[iPoint * nDims + 0] = gateAzim;
-            points[iPoint * nDims + 1] = elevAngle;
-            if (nDims > 2) {
-                points[iPoint * nDims + 2] = gateRange;
-            }
-            if (nDims > 3) {
-                points[iPoint * nDims + 3] = heightInputPar-radarHeight;
-            }
-            yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
-            c[iPoint] = cellImage[iGlobal];
-
-            if (fabs(yObs[iPoint]) >= vradMin) {
-                // FIXME why fabs?
-                // FIXME at this point, you've already added the point. What if the condition is false, but there
-                // are no more gates to overwrite points[iPoint+whatever], yObs[iPoint] and c[iPoint] later?
-                iPoint++;
-            }
-        }  //for iAzim
-    } //for iRang
-
-    *nPoints = iPoint;
-    *nPointsMaxPtr = nPointsMax;
-
-#ifdef FPRINTFON
-            //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
-            fprintf(stderr, "points[0] = %f\n",points[0]);
-            //}
-#endif
-
-
-} //calcVvp
 
 
