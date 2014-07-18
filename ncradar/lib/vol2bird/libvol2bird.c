@@ -166,10 +166,8 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
                 (cellProp[iCell].dbzAvg < cellDbzMin &&
                  cellProp[iCell].texAvg > cellStdDevMax &&
                  (cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
-                // FIXME I don't see how this condition is correct -- why are terms 2,3 and
-                // FIXME 4 combined with &&
-                // FIXME equivalent lines in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 1175
-
+                // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
+                // bird migration --see discussion of issue #37 on GitHub.
                 cellProp[iCell].drop = 1;
             }
         }
