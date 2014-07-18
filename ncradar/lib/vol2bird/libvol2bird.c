@@ -319,7 +319,9 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
+#ifdef FPRINTFON
                 fprintf(stderr, "iLocal = %d; ",iLocal);
+#endif
 
                 if (iLocal < 0) {
                     // iLocal less than zero are error codes
@@ -366,10 +368,12 @@ void calcTexture(unsigned char *texImage, unsigned char *vradImage,
 
                 texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
 
+#ifdef FPRINTFON
                 fprintf(stderr,
                         "\n(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
                         count, nCountMin, texType, vmoment1, vmoment2, tex,
                         iGlobal, texImage[iGlobal]);
+#endif
 
             } //else
         } //for
@@ -572,8 +576,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     nPointsRain = *nPointsRainPtr;
     nPointsRainNoFringe = *nPointsRainNoFringePtr;
 
-
+#ifdef FPRINTFON
     fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
+#endif
 
     llayer = layer * NDATA;
 
@@ -589,7 +594,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             azim = iAzim * dbzMeta.azimScale;                                    // FIXME why not iAzim+0.5?
             heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
+#ifdef FPRINTFON
             fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
+#endif
 
             if (range < rangeMin || range > rangeMax) {
                 continue;
@@ -611,8 +618,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
             clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
 
-
+#ifdef FPRINTFON
             fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
+#endif
 
             n++;
 
@@ -622,7 +630,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             if (clutterFlag == 1){
                 if (clutterValue > dbzClutter){
                     nPointsClutter++;
+#ifdef FPRINTFON
                     fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
+#endif
                     continue;
                 }
             }
@@ -1089,12 +1099,14 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
             iGlobal = iRang + iAzim * nRang;
 
             if (cellImage[iGlobal] <= 1) {
-                fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: skip\n",
-                        iGlobal, cellImage[iGlobal]);
+#ifdef FPRINTFON
+                fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: skip\n", iGlobal, cellImage[iGlobal]);
+#endif
                 continue; //already fringe or not in cellImage
             }
-            fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: pass\n",
-                    iGlobal, cellImage[iGlobal]);
+#ifdef FPRINTFON
+            fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: pass\n", iGlobal, cellImage[iGlobal]);
+#endif
 
             //determine whether current pixel is a pixel on the edge of a cell
             edge = 0;
@@ -1126,7 +1138,9 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
                 aBlock = ROUND(fringe / tmp);
             }
 
+#ifdef FPRINTFON
             fprintf(stderr, "aBlock = %d; rBlock = %d\n", aBlock, rBlock);
+#endif
 
             nAzimChild = 2 * aBlock + 1;
             nRangChild = 2 * rBlock + 1;
