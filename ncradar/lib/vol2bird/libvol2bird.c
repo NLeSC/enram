@@ -148,9 +148,6 @@ int analysecells(unsigned char *dbzImage,unsigned char *vradImage,
         if (validArea > 0){
             cellProp[iCell].dbzAvg /= validArea;
             cellProp[iCell].texAvg /= validArea;
-            // FIXME why have this next calculation two times, different methods?
-            // FIXME equivalent lines in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 1164--1165
-            cellProp[iCell].cv = 10 * log10(cellProp[iCell].texAvg) - cellProp[iCell].dbzAvg;
             cellProp[iCell].cv = cellProp[iCell].texAvg / cellProp[iCell].dbzAvg;
         }
     }
