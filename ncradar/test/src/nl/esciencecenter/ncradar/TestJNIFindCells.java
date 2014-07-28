@@ -70,7 +70,7 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = new int[] { 0, 0, 0, 0, 0,
+        int[] dbzImage = new int[] { 0, 0, 0, 0, 0,
                 0, 222, 222, 222, 0,
                 0, 222, 222, 222, 0,
                 0, 222, 222, 222, 0,
@@ -96,13 +96,13 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0 };
-        int texMissing = missing;
-        int texnAzim = nAzim;
-        int texnRang = nRang;
-        float texValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texRangeScale = 10.0f;
-        float texThresMin = 130.0f;
+        int dbzMissing = missing;
+        int dbznAzim = nAzim;
+        int dbznRang = nRang;
+        float dbzValueOffset = 0.0f;
+        float dbzValueScale = 1.0f;
+        float dbzRangeScale = 10.0f;
+        float dbzThresMin = 130.0f;
         int rhoMissing = missing;
         int rhonAzim = nAzim;
         int rhonRang = nRang;
@@ -115,16 +115,15 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float zdrValueOffset = 0.0f;
         float zdrValueScale = 1.0f;
         float zdrThresMin = 0.0f;
-        float dbzThresMin = 0.0f;
-        int rCellMax = (int) (nRang * texRangeScale);
+        int rCellMax = (int) (nRang * dbzRangeScale);
         int sign = -1;
         int nCellsActual;
 
-        nCellsActual = findCells(texImage, rhoImage, zdrImage, cellImage,
-                texMissing, texnAzim, texnRang, texValueOffset, texValueScale, texRangeScale, texThresMin,
+        nCellsActual = findCells(dbzImage, rhoImage, zdrImage, cellImage,
+                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
                 rhoMissing, rhonAzim, rhonRang, rhoValueOffset, rhoValueScale, rhoThresMin,
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
-                dbzThresMin, rCellMax, sign);
+                rCellMax, sign);
 
         // first test the number of detected cells:
         int nCellsExpected = 3;
@@ -161,7 +160,7 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = new int[] { 222, 222, 222, 0, 0,
+        int[] dbzImage = new int[] { 222, 222, 222, 0, 0,
                 222, 222, 222, 0, 0,
                 222, 222, 222, 0, 0,
                 0, 0, 0, 0, 0 };
@@ -171,13 +170,13 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0 };
-        int texMissing = missing;
-        int texnAzim = nAzim;
-        int texnRang = nRang;
-        float texValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texRangeScale = 10.0f;
-        float texThresMin = 130.0f;
+        int dbzMissing = missing;
+        int dbznAzim = nAzim;
+        int dbznRang = nRang;
+        float dbzValueOffset = 0.0f;
+        float dbzValueScale = 1.0f;
+        float dbzRangeScale = 10.0f;
+        float dbzThresMin = 130.0f;
         int rhoMissing = missing;
         int rhonAzim = nAzim;
         int rhonRang = nRang;
@@ -190,16 +189,15 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float zdrValueOffset = 0.0f;
         float zdrValueScale = 1.0f;
         float zdrThresMin = 0.0f;
-        float dbzThresMin = 0.0f;
-        int rCellMax = (int) (nRang * texRangeScale);
+        int rCellMax = (int) (nRang * dbzRangeScale);
         int sign = -1;
         int nCellsActual;
 
-        nCellsActual = findCells(texImage, rhoImage, zdrImage, cellImage,
-                texMissing, texnAzim, texnRang, texValueOffset, texValueScale, texRangeScale, texThresMin,
+        nCellsActual = findCells(dbzImage, rhoImage, zdrImage, cellImage,
+                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
                 rhoMissing, rhonAzim, rhonRang, rhoValueOffset, rhoValueScale, rhoThresMin,
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
-                dbzThresMin, rCellMax, sign);
+                rCellMax, sign);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -230,7 +228,7 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = new int[] { 222, 222, 222, 0, 0,
+        int[] dbzImage = new int[] { 222, 222, 222, 0, 0,
                 222, 222, 222, 0, 0,
                 222, 222, 222, 0, 0,
                 222, 222, 222, 0, 0 };
@@ -240,13 +238,13 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0 };
-        int texMissing = missing;
-        int texnAzim = nAzim;
-        int texnRang = nRang;
-        float texValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texRangeScale = 10.0f;
-        float texThresMin = 130.0f;
+        int dbzMissing = missing;
+        int dbznAzim = nAzim;
+        int dbznRang = nRang;
+        float dbzValueOffset = 0.0f;
+        float dbzValueScale = 1.0f;
+        float dbzRangeScale = 10.0f;
+        float dbzThresMin = 130.0f;
         int rhoMissing = missing;
         int rhonAzim = nAzim;
         int rhonRang = nRang;
@@ -259,16 +257,15 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float zdrValueOffset = 0.0f;
         float zdrValueScale = 1.0f;
         float zdrThresMin = 0.0f;
-        float dbzThresMin = 0.0f;
-        int rCellMax = (int) (nRang * texRangeScale);
+        int rCellMax = (int) (nRang * dbzRangeScale);
         int sign = -1;
         int nCellsActual;
 
-        nCellsActual = findCells(texImage, rhoImage, zdrImage, cellImage,
-                texMissing, texnAzim, texnRang, texValueOffset, texValueScale, texRangeScale, texThresMin,
+        nCellsActual = findCells(dbzImage, rhoImage, zdrImage, cellImage,
+                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
                 rhoMissing, rhonAzim, rhonRang, rhoValueOffset, rhoValueScale, rhoThresMin,
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
-                dbzThresMin, rCellMax, sign);
+                rCellMax, sign);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -299,7 +296,7 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = new int[] { 222, 222, 222, 222, 222,
+        int[] dbzImage = new int[] { 222, 222, 222, 222, 222,
                 222, 222, 222, 222, 222,
                 222, 222, 222, 222, 222,
                 0, 0, 0, 0, 0 };
@@ -309,13 +306,13 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0 };
-        int texMissing = missing;
-        int texnAzim = nAzim;
-        int texnRang = nRang;
-        float texValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texRangeScale = 10.0f;
-        float texThresMin = 130.0f;
+        int dbzMissing = missing;
+        int dbznAzim = nAzim;
+        int dbznRang = nRang;
+        float dbzValueOffset = 0.0f;
+        float dbzValueScale = 1.0f;
+        float dbzRangeScale = 10.0f;
+        float dbzThresMin = 130.0f;
         int rhoMissing = missing;
         int rhonAzim = nAzim;
         int rhonRang = nRang;
@@ -328,16 +325,15 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float zdrValueOffset = 0.0f;
         float zdrValueScale = 1.0f;
         float zdrThresMin = 0.0f;
-        float dbzThresMin = 0.0f;
-        int rCellMax = (int) (nRang * texRangeScale);
+        int rCellMax = (int) (nRang * dbzRangeScale);
         int sign = -1;
         int nCellsActual;
 
-        nCellsActual = findCells(texImage, rhoImage, zdrImage, cellImage,
-                texMissing, texnAzim, texnRang, texValueOffset, texValueScale, texRangeScale, texThresMin,
+        nCellsActual = findCells(dbzImage, rhoImage, zdrImage, cellImage,
+                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
                 rhoMissing, rhonAzim, rhonRang, rhoValueOffset, rhoValueScale, rhoThresMin,
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
-                dbzThresMin, rCellMax, sign);
+                rCellMax, sign);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -367,18 +363,18 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] texImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-dbz.txt");
+        int[] dbzImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-dbz.txt");
         int[] rhoImage = null;
         int[] zdrImage = null;
         int[] cellImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern0.txt");
         int[][] cellImageExpected = reshapeTo2D(readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-cell.txt"), nAzim, nRang);
-        int texMissing = missing;
-        int texnAzim = nAzim;
-        int texnRang = nRang;
-        float texValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texRangeScale = 1.0f;
-        float texThresMin = 32.0f;
+        int dbzMissing = missing;
+        int dbznAzim = nAzim;
+        int dbznRang = nRang;
+        float dbzValueOffset = 0.0f;
+        float dbzValueScale = 1.0f;
+        float dbzRangeScale = 1.0f;
+        float dbzThresMin = 32.0f;
         int rhoMissing = missing;
         int rhonAzim = nAzim;
         int rhonRang = nRang;
@@ -391,16 +387,15 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float zdrValueOffset = 0.0f;
         float zdrValueScale = 1.0f;
         float zdrThresMin = 0.0f;
-        float dbzThresMin = 0.0f;
-        int rCellMax = (int) (nRang * texRangeScale);
+        int rCellMax = (int) (nRang * dbzRangeScale);
         int sign = -1;
         int nCellsActual;
 
-        nCellsActual = findCells(texImage, rhoImage, zdrImage, cellImage,
-                texMissing, texnAzim, texnRang, texValueOffset, texValueScale, texRangeScale, texThresMin,
+        nCellsActual = findCells(dbzImage, rhoImage, zdrImage, cellImage,
+                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
                 rhoMissing, rhonAzim, rhonRang, rhoValueOffset, rhoValueScale, rhoThresMin,
                 zdrMissing, zdrnAzim, zdrnRang, zdrValueOffset, zdrValueScale, zdrThresMin,
-                dbzThresMin, rCellMax, sign);
+                rCellMax, sign);
 
         // first test the number of detected cells:
         // (one cell is cut in two due to too thin a connection between the two
