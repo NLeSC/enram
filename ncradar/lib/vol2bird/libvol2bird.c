@@ -331,7 +331,6 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
 
-                // FIXME double counted dbz when iLocal == iGlobal
                 dbz += dbzOffset + dbzScale * dbzImage[iLocal];
 
                 count++;
@@ -351,8 +350,9 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
                     tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
 
-                    if (tex < texOffset + texScale) { // FIXME tex < texOffset would make more sense
-                        tex = texOffset + texScale;
+                    if (tex < texOffset + texScale * 1) {
+                        // ensures that tex[iGlobal] will be 1, but note issue #52
+                        tex = texOffset + texScale * 1;
                     }
 
                 }
