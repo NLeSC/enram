@@ -62,14 +62,14 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected static final native int findCells(int[] texImage,
-            int[] rhoImage, int[] zdrImage, int[] cellImage, int texMissing,
-            int texnAzim, int texnRang, float texValueOffset,
-            float texRangeScale, float texValueScale, float texThresMin,
+    protected static final native int findCells(int[] dbzImage,
+            int[] rhoImage, int[] zdrImage, int[] cellImage, int dbzMissing,
+            int dbznAzim, int dbznRang, float dbzValueOffset,
+            float dbzRangeScale, float dbzValueScale, float dbzThresMin,
             int rhoMissing, int rhonAzim, int rhonRang, float rhoValueOffset,
             float rhoValueScale, float rhoThresMin, int zdrMissing,
             int zdrnAzim, int zdrnRang, float zdrValueOffset,
-            float zdrValueScale, float zdrThresMin, float reflThresMin,
+            float zdrValueScale, float zdrThresMin,
             float rCellMax, int sign);
 
 
