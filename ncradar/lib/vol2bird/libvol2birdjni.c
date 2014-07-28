@@ -728,17 +728,17 @@ JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         JNIEnv *env,
         jobject obj,
-        const jintArray texImageInt,
+        const jintArray dbzImageInt,
         const jintArray rhoImageInt,
         const jintArray zdrImageInt,
         jintArray cellImageInt,
-        const jint texMissing,
-        const jint texnAzim,
-        const jint texnRang,
-        const jfloat texValueOffset,
-        const jfloat texValueScale,
-        const jfloat texRangeScale,
-        const jfloat texThresMin,
+        const jint dbzMissing,
+        const jint dbznAzim,
+        const jint dbznRang,
+        const jfloat dbzValueOffset,
+        const jfloat dbzValueScale,
+        const jfloat dbzRangeScale,
+        const jfloat dbzThresMin,
         const jint rhoMissing,
         const jint rhonAzim,
         const jint rhonRang,
@@ -751,13 +751,12 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         const jfloat zdrValueOffset,
         const jfloat zdrValueScale,
         const jfloat zdrThresMin,
-        const jfloat dbzThresMin,
         const jfloat rCellMax,
         const jint signInt)
 {
 
-    int nAzim = texnAzim;
-    int nRang = texnRang;
+    int nAzim = dbznAzim;
+    int nRang = dbznRang;
     int iAzim;
     int iRang;
     int iGlobal;
@@ -787,16 +786,16 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
     // do some Java Native interface tricks:
 
-    jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
-    unsigned char texImageBody[nGlobal];
+    jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
+    unsigned char dbzImageBody[nGlobal];
     for (iAzim = 0; iAzim < nAzim; iAzim++){
          for (iRang= 0 ; iRang<nRang;iRang++){
              iGlobal = iAzim*nRang + iRang;
-             if (0<=texImageIntBody[iGlobal] && texImageIntBody[iGlobal]<=255) {
-                 texImageBody[iGlobal] = (unsigned char) texImageIntBody[iGlobal];
+             if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
+                 dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
              }
              else {
-                 fprintf(stderr,"Error converting type (texImageIntBody[iGlobal]).\n");
+                 fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
                  return -1;
              }
          }
@@ -850,16 +849,16 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
     // Allocating and initializing memory for cell properties.
 
-    SCANMETA texMeta;
+    SCANMETA dbzMeta;
     SCANMETA rhoMeta;
     SCANMETA zdrMeta;
 
-    texMeta.missing = texMissing;
-    texMeta.nAzim = texnAzim;
-    texMeta.nRang = texnRang;
-    texMeta.valueOffset = texValueOffset;
-    texMeta.valueScale = texValueScale;
-    texMeta.rangeScale = texRangeScale;
+    dbzMeta.missing = dbzMissing;
+    dbzMeta.nAzim = dbznAzim;
+    dbzMeta.nRang = dbznRang;
+    dbzMeta.valueOffset = dbzValueOffset;
+    dbzMeta.valueScale = dbzValueScale;
+    dbzMeta.rangeScale = dbzRangeScale;
 
     rhoMeta.missing = rhoMissing;
     rhoMeta.nAzim = rhonAzim;
@@ -884,22 +883,22 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     }
 
     if (rhoImageIsNull == 1 && zdrImageIsNull == 0) {
-            nCells = findCells(&texImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
-                               &texMeta,     &rhoMeta,     &zdrMeta,
-                               texThresMin,  rhoThresMin,  zdrThresMin,
-                               dbzThresMin, rCellMax, sign);
+            nCells = findCells(&dbzImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
+                               &dbzMeta,     &rhoMeta,     &zdrMeta,
+                               dbzThresMin,  rhoThresMin,  zdrThresMin,
+                               rCellMax, sign);
     }
     if (rhoImageIsNull == 0 && zdrImageIsNull == 1) {
-            nCells = findCells(&texImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
-                               &texMeta,     &rhoMeta,     &zdrMeta,
-                               texThresMin,  rhoThresMin,  zdrThresMin,
-                               dbzThresMin, rCellMax, sign);
+            nCells = findCells(&dbzImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
+                               &dbzMeta,     &rhoMeta,     &zdrMeta,
+                               dbzThresMin,  rhoThresMin,  zdrThresMin,
+                               rCellMax, sign);
     }
     if (rhoImageIsNull == 1 && zdrImageIsNull == 1) {
-            nCells = findCells(&texImageBody[0], NULL, NULL, &cellImageIntBody[0],
-                               &texMeta,     &rhoMeta,     &zdrMeta,
-                               texThresMin,  rhoThresMin,  zdrThresMin,
-                               dbzThresMin, rCellMax, sign);
+            nCells = findCells(&dbzImageBody[0], NULL, NULL, &cellImageIntBody[0],
+                               &dbzMeta,     &rhoMeta,     &zdrMeta,
+                               dbzThresMin,  rhoThresMin,  zdrThresMin,
+                               rCellMax, sign);
     }
 
 
@@ -911,7 +910,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
             iGlobal = iAzim*nRang + iRang;
 
-            texImageIntBody[iGlobal] = (jint) texImageBody[iGlobal];
+            dbzImageIntBody[iGlobal] = (jint) dbzImageBody[iGlobal];
             if (rhoImageIsNull == 0) {
                 rhoImageIntBody[iGlobal] = (jint) rhoImageBody[iGlobal];
             }
@@ -925,7 +924,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, 0);
-    (*env)->ReleaseIntArrayElements(env, texImageInt, texImageIntBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, dbzImageInt, dbzImageIntBody, JNI_ABORT);
     if (rhoImageIsNull == 0) {
         (*env)->ReleaseIntArrayElements(env, rhoImageInt, rhoImageIntBody, JNI_ABORT);
     }
