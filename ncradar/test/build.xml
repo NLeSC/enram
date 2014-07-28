@@ -53,11 +53,8 @@
     </target>
 
     <target name="copy-native-libraries" description="take the native libraries and copy them next to the jar containing the unit tests">
-        <copy file="./../dist/libcalctexture.so" todir="./../test/dist" />
-        <copy file="./../dist/libdist.so" todir="./../test/dist" />
-        <copy file="./../dist/libfringecells.so" todir="./../test/dist" />
-        <copy file="./../dist/libsortcells.so" todir="./../test/dist" />
-        <copy file="./../dist/libupdatemap.so" todir="./../test/dist" />
+        <copy file="./../dist/libvol2bird.so" todir="./../test/dist" />
+        <copy file="./../dist/libvol2birdjni.so" todir="./../test/dist" />
     </target>
 
 
