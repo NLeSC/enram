@@ -308,7 +308,7 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
             vmoment1 = 0;
             vmoment2 = 0;
 
-            dbz = dbzOffset + dbzScale * dbzImage[iGlobal]; // FIXME issue #44
+            dbz = 0;
 
             for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
