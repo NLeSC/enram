@@ -86,16 +86,16 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             clutterValue = clutterMeta->valueScale * clutterImage[iGlobal] + clutterMeta->valueOffset;
             texValue = texMeta->valueScale * texImage[iGlobal] + texMeta->valueOffset;
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f; texValue = %f\n",dbzValue,vradValue,clutterValue,texValue);
-#endif
+            #endif
 
             iCell = cellImage[iGlobal];
 
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr,"iGlobal = %d, iCell = %d\n",iGlobal,iCell);
-#endif
+            #endif
 
             if (iCell<0) {
                 continue;
@@ -106,9 +106,11 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             //low radial velocities are treated as clutter, not included in calculation cell properties
             if (fabs(vradValue) < vradMinValue){
                 cellProp[iCell].clutterArea += 1;
-#ifdef FPRINTFON
+
+                #ifdef FPRINTFON
                 fprintf(stderr,"iGlobal = %d: vrad too low...treating as clutter\n",iGlobal);
-#endif
+                #endif
+
                 continue;
             }
 
@@ -125,9 +127,11 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 
             if (dbzValue > cellProp[iCell].dbzMax) {
-#ifdef FPRINTFON
+
+                #ifdef FPRINTFON
                 fprintf(stderr,"%d: new dbzMax value of %f found for this cell (%d).\n",iGlobal,dbzValue,iCell);
-#endif
+                #endif
+
                 cellProp[iCell].dbzMax = dbzValue;
                 cellProp[iCell].iRangOfMax = iGlobal%nRang;
                 cellProp[iCell].iAzimOfMax = iGlobal/nRang;
@@ -310,9 +314,9 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
-#ifdef FPRINTFON
+                #ifdef FPRINTFON
                 fprintf(stderr, "iLocal = %d; ",iLocal);
-#endif
+                #endif
 
                 if (iLocal < 0) {
                     // iLocal less than zero are error codes
@@ -359,12 +363,12 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
                 texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
 
-#ifdef FPRINTFON
+                #ifdef FPRINTFON
                 fprintf(stderr,
                         "\n(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
                         count, nCountMin, texType, vmoment1, vmoment2, tex,
                         iGlobal, texImage[iGlobal]);
-#endif
+                #endif
 
             } //else
         } //for
@@ -493,11 +497,11 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     *nPoints = iPoint;
     *nPointsMaxPtr = nPointsMax;
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
             fprintf(stderr, "points[0] = %f\n",points[0]);
             //}
-#endif
+            #endif
 
 
 } //calcVvp
@@ -567,9 +571,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     nPointsRain = *nPointsRainPtr;
     nPointsRainNoFringe = *nPointsRainNoFringePtr;
 
-#ifdef FPRINTFON
+    #ifdef FPRINTFON
     fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
-#endif
+    #endif
 
     llayer = layer * NDATA;
 
@@ -585,9 +589,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             azim = iAzim * dbzMeta.azimScale;                                    // FIXME why not iAzim+0.5?
             heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
-#endif
+            #endif
 
             if (range < rangeMin || range > rangeMax) {
                 continue;
@@ -609,9 +613,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
             clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
-#endif
+            #endif
 
             n++;
 
@@ -621,9 +625,11 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             if (clutterFlag == 1){
                 if (clutterValue > dbzClutter){
                     nPointsClutter++;
-#ifdef FPRINTFON
+
+                    #ifdef FPRINTFON
                     fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
-#endif
+                    #endif
+
                     continue;
                 }
             }
@@ -706,11 +712,13 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
-        const unsigned char *zdrImage, int *cellImage, const SCANMETA *texMeta,
-        const SCANMETA *rhoMeta, const SCANMETA *zdrMeta, const float texThresMin,
-        const float rhoThresMin, const float zdrThresMin, const float dbzThresMin,
+int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, const unsigned char *zdrImage, int *cellImage,
+        const SCANMETA *dbzMeta, const SCANMETA *rhoMeta, const SCANMETA *zdrMeta,
+        const float dbzThresMin, const float rhoThresMin, const float zdrThresMin,
         const float rCellMax, const char sign) {
+
+    // I deleted an input variable, texThresMin, because after renaming it to dbzThresMin, it turns out
+    // there already was a dbzThresMin
 
     // FIXME see issue #48
 
@@ -741,7 +749,7 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
     int count;
     int cellImageInitialValue;
 
-    float texThres;
+    float dbzThres;
     float rhoThres;
     float zdrThres;
 
@@ -750,12 +758,12 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
     int nGlobal;
     int iLocal;
 
-    int texMissing;
-    int texnAzim;
-    int texnRang;
-    float texValueOffset;
-    float texValueScale;
-    float texRangeScale;
+    int dbzMissing;
+    int dbznAzim;
+    int dbznRang;
+    float dbzValueOffset;
+    float dbzValueScale;
+    float dbzRangeScale;
 
     int rhoMissing;
     int rhonAzim;
@@ -772,12 +780,12 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
     int nAzimNeighborhood;
     int nRangNeighborhood;
 
-    texMissing = texMeta->missing;
-    texnAzim = texMeta->nAzim;
-    texnRang = texMeta->nRang;
-    texValueOffset = texMeta->valueOffset;
-    texValueScale = texMeta->valueScale;
-    texRangeScale = texMeta->rangeScale;
+    dbzMissing = dbzMeta->missing;
+    dbznAzim = dbzMeta->nAzim;
+    dbznRang = dbzMeta->nRang;
+    dbzValueOffset = dbzMeta->valueOffset;
+    dbzValueScale = dbzMeta->valueScale;
+    dbzRangeScale = dbzMeta->rangeScale;
 
     rhoMissing = rhoMeta->missing;
     rhonAzim = rhoMeta->nAzim;
@@ -792,17 +800,17 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
     zdrValueScale = zdrMeta->valueScale;
 
 
-    nAzim = texnAzim;
-    nRang = texnRang;
+    nAzim = dbznAzim;
+    nRang = dbznRang;
 
     nGlobal = nAzim * nRang;
     nAzimNeighborhood = 3;
     nRangNeighborhood = 3;
     nNeighborhood = nAzimNeighborhood * nRangNeighborhood;
 
-
-    texThres = ROUND((texThresMin - texValueOffset) / texValueScale);
-
+    if (dbzImage != NULL) {
+        dbzThres = ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
+    }
     if (rhoImage != NULL) {
         rhoThres = ROUND((rhoThresMin - rhoValueOffset) / rhoValueScale);
     }
@@ -817,7 +825,7 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
     }
 
     /*If threshold value is equal to missing value, return.*/
-    if (texThres == texMissing) {
+    if (dbzThres == dbzMissing) {
         return -1;
     }
 
@@ -832,29 +840,34 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
 
             iGlobal = iRang + iAzim * nRang;
 
-            if ((iRang + 1) * texRangeScale > rCellMax) {
+            if ((iRang + 1) * dbzRangeScale > rCellMax) {
                 // FIXME the left hand side of the condition above is a distance; the
                 // right hand side's data type suggests a number of array elements
                 continue;
             }
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr,"iGlobal = %d\n",iGlobal);
-#endif
+            #endif
+
             if (rhoImage == NULL) {
 
-                if (texImage[iGlobal] == texMissing) {
-#ifdef FPRINTFON
-                    fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
-#endif
+                if (dbzImage[iGlobal] == dbzMissing) {
+
+                    #ifdef FPRINTFON
+                    fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
+                    #endif
+
                     continue;
                 }
 
-                if (sign * texImage[iGlobal] > sign * texThres) { // FIXME why sign x2? ... sort of an ABS?
-#ifdef FPRINTFON
-                    fprintf(stderr,"sign * texImage[%d] > sign * texThres\n",iGlobal);
-                    fprintf(stderr,"sign = %d; texImage[%d] = %d; texThres = %f\n",sign,iGlobal,texImage[iGlobal],texThres);
-#endif
+                if (sign * dbzImage[iGlobal] > sign * dbzThres) { // FIXME why sign x2? ... sort of an ABS?
+
+                    #ifdef FPRINTFON
+                    fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
+                    fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %f\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
+                    #endif
+
                     continue;
                 }
 
@@ -868,7 +881,7 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
                         // iLocal below zero are error codes
                         continue;
                     }
-                    if (sign * texImage[iLocal] <= sign * texThres) {
+                    if (sign * dbzImage[iLocal] <= sign * dbzThres) {
                         // FIXME sign 2x ?
                         // FIXME shouldn't it be '>' instead of '<='?
                         count++;
@@ -879,40 +892,51 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
                 if (count - 1 < NEIGHBOURS) {
                     continue;
                 }
-#ifdef FPRINTFON
+
+                #ifdef FPRINTFON
                 fprintf(stderr,"iGlobal = %d, count = %d\n",iGlobal,count);
-#endif
+                #endif
 
             }
             else {
                 if (rhoImage[iGlobal] == rhoMissing) {
-#ifdef FPRINTFON
+
+                    #ifdef FPRINTFON
                     fprintf(stderr,"rhoImage[%d] == rhoMissing\n",iGlobal);
-#endif
+                    #endif
+
                     continue;
                 }
                 if (zdrImage[iGlobal] == zdrMissing) {
-#ifdef FPRINTFON
+
+                    #ifdef FPRINTFON
                     fprintf(stderr,"zdrImage[%d] == zdrMissing\n",iGlobal);
-#endif
+                    #endif
+
                     continue;
                 }
-                if (texImage[iGlobal] == texMissing) {
-#ifdef FPRINTFON
-                    fprintf(stderr,"texImage[%d] == texMissing\n",iGlobal);
-#endif
+                if (dbzImage[iGlobal] == dbzMissing) {
+
+                    #ifdef FPRINTFON
+                    fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
+                    #endif
+
                     continue;
                 }
-                if (texImage[iGlobal] < dbzThresMin) { // FIXME tex v refl why?   // FIXME see issue #48, also: might be dbzThres
-#ifdef FPRINTFON
-                    fprintf(stderr,"texImage[%d] < dbzThresMin\n",iGlobal);
-#endif
+                if (dbzImage[iGlobal] < dbzThres) {
+
+                    #ifdef FPRINTFON
+                    fprintf(stderr,"dbzImage[%d] < dbzThres\n",iGlobal);
+                    #endif
+
                     continue;
                 }
                 if (!(zdrImage[iGlobal] > zdrThres || rhoImage[iGlobal] > rhoThres)) {
-#ifdef FPRINTFON
+
+                    #ifdef FPRINTFON
                     fprintf(stderr,"!(zdrImage[%d] > zdrThres || rhoImage[%d] > rhoThres)\n",iGlobal,iGlobal);
-#endif
+                    #endif
+
                     continue;
                 }
 
@@ -974,9 +998,11 @@ int findCells(const unsigned char *texImage, const unsigned char *rhoImage,
 
             /*When no connections are found, give a new number.*/
             if (cellImage[iGlobal] == cellImageInitialValue) {
-#ifdef FPRINTFON
+
+                #ifdef FPRINTFON
                 fprintf(stderr, "new cell found...assigning number %d\n",iCellIdentifier);
-#endif
+                #endif
+
                 cellImage[iGlobal] = iCellIdentifier;
                 iCellIdentifier++;
             }
@@ -1002,23 +1028,29 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 
     if (nRangChild%2 != 1) {
-#ifdef FPRINTFON
+
+        #ifdef FPRINTFON
         fprintf(stderr, "nRangChild must be an odd integer number.\n");
-#endif
+        #endif
+
         return -1;
     }
 
     if (nAzimChild%2 != 1) {
-#ifdef FPRINTFON
+
+        #ifdef FPRINTFON
         fprintf(stderr, "nAzimChild must be an odd integer number.\n");
-#endif
+        #endif
+
         return -2;
     }
 
     if (iChild > nAzimChild * nRangChild - 1) {
-#ifdef FPRINTFON
+
+        #ifdef FPRINTFON
         fprintf(stderr, "iChild is outside the child window.\n");
-#endif
+        #endif
+
         return -3;
     }
 
@@ -1035,15 +1067,19 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 
     if (iRangReturn > nRangParent - 1) {
-#ifdef FPRINTFON
+
+        #ifdef FPRINTFON
         fprintf(stderr, "iChild is outside the parent array on the right-hand side.\n");
-#endif
+        #endif
+
         return -4;
     }
     if (iRangReturn < 0) {
-#ifdef FPRINTFON
+
+        #ifdef FPRINTFON
         fprintf(stderr, "iChild is outside the parent array on the left-hand side.\n");
-#endif
+        #endif
+
         return -5;
     }
 
@@ -1092,14 +1128,17 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
             iGlobal = iRang + iAzim * nRang;
 
             if (cellImage[iGlobal] <= 1) {
-#ifdef FPRINTFON
+
+                #ifdef FPRINTFON
                 fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: skip\n", iGlobal, cellImage[iGlobal]);
-#endif
+                #endif
+
                 continue; //already fringe or not in cellImage
             }
-#ifdef FPRINTFON
+
+            #ifdef FPRINTFON
             fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: pass\n", iGlobal, cellImage[iGlobal]);
-#endif
+            #endif
 
             //determine whether current pixel is a pixel on the edge of a cell
             edge = 0;
@@ -1131,9 +1170,9 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
                 aBlock = ROUND(fringe / tmp);
             }
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr, "aBlock = %d; rBlock = %d\n", aBlock, rBlock);
-#endif
+            #endif
 
             nAzimChild = 2 * aBlock + 1;
             nRangChild = 2 * rBlock + 1;
@@ -1258,9 +1297,10 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
 
         if (cellImageValue > nCells - 1) {
 
-#ifdef FPRINTFON
+            #ifdef FPRINTFON
             fprintf(stderr, "You just asked for the properties of cell %d, which does not exist.\n", cellImageValue);
-#endif
+            #endif
+
             continue;
         }
 
