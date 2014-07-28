@@ -447,8 +447,6 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     int iParFitted;
     int iParFittedRows;
     int iParFittedCols;
-    int nParsFittedRows;
-    int nParsFittedCols;
     int k;
     int iPoint;
     float afunc[NPARSFITTEDMAX];             // FIXME nParsFitted would make more sense
@@ -522,12 +520,15 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
             wti[iParFitted] = 1.0/(singularValues[iParFitted]*singularValues[iParFitted]);
         }
     }
-    for (iParFittedCols = 0; iParFittedCols < nParsFittedCols; iParFittedCols++) {
+    for (iParFittedCols = 0; iParFittedCols < nParsFitted; iParFittedCols++) {
+
         avar[iParFittedCols] = 0.0;
+
         for (iParFittedRows = 0 ; iParFittedRows < nParsFitted; iParFittedRows++) {
-            // FIXME double nParsFitted loop? seems unlikely
-            k = iParFittedCols + nParsFittedCols*iParFittedRows;
+
+            k = iParFittedCols + nParsFitted*iParFittedRows;
             avar[iParFittedCols] += v[k] * v[k] * wti[iParFittedRows];
+
         }
     }
 

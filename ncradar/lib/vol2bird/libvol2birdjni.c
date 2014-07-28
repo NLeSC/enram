@@ -493,7 +493,7 @@ jint nPointsPtr)
 
 
 
-JNIEXPORT jfloat JNICALL
+JNIEXPORT void JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_classify(
 JNIEnv *env,
 jobject obj,
@@ -596,7 +596,7 @@ const jint xflagInt
             }
             else {
                 fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
-                return -1;
+                return;
             }
 
             if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
@@ -604,7 +604,7 @@ const jint xflagInt
             }
             else {
                 fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
-                return -1;
+                return;
             }
 
             if (0<=rawReflImageIntBody[iGlobal] && rawReflImageIntBody[iGlobal]<=255) {
@@ -612,7 +612,7 @@ const jint xflagInt
             }
             else {
                 fprintf(stderr,"Error converting type (rawReflImageIntBody[iGlobal]).\n");
-                return -1;
+                return;
             }
 
             if (0<=clutterImageIntBody[iGlobal] && clutterImageIntBody[iGlobal]<=255) {
@@ -620,7 +620,7 @@ const jint xflagInt
             }
             else {
                 fprintf(stderr,"Error converting type (clutterImageIntBody[iGlobal]).\n");
-                return -1;
+                return;
             }
 
     }
@@ -657,7 +657,7 @@ const jint xflagInt
     }
     else {
         fprintf(stderr,"Error converting type.\n");
-        return -1;
+        return;
     }
 
     // cast to unsigned char
@@ -666,7 +666,7 @@ const jint xflagInt
     }
     else {
         fprintf(stderr,"Error converting type.\n");
-        return -1;
+        return;
     }
 
     // cast to unsigned char
@@ -675,7 +675,7 @@ const jint xflagInt
     }
     else {
         fprintf(stderr,"Error converting type.\n");
-        return -1;
+        return;
     }
 
 

@@ -263,14 +263,11 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     int nNeighborhood;
     int count;
     int missingValue;
-    int value;
-    int index;
     double vmoment1;
     double vmoment2;
     double dbz;
     double tex;
     int iGlobal;
-    int nGlobal;
     int iLocal;
     float texOffset;
     float texScale;
@@ -282,7 +279,6 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
-    nGlobal = nAzim * nRang;
     missingValue = vradMeta->missing; // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
 
     dbzOffset = dbzMeta->valueOffset;
@@ -400,7 +396,6 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     /******************************************************************************/
 
     int iAzim;
-    int llayer;
     int iRang;
     int iPoint;
     int nPointsMax;    // FIXME nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
@@ -420,8 +415,6 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
 
     iPoint = *nPoints;
     nPointsMax = *nPointsMaxPtr;
-
-    llayer = layer * NDATA;  // FIXME variable remains unused
 
     nRang = vradMeta.nRang;
     nAzim = vradMeta.nAzim;
@@ -560,12 +553,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     float range;
     float heightBeam;
     float azim;
-    float FNAN;
     float dbzValue;
     float vradValue;
     float clutterValue;
-
-    FNAN = 0.0/0.0;
 
     n = *np;                      // FIXME I think this information is already contained in iGlobal
     nPoints = *nPointsPtr;        // FIXME I think this information is already contained in iGlobal
@@ -723,8 +713,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     // I deleted an input variable, texThresMin, because after renaming it to dbzThresMin, it turns out
     // there already was a dbzThresMin
 
-    // FIXME see issue #48
-
 
     //  *****************************************************************************
     //  This function detects the cells in '[tex|rho|zdr]Image' using an integer
@@ -745,8 +733,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     int nRang;
     int iAzim;
     int nAzim;
-    int iRangLocal;
-    int iAzimLocal;
     int iNeighborhood;
     int nNeighborhood;
     int count;
@@ -769,14 +755,10 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     float dbzRangeScale;
 
     int rhoMissing;
-    int rhonAzim;
-    int rhonRang;
     float rhoValueOffset;
     float rhoValueScale;
 
     int zdrMissing;
-    int zdrnAzim;
-    float zdrnRang;
     float zdrValueOffset;
     float zdrValueScale;
 
@@ -791,17 +773,12 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     dbzRangeScale = dbzMeta->rangeScale;
 
     rhoMissing = rhoMeta->missing;
-    rhonAzim = rhoMeta->nAzim;
-    rhonRang = rhoMeta->nRang;
     rhoValueOffset = rhoMeta->valueOffset;
     rhoValueScale = rhoMeta->valueScale;
 
     zdrMissing = zdrMeta->missing;
-    zdrnAzim = zdrMeta->nAzim;
-    zdrnRang = zdrMeta->nRang;
     zdrValueOffset = zdrMeta->valueOffset;
     zdrValueScale = zdrMeta->valueScale;
-
 
     nAzim = dbznAzim;
     nRang = dbznRang;
