@@ -304,10 +304,12 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
     public void testNativeCalcTexture3() throws Exception {
 
         // this test should reproduce calculation of standard deviation
+        String startDir = System.getProperty("user.dir");
+        System.err.println(startDir);
 
-        int[] texImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern0.txt");
-        int[] dbzImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-dbz.txt");
-        int[] vradImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-vrad.txt");
+        int[] texImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern0.txt");
+        int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");
+        int[] vradImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-vrad.txt");
 
         int nAzim = 12;
         int nRang = 11;

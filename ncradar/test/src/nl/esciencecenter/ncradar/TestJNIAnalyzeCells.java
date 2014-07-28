@@ -84,9 +84,7 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         int nAzim = 12;
         int nRang = 11;
 
-        // FIXME this should not be an absolute address
         String startDir = System.getProperty("user.dir");
-
         System.err.println(startDir);
 
         int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");

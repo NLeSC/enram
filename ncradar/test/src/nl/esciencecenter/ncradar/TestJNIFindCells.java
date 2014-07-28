@@ -363,11 +363,14 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        int[] dbzImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-dbz.txt");
+        String startDir = System.getProperty("user.dir");
+        System.err.println(startDir);
+
+        int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");
         int[] rhoImage = null;
         int[] zdrImage = null;
-        int[] cellImage = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern0.txt");
-        int[][] cellImageExpected = reshapeTo2D(readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-cell.txt"), nAzim, nRang);
+        int[] cellImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern0.txt");
+        int[][] cellImageExpected = reshapeTo2D(readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-cell.txt"), nAzim, nRang);
         int dbzMissing = missing;
         int dbznAzim = nAzim;
         int dbznRang = nRang;

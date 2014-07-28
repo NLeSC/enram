@@ -79,7 +79,11 @@ public class TestJNIVvp extends JNIMethodsVol2Bird {
         float radarHeight = 345.6f;
         float valueOffset = 0.0f;
         float valueScale = 1.0f;
-        int[] vradImageInt = readDataFromFile("/home/wbouten/enram/ncradar/test/data/case1/testdata-12x11-pattern-vrad.txt");
+
+        String startDir = System.getProperty("user.dir");
+        System.err.println(startDir);
+
+        int[] vradImageInt = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-vrad.txt");
         float[] points = new float[nGlobal * nDims];
         float[] yObs = new float[nGlobal];
         int[] c = new int[nGlobal];
