@@ -121,17 +121,16 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);
 
-int findCells(const unsigned char *texImage,
+int findCells(const unsigned char *dbzImage,
               const unsigned char *rhoImage,
               const unsigned char *zdrImage,
               int *cellImage,
-              const SCANMETA *texMeta,
+              const SCANMETA *dbzMeta,
               const SCANMETA *rhoMeta,
               const SCANMETA *zdrMeta,
-              const float texThresMin,
+              const float dbzThresMin,
               const float rhoThresMin,
               const float zdrThresMin,
-              const float dbzThresMin,
               const float rCellMax,
               const char sign);
 
