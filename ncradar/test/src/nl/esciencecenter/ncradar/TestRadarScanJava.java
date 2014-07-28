@@ -1,7 +1,6 @@
 package nl.esciencecenter.ncradar;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,46 +20,13 @@ public class TestRadarScanJava {
     public void setUp() throws IOException {
 
         String startDir = System.getProperty("user.dir");
-        System.err.println(startDir);
+        // System.err.println(startDir);
 
         datasetIndex = 3;
-        directory = startDir + "/data/";
+        directory = startDir + "/test" + "/data/";
         filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
         rs = new RadarScanJava(directory, filename, datasetIndex);
         delta = 0.0000001;
-    }
-
-
-
-    @Test
-    public void testCalcPolygons() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testCalcVerticesAndFaces() {
-
-        int[][] faces;
-        double[][] vertices;
-        double[] facesValues;
-
-        rs.calcVerticesAndFaces();
-        faces = rs.getFaces();
-        vertices = rs.getVertices();
-        facesValues = rs.getFacesValues();
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testConvertScanData() {
-
-        fail("Not yet implemented");
     }
 
 
@@ -126,14 +92,6 @@ public class TestRadarScanJava {
 
 
     @Test
-    public void testGetFaces() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
     public void testGetFilename() {
 
         String expected = "T_PAGZ60_C_OKPR_20110815000447.hdf";
@@ -158,7 +116,7 @@ public class TestRadarScanJava {
     public void testGetMissingValue() {
 
         int expected = 255;
-        int actual = rs.getMissingValueValue();
+        int actual = rs.getMissingValueValue(); // FIXME data type error?
         assertEquals(expected, actual);
 
     }
@@ -195,13 +153,11 @@ public class TestRadarScanJava {
 
 
 
-    @Test
-    public void testGetPolygons() {
-
-        fail("Not yet implemented");
-    }
-
-
+    // @Test
+    // public void testGetPolygons() {
+    //
+    // fail("Not yet implemented");
+    // }
 
     @Test
     public void testGetRadarPositionHeight() {
@@ -253,13 +209,11 @@ public class TestRadarScanJava {
 
 
 
-    @Test
-    public void testGetScanData() {
-
-        fail("Not yet implemented");
-    }
-
-
+    // @Test
+    // public void testGetScanData() {
+    //
+    // fail("Not yet implemented");
+    // }
 
     @Test
     public void testGetScanStartsAtAzimuthBins() {
@@ -302,49 +256,28 @@ public class TestRadarScanJava {
 
 
     @Test
-    public void testGetVertices() {
+    public void testGetVerticesAndFaces() {
 
-        fail("Not yet implemented");
+        rs.calcVerticesAndFaces();
+        int[][] actualFaces = rs.getFaces();
+        int[][] expectedFaces = { { 0, 1, 361 }, { 0, 361, 360 } };
+
+        int nFaces = expectedFaces.length;
+
+        for (int iFace = 0; iFace < nFaces; iFace++) {
+            for (int iVert = 0; iVert < 3; iVert++) {
+                assertEquals(expectedFaces[iFace][iVert], actualFaces[iFace][iVert]);
+            }
+        }
+
+        // TODO
+        // double[][] actualVertices = rs.getVertices();
+        // double[][] expectedVertices = { {}, {} };
+        //
+        // int nVerts = 4;
+        //
+        // for (int iVert = 0; iVert < nVerts; iVert++) {
+        // assertEquals(expectedVertices[iVert], actualVertices[iVert]);
+        // }
     }
-
-
-
-    @Test
-    public void testPrintAsGeoJSONToCSV() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsGeoJSONToCSVString() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsWKTToCSV() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsWKTToCSVString() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testRadarScan() {
-
-        fail("Not yet implemented");
-    }
-
 }
