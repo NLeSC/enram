@@ -20,8 +20,11 @@ public class TestRadarScanJava {
     @Before
     public void setUp() throws IOException {
 
+        String startDir = System.getProperty("user.dir");
+        System.err.println(startDir);
+
         datasetIndex = 3;
-        directory = "/home/wbouten/tmp";
+        directory = startDir + "/data/";
         filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
         rs = new RadarScanJava(directory, filename, datasetIndex);
         delta = 0.0000001;
