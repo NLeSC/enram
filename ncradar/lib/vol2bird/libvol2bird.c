@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON (1)
+//#define FPRINTFON (1)
 
 
 
@@ -294,7 +294,9 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     texOffset = texMeta->valueOffset;
     texScale = texMeta->valueScale;
 
-    tex = texOffset; // FIXME why does this variable have a value at this point?
+    // safeguard against errors with texType; texImage[iGlobal] will be 'missingValue' if not assigned
+    // further down in the code, but note issue #52:
+    tex = missingValue * texScale + texOffset;
 
     nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
 
@@ -361,6 +363,7 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                     tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
                 }
 
+                // FIXME maybe add safeguard against negative outcomes of ROUND((tex - texOffset) / texScale);
                 texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
 
                 #ifdef FPRINTFON
@@ -497,11 +500,11 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     *nPoints = iPoint;
     *nPointsMaxPtr = nPointsMax;
 
-            #ifdef FPRINTFON
-            //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
-            fprintf(stderr, "points[0] = %f\n",points[0]);
-            //}
-            #endif
+    #ifdef FPRINTFON
+    //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
+    fprintf(stderr, "points[0] = %f\n",points[0]);
+    //}
+    #endif
 
 
 } //calcVvp
