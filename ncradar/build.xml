@@ -56,6 +56,7 @@
             <arg value="-shared" />
             <arg value="libvol2bird.c" />
             <arg value="libsvdfit.c" />
+            <arg value="-Wall" />
             <arg value="-o" />
             <arg value="${gcc_dist}/libvol2bird.so" />
         </exec>
@@ -71,6 +72,7 @@
             <arg line="-I${jnihdir}/linux" />
             <arg line="-shared" />
             <arg line="libvol2birdjni.c" />
+            <arg line="-Wall" />
             <arg line="-o" />
             <arg line="${gcc_dist}/libvol2birdjni.so" />
         </exec>
@@ -98,7 +100,6 @@
                 <classpath>  
                    <filelist dir="dist">
                        <file name="ncradar.jar" />
-                       <file name="ncradar-natives.jar" />
                        <file name="netcdfAll-4.3.jar" />
                    </filelist>
                 </classpath>

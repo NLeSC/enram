@@ -89,11 +89,11 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
 
         System.err.println(startDir);
 
-        int[] dbzImage = readDataFromFile(startDir + "/test/data/case1/testdata-12x11-pattern-dbz.txt");
-        int[] vradImage = readDataFromFile(startDir + "/test/data/case1/testdata-12x11-pattern-vrad.txt");
-        int[] texImage = readDataFromFile(startDir + "/test/data/case1/testdata-12x11-pattern-tex.txt");
-        int[] clutterImage = readDataFromFile(startDir + "/test/data/case1/testdata-12x11-pattern0.txt");
-        int[] cellImage = readDataFromFile(startDir + "/test/data/case1/testdata-12x11-pattern-cell.txt");
+        int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");
+        int[] vradImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-vrad.txt");
+        int[] texImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-tex.txt");
+        int[] clutterImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern0.txt");
+        int[] cellImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-cell.txt");
         int dbznRang = nRang;
         int dbznAzim = nAzim;
         float dbzElev = 123.4f;
