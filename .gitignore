@@ -12,6 +12,7 @@ ncradar/.metadata/
 ncradar/build
 ncradar/*hdf.geojson.csv
 ncradar/*hdf.wkt.csv
+ncradar/javadoc
 ncradar/test/build
 ncradar/test/dist
 other-data
