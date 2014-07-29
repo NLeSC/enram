@@ -34,7 +34,7 @@ public class JNIMethodsVol2Bird {
 
     protected static final native void calcTexture(int[] texImage,
             int[] dbzImage, int[] vradImage, int nRangNeighborhood,
-            int nAzimNeighborhood, int nCountMin, int texType,
+            int nAzimNeighborhood, int nCountMin,
             float texOffset, float texScale, float dbzOffset, float dbzScale,
             float vradOffset, float vradScale, int vradMissing, int nRang, int nAzim);
 
@@ -80,7 +80,7 @@ public class JNIMethodsVol2Bird {
 
 
     protected static final native void fringeCells(int[] cellImage, int nRange,
-            int nAzim, float azimuthScale, float rangeScale, float fringe);
+            int nAzim, float azimuthScale, float rangeScale, float fringeDist);
 
 
 
