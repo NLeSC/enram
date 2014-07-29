@@ -19,7 +19,6 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
     private int nRangNeighborhood;
     private int nAzimNeighborhood;
     private int nCountMin;
-    private int texType;
     private float texOffset;
     private float texScale;
     private float dbzOffset;
@@ -142,7 +141,6 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
         nRangNeighborhood = 3;
         nAzimNeighborhood = 3;
         nCountMin = 0;
-        texType = 2; // 2 = STDDEV of VRAD
         texOffset = 0.0f;
         texScale = 1.0f;
         dbzOffset = 0.0f;
@@ -169,7 +167,6 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 nRangNeighborhood,
                 nAzimNeighborhood,
                 nCountMin,
-                texType,
                 texOffset,
                 texScale,
                 dbzOffset,
@@ -215,6 +212,8 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 double tex = Math.sqrt(Math.abs(vmoment2 - Math.pow(vmoment1, 2)));
                 texImage2D[iAzim][iRang] = (byte) Math.round((tex - texOffset) / texScale);
 
+                // FIXME signed byte != unsigned char
+
             }
         }
 
@@ -243,7 +242,6 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 nRangNeighborhood,
                 nAzimNeighborhood,
                 nCountMin,
-                texType,
                 texOffset,
                 texScale,
                 dbzOffset,
@@ -320,7 +318,6 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
                 nRangNeighborhood,
                 nAzimNeighborhood,
                 nCountMin,
-                texType,
                 texOffset,
                 texScale,
                 dbzOffset,
