@@ -7,9 +7,7 @@ public class JNIMethodsVol2Bird {
         try {
             System.loadLibrary("vol2birdjni");
         } catch (UnsatisfiedLinkError e) {
-            System.err
-                    .println("Native code library 'vol2bird' failed to load.\n"
-                            + e);
+            System.err.println("Native code library 'vol2birdjni' failed to load.\n" + e);
         }
     }
 
