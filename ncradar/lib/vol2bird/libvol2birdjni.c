@@ -231,7 +231,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         const jint nRangNeighborhoodInt,
         const jint nAzimNeighborhoodInt,
         const jint nCountMinInt,
-        const jint texTypeInt,
         const jfloat texOffset,
         const jfloat texScale,
         const jfloat dbzOffset,
@@ -285,7 +284,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
     unsigned char nRangNeighborhoodUChar;
     unsigned char nAzimNeighborhoodUChar;
     unsigned char nCountMinUChar;
-    unsigned char texTypeUChar;
 
     if (0<=nRangNeighborhoodInt && nRangNeighborhoodInt<=255) {
         nRangNeighborhoodUChar = (unsigned char) nRangNeighborhoodInt;
@@ -312,15 +310,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         return;
     }
 
-    if (0<=texTypeInt && texTypeInt<=255) {
-        texTypeUChar = (unsigned char) texTypeInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type (texTypeInt).\n");
-        return;
-    }
-
-
 
     SCANMETA texMeta;
     SCANMETA dbzMeta;
@@ -343,17 +332,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
     calcTexture(texImageUCharBody, vradImageUCharBody, dbzImageUCharBody,
             &texMeta, &vradMeta, &dbzMeta,
             nRangNeighborhoodUChar, nAzimNeighborhoodUChar,
-            nCountMinUChar, texTypeUChar);
-
-//    int iElem;
-//
-//    for (iElem=0; iElem<12;iElem++) {
-//        fprintf(stderr,"(C) ");
-//        fprintf(stderr,"%d, ",texImageBody[iElem]);
-//        fprintf(stderr,"%d, ",dbzImageBody[iElem]);
-//        fprintf(stderr,"%d",vradImageBody[iElem]);
-//        fprintf(stderr,"\n");
-//    }
+            nCountMinUChar);
 
 
 
@@ -975,14 +954,14 @@ const jint nRang,
 const jint nAzim,
 const jfloat aScale,
 const jfloat rScale,
-const jfloat fringe)
+const jfloat fringeDist)
 {
 
     // do some Java Native interface tricks:
     jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     // end of Java Native Interface tricks
 
-    fringeCells(cellImageBody,nRang,nAzim,aScale,rScale,fringe);
+    fringeCells(cellImageBody,nRang,nAzim,aScale,rScale,fringeDist);
 
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, 0);
