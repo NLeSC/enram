@@ -11,7 +11,7 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
     private int nAzim;
     private float azimuthScale;
     private float rangeScale;
-    private float fringe;
+    private float fringeDist;
     private double DEG2RAD;
 
 
@@ -24,7 +24,7 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
         nAzim = 5;
         azimuthScale = (float) (1.0f / DEG2RAD);
         rangeScale = 1.0f;
-        fringe = 1.0f;
+        fringeDist = 1.0f;
 
     }
 
@@ -39,7 +39,7 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0,
                 0, 0, 0, 0 };
 
-        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringe);
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
@@ -70,15 +70,15 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0,
                 0, 0, 0, 0 };
 
-        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringe);
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
         int[][] expected = reshapeTo2D(new int[] { 0, 0, 1, 2,
-                0, 0, 1, 1,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
-                0, 0, 1, 1 }, nAzim, nRang);
+                0, 0, 0, 0,
+                0, 0, 0, 0 }, nAzim, nRang);
 
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 0; iRang < nRang; iRang++) {
@@ -101,14 +101,14 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0,
                 0, 0, 0, 2 };
 
-        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringe);
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
-        int[][] expected = reshapeTo2D(new int[] { 0, 0, 1, 1,
+        int[][] expected = reshapeTo2D(new int[] { 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
-                0, 0, 1, 1,
+                0, 0, 0, 0,
                 0, 0, 1, 2 }, nAzim, nRang);
 
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -132,7 +132,7 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
                 0, 0, 0, 0,
                 2, 0, 0, 0 };
 
-        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringe);
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
@@ -163,15 +163,15 @@ public class TestJNIFringeCells extends JNIMethodsVol2Bird {
                 0, 5, 0, 0,
                 0, 0, 0, 0 };
 
-        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringe);
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
 
         int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
 
-        int[][] expected = reshapeTo2D(new int[] { 1, 1, 1, 0,
+        int[][] expected = reshapeTo2D(new int[] { 0, 0, 0, 0,
                 1, 67, 1, 0,
-                1, 1, 1, 0,
+                0, 0, 0, 0,
                 1, 5, 1, 0,
-                1, 1, 1, 0 }, nAzim, nRang);
+                0, 0, 0, 0 }, nAzim, nRang);
 
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 0; iRang < nRang; iRang++) {
