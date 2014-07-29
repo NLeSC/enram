@@ -153,12 +153,6 @@ public class TestRadarScanJava {
 
 
 
-    // @Test
-    // public void testGetPolygons() {
-    //
-    // fail("Not yet implemented");
-    // }
-
     @Test
     public void testGetRadarPositionHeight() {
 
@@ -208,12 +202,6 @@ public class TestRadarScanJava {
     }
 
 
-
-    // @Test
-    // public void testGetScanData() {
-    //
-    // fail("Not yet implemented");
-    // }
 
     @Test
     public void testGetScanStartsAtAzimuthBins() {
