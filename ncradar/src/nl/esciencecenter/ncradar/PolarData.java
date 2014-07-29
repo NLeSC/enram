@@ -9,7 +9,7 @@ public class PolarData {
     private final double dataScale;
     private int[][] faces;
     private final int iAzimFirstRay;
-    private final byte missingValueValue;
+    private final int missingValueValue;
     private final int numberOfAzimuthBins;
     private final int numberOfRangeBins;
     private final double rangeOffset;
@@ -21,7 +21,7 @@ public class PolarData {
     public PolarData(int numberOfAzimuthBins, int numberOfRangeBins, byte[] dataRaw,
             double dataOffset, double dataScale,
             double rangeOffset, double rangeScale,
-            byte missingValueValue, int iAzimFirstRay) {
+            int missingValueValue, int iAzimFirstRay) {
 
         this.azimuthScaleDeg = 360 / numberOfAzimuthBins;
         this.azimuthScaleRad = 2 * Math.PI / numberOfAzimuthBins;
@@ -115,7 +115,7 @@ public class PolarData {
         byte[] dataRaw = this.getDataRaw();
         double dataScale = this.getDataScale();
         int iAzimFirstRay = this.getiAzimFirstRay();
-        byte missingValueValue = this.getMissingValueValue();
+        int missingValueValue = this.getMissingValueValue();
         int numberOfAzimuthBins = this.getNumberOfAzimuthBins();
         int numberOfRangeBins = this.getNumberOfRangeBins();
         double rangeOffset = this.getRangeOffset();
@@ -250,7 +250,7 @@ public class PolarData {
 
 
 
-    public byte getMissingValueValue() {
+    public int getMissingValueValue() {
 
         return missingValueValue;
     }
