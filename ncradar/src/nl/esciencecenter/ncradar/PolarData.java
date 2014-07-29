@@ -48,10 +48,8 @@ public class PolarData {
 
         int nVertices = (nRang + 1) * nAzim;
         int nFaces = nRang * nAzim * 2;
-        // float rangeScale = 5.0f; // FIXME
-        // float minRange = 5.5f * rangeScale; // FIXME
-        float azimuthScale = 1.0f; // FIXME
-        float azimuthScaleRad = (float) (2 * Math.PI * azimuthScale / 360); // FIXME
+        float azimuthScale = 1.0f;
+        float azimuthScaleRad = (float) (2 * Math.PI * azimuthScale / 360);
 
         vertices = new double[nVertices][2];
         for (int iRang = 0; iRang <= nRang; iRang++) {
