@@ -26,7 +26,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
         double dataOffset = readDataOffset(fullFilename, datasetName);
         byte[] scanDataRaw = readScanDataRaw(fullFilename, datasetName);
         double dataScale = readDataScale(fullFilename, datasetName);
-        byte missingValueValue = readMissingValueValue(fullFilename, datasetName);
+        int missingValueValue = readMissingValueValue(fullFilename, datasetName);
         int numberOfAzimuthBins = readNumberOfAzimuthBins(fullFilename, datasetName);
         int numberOfRangeBins = readNumberOfRangeBins(fullFilename, datasetName);
         double rangeOffset = readRangeOffset(fullFilename, datasetName);
@@ -159,7 +159,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    public byte getMissingValueValue() {
+    public int getMissingValueValue() {
 
         return polarData.getMissingValueValue();
     }
@@ -369,10 +369,10 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    private byte readMissingValueValue(String fullFilename, String datasetName) throws IOException {
+    private int readMissingValueValue(String fullFilename, String datasetName) throws IOException {
 
         String fullAttributename = datasetName + "_data1_what_nodata";
-        return (byte) readIntegerAttribute(fullFilename, fullAttributename);
+        return readIntegerAttribute(fullFilename, fullAttributename);
     }
 
 
