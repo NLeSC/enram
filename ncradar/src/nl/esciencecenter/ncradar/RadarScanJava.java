@@ -432,8 +432,8 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
             for (int iRow = 0; iRow < nRows; iRow++) {
                 for (int iCol = 0; iCol < nCols; iCol++) {
-                    scanDataRaw[iGlobal] = data.getByte(index
-                            .set(iRow, iCol));
+                    // FIXME issue #55
+                    scanDataRaw[iGlobal] = data.getByte(index.set(iRow, iCol));
                 }
             }
 

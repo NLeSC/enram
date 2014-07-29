@@ -5,7 +5,7 @@ public class PolarData {
     private final double azimuthScaleDeg;
     private final double azimuthScaleRad;
     private final double dataOffset;
-    private final byte[] dataRaw;
+    private final byte[] dataRaw; // FIXME issue #55
     private final double dataScale;
     private int[][] faces;
     private final int iAzimFirstRay;
