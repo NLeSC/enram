@@ -34,7 +34,7 @@ public class TestRadarScanMatlab {
         directory = startDir + "/data/";
         filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
         rs = new RadarScanMatlab(directory, filename, datasetIndex);
-        delta = 0.0000001;
+        delta = 1e-4;
     }
 
 
