@@ -41,6 +41,7 @@
 #define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
                              /*with dBZ>DBZRAIN [1-8]                         */
 #define NDATA       (3)      /*Data dimension height layers.                  */
+#define PI          (3.14159265358979323846)
 
 /******************************************************************************/
 /*Definition of parameters for sorting:                                       */
@@ -100,7 +101,7 @@ float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float asc
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
         const unsigned char nRangNeighborhood, const unsigned char nAzimNeighborhood,
-        const unsigned char nCountMin, const unsigned char texType);
+        const unsigned char nCountMin);
 
 void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
