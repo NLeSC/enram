@@ -84,8 +84,7 @@
         </javadoc>
     </target>
 
-    <target name="makejar" depends="clean,
-                                    create-directories,
+    <target name="makejar" depends="create-directories,
                                     copy-netcdf-jar,
                                     compile-java-source,
                                     write-jni-header,
