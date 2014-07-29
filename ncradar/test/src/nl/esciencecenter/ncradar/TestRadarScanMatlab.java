@@ -2,7 +2,6 @@ package nl.esciencecenter.ncradar;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,44 +20,21 @@ public class TestRadarScanMatlab {
     @Before
     public void setUp() throws IOException {
 
+        String userName = System.getProperty("user.name");
+        String startDir;
+
+        if (userName.equals("wbouten")) {
+            startDir = System.getProperty("user.dir") + "/test";
+        }
+        else {
+            startDir = System.getProperty("user.dir");
+        }
+
         datasetIndex = 3;
-        directory = "/home/wbouten/tmp";
+        directory = startDir + "/data/";
         filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
         rs = new RadarScanMatlab(directory, filename, datasetIndex);
         delta = 0.0000001;
-    }
-
-
-
-    @Test
-    public void testCalcPolygons() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testCalcVerticesAndFaces() {
-
-        double[][] faces;
-        double[][] vertices;
-        double[] facesValues;
-
-        rs.calcVerticesAndFaces();
-        faces = rs.getFaces();
-        vertices = rs.getVertices();
-        facesValues = rs.getFacesValues();
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testConvertScanData() {
-
-        fail("Not yet implemented");
     }
 
 
@@ -86,7 +62,12 @@ public class TestRadarScanMatlab {
     @Test
     public void testGetDirectory() {
 
-        char[][] expected = { { 'h', 'o', 'm', 'e', '/', 'w', 'b', 'o', 'u', 't', 'e', 'n', '/', 't', 'm', 'p' } };
+        int nChars = this.directory.length();
+        char[][] expected = new char[1][nChars];
+
+        for (int iChar = 0; iChar < nChars; iChar++) {
+            expected[0][iChar] = this.directory.charAt(iChar);
+        }
         char[][] actual = rs.getDirectory();
         assertArrayEquals(expected, actual);
     }
@@ -119,14 +100,6 @@ public class TestRadarScanMatlab {
         char[][] expected = { { '0', '0', '0', '3', '3', '3' } };
         char[][] actual = rs.getEndTime();
         assertArrayEquals(expected, actual);
-    }
-
-
-
-    @Test
-    public void testGetFaces() {
-
-        fail("Not yet implemented");
     }
 
 
@@ -194,14 +167,6 @@ public class TestRadarScanMatlab {
 
 
     @Test
-    public void testGetPolygons() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
     public void testGetRadarPositionHeight() {
 
         double expected = 916.0;
@@ -252,14 +217,6 @@ public class TestRadarScanMatlab {
 
 
     @Test
-    public void testGetScanData() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
     public void testGetScanStartsAtAzimuthBins() {
 
         double expected = 238.0;
@@ -295,54 +252,6 @@ public class TestRadarScanMatlab {
         char[][] expected = { { '0', '0', '0', '3', '1', '1' } };
         char[][] actual = rs.getStartTime();
         assertArrayEquals(expected, actual);
-    }
-
-
-
-    @Test
-    public void testGetVertices() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsGeoJSONToCSV() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsGeoJSONToCSVString() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsWKTToCSV() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testPrintAsWKTToCSVString() {
-
-        fail("Not yet implemented");
-    }
-
-
-
-    @Test
-    public void testRadarScan() {
-
-        fail("Not yet implemented");
     }
 
 }
