@@ -19,11 +19,18 @@ public class TestRadarScanJava {
     @Before
     public void setUp() throws IOException {
 
-        String startDir = System.getProperty("user.dir");
-        // System.err.println(startDir);
+        String userName = System.getProperty("user.name");
+        String startDir;
+
+        if (userName.equals("wbouten")) {
+            startDir = System.getProperty("user.dir") + "/test";
+        }
+        else {
+            startDir = System.getProperty("user.dir");
+        }
 
         datasetIndex = 3;
-        directory = startDir + "/test" + "/data/";
+        directory = startDir + "/data/";
         filename = "T_PAGZ60_C_OKPR_20110815000447.hdf";
         rs = new RadarScanJava(directory, filename, datasetIndex);
         delta = 0.0000001;
@@ -54,7 +61,7 @@ public class TestRadarScanJava {
     @Test
     public void testGetDirectory() {
 
-        String expected = "/home/wbouten/tmp";
+        String expected = this.directory;
         String actual = rs.getDirectory();
         assertEquals(expected, actual);
     }
@@ -116,7 +123,7 @@ public class TestRadarScanJava {
     public void testGetMissingValue() {
 
         int expected = 255;
-        int actual = rs.getMissingValueValue(); // FIXME data type error?
+        int actual = rs.getMissingValueValue();
         assertEquals(expected, actual);
 
     }
