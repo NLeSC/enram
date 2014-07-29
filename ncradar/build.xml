@@ -84,13 +84,15 @@
         </javadoc>
     </target>
 
-    <target name="makejar" depends="create-directories,
+    <target name="makejar" depends="clean,
+                                    create-directories,
                                     copy-netcdf-jar,
                                     compile-java-source,
                                     write-jni-header,
                                     copy-c-code,
                                     compile-libvol2bird,
-                                    compile-libvol2birdjni" description="make a jar out of everything">
+                                    compile-libvol2birdjni,
+                                    make-javadoc" description="make a jar out of everything">
         <jar destfile="dist/ncradar.jar" basedir="build/classes" />
     </target>
 
