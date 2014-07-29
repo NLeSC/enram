@@ -697,6 +697,8 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     // I deleted an input variable, texThresMin, because after renaming it to dbzThresMin, it turns out
     // there already was a dbzThresMin
 
+    // see issue #54
+
 
     //  *****************************************************************************
     //  This function detects the cells in '[tex|rho|zdr]Image' using an integer
@@ -706,10 +708,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     //  returned.
     //  *****************************************************************************
 
-
-
-    // FIXME it seems the algorithm only works as intended if sign is equal
-    // to -1 (or minus anything for that matter). Why is it an input argument then?
 
     int iCellIdentifier;
     int nCells;
@@ -825,7 +823,9 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
                     continue;
                 }
 
-                if (sign * dbzImage[iGlobal] > sign * dbzThres) { // FIXME why sign x2? ... sort of an ABS?
+                if (sign * dbzImage[iGlobal] > sign * dbzThres) {
+
+                    // see issue #51
 
                     #ifdef FPRINTFON
                     fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
@@ -846,8 +846,7 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
                         continue;
                     }
                     if (sign * dbzImage[iLocal] <= sign * dbzThres) {
-                        // FIXME sign 2x ?
-                        // FIXME shouldn't it be '>' instead of '<='?
+                        // FIXME sign 2x ? see issue #51
                         count++;
                     }
 
@@ -1181,6 +1180,8 @@ void sortCells(CELLPROP *cellProp, int nCells, int method) {
     //  *****************************************************************************
 
 
+    // see issue #53
+
     int iCell;
     int iCellOther;
     CELLPROP tmp;
@@ -1204,6 +1205,7 @@ void sortCells(CELLPROP *cellProp, int nCells, int method) {
 
         } //for iCell
     } else if (method == BYMEAN) {
+
         for (iCell = 1; iCell < nCells; iCell++) {
 
             tmp = cellProp[iCell];
