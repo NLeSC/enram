@@ -290,10 +290,6 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     texOffset = texMeta->valueOffset;
     texScale = texMeta->valueScale;
 
-    // safeguard against errors with texType; texImage[iGlobal] will be 'missingValue' if not assigned
-    // further down in the code, but note issue #52:
-    tex = missingValue * texScale + texOffset;
-
     nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
 
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
@@ -344,20 +340,8 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                 texImage[iGlobal] = missingValue;
             }
             else {
-                if (texType == TEXCV) {
 
-                    tex = 10 * log10(sqrt(XABS(vmoment2-SQUARE(vmoment1)))) - dbz;
-
-                    if (tex < texOffset + texScale * 1) {
-                        // ensures that tex[iGlobal] will be 1, but note issue #52
-                        tex = texOffset + texScale * 1;
-                    }
-
-                }
-
-                if (texType == TEXSTDEV) {
-                    tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
-                }
+                tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
 
                 // FIXME maybe add safeguard against negative outcomes of ROUND((tex - texOffset) / texScale);
                 texImage[iGlobal] = ROUND((tex - texOffset) / texScale);

@@ -37,8 +37,7 @@
 /*Defined (default) parameters.                                               */
 /******************************************************************************/
 
-#define TEXCV       (1)
-#define TEXSTDEV    (2)
+
 #define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
                              /*with dBZ>DBZRAIN [1-8]                         */
 #define NDATA       (3)      /*Data dimension height layers.                  */
