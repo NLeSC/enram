@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-//#define FPRINTFON (1)
+#define FPRINTFON (1)
 
 
 
@@ -244,14 +244,13 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
         const SCANMETA *dbzMeta, const unsigned char nRangNeighborhood,
-        const unsigned char nAzimNeighborhood, const unsigned char nCountMin,
-        const unsigned char texType) {
+        const unsigned char nAzimNeighborhood, const unsigned char nCountMin) {
 
 
     //  ****************************************************************************************
     //  This function computes a texture parameter based on a block of (nRangNeighborhood x
     //  nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation
-    //  in the velocity field (when texType==STDEV).
+    //  in the velocity field
     //  ****************************************************************************************
 
 
@@ -348,8 +347,8 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
                 #ifdef FPRINTFON
                 fprintf(stderr,
-                        "\n(C) count = %d; nCountMin = %d; texType = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
-                        count, nCountMin, texType, vmoment1, vmoment2, tex,
+                        "\n(C) count = %d; nCountMin = %d; vmoment1 = %f; vmoment2 = %f; tex = %f; texBody[%d] = %d\n",
+                        count, nCountMin, vmoment1, vmoment2, tex,
                         iGlobal, texImage[iGlobal]);
                 #endif
 
@@ -1057,13 +1056,12 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 
 
-void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
-        float rScale, float fringe) {
+void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale, float fringeDist) {
 
     //  ******************************************************************************
     //  This function enlarges cellImage by additional fringe.
     //  First a block around each pixel is searched for pixels within a distance
-    //  equal to 'fringe'.
+    //  equal to 'fringeDist'.
     //  ******************************************************************************
 
 
@@ -1076,15 +1074,17 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
     int iLocal;
     int rBlock;
     int aBlock;
-    int edge;
+    int edge;  // FIXME isEdge would be better, also define TRUE and FALSE in preprocessor
     int iGlobal;
-    float tmp;
     float theDist;
     int nAzimChild;
     int nRangChild;
 
+    float actualRange;
+    float circumferenceAtActualRange;
 
-    rBlock = ROUND(fringe / rScale);
+
+    rBlock = ROUND(fringeDist / rScale);
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
         for (iRang = 0; iRang < nRang; iRang++) {
 
@@ -1105,8 +1105,7 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
 
             //determine whether current pixel is a pixel on the edge of a cell
             edge = 0;
-            for (iNeighborhood = 0; iNeighborhood < 9 && !edge;
-                    iNeighborhood++) {
+            for (iNeighborhood = 0; iNeighborhood < 9 && !edge; iNeighborhood++) {
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,3,3,iNeighborhood);
 
@@ -1121,20 +1120,21 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
 
             } //NOW ONLY CELL PIXELS WITHOUT ANY BORDERING FRINGE ARE 'FRINGED'
 
-            if (!edge) {
+            if (!edge) {  // FIXME  edge == 0 ?
                 continue;
             }
 
-            //search a limited block around pixel (iRang,iAzim) only
-            tmp = (XYMAX(0,iRang-rBlock) * rScale * aScale * DEG2RAD); // FIXME Unclear that this is correct
-            if (tmp < fringe / nAzim) {
-                aBlock = nAzim;
-            } else {
-                aBlock = ROUND(fringe / tmp);
-            }
+            actualRange = (iRang+0.5) * rScale;
+            circumferenceAtActualRange = 2 * PI * actualRange;
+            aBlock = (fringeDist / circumferenceAtActualRange) * nAzim;
+
 
             #ifdef FPRINTFON
-            fprintf(stderr, "aBlock = %d; rBlock = %d\n", aBlock, rBlock);
+            fprintf(stderr, "actualRange = %f\n",actualRange);
+            fprintf(stderr, "circumferenceAtActualRange = %f\n",circumferenceAtActualRange);
+            fprintf(stderr, "fringeDist / circumferenceAtActualRange = %f\n",fringeDist / circumferenceAtActualRange);
+            fprintf(stderr, "aBlock = %d\n", aBlock);
+            fprintf(stderr, "rBlock = %d\n", rBlock);
             #endif
 
             nAzimChild = 2 * aBlock + 1;
@@ -1155,7 +1155,7 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale,
 
                 //if not within range or already in cellImage or already a fringe, do nothing
                 theDist = calcDist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale);
-                if (theDist > fringe || cellImage[iLocal] >= 1) {
+                if (theDist > fringeDist || cellImage[iLocal] >= 1) {
                     continue;
                 }
                 //include pixel (iRangLocal,iAzimLocal) in fringe
