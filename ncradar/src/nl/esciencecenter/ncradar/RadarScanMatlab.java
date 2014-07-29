@@ -219,7 +219,7 @@ public class RadarScanMatlab {
 
     public double[][] getScanDataRaw() {
 
-        byte[][] scanDataRaw = this.radarScanJava.getScanDataRaw2D();
+        int[][] scanDataRaw = this.radarScanJava.getScanDataRaw2D();
         int nRows = this.radarScanJava.getNumberOfAzimuthBins();
         int nCols = this.radarScanJava.getNumberOfRangeBins();
         double[][] scanData = new double[nRows][nCols];

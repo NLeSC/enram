@@ -5,7 +5,7 @@ public class PolarData {
     private final double azimuthScaleDeg;
     private final double azimuthScaleRad;
     private final double dataOffset;
-    private final byte[] dataRaw; // FIXME issue #55
+    private final int[] dataRaw; // FIXME issue #55
     private final double dataScale;
     private int[][] faces;
     private final int iAzimFirstRay;
@@ -18,7 +18,7 @@ public class PolarData {
 
 
 
-    public PolarData(int numberOfAzimuthBins, int numberOfRangeBins, byte[] dataRaw,
+    public PolarData(int numberOfAzimuthBins, int numberOfRangeBins, int[] dataRaw,
             double dataOffset, double dataScale,
             double rangeOffset, double rangeScale,
             int missingValueValue, int iAzimFirstRay) {
@@ -110,7 +110,7 @@ public class PolarData {
     public PolarData clone() {
 
         double dataOffset = this.getDataOffset();
-        byte[] dataRaw = this.getDataRaw();
+        int[] dataRaw = this.getDataRaw();
         double dataScale = this.getDataScale();
         int iAzimFirstRay = this.getiAzimFirstRay();
         int missingValueValue = this.getMissingValueValue();
@@ -178,19 +178,19 @@ public class PolarData {
 
 
 
-    public byte[] getDataRaw() {
+    public int[] getDataRaw() {
 
         return dataRaw.clone();
     }
 
 
 
-    public byte[][] getDataRaw2D() {
+    public int[][] getDataRaw2D() {
 
         int nAzim = getNumberOfAzimuthBins();
         int nRang = getNumberOfRangeBins();
 
-        byte[][] dataRaw2D = new byte[nAzim][nRang];
+        int[][] dataRaw2D = new int[nAzim][nRang];
 
         int iGlobal = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {

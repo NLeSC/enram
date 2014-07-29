@@ -24,7 +24,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
         this.radarMeta = new RadarMeta(fullFilename);
 
         double dataOffset = readDataOffset(fullFilename, datasetName);
-        byte[] scanDataRaw = readScanDataRaw(fullFilename, datasetName);
+        int[] scanDataRaw = readScanDataRaw(fullFilename, datasetName);
         double dataScale = readDataScale(fullFilename, datasetName);
         int missingValueValue = readMissingValueValue(fullFilename, datasetName);
         int numberOfAzimuthBins = readNumberOfAzimuthBins(fullFilename, datasetName);
@@ -278,14 +278,14 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    public byte[] getScanDataRaw() {
+    public int[] getScanDataRaw() {
 
         return polarData.getDataRaw();
     }
 
 
 
-    public byte[][] getScanDataRaw2D() {
+    public int[][] getScanDataRaw2D() {
 
         return polarData.getDataRaw2D();
     }
@@ -413,7 +413,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
 
 
-    private byte[] readScanDataRaw(String fullFilename, String datasetName) throws IOException {
+    private int[] readScanDataRaw(String fullFilename, String datasetName) throws IOException {
 
         NetcdfFile ncfile = null;
         try {
@@ -428,12 +428,12 @@ public class RadarScanJava extends NetcdfAttributeReader {
             int nCols = dims[1];
             int iGlobal = 0;
 
-            byte[] scanDataRaw = new byte[nRows * nCols];
+            int[] scanDataRaw = new int[nRows * nCols];
 
             for (int iRow = 0; iRow < nRows; iRow++) {
                 for (int iCol = 0; iCol < nCols; iCol++) {
                     // FIXME issue #55
-                    scanDataRaw[iGlobal] = data.getByte(index.set(iRow, iCol));
+                    scanDataRaw[iGlobal] = data.getInt(index.set(iRow, iCol));
                 }
             }
 
