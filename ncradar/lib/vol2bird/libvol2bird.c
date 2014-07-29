@@ -1171,12 +1171,12 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
 
 
 
-void sortCells(CELLPROP *cellProp, int nCells, int method) {
+void sortCells(CELLPROP *cellProp, int nCells) {
 
 
     //  *****************************************************************************
-    //  Sorting of the cell properties using cell area or mean.
-    //  Assume an area or mean equal to zero for cells that are marked 'dropped'
+    //  Sorting of the cell properties using cell area.
+    //  Assume an area equal to zero for cells that are marked 'dropped'
     //  *****************************************************************************
 
 
@@ -1187,42 +1187,22 @@ void sortCells(CELLPROP *cellProp, int nCells, int method) {
     CELLPROP tmp;
 
     /*Sorting of data elements using straight insertion method.*/
-    if (method == BYAREA) {
-        for (iCell = 1; iCell < nCells; iCell++) {
+    for (iCell = 1; iCell < nCells; iCell++) {
 
-            tmp = cellProp[iCell];
+        tmp = cellProp[iCell];
 
-            iCellOther = iCell - 1;
+        iCellOther = iCell - 1;
 
-            while (iCellOther >= 0 && cellProp[iCellOther].area * XABS(cellProp[iCellOther].drop - 1) < tmp.area * XABS(tmp.drop - 1)) {
+        while (iCellOther >= 0 && cellProp[iCellOther].area * XABS(cellProp[iCellOther].drop - 1) < tmp.area * XABS(tmp.drop - 1)) {
 
-                cellProp[iCellOther + 1] = cellProp[iCellOther];
+            cellProp[iCellOther + 1] = cellProp[iCellOther];
 
-                iCellOther--;
-            }
+            iCellOther--;
+        }
 
-            cellProp[iCellOther + 1] = tmp;
+        cellProp[iCellOther + 1] = tmp;
 
-        } //for iCell
-    } else if (method == BYMEAN) {
-
-        for (iCell = 1; iCell < nCells; iCell++) {
-
-            tmp = cellProp[iCell];
-
-            iCellOther = iCell - 1;
-
-            while (iCellOther >= 0 && cellProp[iCellOther].dbzAvg * XABS(cellProp[iCellOther].drop - 1) < tmp.dbzAvg * XABS(tmp.drop - 1)) {
-
-                cellProp[iCellOther + 1] = cellProp[iCellOther];
-
-                iCellOther--;
-            }
-
-            cellProp[iCellOther + 1] = tmp;
-
-        } //for iCell
-    }
+    } //for iCell
 
     return;
 } // sortCells
@@ -1277,7 +1257,7 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     }
 
     /*Sort the cells by area and determine number of valid cells*/
-    sortCells(cellProp, nCells, BYAREA);
+    sortCells(cellProp, nCells);
 
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
 

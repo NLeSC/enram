@@ -991,8 +991,7 @@ jfloatArray cellPropClutterArea,
 jfloatArray cellPropDbzMax,
 jintArray cellPropIndex,
 jcharArray cellPropDrop,
-const jint nCells,
-const jint method
+const jint nCells
 )
 {
 
@@ -1032,23 +1031,13 @@ const jint method
     }
 
     for (iCell=0;iCell<nCells;iCell++) {
-        if (method == BYAREA) {
-            fprintf(stderr,"B: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
-        }
-        if (method == BYMEAN) {
-            fprintf(stderr,"B: cellProp[%d].dbzAvg = %f\n",iCell,cellProp[iCell].dbzAvg);
-        }
+        fprintf(stderr,"B: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
     }
 
-    sortCells(cellProp,nCells,method);
+    sortCells(cellProp,nCells);
 
     for (iCell=0;iCell<nCells;iCell++) {
-        if (method == BYAREA) {
-            fprintf(stderr,"A: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
-        }
-        if (method == BYMEAN) {
-            fprintf(stderr,"A: cellProp[%d].dbzAvg = %f\n",iCell,cellProp[iCell].dbzAvg);
-        }
+        fprintf(stderr,"A: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
     }
 
     // deconstruct the CELLPROP struct

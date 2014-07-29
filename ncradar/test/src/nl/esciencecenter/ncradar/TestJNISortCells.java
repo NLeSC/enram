@@ -29,8 +29,6 @@ public class TestJNISortCells extends JNIMethodsVol2Bird {
     private char[] dropOrig;
     private int nCells;
     private float delta;
-    private final int BYAREA = 1;
-    private final int BYMEAN = 2;
 
 
 
@@ -69,35 +67,13 @@ public class TestJNISortCells extends JNIMethodsVol2Bird {
         // sort by descending area of the cell (cellProp[iElem].area)
         // without dropping any cells
 
-        int method = BYAREA;
         drop = new char[] { 0, 0, 0, 0, 0 };
         dropOrig = drop.clone();
 
         sortCells(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area, clutterArea,
-                dbzMax, index, drop, nCells, method);
+                dbzMax, index, drop, nCells);
 
         int[] rightOrder = new int[] { 4, 3, 1, 0, 2 };
-
-        verifyOrder(rightOrder);
-
-    }
-
-
-
-    @Test
-    public void testNativeSortCells2() throws Exception {
-
-        // sort by descending mean reflectivity of the cell
-        // (cellProp[iElem].dbzAvg), without dropping any cells
-
-        int method = BYMEAN;
-        drop = new char[] { 0, 0, 0, 0, 0 };
-        dropOrig = drop.clone();
-
-        sortCells(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area, clutterArea,
-                dbzMax, index, drop, nCells, method);
-
-        int[] rightOrder = new int[] { 4, 1, 2, 3, 0 };
 
         verifyOrder(rightOrder);
 
@@ -111,35 +87,13 @@ public class TestJNISortCells extends JNIMethodsVol2Bird {
         // sort by descending area of the cell (cellProp[iElem].area)
         // dropping two cells
 
-        int method = BYAREA;
         drop = new char[] { 1, 0, 0, 1, 0 };
         dropOrig = drop.clone();
 
         sortCells(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area, clutterArea,
-                dbzMax, index, drop, nCells, method);
+                dbzMax, index, drop, nCells);
 
         int[] rightOrder = new int[] { 4, 1, 2, 0, 3 };
-
-        verifyOrder(rightOrder);
-
-    }
-
-
-
-    @Test
-    public void testNativeSortCells4() throws Exception {
-
-        // sort by descending mean reflectivity of the cell
-        // (cellProp[iElem].dbzAvg), dropping two cells
-
-        int method = BYMEAN;
-        drop = new char[] { 0, 1, 1, 0, 0 };
-        dropOrig = drop.clone();
-
-        sortCells(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area, clutterArea,
-                dbzMax, index, drop, nCells, method);
-
-        int[] rightOrder = new int[] { 4, 3, 0, 1, 2 };
 
         verifyOrder(rightOrder);
 

@@ -88,7 +88,7 @@ public class JNIMethodsVol2Bird {
             int[] cellPropIAzimOfMax, float[] cellPropDbzAvg,
             float[] cellPropTexAvg, float[] cellPropCv, float[] cellPropArea,
             float[] cellPropClutterArea, float[] cellPropDbzMax,
-            int[] cellPropIndex, char[] cellPropDrop, int nCells, int method);
+            int[] cellPropIndex, char[] cellPropDrop, int nCells);
 
 
 

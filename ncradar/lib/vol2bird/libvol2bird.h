@@ -43,12 +43,6 @@
 #define NDATA       (3)      /*Data dimension height layers.                  */
 #define PI          (3.14159265358979323846)
 
-/******************************************************************************/
-/*Definition of parameters for sorting:                                       */
-/******************************************************************************/
-#define BYAREA      (1)
-#define BYMEAN      (2)
-
 
 ///******************************************************************************/
 ///*Structure for containing SCAN metadata:                                     */
@@ -139,7 +133,7 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-void sortCells(CELLPROP *cellProp,int nCells, int method);
+void sortCells(CELLPROP *cellProp,int nCells);
 
 int updateMap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
 
