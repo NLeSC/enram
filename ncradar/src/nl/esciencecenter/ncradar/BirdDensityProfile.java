@@ -22,14 +22,16 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
         nAzim = reflectivity.getNumberOfAzimuthBins();
         nRang = reflectivity.getNumberOfRangeBins();
 
-        int nAzim = reflectivity.getNumberOfAzimuthBins();
-        int nRang = reflectivity.getNumberOfRangeBins();
+        {
+            int nAzim = radialVelocity.getNumberOfAzimuthBins();
+            int nRang = radialVelocity.getNumberOfRangeBins();
 
-        if (nAzim != this.nAzim) {
-            throw new Exception("Number of azimuth bins differ.");
-        }
-        if (nRang != this.nRang) {
-            throw new Exception("Number of range bins differ.");
+            if (nAzim != this.nAzim) {
+                throw new Exception("Number of azimuth bins differ.");
+            }
+            if (nRang != this.nRang) {
+                throw new Exception("Number of range bins differ.");
+            }
         }
 
     }
