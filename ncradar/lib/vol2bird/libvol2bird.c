@@ -56,6 +56,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     nRang = dbzMeta->nRang;
     nAzim = dbzMeta->nAzim;
 
+    nCellsValid = 0;
 
     if (nCells == 0) {
         iGlobal = 0;
@@ -65,7 +66,6 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
                 iGlobal++;
             }
         }
-        nCellsValid = 0;
         return nCellsValid;
     }
 
@@ -73,7 +73,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
         printf("Requested memory could not be allocated!\n");
-        return(10);
+        return(-10);
     }
     for (iCell = 0; iCell < nCells; iCell++) {
         cellProp[iCell].iRangOfMax = 0;
