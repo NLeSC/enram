@@ -177,27 +177,11 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
     // };
     //
 
-    public double[][] getTexture() {
+    protected int[] getTexture() throws Exception {
 
-        int[] textureRaw = getTextureRaw();
-        double[][] texture = new double[nAzim][nRang];
-        int iGlobal = 0;
-
-        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
-            for (int iRang = 0; iRang < nRang; iRang++) {
-                Number number = textureRaw[iGlobal];
-                texture[iAzim][iRang] = number.doubleValue();
-                iGlobal++;
-            }
+        if (texture == null) {
+            throw new Exception("The texture array hasn't been calculated yet.");
         }
-
-        return texture;
-
-    }
-
-
-
-    protected int[] getTextureRaw() {
 
         return texture.clone();
     };
@@ -255,6 +239,36 @@ public class BirdDensityProfile extends JNIMethodsVol2Bird {
         cellProp.copyCellPropertiesFrom(iRangOfMax, iAzimOfMax, dbzAvg, texAvg, cv, area, clutterArea, dbzMax, index, drop);
 
         return cellImage;
+
+    }
+
+
+
+    public int getNumberOfAzimuthBins() {
+
+        return this.reflectivity.getNumberOfAzimuthBins();
+    }
+
+
+
+    public int getNumberOfRangeBins() {
+
+        return this.reflectivity.getNumberOfRangeBins();
+    }
+
+
+
+    public int[] getReflectivityRaw() {
+
+        return this.reflectivity.getScanDataRaw();
+
+    }
+
+
+
+    public int[] getRadialVelocityRaw() {
+
+        return this.radialVelocity.getScanDataRaw();
 
     }
 
