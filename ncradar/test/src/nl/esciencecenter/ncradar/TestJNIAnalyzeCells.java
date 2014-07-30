@@ -1,5 +1,6 @@
 package nl.esciencecenter.ncradar;
 
+import static org.junit.Assert.assertEquals;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -79,12 +80,20 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
 
 
     @Test
-    public void testNativeAnalyzeCells() throws Exception {
+    public void testNativeAnalyzeCells1() throws Exception {
 
         int nAzim = 12;
         int nRang = 11;
 
-        String startDir = System.getProperty("user.dir");
+        String userName = System.getProperty("user.name");
+        String startDir;
+
+        if (userName.equals("wbouten")) {
+            startDir = System.getProperty("user.dir") + "/test";
+        }
+        else {
+            startDir = System.getProperty("user.dir");
+        }
         System.err.println(startDir);
 
         int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");
@@ -94,7 +103,7 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         int[] cellImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-cell.txt");
         int dbznRang = nRang;
         int dbznAzim = nAzim;
-        float dbzElev = 123.4f;
+        float dbzElev = 23.4f;
         float dbzValueScale = 1.0f;
         float dbzValueOffset = 0.0f;
         float vradValueScale = 1.0f;
@@ -114,6 +123,9 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         int dualPolFlag = 0;
         int verbose = 0;
 
+        int nCellsValidExpected = 433; // FIXME not sure what the right anwer
+                                       // is;
+
         int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
                 dbznRang, dbznAzim, dbzElev, dbzValueScale, dbzValueOffset,
                 vradValueScale, vradValueOffset, clutterValueScale, clutterValueOffset,
@@ -126,7 +138,75 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
 
         print(cellImage, nAzim, nRang);
 
-        // TODO complete the unit test
+        // TODO complete the unit test with verification of cellImage
+
+        assertEquals(nCellsValid, nCellsValidExpected);
+
+    }
+
+
+
+    @Test
+    public void testNativeAnalyzeCells2() throws Exception {
+
+        // test for when the input arrays are all zeros
+
+        int nAzim = 12;
+        int nRang = 11;
+
+        String startDir = System.getProperty("user.dir");
+        System.err.println(startDir);
+
+        int[] zeros = new int[nAzim * nRang];
+        int[] dbzImage = zeros.clone();
+        int[] vradImage = zeros.clone();
+        int[] texImage = zeros.clone();
+        int[] clutterImage = zeros.clone();
+        int[] cellImage = zeros.clone();
+
+        int dbznRang = nRang;
+        int dbznAzim = nAzim;
+        float dbzElev = 23.4f;
+        float dbzValueScale = 1.0f;
+        float dbzValueOffset = 0.0f;
+        float vradValueScale = 1.0f;
+        float vradValueOffset = 0.0f;
+        float clutterValueScale = 1.0f;
+        float clutterValueOffset = 0.0f;
+        float texValueScale = 1.0f;
+        float texValueOffset = 0.0f;
+        int nCells = 0;
+        int areaMin = 0;
+        float cellDbzMin = 0;
+        float cellStdDevMax = 0;
+        float cellClutterFraction = 0;
+        float vradMinValue = 0;
+        float dbzClutterMin = 0;
+        int cmFlag = 0;
+        int dualPolFlag = 0;
+        int verbose = 0;
+
+        int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
+                dbznRang, dbznAzim, dbzElev, dbzValueScale, dbzValueOffset,
+                vradValueScale, vradValueOffset, clutterValueScale, clutterValueOffset,
+                texValueScale, texValueOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
+                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag, dualPolFlag, verbose);
+
+        int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
+
+        int expected = -1;
+        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
+            for (int iRang = 0; iRang < nRang; iRang++) {
+
+                assertEquals(actual[iAzim][iRang], expected);
+
+            }
+        }
+
+        print(cellImage, nAzim, nRang);
+
+        // test whether the number of identified cells equals zero.
+        assertEquals(nCellsValid, 0);
 
     }
 
