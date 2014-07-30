@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON (1)
+//#define FPRINTFON (1)
 
 
 
@@ -55,6 +55,19 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     nCellsValid = nCells;
     nRang = dbzMeta->nRang;
     nAzim = dbzMeta->nAzim;
+
+
+    if (nCells == 0) {
+        iGlobal = 0;
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+            for (iRang = 0; iRang < nRang; iRang++) {
+                cellImage[iGlobal] = -1;
+                iGlobal++;
+            }
+        }
+        nCellsValid = 0;
+        return nCellsValid;
+    }
 
     /*Allocating and initializing memory for cell properties.*/
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
