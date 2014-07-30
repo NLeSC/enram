@@ -7,7 +7,7 @@
 
 
 
-JNIEXPORT jfloat JNICALL
+JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyzeCells(
 JNIEnv *env,
 jobject obj,
