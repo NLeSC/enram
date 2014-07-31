@@ -9,4 +9,4 @@
 # todo
 
 - [ ] bla item
-- [ ] blabla item
+- [x] blabla item
