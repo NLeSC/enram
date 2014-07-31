@@ -3,6 +3,6 @@
     - [ ] aggregate ppi information into profiles
 - [ ] run a pipeline of tests on real dbz and vrad
 - [ ] test Java library with OpeNDAP over internet
- 
+- [ ] read up on BALTRAD
  
  
