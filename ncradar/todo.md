@@ -5,5 +5,4 @@
 - [ ] test Java library with OpeNDAP over internet
 - [ ] read up on BALTRAD
 - [ ] either implement the full specification of the ODIM scan standard (see [here](https://www.wmo.int/pages/prog/www/OSY/Meetings/ET-SBO_Workshop_Radar_Data_Ex/SBO-WxR_Exchange_3.1.6_NGaussiat.pdf)), or see if a class already exists from which my RadarScanJava class can inherit
-
- 
+- [ ]  install  BALTRAD software in VM, see what's what
