@@ -1,4 +1,4 @@
-- [ ]expand on BirdDensityProfile
+- [ ] expand on BirdDensityProfile
     - [ ] calculate bird density ppi's (if possible)
     - [ ] aggregate ppi information into profiles
 - [ ] run a pipeline of tests on real dbz and vrad
