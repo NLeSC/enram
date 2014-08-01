@@ -19,12 +19,12 @@ public class RadarMeta extends NetcdfAttributeReader {
 
     public RadarMeta(String fullFilename) throws IOException {
 
-        this.pulseRepeatFrequencyHigh = -1f;
-        this.pulseRepeatFrequencyLow = -1f;
-        this.pulseLength = -1f;
-        this.radarConstant = -1f;
-        this.nominalMaxTransmissionPower = -1f;
-        this.radialVelocityAntenna = -1f;
+        this.pulseRepeatFrequencyHigh = -1f; // TODO make reader
+        this.pulseRepeatFrequencyLow = -1f; // TODO make reader
+        this.pulseLength = -1f; // TODO make reader
+        this.radarConstant = -1f; // TODO make reader
+        this.nominalMaxTransmissionPower = -1f; // TODO make reader
+        this.radialVelocityAntenna = -1f; // TODO make reader
 
         this.radarPositionHeight = readRadarPositionHeight(fullFilename);
         this.radarPositionLatitude = readRadarPositionLatitude(fullFilename);
