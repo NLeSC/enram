@@ -12,6 +12,7 @@ public class TestBirdDensityProfile {
     private BirdDensityProfile birdDensityProfile;
     private int nAzim;
     private int nRang;
+    private ParameterValues parameterValues;
 
 
 
@@ -39,6 +40,8 @@ public class TestBirdDensityProfile {
         nRang = birdDensityProfile.getNumberOfRangeBins();
 
         System.out.println("I have a BirdDensityProfile object.");
+
+        this.parameterValues = new ParameterValues();
 
     }
 
@@ -90,9 +93,9 @@ public class TestBirdDensityProfile {
 
         // loose ends
         final float DEG2RAD = (float) (2 * Math.PI) / 360;
-        int nRangNeighborhood = 3;
-        int nAzimNeighborhood = 3;
-        int nCountMin = 0;
+        int nRangNeighborhood = this.parameterValues.getNTEXBINRANG();
+        int nAzimNeighborhood = this.parameterValues.getNTEXBINAZIM();
+        int nCountMin = this.parameterValues.getNTEXMIN();
         float dbzRangeScale = 10.0f;
         float dbzElev = 23.4f;
         float dbzClutterMin = 0;
@@ -106,7 +109,7 @@ public class TestBirdDensityProfile {
         float cellDbzMin = 0;
         float cellStdDevMax = 0;
         float cellClutterFraction = 0;
-        float vradMinValue = 0;
+        float vradMinValue = (float) parameterValues.getVRADMIN();
 
         int cmFlag = 0;
         int dualPolFlag = 0;
@@ -132,7 +135,7 @@ public class TestBirdDensityProfile {
         int[] nzdata = new int[] { 0, 0, 0 };
         float rangeMin = 0.0f;
         float rangeMax = 10000.0f;
-        float HLAYER = 0.0f;
+        float HLAYER = (float) this.parameterValues.getHLAYER();
         float XOFFSET = 0.0f;
         float XSCALE = 0.0f;
         float XMEAN = 0.0f;
@@ -143,10 +146,10 @@ public class TestBirdDensityProfile {
         float dbzClutter = 100.0f;
         float dbzMin = 0.0f;
         float dBZx = 0.0f;
-        float DBZNOISE = 0.0f;
-        int NGAPMIN = 0;
-        int NGAPBIN = 0;
-        int NDBZMIN = 0;
+        float DBZNOISE = (float) this.parameterValues.getDBZNOISE();
+        int NGAPMIN = this.parameterValues.getNGAPMIN();
+        int NGAPBIN = this.parameterValues.getNGAPBIN();
+        int NDBZMIN = this.parameterValues.getNDBZMIN();
         int layer = 0;
         int np = 0;
         int nPointsPtr = 0;
