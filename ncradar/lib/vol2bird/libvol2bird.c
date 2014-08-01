@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-#define FPRINTFON (1)
+// #define FPRINTFON (1)
 
 
 
@@ -765,7 +765,9 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     int nAzimNeighborhood;
     int nRangNeighborhood;
 
+    #ifdef FPRINTFON
     int dbg = 0;
+    #endif
 
     dbzMissing = dbzMeta->missing;
     dbznAzim = dbzMeta->nAzim;
@@ -828,8 +830,10 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
                 continue;
             }
             else {
+                #ifdef FPRINTFON
                 fprintf(stderr, "iGlobal = %d\niRang + 1 = %d\ndbzRangeScale = %f\nrCellMax = %f\n(iRang + 1) * dbzRangeScale = %f\n((iRang + 1) * dbzRangeScale > rCellMax) = %d\ndbg=%d\n",iGlobal,iRang + 1,dbzRangeScale,rCellMax,(iRang + 1) * dbzRangeScale,((iRang + 1) * dbzRangeScale > rCellMax),dbg);
                 dbg++;
+                #endif
             }
 
             #ifdef FPRINTFON
