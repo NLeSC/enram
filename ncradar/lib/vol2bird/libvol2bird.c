@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-//#define FPRINTFON (1)
+#define FPRINTFON (1)
 
 
 
@@ -99,20 +99,16 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             clutterValue = clutterMeta->valueScale * clutterImage[iGlobal] + clutterMeta->valueOffset;
             texValue = texMeta->valueScale * texImage[iGlobal] + texMeta->valueOffset;
 
-            #ifdef FPRINTFON
-            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f; texValue = %f\n",dbzValue,vradValue,clutterValue,texValue);
-            #endif
-
             iCell = cellImage[iGlobal];
-
-
-            #ifdef FPRINTFON
-            fprintf(stderr,"iGlobal = %d, iCell = %d\n",iGlobal,iCell);
-            #endif
 
             if (iCell<0) {
                 continue;
             }
+
+            #ifdef FPRINTFON
+            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f; texValue = %f\n",dbzValue,vradValue,clutterValue,texValue);
+            fprintf(stderr,"iGlobal = %d, iCell = %d\n",iGlobal,iCell);
+            #endif
 
             cellProp[iCell].area += 1;
 
@@ -186,7 +182,17 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     }
 
     /*Sorting cell properties according to cell area. Drop small cells from map*/
-    nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
+    // TODO FIXME updateMap() causes SEGFAULTs
+    #ifdef FPRINTFON
+    fprintf(stderr,"before the call to updateMap().\n");
+    #endif
+
+   // nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"after the call to updateMap().\n");
+    #endif
+
 
     //Printing of cell properties to stdout.
     if (verbose==1){
@@ -732,9 +738,9 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     int count;
     int cellImageInitialValue;
 
-    float dbzThres;
-    float rhoThres;
-    float zdrThres;
+    int dbzThres;
+    int rhoThres;
+    int zdrThres;
 
     int iGlobal;
     int iGlobalOther;
@@ -758,6 +764,8 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
 
     int nAzimNeighborhood;
     int nRangNeighborhood;
+
+    int dbg = 0;
 
     dbzMissing = dbzMeta->missing;
     dbznAzim = dbzMeta->nAzim;
@@ -819,6 +827,10 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
                 // right hand side's data type suggests a number of array elements
                 continue;
             }
+            else {
+                fprintf(stderr, "iGlobal = %d\niRang + 1 = %d\ndbzRangeScale = %f\nrCellMax = %f\n(iRang + 1) * dbzRangeScale = %f\n((iRang + 1) * dbzRangeScale > rCellMax) = %d\ndbg=%d\n",iGlobal,iRang + 1,dbzRangeScale,rCellMax,(iRang + 1) * dbzRangeScale,((iRang + 1) * dbzRangeScale > rCellMax),dbg);
+                dbg++;
+            }
 
             #ifdef FPRINTFON
             fprintf(stderr,"iGlobal = %d\n",iGlobal);
@@ -841,7 +853,7 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
 
                     #ifdef FPRINTFON
                     fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
-                    fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %f\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
+                    fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %d\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
                     #endif
 
                     continue;
