@@ -874,6 +874,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
                                rCellMax, sign);
     }
     if (rhoImageIsNull == 1 && zdrImageIsNull == 1) {
+        fprintf(stderr,"inside here\n");
             nCells = findCells(&dbzImageBody[0], NULL, NULL, &cellImageIntBody[0],
                                &dbzMeta,     &rhoMeta,     &zdrMeta,
                                dbzThresMin,  rhoThresMin,  zdrThresMin,
