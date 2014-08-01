@@ -1,9 +1,8 @@
-* expand on BirdDensityProfileCalculator
-    * how does BirdDensityProfileCalculator use the C-libraries, for instance
-    * calculate bird density ppi's (if possible)
-    * aggregate ppi information into profiles
-* make unit tests work on the Jenkins
-* run a pipeline of tests on real dbz and vrad
-* OpeNDAP over internet
- 
- 
+- [ ] expand on BirdDensityProfile
+    - [ ] calculate bird density ppi's (if possible)
+    - [ ] aggregate ppi information into profiles
+- [ ] run a pipeline of tests on real dbz and vrad
+- [ ] test Java library with OpeNDAP over internet
+- [ ] read up on BALTRAD
+- [ ] either implement the full specification of the ODIM scan standard (see [here](https://www.wmo.int/pages/prog/www/OSY/Meetings/ET-SBO_Workshop_Radar_Data_Ex/SBO-WxR_Exchange_3.1.6_NGaussiat.pdf)), or see if a class already exists from which my RadarScanJava class can inherit
+- [ ]  install  BALTRAD software in VM, see what's what
