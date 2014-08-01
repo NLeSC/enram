@@ -104,17 +104,17 @@ public class TestBirdDensityProfile {
         float dbzElev = (float) this.reflectivity.getElevationAngle();
         float vradScale = (float) this.radialVelocity.getDataScale();
         float vradOffset = (float) this.radialVelocity.getDataOffset();
-        float clutterScale = 1.0f;
-        float clutterOffset = 0.0f;
-        int areaMin = 0; // AREACELL?
-        float cellDbzMin = 0; // DBZCELL?
-        float cellStdDevMax = 0; // STDEVCELL?
-        float cellClutterFraction = 0; // CLUTPERCCELL * 100 ?
+        float clutterScale = 1.0f; // FIXME
+        float clutterOffset = 0.0f; // FIXME
+        int areaMin = 0; // FIXME AREACELL?
+        float cellDbzMin = 0; // FIXME DBZCELL?
+        float cellStdDevMax = 0; // FIXME STDEVCELL?
+        float cellClutterFraction = 0; // FIXME CLUTPERCCELL * 100 ?
         float vradMinValue = (float) parameterValues.getVRADMIN();
-        float dbzClutterMin = 0; // DBZCLUTTER?
-        int cmFlag = 0;
-        int dualPolFlag = 0;
-        int verbose = 0;
+        float dbzClutterMin = 0; // FIXME DBZCLUTTER?
+        int cmFlag = 0; // FIXME
+        int dualPolFlag = 0; // FIXME
+        int verbose = 0; // FIXME
 
         int nCellsValid = BirdDensityProfile.analyzeCells(dbzImage, vradImage,
                 texImage, clutterImage, cellImage,
@@ -134,20 +134,19 @@ public class TestBirdDensityProfile {
                 rangeScale, fringeDist);
 
         float dbzHeig = (float) this.reflectivity.getRadarPositionHeight();
-
         float dbzAzimScale = (360.0f / nAzim) * DEG2RAD;
         int rawReflMissing = missing;
         int[] rawReflImage = zeros.clone();
         // FIXME is zdata the profile information? (Then it should have multiple
         // pseudo-columns)
-        float[] zdata = new float[] { 0, 0, 0, 0 };
+        float[] zdata = new float[1000];
         float rangeMin = (float) this.parameterValues.getRANGMIN();
         float rangeMax = (float) this.parameterValues.getRANGMAX();
         float HLAYER = (float) this.parameterValues.getHLAYER();
         float XOFFSET = 0.0f; // FIXME unclear what this does
         float XSCALE = 1.0f; // FIXME unclear what this does
         float XMEAN = 0.0f; // FIXME unclear what this does
-        float height = 2000.0f;
+        float height = 600.0f;
         float azimMin = (float) this.parameterValues.getAZIMMIN();
         float azimMax = (float) this.parameterValues.getAZIMMAX();
         float vradMin = (float) this.parameterValues.getVRADMIN();
@@ -191,6 +190,7 @@ public class TestBirdDensityProfile {
                 nPointsRainNoFringePtr,
                 clutterFlagInt, rawReflFlagInt, xflagInt);
 
+        System.err.print("Done\n");
         // TODO finish this stuff right here
 
     }
