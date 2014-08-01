@@ -302,7 +302,8 @@ public class TestJNICalcTexture extends JNIMethodsVol2Bird {
     public void testNativeCalcTexture3() throws Exception {
 
         // this test should reproduce calculation of standard deviation
-        String startDir = System.getProperty("user.dir");
+        String startDir = System.getProperty("user.dir"); // FIXME wont work on
+                                                          // the jenkins
         System.err.println(startDir);
 
         int[] texImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern0.txt");

@@ -363,7 +363,8 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
 
         int missing = 255;
 
-        String startDir = System.getProperty("user.dir");
+        String startDir = System.getProperty("user.dir"); // FIXME wont work on
+                                                          // the jenkins
         System.err.println(startDir);
 
         int[] dbzImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-dbz.txt");
