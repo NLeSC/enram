@@ -19,8 +19,19 @@ public class TestBirdDensityProfile {
     public void setUp() throws Exception {
 
         iScan = 3;
-        reflectivity = new RadarScanJava("/home/wbouten/tmp", "T_PAGZ60_C_OKPR_20110815000447.hdf", iScan);
-        radialVelocity = new RadarScanJava("/home/wbouten/tmp", "T_PAHZ60_C_OKPR_20110815000447.hdf", iScan);
+
+        String userName = System.getProperty("user.name");
+        String theDir;
+
+        if (userName.equals("wbouten")) {
+            theDir = System.getProperty("user.dir") + "/test/data";
+        }
+        else {
+            theDir = System.getProperty("user.dir") + "/data";
+        }
+
+        reflectivity = new RadarScanJava(theDir, "T_PAGZ60_C_OKPR_20110815000447.hdf", iScan);
+        radialVelocity = new RadarScanJava(theDir, "T_PAHZ60_C_OKPR_20110815000447.hdf", iScan);
 
         birdDensityProfile = new BirdDensityProfile(reflectivity, radialVelocity);
 
