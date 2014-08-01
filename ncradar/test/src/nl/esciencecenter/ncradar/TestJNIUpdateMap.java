@@ -189,6 +189,17 @@ public class TestJNIUpdateMap extends JNIMethodsVol2Bird {
 
 
 
+    @Test
+    public void testNativeUpdateMap5() throws Exception {
+
+        // TODO add a test where there is just one cell, see if that works (I
+        // have an example where it doesnt, may be due to the fact there's only
+        // one cell)
+
+    }
+
+
+
     private int[][] reshapeTo2D(int[] inputArray, int nRows, int nCols) {
 
         int[][] outputArray = new int[nRows][nCols];
