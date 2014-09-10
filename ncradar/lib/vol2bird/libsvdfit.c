@@ -419,8 +419,7 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
 
 
 float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
-        int (*funcs)(float points[],int nDims,float afunc[],int nParsFitted),
-        float parameterVector[],float avar[],int nParsFitted) {
+             float parameterVector[],float avar[],int nParsFitted) {
 
 
     // ************************************************************************************************
@@ -481,7 +480,7 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     for (iPoint = 0; iPoint < nPoints; iPoint++) {
 
         // note pointer arithmetic in this next statement:
-        if (!(*funcs)(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
+        if (!svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
             return -1.0;
         }
         for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
@@ -537,7 +536,7 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     for (iPoint = 0; iPoint < nPoints; iPoint++) {
 
         // note pointer arithmetic in this next statement:
-        if (!(*funcs)(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
+        if (!svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
             return -1.0;
         }
         sum = 0.0;
@@ -557,5 +556,48 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
 } //svdfit
 
 
+
+
+
+
+int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[])
+{
+    int jj,j,i;
+    float sum,*tmp;
+
+    /*Allocation of memory.*/
+
+    tmp=(float *)malloc(n*sizeof(float));
+    if (tmp==NULL) {
+        printf("Requested memory could not be allocated!\n");
+        return 0;
+    }
+
+    /*First part of inversion: calculation of Tmp = (W^-1.U^T).B. Singular values */
+    /*of W are discarded.*/
+
+    for (j=0 ; j<n ; j++) {
+        sum=0.0;
+        if (w[j]) {
+            for (i=0 ; i<m ; i++) sum+=u[j+n*i]*b[i];
+            sum/=w[j];
+        }
+        tmp[j]=sum;
+    }
+
+    /*Second part: calculation of X = V.Tmp = (V.W^-1.U^T).B = A^-1.B.*/
+
+    for (j=0 ; j<n ; j++) {
+        sum=0.0;
+        for (jj=0 ; jj<n ; jj++) sum+=v[jj+n*j]*tmp[jj];
+        x[j]=sum;
+    }
+
+    /*Cleaning of memory.*/
+
+    free(tmp);
+
+    return 1;
+} //svbksb
 
 
