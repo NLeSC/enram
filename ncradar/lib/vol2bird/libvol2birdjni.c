@@ -4,6 +4,7 @@
 
 #include <jni.h>
 #include "libvol2bird.c"
+#include "libsvdfit.h"
 
 
 
@@ -1185,6 +1186,156 @@ const jint minCellArea)
 
 
 }
+
+
+
+
+
+
+
+JNIEXPORT jfloat JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_svdfit(
+JNIEnv *env,
+jobject obj,
+jfloatArray points,
+jint nDims,
+jfloatArray yObs,
+jfloatArray yFitted,
+jint nPoints,
+jfloatArray parameterVector,
+jfloatArray avar,
+jint nParsFitted
+)
+{
+
+    // do some Java Native interface tricks:
+    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
+    jfloat *yObsBody = (*env)->GetFloatArrayElements(env, yObs, NULL);
+    jfloat *yFittedBody = (*env)->GetFloatArrayElements(env, yFitted, NULL);
+    jfloat *parameterVectorBody = (*env)->GetFloatArrayElements(env, parameterVector, NULL);
+    jfloat *avarBody = (*env)->GetFloatArrayElements(env, avar, NULL);
+    // end of Java Native Interface tricks
+
+    float chisq;
+
+    chisq = svdfit(&pointsBody[0], nDims, &yObsBody[0], &yFittedBody[0], nPoints,
+            &parameterVectorBody[0], &avarBody[0], nParsFitted);
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, yFitted, yFittedBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, parameterVector, parameterVectorBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, avar, avarBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    // end of Java Native Interface tricks
+
+
+    return chisq;
+
+
+
+}
+
+
+
+
+
+JNIEXPORT jint JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_svdcmp(
+JNIEnv *env,
+jobject obj,
+jfloatArray arrayA,
+jint nRows,
+jint nCols,
+jfloatArray arrayW,
+jfloatArray arrayV
+)
+{
+
+    if (nCols>nRows) {
+        fprintf(stderr,"Behavior undefined for matrices that have more columns than rows.\n");
+    };
+
+    // do some Java Native interface tricks:
+    jfloat *arrayABody = (*env)->GetFloatArrayElements(env, arrayA, NULL);
+    jfloat *arrayWBody = (*env)->GetFloatArrayElements(env, arrayW, NULL);
+    jfloat *arrayVBody = (*env)->GetFloatArrayElements(env, arrayV, NULL);
+    // end of Java Native Interface tricks
+
+    int status;
+
+//    int iRow;
+//    int iCol;
+//    int iGlobal;
+//
+//    for (iRow = 0; iRow < nRows; iRow++) {
+//        for (iCol = 0; iCol < nCols; iCol++) {
+//            iGlobal = iRow*nCols + iCol;
+//            fprintf(stderr, "A[%d,%d] = %f\n",iRow,iCol,arrayABody[iGlobal]);
+//        }
+//    }
+//
+//    fprintf(stderr,"\n");
+//
+//    for (iCol = 0; iCol < nCols; iCol++) {
+//        fprintf(stderr, "W[%d] = %f\n",iCol,arrayWBody[iCol]);
+//    }
+//
+//    fprintf(stderr,"\n");
+//
+//    int iCol1;
+//    int iCol2;
+//
+//    for (iCol1 = 0; iCol1 < nCols; iCol1++) {
+//        for (iCol2 = 0; iCol2 < nCols; iCol2++) {
+//            iGlobal = iCol1*nCols + iCol2;
+//            fprintf(stderr, "V[%d,%d] = %f\n",iCol1,iCol2,arrayVBody[iGlobal]);
+//        }
+//    }
+//
+//    fprintf(stderr,"\n");
+
+    status = svdcmp(&arrayABody[0], nRows, nCols, &arrayWBody[0], &arrayVBody[0]);
+
+//    fprintf(stderr,"= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n");
+//
+//    for (iRow = 0; iRow < nRows; iRow++) {
+//        for (iCol = 0; iCol < nCols; iCol++) {
+//            iGlobal = iRow*nCols + iCol;
+//            fprintf(stderr, "U[%d,%d] = %f\n",iRow,iCol,arrayABody[iGlobal]);
+//        }
+//    }
+//
+//    fprintf(stderr,"\n");
+//
+//    for (iCol = 0; iCol < nCols; iCol++) {
+//        fprintf(stderr, "W[%d] = %f\n",iCol,arrayWBody[iCol]);
+//    }
+//
+//    fprintf(stderr,"\n");
+//
+//
+//    for (iCol1 = 0; iCol1 < nCols; iCol1++) {
+//        for (iCol2 = 0; iCol2 < nCols; iCol2++) {
+//            iGlobal = iCol1*nCols + iCol2;
+//            fprintf(stderr, "V[%d,%d] = %f\n",iCol1,iCol2,arrayVBody[iGlobal]);
+//        }
+//    }
+
+
+    // do some Java Native interface tricks:
+    (*env)->ReleaseFloatArrayElements(env, arrayA, arrayABody, 0);
+    (*env)->ReleaseFloatArrayElements(env, arrayW, arrayWBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, arrayV, arrayVBody, 0);
+    // FIXME maybe don't use ABORT? ...looks like if you want the values back, you use 0, otherwise use JNI_ABORT
+    // end of Java Native Interface tricks
+
+    return status;
+
+}
+
+
+
 
 
 
