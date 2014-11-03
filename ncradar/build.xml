@@ -29,11 +29,19 @@
     </target>
 
     <target name="compile-java-source" description="compile the java source code">
-        <javac source="1.6" target="1.6" debug="true" srcdir="src" destdir="build/classes" classpath="lib/netcdf/netcdfAll-4.3.jar" includeAntRuntime="false" />
+        <javac source="1.6" 
+               target="1.6" 
+               debug="true" 
+               srcdir="src" 
+               destdir="build/classes" 
+               classpath="lib/netcdf/netcdfAll-4.3.jar" 
+               includeAntRuntime="false" />
     </target>
 
     <target name="write-jni-header" description="Use javah to create the JNI header">
-        <javah force="yes" classpath="build/classes" destdir="build/lib/vol2bird">
+        <javah force="yes" 
+               classpath="build/classes" 
+               destdir="build/lib/vol2bird">
             <class name="nl.esciencecenter.ncradar.JNIMethodsVol2Bird" />
         </javah>
     </target>
@@ -42,8 +50,8 @@
         <copy file="lib/vol2bird/libsvdfit.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libsvdfit.h" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.c" todir="build/lib/vol2bird" />
-        <copy file="lib/vol2bird/libvol2birdjni.c" todir="build/lib/vol2bird" />
         <copy file="lib/vol2bird/libvol2bird.h" todir="build/lib/vol2bird" />
+        <copy file="lib/vol2bird/libvol2birdjni.c" todir="build/lib/vol2bird" />
     </target>
     
     
@@ -64,22 +72,36 @@
     
 
 
-    <target name="compile-libvol2birdjni" description="compile the C-language source file libvol2birdjni.c into a shared object">
+    <target name="compile-libvol2birdjni" 
+            description="compile the C-language source file libvol2birdjni.c into a shared object">
         <echo message="Compiling vol2bird JNI methods..." />
         <exec dir="build/lib/vol2bird" executable="gcc">
-            <arg line="-fPIC" />
-            <arg line="-I${jnihdir}" />
-            <arg line="-I${jnihdir}/linux" />
-            <arg line="-shared" />
-            <arg line="libvol2birdjni.c" />
-            <arg line="-Wall" />
-            <arg line="-o" />
-            <arg line="${gcc_dist}/libvol2birdjni.so" />
+            <arg value="-fPIC" />
+            <arg value="-I${jnihdir}" />
+            <arg value="-I${jnihdir}/linux" />
+            <arg value="-shared" />
+            <arg value="libvol2birdjni.c" />
+            <arg value="libsvdfit.c" />
+            <arg value="-Wall" />
+            <arg value="-o" />
+            <arg value="${gcc_dist}/libvol2birdjni.so" />
         </exec>
     </target>
     
     <target name="make-javadoc" >
-        <javadoc destdir="javadoc" classpath="lib/netcdf/netcdfAll-4.3.jar" sourcepath="src" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="true" version="true" nodeprecatedlist="false" nodeprecated="false" verbose="false" >
+        <javadoc destdir="javadoc" 
+                 classpath="lib/netcdf/netcdfAll-4.3.jar" 
+                 sourcepath="src" 
+                 access="public" 
+                 use="true" 
+                 notree="false" 
+                 nonavbar="false" 
+                 noindex="false" 
+                 splitindex="true" 
+                 version="true" 
+                 nodeprecatedlist="false" 
+                 nodeprecated="false" 
+                 verbose="false" >
             <link href="http://docs.oracle.com/javase/7/docs/api/" />
         </javadoc>
     </target>
@@ -91,20 +113,10 @@
                                     copy-c-code,
                                     compile-libvol2bird,
                                     compile-libvol2birdjni,
-                                    make-javadoc" description="make a jar out of everything">
-        <jar destfile="dist/ncradar.jar" basedir="build/classes" />
-    </target>
-
-    <target name="run-it" description="run the jar containing everything">
-        <java fork="true" classpath="dist/ncradar.jar:dist/netcdfAll-4.3.jar" classname="nl.esciencecenter.ncradar.RadarScanMatlab">
-            <sysproperty key="java.library.path" value="dist"/>
-                <classpath>  
-                   <filelist dir="dist">
-                       <file name="ncradar.jar" />
-                       <file name="netcdfAll-4.3.jar" />
-                   </filelist>
-                </classpath>
-        </java>
+                                    make-javadoc" 
+                           description="make a jar out of everything">
+        <jar destfile="dist/ncradar.jar"  
+             basedir="build/classes" />
     </target>
 
 
