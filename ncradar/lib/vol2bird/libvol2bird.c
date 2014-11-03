@@ -33,8 +33,8 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char dualPolFlag, const unsigned char verbose) {
 
     //  *********************************************************************************
-    //  This function analyses the cellImage array found by the 'findCells' procedure.
-    //  Smalls cells are rejected and the cells are re-numbered according to size.
+    //  This function analyzes the cellImage array found by the 'findCells' procedure.
+    //  Small cells are rejected and the cells are re-numbered according to size.
     //  The final number of cells in cellImage is returned as an integer.
     //  *********************************************************************************
 
