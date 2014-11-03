@@ -13,7 +13,7 @@ public class JNIMethodsVol2Bird {
 
 
 
-    protected static final native int analyzeCells(int[] dbzImageInt, int[] vradImageInt, int[] texImageInt,
+    protected final native int analyzeCells(int[] dbzImageInt, int[] vradImageInt, int[] texImageInt,
             int[] clutterImageInt, int[] cellImageInt, int dbznRang, int dbznAzim,
             float dbzElev, float dbzValueScale, float dbzValueOffset,
             float vradValueScale, float vradValueOffset,
@@ -23,29 +23,21 @@ public class JNIMethodsVol2Bird {
             float cellClutterFraction, float vradMinValue, float dbzClutterMin,
             int cmFlagInt, int dualPolFlagInt, int verboseInt);
 
-
-
-    protected static final native float calcDist(int range1, int azimuth1,
+    protected final native float calcDist(int range1, int azimuth1,
             int range2, int azimuth2, float rangeScale, float azimuthScale);
 
-
-
-    protected static final native void calcTexture(int[] texImage,
+    protected final native void calcTexture(int[] texImage,
             int[] dbzImage, int[] vradImage, int nRangNeighborhood,
             int nAzimNeighborhood, int nCountMin,
             float texOffset, float texScale, float dbzOffset, float dbzScale,
             float vradOffset, float vradScale, int vradMissing, int nRang, int nAzim);
 
-
-
-    protected static final native void calcVvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
+    protected final native void calcVvp(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
             int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
             float[] yObs, int[] c, int[] cellImage, int nDims, int nPointsMaxPtr, float rangeMin, float rangeMax,
             float HLAYER, float heightInputPar, float vradMin, int iData, int layer, int nPointsPtr);
 
-
-
-    protected static final native void classify(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
+    protected final native void classify(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
             float dbzHeig, float dbzValueScale, float dbzValueOffset, float dbzAzimScale,
             int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
             int rawReflMissing, float clutterValueScale, float clutterValueOffset,
@@ -58,9 +50,7 @@ public class JNIMethodsVol2Bird {
             int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
 
-
-
-    protected static final native int findCells(int[] dbzImage,
+    protected final native int findCells(int[] dbzImage,
             int[] rhoImage, int[] zdrImage, int[] cellImage, int dbzMissing,
             int dbznAzim, int dbznRang, float dbzValueOffset,
             float dbzRangeScale, float dbzValueScale, float dbzThresMin,
@@ -70,27 +60,25 @@ public class JNIMethodsVol2Bird {
             float zdrValueScale, float zdrThresMin,
             float rCellMax, int sign);
 
-
-
-    protected static final native int findNearbyGateIndex(int nAzimParent, int nRangParent, int iParent,
+    protected final native int findNearbyGateIndex(int nAzimParent, int nRangParent, int iParent,
             int nAzimChild, int nRangChild, int iChild);
 
-
-
-    protected static final native void fringeCells(int[] cellImage, int nRange,
+    protected final native void fringeCells(int[] cellImage, int nRange,
             int nAzim, float azimuthScale, float rangeScale, float fringeDist);
 
 
-
-    protected static final native void sortCells(int[] cellPropIRangOfMax,
+    protected final native void sortCells(int[] cellPropIRangOfMax,
             int[] cellPropIAzimOfMax, float[] cellPropDbzAvg,
             float[] cellPropTexAvg, float[] cellPropCv, float[] cellPropArea,
             float[] cellPropClutterArea, float[] cellPropDbzMax,
             int[] cellPropIndex, char[] cellPropDrop, int nCells);
 
+    protected final native int svdcmp(float[] arrayA, int nRows, int nCols, float[] arrayW, float[] arrayV);
 
+    protected final native float svdfit(float[] points, int nDims, float[] yObs, float[] yFitted,
+            int nPoints, float[] parameterVector, float[] avar, int nParsFitted);
 
-    protected static final native int updateMap(int[] cellImage,
+    protected final native int updateMap(int[] cellImage,
             int[] cellPropIRangOfMax, int[] cellPropIAzimOfMax,
             float[] cellPropDbzAvg, float[] cellPropTexAvg, float[] cellPropCv,
             float[] cellPropArea, float[] cellPropClutterArea,
