@@ -51,13 +51,9 @@ public class JNIMethodsVol2Bird {
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
 
     protected final native int findCells(int[] dbzImage,
-            int[] rhoImage, int[] zdrImage, int[] cellImage, int dbzMissing,
+            int[] cellImage, int dbzMissing,
             int dbznAzim, int dbznRang, float dbzValueOffset,
             float dbzRangeScale, float dbzValueScale, float dbzThresMin,
-            int rhoMissing, int rhonAzim, int rhonRang, float rhoValueOffset,
-            float rhoValueScale, float rhoThresMin, int zdrMissing,
-            int zdrnAzim, int zdrnRang, float zdrValueOffset,
-            float zdrValueScale, float zdrThresMin,
             float rCellMax, int sign);
 
     protected final native int findNearbyGateIndex(int nAzimParent, int nRangParent, int iParent,

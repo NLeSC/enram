@@ -707,9 +707,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
 
 
-int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, const unsigned char *zdrImage, int *cellImage,
-        const SCANMETA *dbzMeta, const SCANMETA *rhoMeta, const SCANMETA *zdrMeta,
-        const float dbzThresMin, const float rhoThresMin, const float zdrThresMin,
+int findCells(const unsigned char *dbzImage, int *cellImage,
+        const SCANMETA *dbzMeta,
+        const float dbzThresMin,
         const float rCellMax, const char sign) {
 
     // I deleted an input variable, texThresMin, because after renaming it to dbzThresMin, it turns out
@@ -719,8 +719,8 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
 
 
     //  *****************************************************************************
-    //  This function detects the cells in '[tex|rho|zdr]Image' using an integer
-    //  threshold value of '[tex|rho|zdr]Thres' and a non-recursive algorithm which
+    //  This function detects the cells in 'texImage' using an integer
+    //  threshold value of 'texThres' and a non-recursive algorithm which
     //  looks for neighboring pixels above threshold. On return the marked cells are
     //  contained by 'cellImage'. The number of detected cells/highest index value is
     //  returned.
@@ -739,8 +739,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     int cellImageInitialValue;
 
     int dbzThres;
-    int rhoThres;
-    int zdrThres;
 
     int iGlobal;
     int iGlobalOther;
@@ -753,14 +751,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     float dbzValueOffset;
     float dbzValueScale;
     float dbzRangeScale;
-
-    int rhoMissing;
-    float rhoValueOffset;
-    float rhoValueScale;
-
-    int zdrMissing;
-    float zdrValueOffset;
-    float zdrValueScale;
 
     int nAzimNeighborhood;
     int nRangNeighborhood;
@@ -776,14 +766,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
     dbzValueScale = dbzMeta->valueScale;
     dbzRangeScale = dbzMeta->rangeScale;
 
-    rhoMissing = rhoMeta->missing;
-    rhoValueOffset = rhoMeta->valueOffset;
-    rhoValueScale = rhoMeta->valueScale;
-
-    zdrMissing = zdrMeta->missing;
-    zdrValueOffset = zdrMeta->valueOffset;
-    zdrValueScale = zdrMeta->valueScale;
-
     nAzim = dbznAzim;
     nRang = dbznRang;
 
@@ -794,12 +776,6 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
 
     if (dbzImage != NULL) {
         dbzThres = ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
-    }
-    if (rhoImage != NULL) {
-        rhoThres = ROUND((rhoThresMin - rhoValueOffset) / rhoValueScale);
-    }
-    if (zdrImage != NULL) {
-        zdrThres = ROUND((zdrThresMin - zdrValueOffset) / zdrValueScale);
     }
 
     /*Initializing of connection cellImage.*/
@@ -840,116 +816,51 @@ int findCells(const unsigned char *dbzImage, const unsigned char *rhoImage, cons
             fprintf(stderr,"iGlobal = %d\n",iGlobal);
             #endif
 
-            if (rhoImage == NULL) {
-
-                if (dbzImage[iGlobal] == dbzMissing) {
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
-                    #endif
-
-                    continue;
-                }
-
-                if (sign * dbzImage[iGlobal] > sign * dbzThres) {
-
-                    // see issue #51
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
-                    fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %d\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
-                    #endif
-
-                    continue;
-                }
-
-                /* count number of direct neighbors above threshold */
-                count = 0;
-                for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
-
-                    iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
-
-                    if (iLocal < 0) {
-                        // iLocal below zero are error codes
-                        continue;
-                    }
-                    if (sign * dbzImage[iLocal] <= sign * dbzThres) {
-                        // FIXME sign 2x ? see issue #51
-                        count++;
-                    }
-
-                }
-                /* when not enough qualified neighbors, continue */
-                if (count - 1 < NEIGHBOURS) {
-                    continue;
-                }
+            if (dbzImage[iGlobal] == dbzMissing) {
 
                 #ifdef FPRINTFON
-                fprintf(stderr,"iGlobal = %d, count = %d\n",iGlobal,count);
+                fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
                 #endif
 
+                continue;
             }
-            else {
-                if (rhoImage[iGlobal] == rhoMissing) {
 
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"rhoImage[%d] == rhoMissing\n",iGlobal);
-                    #endif
+            if (sign * dbzImage[iGlobal] > sign * dbzThres) {
 
+                // see issue #51
+
+                #ifdef FPRINTFON
+                fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
+                fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %d\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
+                #endif
+
+                continue;
+            }
+
+            /* count number of direct neighbors above threshold */
+            count = 0;
+            for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
+
+                iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
+
+                if (iLocal < 0) {
+                    // iLocal below zero are error codes
                     continue;
                 }
-                if (zdrImage[iGlobal] == zdrMissing) {
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"zdrImage[%d] == zdrMissing\n",iGlobal);
-                    #endif
-
-                    continue;
-                }
-                if (dbzImage[iGlobal] == dbzMissing) {
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
-                    #endif
-
-                    continue;
-                }
-                if (dbzImage[iGlobal] < dbzThres) {
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"dbzImage[%d] < dbzThres\n",iGlobal);
-                    #endif
-
-                    continue;
-                }
-                if (!(zdrImage[iGlobal] > zdrThres || rhoImage[iGlobal] > rhoThres)) {
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"!(zdrImage[%d] > zdrThres || rhoImage[%d] > rhoThres)\n",iGlobal,iGlobal);
-                    #endif
-
-                    continue;
+                if (sign * dbzImage[iLocal] <= sign * dbzThres) {
+                    // FIXME sign 2x ? see issue #51
+                    count++;
                 }
 
-                for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
+            }
+            /* when not enough qualified neighbors, continue */
+            if (count - 1 < NEIGHBOURS) {
+                continue;
+            }
 
-                    iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
-
-                    if (iLocal < 0) {
-                        // iLocal less than zero are error codes
-                        continue;
-                    }
-
-                    if (zdrImage[iLocal] > zdrThres || rhoImage[iLocal] > rhoThres ) {
-                        count++;
-                    }
-                }
-                /* when not enough qualified neighbors, continue */
-                if (count - 1 < NEIGHBOURS) {
-                    continue;
-                }
-
-            } // if (rhoImage==NULL)
+            #ifdef FPRINTFON
+            fprintf(stderr,"iGlobal = %d, count = %d\n",iGlobal,count);
+            #endif
 
 
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */

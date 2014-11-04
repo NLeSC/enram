@@ -9,7 +9,7 @@ public class TestBirdDensityProfile {
     private RadarScanJava reflectivity;
     private RadarScanJava radialVelocity;
     private int iScan;
-    private BirdDensityProfile birdDensityProfile;
+    private BirdDensityProfileJava birdDensityProfileJava;
     private int nAzim;
     private int nRang;
     private ParameterValues parameterValues;
@@ -34,10 +34,10 @@ public class TestBirdDensityProfile {
         reflectivity = new RadarScanJava(theDir, "T_PAGZ60_C_OKPR_20110815000447.hdf", iScan);
         radialVelocity = new RadarScanJava(theDir, "T_PAHZ60_C_OKPR_20110815000447.hdf", iScan);
 
-        birdDensityProfile = new BirdDensityProfile(reflectivity, radialVelocity);
+        birdDensityProfileJava = new BirdDensityProfileJava(reflectivity, radialVelocity);
 
-        nAzim = birdDensityProfile.getNumberOfAzimuthBins();
-        nRang = birdDensityProfile.getNumberOfRangeBins();
+        nAzim = birdDensityProfileJava.getNumberOfAzimuthBins();
+        nRang = birdDensityProfileJava.getNumberOfRangeBins();
 
         System.out.println("I have a BirdDensityProfile object.");
 
@@ -58,14 +58,12 @@ public class TestBirdDensityProfile {
         float texScale = (float) this.parameterValues.getSTDEVSCALE();
         int vradMissing = missing;
 
-        birdDensityProfile.calcTexture(nRangNeighborhood, nAzimNeighborhood, nCountMin,
+        birdDensityProfileJava.calcTexture(nRangNeighborhood, nAzimNeighborhood, nCountMin,
                 texOffset, texScale, vradMissing);
 
         int nGlobal = nAzim * nRang;
         int[] zeros = new int[nGlobal];
-        int[] dbzImage = birdDensityProfile.getReflectivityRaw();
-        int[] rhoImage = null;
-        int[] zdrImage = null;
+        int[] dbzImage = birdDensityProfileJava.getReflectivityRaw();
         int[] cellImage = zeros.clone();
         int dbzMissing = missing;
         int dbznAzim = nAzim;
@@ -76,30 +74,16 @@ public class TestBirdDensityProfile {
         // assumes [km]?
         float dbzRangeScale = (float) this.reflectivity.getRangeScale() / 1000;
         float dbzThresMin = (float) this.parameterValues.getDBZRAIN() * dbzScale + dbzOffset;
-        int rhoMissing = missing;
-        int rhonAzim = nAzim;
-        int rhonRang = nRang;
-        float rhoOffset = 0.0f;
-        float rhoValueScale = 1.0f;
-        float rhoThresMin = (float) this.parameterValues.getRHOMIN();
-        int zdrMissing = missing;
-        int zdrnAzim = nAzim;
-        int zdrnRang = nRang;
-        float zdrOffset = 0.0f;
-        float zdrValueScale = 1.0f;
-        float zdrThresMin = (float) this.parameterValues.getZDRMIN();
         // FIXME plus 5? magic number
         int rCellMax = (int) (this.parameterValues.getRANGMAX() + 5);
         int sign = -1;
 
-        int nCells = BirdDensityProfile.findCells(dbzImage, rhoImage, zdrImage, cellImage,
+        int nCells = birdDensityProfileJava.findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzOffset, dbzScale, dbzRangeScale, dbzThresMin,
-                rhoMissing, rhonAzim, rhonRang, rhoOffset, rhoValueScale, rhoThresMin,
-                zdrMissing, zdrnAzim, zdrnRang, zdrOffset, zdrValueScale, zdrThresMin,
                 rCellMax, sign);
 
-        int[] vradImage = birdDensityProfile.getRadialVelocityRaw();
-        int[] texImage = birdDensityProfile.getTexture();
+        int[] vradImage = birdDensityProfileJava.getRadialVelocityRaw();
+        int[] texImage = birdDensityProfileJava.getTexture();
         int[] clutterImage = zeros.clone();
         float dbzElev = (float) this.reflectivity.getElevationAngle();
         float vradScale = (float) this.radialVelocity.getDataScale();
@@ -116,7 +100,7 @@ public class TestBirdDensityProfile {
         int dualPolFlag = 0; // FIXME
         int verbose = 0; // FIXME
 
-        int nCellsValid = BirdDensityProfile.analyzeCells(dbzImage, vradImage,
+        int nCellsValid = birdDensityProfileJava.analyzeCells(dbzImage, vradImage,
                 texImage, clutterImage, cellImage,
                 dbznRang, dbznAzim, dbzElev, dbzScale, dbzOffset,
                 vradScale, vradOffset, clutterScale, clutterOffset,
@@ -130,7 +114,7 @@ public class TestBirdDensityProfile {
         float rangeScale = (float) this.radialVelocity.getRangeScale() / 1000;
         float fringeDist = (float) this.parameterValues.getEMASKMAX();
 
-        BirdDensityProfile.fringeCells(cellImage, nRang, nAzim, azimuthScale,
+        birdDensityProfileJava.fringeCells(cellImage, nRang, nAzim, azimuthScale,
                 rangeScale, fringeDist);
 
         float dbzHeig = (float) this.reflectivity.getRadarPositionHeight();
@@ -176,7 +160,7 @@ public class TestBirdDensityProfile {
         // something to accommodate all the stuff that classify() wants to put
         // in it.
 
-        BirdDensityProfile.classify(dbznRang, dbznAzim, dbzRangeScale,
+        birdDensityProfileJava.classify(dbznRang, dbznAzim, dbzRangeScale,
                 dbzElev, dbzHeig, dbzScale, dbzOffset,
                 dbzAzimScale, dbzMissing, vradScale, vradOffset, vradMissing,
                 rawReflMissing,

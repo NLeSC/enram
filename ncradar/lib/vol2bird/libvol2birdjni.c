@@ -709,8 +709,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         JNIEnv *env,
         jobject obj,
         const jintArray dbzImageInt,
-        const jintArray rhoImageInt,
-        const jintArray zdrImageInt,
         jintArray cellImageInt,
         const jint dbzMissing,
         const jint dbznAzim,
@@ -719,18 +717,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         const jfloat dbzValueScale,
         const jfloat dbzRangeScale,
         const jfloat dbzThresMin,
-        const jint rhoMissing,
-        const jint rhonAzim,
-        const jint rhonRang,
-        const jfloat rhoValueOffset,
-        const jfloat rhoValueScale,
-        const jfloat rhoThresMin,
-        const jint zdrMissing,
-        const jint zdrnAzim,
-        const jint zdrnRang,
-        const jfloat zdrValueOffset,
-        const jfloat zdrValueScale,
-        const jfloat zdrThresMin,
         const jfloat rCellMax,
         const jint signInt)
 {
@@ -741,25 +727,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     int iRang;
     int iGlobal;
     int nGlobal;
-
-    int rhoImageIsNull;
-    int zdrImageIsNull;
-
-    if (rhoImageInt == NULL) {
-        fprintf(stderr,"rhoImage is null.\n");
-        rhoImageIsNull = 1;
-    }
-    else {
-        rhoImageIsNull = 0;
-    }
-
-    if (zdrImageInt == NULL) {
-        fprintf(stderr,"zdrImage is null.\n");
-        zdrImageIsNull = 1;
-    }
-    else {
-        zdrImageIsNull = 0;
-    }
 
 
     nGlobal = nAzim * nRang;
@@ -782,43 +749,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
      }
 
 
-    unsigned char rhoImageBody[nGlobal];
-    jint *rhoImageIntBody;
-    if (rhoImageInt != NULL) {
-        rhoImageIntBody = (*env)->GetIntArrayElements(env, rhoImageInt, NULL);
-        for (iAzim = 0;iAzim<nAzim;iAzim++){
-            for (iRang= 0 ; iRang<nRang;iRang++){
-                iGlobal = iAzim*nRang + iRang;
-                if (0<=rhoImageIntBody[iGlobal] && rhoImageIntBody[iGlobal]<=255) {
-                    rhoImageBody[iGlobal] = (unsigned char) rhoImageIntBody[iGlobal];
-                }
-                else {
-                    fprintf(stderr,"Error converting type (rhoImageIntBody[iGlobal]).\n");
-                    return -1;
-                }
-            }
-        }
-    }
-
-    unsigned char zdrImageBody[nGlobal];
-    jint *zdrImageIntBody;
-    if (zdrImageInt != NULL) {
-        zdrImageIntBody = (*env)->GetIntArrayElements(env, zdrImageInt, NULL);
-        for (iAzim = 0;iAzim<nAzim;iAzim++){
-            for (iRang= 0 ; iRang<nRang;iRang++){
-                iGlobal = iAzim*nRang + iRang;
-                if (0<=zdrImageIntBody[iGlobal] && zdrImageIntBody[iGlobal]<=255) {
-                    zdrImageBody[iGlobal] = (unsigned char) zdrImageIntBody[iGlobal];
-                }
-                else {
-                    fprintf(stderr,"Error converting type (zdrImageIntBody[iGlobal]).\n");
-                    return -1;
-                }
-            }
-        }
-    }
-
-
     jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
     // end of Java Native Interface tricks
 
@@ -830,8 +760,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     // Allocating and initializing memory for cell properties.
 
     SCANMETA dbzMeta;
-    SCANMETA rhoMeta;
-    SCANMETA zdrMeta;
 
     dbzMeta.missing = dbzMissing;
     dbzMeta.nAzim = dbznAzim;
@@ -839,18 +767,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     dbzMeta.valueOffset = dbzValueOffset;
     dbzMeta.valueScale = dbzValueScale;
     dbzMeta.rangeScale = dbzRangeScale;
-
-    rhoMeta.missing = rhoMissing;
-    rhoMeta.nAzim = rhonAzim;
-    rhoMeta.nRang = rhonRang;
-    rhoMeta.valueOffset = rhoValueOffset;
-    rhoMeta.valueScale = rhoValueScale;
-
-    zdrMeta.missing = zdrMissing;
-    zdrMeta.nAzim = zdrnAzim;
-    zdrMeta.nRang = zdrnRang;
-    zdrMeta.valueOffset = zdrValueOffset;
-    zdrMeta.valueScale = zdrValueScale;
 
     int nCells;
 
@@ -862,27 +778,10 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         return -1;
     }
 
-    if (rhoImageIsNull == 1 && zdrImageIsNull == 0) {
-            nCells = findCells(&dbzImageBody[0], NULL, &zdrImageBody[0], &cellImageIntBody[0],
-                               &dbzMeta,     &rhoMeta,     &zdrMeta,
-                               dbzThresMin,  rhoThresMin,  zdrThresMin,
-                               rCellMax, sign);
-    }
-    if (rhoImageIsNull == 0 && zdrImageIsNull == 1) {
-            nCells = findCells(&dbzImageBody[0], &rhoImageBody[0], NULL, &cellImageIntBody[0],
-                               &dbzMeta,     &rhoMeta,     &zdrMeta,
-                               dbzThresMin,  rhoThresMin,  zdrThresMin,
-                               rCellMax, sign);
-    }
-    if (rhoImageIsNull == 1 && zdrImageIsNull == 1) {
-        fprintf(stderr,"inside here\n");
-            nCells = findCells(&dbzImageBody[0], NULL, NULL, &cellImageIntBody[0],
-                               &dbzMeta,     &rhoMeta,     &zdrMeta,
-                               dbzThresMin,  rhoThresMin,  zdrThresMin,
-                               rCellMax, sign);
-    }
-
-
+    nCells = findCells(&dbzImageBody[0], &cellImageIntBody[0],
+                       &dbzMeta,
+                       dbzThresMin,
+                       rCellMax, sign);
 
 
 
@@ -890,14 +789,8 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         for (iRang= 0 ; iRang<nRang;iRang++){
 
             iGlobal = iAzim*nRang + iRang;
-
             dbzImageIntBody[iGlobal] = (jint) dbzImageBody[iGlobal];
-            if (rhoImageIsNull == 0) {
-                rhoImageIntBody[iGlobal] = (jint) rhoImageBody[iGlobal];
-            }
-            if (zdrImageIsNull == 0) {
-                zdrImageIntBody[iGlobal] = (jint) zdrImageBody[iGlobal];
-            }
+
         }
     }
 
@@ -906,12 +799,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     // do some Java Native interface tricks:
     (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, 0);
     (*env)->ReleaseIntArrayElements(env, dbzImageInt, dbzImageIntBody, JNI_ABORT);
-    if (rhoImageIsNull == 0) {
-        (*env)->ReleaseIntArrayElements(env, rhoImageInt, rhoImageIntBody, JNI_ABORT);
-    }
-    if (zdrImageIsNull == 0) {
-        (*env)->ReleaseIntArrayElements(env, zdrImageInt, zdrImageIntBody, JNI_ABORT);
-    }
     // end of Java Native Interface tricks
 
 
