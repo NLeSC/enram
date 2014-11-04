@@ -2,41 +2,41 @@ package nl.esciencecenter.ncradar;
 
 public class ParameterValues {
 
-    private int AREACELL;
-    private double AZIMMAX;
-    private double AZIMMIN;
-    private double CLUTPERCCELL;
-    private double DBZCELL;
-    private double DBZCLUTTER;
-    private double DBZFACTOR;
-    private double DBZMAX;
-    private double DBZMIN;
-    private double DBZNOISE;
-    private double DBZRAIN;
-    private double EMASKMAX;
-    private double HLAYER;
-    private int NDATA;
-    private int NDBZMIN;
-    private int NEIGHBOURS;
-    private int NGAPBIN;
-    private int NGAPMIN;
-    private int NLAYER;
-    private int NTEXBINAZIM;
-    private int NTEXBINRANG;
-    private int NTEXMIN;
-    private double RANGMAX;
-    private double RANGMAXSTDEV;
-    private double RANGMIN;
-    private double RANGMINSTDEV;
-    private double RHOMIN;
-    private double SIGMABIRD;
-    private double STDEVBIRD;
-    private double STDEVCELL;
-    private double STDEVSCALE;
-    private double VDIFMAX;
-    private double VMASKMAX;
-    private double VRADMIN;
-    private double ZDRMIN;
+    private final int AREACELL;
+    private final double AZIMMAX;
+    private final double AZIMMIN;
+    private final double CLUTPERCCELL;
+    private final double DBZCELL;
+    private final double DBZCLUTTER;
+    private final double DBZFACTOR;
+    private final double DBZMAX;
+    private final double DBZMIN;
+    private final double DBZNOISE;
+    private final double DBZRAIN;
+    private final double EMASKMAX;
+    private final double HLAYER;
+    private final int NDATA;
+    private final int NDBZMIN;
+    private final int NEIGHBOURS;
+    private final int NGAPBIN;
+    private final int NGAPMIN;
+    private final int NLAYER;
+    private final int NTEXBINAZIM;
+    private final int NTEXBINRANG;
+    private final int NTEXMIN;
+    private final double RANGMAX;
+    private final double RANGMAXSTDEV;
+    private final double RANGMIN;
+    private final double RANGMINSTDEV;
+    private final double RHOMIN;
+    private final double SIGMABIRD;
+    private final double STDEVBIRD;
+    private final double STDEVCELL;
+    private final double STDEVSCALE;
+    private final double VDIFMAX;
+    private final double VMASKMAX;
+    private final double VRADMIN;
+    private final double ZDRMIN;
 
 
 
@@ -45,16 +45,17 @@ public class ParameterValues {
         // FIXME still have to rename properties to more meaningful names;
         // FIXME also make compliant with naming convention
 
-        this.HLAYER = 0.200;
+        this.HLAYER = 0.200; // p. 84
         this.NLAYER = 30;
         this.NDATA = 4;
-        this.RANGMIN = 5.0;
-        this.RANGMINSTDEV = 5.0;
+        this.RANGMIN = 5.0; // p. 84 says 10.0
+        this.RANGMINSTDEV = 5.0; // equivalent of RANGMINSTDEV, but for VRAD
+                                 // instead of DBZ?
         this.RANGMAXSTDEV = 25.0;
-        this.RANGMAX = 25.0;
+        this.RANGMAX = 25.0; // p.84
         this.AZIMMIN = 0.0;
         this.AZIMMAX = 360.0;
-        this.VRADMIN = 1.0;
+        this.VRADMIN = 1.0; // p. 74
         this.NGAPBIN = 8;
         this.NGAPMIN = 5;
         this.NDBZMIN = 25;
@@ -66,518 +67,266 @@ public class ParameterValues {
         this.DBZMIN = -100.0;
         this.DBZMAX = 20.0;
         this.DBZNOISE = -40.0;
-        this.DBZRAIN = 0.0;
-        this.DBZCELL = 15.0;
-        this.STDEVCELL = 5.0;
+        this.DBZRAIN = 0.0; // p.75
+        this.DBZCELL = 15.0; // p. 78
+        this.STDEVCELL = 5.0; // p. 78
         this.AREACELL = 4;
-        this.CLUTPERCCELL = 0.5;
+        this.CLUTPERCCELL = 0.5; // p. 78
         this.NEIGHBOURS = 5;
         this.STDEVSCALE = 0.1;
         this.NTEXBINAZIM = 3;
         this.NTEXBINRANG = 3;
         this.NTEXMIN = 4;
         this.DBZCLUTTER = -10.0;
-        this.DBZFACTOR = 360.7;
-        this.SIGMABIRD = 11.0;
-        this.STDEVBIRD = 2.0;
+        this.DBZFACTOR = 360.7; // eq. 7.13 p. 89
+        this.SIGMABIRD = 11.0; // p.89
+        this.STDEVBIRD = 2.0; // p. 86
 
     }
 
 
 
-    protected int getAREACELL() {
+    public int getAREACELL() {
 
         return AREACELL;
     }
 
 
 
-    protected double getAZIMMAX() {
+    public double getAZIMMAX() {
 
         return AZIMMAX;
     }
 
 
 
-    protected double getAZIMMIN() {
+    public double getAZIMMIN() {
 
         return AZIMMIN;
     }
 
 
 
-    protected double getCLUTPERCCELL() {
+    public double getCLUTPERCCELL() {
 
         return CLUTPERCCELL;
     }
 
 
 
-    protected double getDBZCELL() {
+    public double getDBZCELL() {
 
         return DBZCELL;
     }
 
 
 
-    protected double getDBZCLUTTER() {
+    public double getDBZCLUTTER() {
 
         return DBZCLUTTER;
     }
 
 
 
-    protected double getDBZFACTOR() {
+    public double getDBZFACTOR() {
 
         return DBZFACTOR;
     }
 
 
 
-    protected double getDBZMAX() {
+    public double getDBZMAX() {
 
         return DBZMAX;
     }
 
 
 
-    protected double getDBZMIN() {
+    public double getDBZMIN() {
 
         return DBZMIN;
     }
 
 
 
-    protected double getDBZNOISE() {
+    public double getDBZNOISE() {
 
         return DBZNOISE;
     }
 
 
 
-    protected double getDBZRAIN() {
+    public double getDBZRAIN() {
 
         return DBZRAIN;
     }
 
 
 
-    protected double getEMASKMAX() {
+    public double getEMASKMAX() {
 
         return EMASKMAX;
     }
 
 
 
-    protected double getHLAYER() {
+    public double getHLAYER() {
 
         return HLAYER;
     }
 
 
 
-    protected int getNDATA() {
+    public int getNDATA() {
 
         return NDATA;
     }
 
 
 
-    protected int getNDBZMIN() {
+    public int getNDBZMIN() {
 
         return NDBZMIN;
     }
 
 
 
-    protected int getNEIGHBOURS() {
+    public int getNEIGHBOURS() {
 
         return NEIGHBOURS;
     }
 
 
 
-    protected int getNGAPBIN() {
+    public int getNGAPBIN() {
 
         return NGAPBIN;
     }
 
 
 
-    protected int getNGAPMIN() {
+    public int getNGAPMIN() {
 
         return NGAPMIN;
     }
 
 
 
-    protected int getNLAYER() {
+    public int getNLAYER() {
 
         return NLAYER;
     }
 
 
 
-    protected int getNTEXBINAZIM() {
+    public int getNTEXBINAZIM() {
 
         return NTEXBINAZIM;
     }
 
 
 
-    protected int getNTEXBINRANG() {
+    public int getNTEXBINRANG() {
 
         return NTEXBINRANG;
     }
 
 
 
-    protected int getNTEXMIN() {
+    public int getNTEXMIN() {
 
         return NTEXMIN;
     }
 
 
 
-    protected double getRANGMAX() {
+    public double getRANGMAX() {
 
         return RANGMAX;
     }
 
 
 
-    protected double getRANGMAXSTDEV() {
+    public double getRANGMAXSTDEV() {
 
         return RANGMAXSTDEV;
     }
 
 
 
-    protected double getRANGMIN() {
+    public double getRANGMIN() {
 
         return RANGMIN;
     }
 
 
 
-    protected double getRANGMINSTDEV() {
+    public double getRANGMINSTDEV() {
 
         return RANGMINSTDEV;
     }
 
 
 
-    protected double getRHOMIN() {
+    public double getRHOMIN() {
 
         return RHOMIN;
     }
 
 
 
-    protected double getSIGMABIRD() {
+    public double getSIGMABIRD() {
 
         return SIGMABIRD;
     }
 
 
 
-    protected double getSTDEVBIRD() {
+    public double getSTDEVBIRD() {
 
         return STDEVBIRD;
     }
 
 
 
-    protected double getSTDEVCELL() {
+    public double getSTDEVCELL() {
 
         return STDEVCELL;
     }
 
 
 
-    protected double getSTDEVSCALE() {
+    public double getSTDEVSCALE() {
 
         return STDEVSCALE;
     }
 
 
 
-    protected double getVDIFMAX() {
+    public double getVDIFMAX() {
 
         return VDIFMAX;
     }
 
 
 
-    protected double getVMASKMAX() {
+    public double getVMASKMAX() {
 
         return VMASKMAX;
     }
 
 
 
-    protected double getVRADMIN() {
+    public double getVRADMIN() {
 
         return VRADMIN;
     }
 
 
 
-    protected double getZDRMIN() {
+    public double getZDRMIN() {
 
         return ZDRMIN;
-    }
-
-
-
-    protected void setAREACELL(int aREACELL) {
-
-        AREACELL = aREACELL;
-    }
-
-
-
-    protected void setAZIMMAX(double aZIMMAX) {
-
-        AZIMMAX = aZIMMAX;
-    }
-
-
-
-    protected void setAZIMMIN(double aZIMMIN) {
-
-        AZIMMIN = aZIMMIN;
-    }
-
-
-
-    protected void setCLUTPERCCELL(double cLUTPERCCELL) {
-
-        CLUTPERCCELL = cLUTPERCCELL;
-    }
-
-
-
-    protected void setDBZCELL(double dBZCELL) {
-
-        DBZCELL = dBZCELL;
-    }
-
-
-
-    protected void setDBZCLUTTER(double dBZCLUTTER) {
-
-        DBZCLUTTER = dBZCLUTTER;
-    }
-
-
-
-    protected void setDBZFACTOR(double dBZFACTOR) {
-
-        DBZFACTOR = dBZFACTOR;
-    }
-
-
-
-    protected void setDBZMAX(double dBZMAX) {
-
-        DBZMAX = dBZMAX;
-    }
-
-
-
-    protected void setDBZMIN(double dBZMIN) {
-
-        DBZMIN = dBZMIN;
-    }
-
-
-
-    protected void setDBZNOISE(double dBZNOISE) {
-
-        DBZNOISE = dBZNOISE;
-    }
-
-
-
-    protected void setDBZRAIN(double dBZRAIN) {
-
-        DBZRAIN = dBZRAIN;
-    }
-
-
-
-    protected void setEMASKMAX(double eMASKMAX) {
-
-        EMASKMAX = eMASKMAX;
-    }
-
-
-
-    protected void setHLAYER(float hLAYER) {
-
-        HLAYER = hLAYER;
-    }
-
-
-
-    protected void setNDATA(int nDATA) {
-
-        NDATA = nDATA;
-    }
-
-
-
-    protected void setNDBZMIN(int nDBZMIN) {
-
-        NDBZMIN = nDBZMIN;
-    }
-
-
-
-    protected void setNEIGHBOURS(int nEIGHBOURS) {
-
-        NEIGHBOURS = nEIGHBOURS;
-    }
-
-
-
-    protected void setNGAPBIN(int nGAPBIN) {
-
-        NGAPBIN = nGAPBIN;
-    }
-
-
-
-    protected void setNGAPMIN(int nGAPMIN) {
-
-        NGAPMIN = nGAPMIN;
-    }
-
-
-
-    protected void setNLAYER(int nLAYER) {
-
-        NLAYER = nLAYER;
-    }
-
-
-
-    protected void setNTEXBINAZIM(int nTEXBINAZIM) {
-
-        NTEXBINAZIM = nTEXBINAZIM;
-    }
-
-
-
-    protected void setNTEXBINRANG(int nTEXBINRANG) {
-
-        NTEXBINRANG = nTEXBINRANG;
-    }
-
-
-
-    protected void setNTEXMIN(int nTEXMIN) {
-
-        NTEXMIN = nTEXMIN;
-    }
-
-
-
-    protected void setRANGMAX(double rANGMAX) {
-
-        RANGMAX = rANGMAX;
-    }
-
-
-
-    protected void setRANGMAXSTDEV(double rANGMAXSTDEV) {
-
-        RANGMAXSTDEV = rANGMAXSTDEV;
-    }
-
-
-
-    protected void setRANGMIN(double rANGMIN) {
-
-        RANGMIN = rANGMIN;
-    }
-
-
-
-    protected void setRANGMIN(float rANGMIN) {
-
-        RANGMIN = rANGMIN;
-    }
-
-
-
-    protected void setRANGMINSTDEV(double rANGMINSTDEV) {
-
-        RANGMINSTDEV = rANGMINSTDEV;
-    }
-
-
-
-    protected void setRHOMIN(double rHOMIN) {
-
-        RHOMIN = rHOMIN;
-    }
-
-
-
-    protected void setSIGMABIRD(double sIGMABIRD) {
-
-        SIGMABIRD = sIGMABIRD;
-    }
-
-
-
-    protected void setSTDEVBIRD(double sTDEVBIRD) {
-
-        STDEVBIRD = sTDEVBIRD;
-    }
-
-
-
-    protected void setSTDEVCELL(double sTDEVCELL) {
-
-        STDEVCELL = sTDEVCELL;
-    }
-
-
-
-    protected void setSTDEVSCALE(double sTDEVSCALE) {
-
-        STDEVSCALE = sTDEVSCALE;
-    }
-
-
-
-    protected void setVDIFMAX(double vDIFMAX) {
-
-        VDIFMAX = vDIFMAX;
-    }
-
-
-
-    protected void setVMASKMAX(double vMASKMAX) {
-
-        VMASKMAX = vMASKMAX;
-    }
-
-
-
-    protected void setVRADMIN(double vRADMIN) {
-
-        VRADMIN = vRADMIN;
-    }
-
-
-
-    protected void setZDRMIN(double zDRMIN) {
-
-        ZDRMIN = zDRMIN;
     }
 
 }
