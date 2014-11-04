@@ -214,7 +214,13 @@ public class PolarData {
 
     public int[][] getFaces() {
 
-        return faces.clone();
+        if (faces != null) {
+            return faces.clone();
+        }
+        else {
+            System.err.println("No faces information.");
+            return null;
+        }
     }
 
 
