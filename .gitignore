@@ -25,3 +25,4 @@ testdata/raw
 testdata/stations.txt
 private
 visualization-output
+*.m~
