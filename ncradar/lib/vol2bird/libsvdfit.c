@@ -418,29 +418,26 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
 
 
 
-float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
-             float parameterVector[],float avar[],int nParsFitted) {
+float svdfit(float *points, int nDims, float vradObs[], float vradFitted[], int nPoints,
+             float parameterVector[], float avar[], int nParsFitted) {
 
 
     // ************************************************************************************************
     // This function performs a multi-dimensional linear fit using singular value
     // decomposition. See Numerical Recipes (2nd ed., paragraph 15.4) for details.
-    // Given a set of data points points[0..nPoints*nDims-1], yObs[0..nPoints-1], use Chi-square
+    // Given a set of data points points[0..nPoints*nDims-1], vradObs[0..nPoints-1], use Chi-square
     // minimization to determine the coefficients a[0..nParsFitted-1] of the fitting
     // function y=SUM_i[apar_i*afunc_i(points)]. The dimensionality of the input vector
     // 'points' is equal to 'nDims', generally this will be equal to 1.
     // Here we solve the fitting equations using singular value decomposition of
-    // the nPoints by nParsFitted matrix. The program returns values for the array  with fit
-    // parameters 'parameterVector', covariance matrix 'cvm', and Chi-square.
+    // the nPoints by nParsFitted matrix. The program returns values for the array with fit
+    // parameters 'parameterVector', variance matrix 'avar', and the Chi-square fitness score.
+    //
     // The user supplies a function with the fit model 'funcs(points,nDims,afunc,nParsFitted)'
     // that returns the 'nParsFitted' basis functions evaluated at points[0..nDims-1] in the
     // array afunc[0..nParsFitted-1].
     //
-    // FIXME this description is unclear
-    //
     // ************************************************************************************************
-
-    // FIXME There is no matrix called 'cvm' perhaps he means 'avar'?
 
 
     int iParFitted;
@@ -448,12 +445,10 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     int iParFittedCols;
     int k;
     int iPoint;
-    float afunc[NPARSFITTEDMAX];             // FIXME nParsFitted would make more sense
-                                             // FIXME afunc is the design matrix?
-                                             // FIXME order of afunc parameters is not u,v,w?
-    float singularValues[NPARSFITTEDMAX];    // FIXME nParsFitted would make more sense
-    float v[NPARSFITTEDMAX*NPARSFITTEDMAX];  // FIXME nParsFitted would make more sense
-    float wti[NPARSFITTEDMAX];               // FIXME nParsFitted would make more sense
+    float afunc[nParsFitted];                // FIXME order of afunc parameters is not u,v,w?
+    float singularValues[nParsFitted];
+    float v[nParsFitted*nParsFitted];
+    float wti[nParsFitted];
     float *u;
     float singularValueMax;
     float sum;
@@ -480,16 +475,18 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
     for (iPoint = 0; iPoint < nPoints; iPoint++) {
 
         // note pointer arithmetic in this next statement:
-        if (!svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
+        if (svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
             return -1.0;
         }
+
         for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
             u[iParFitted+nParsFitted*iPoint] = afunc[iParFitted];
         }
     }
 
+
     // Singular value decomposition of the design matrix of the fit.
-    if (!svdcmp(u,nPoints,nParsFitted,singularValues,v)) {
+    if (svdcmp(u,nPoints,nParsFitted,singularValues,v)) {
         return -1.0;
     }
 
@@ -506,19 +503,24 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
         }
     }
 
-    // Calculation of fit parameters 'parameterVector' using backsubstitution with 'yObs'.
-    if (!svbksb(u,singularValues,v,nPoints,nParsFitted,yObs,parameterVector)) {
+
+
+    // Calculation of fit parameters 'parameterVector' using backsubstitution with 'vradObs'.
+    if (svbksb(u,singularValues,v,nPoints,nParsFitted,vradObs,parameterVector)) {
         return -1.0;
     }
 
-    // Calculation of variances of fit parameters 'parameterVector'.
 
+
+    // Calculation of variances of fit parameters 'parameterVector'.
     for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
         wti[iParFitted] = 0.0;
         if (singularValues[iParFitted] != 0) {
             wti[iParFitted] = 1.0/(singularValues[iParFitted]*singularValues[iParFitted]);
         }
     }
+
+    // FIXME the calculation of the variance is still a bit weird...buggy?
     for (iParFittedCols = 0; iParFittedCols < nParsFitted; iParFittedCols++) {
 
         avar[iParFittedCols] = 0.0;
@@ -531,20 +533,22 @@ float svdfit(float *points,int nDims,float yObs[],float yFitted[],int nPoints,
         }
     }
 
-    /*Calculation of fitted y's and Chi-square of the fit.*/
+    /*Calculation of vradFitted and Chi-square of the fit.*/
     chisq = 0.0;
     for (iPoint = 0; iPoint < nPoints; iPoint++) {
 
         // note pointer arithmetic in this next statement:
-        if (!svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
+        if (svd_vvp1func(points+nDims*iPoint,nDims,afunc,nParsFitted)) {
             return -1.0;
         }
         sum = 0.0;
         for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
             sum += parameterVector[iParFitted] * afunc[iParFitted];
         }
-        yFitted[iPoint] = sum;
-        chisq += SQUARE(yObs[iPoint]-yFitted[iPoint]);
+        vradFitted[iPoint] = sum;
+
+        chisq += SQUARE(vradObs[iPoint]-vradFitted[iPoint]);
+
     }
     chisq /= nPoints-nParsFitted;
 
@@ -570,7 +574,7 @@ int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[])
     tmp=(float *)malloc(n*sizeof(float));
     if (tmp==NULL) {
         printf("Requested memory could not be allocated!\n");
-        return 0;
+        return -1;
     }
 
     /*First part of inversion: calculation of Tmp = (W^-1.U^T).B. Singular values */
@@ -597,7 +601,7 @@ int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[])
 
     free(tmp);
 
-    return 1;
+    return 0;
 } //svbksb
 
 
