@@ -30,7 +30,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
         const float vradMinValue, const float dbzClutterMin, const unsigned char clutterFlag,
-        const unsigned char dualPolFlag, const unsigned char verbose) {
+        const unsigned char verbose) {
 
     //  *********************************************************************************
     //  This function analyzes the cellImage array found by the 'findCells' procedure.
@@ -163,21 +163,13 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     /*Determine which cells to drop from map based on low mean dBZ / high stdev /
      * small area / high percentage clutter*/
     for (iCell = 0; iCell < nCells; iCell++) {
-        if (dualPolFlag == 1){  // FIXME can I delete all dual polarity related stuff from
-                                // FIXME vol2bird...seems like we're not using any of that at the moment
-            if (cellProp[iCell].area < areaMin) {
-                cellProp[iCell].drop = 1;
-            }
-        }
-        else {
-            if (cellProp[iCell].area < areaMin ||
-                (cellProp[iCell].dbzAvg < cellDbzMin &&
-                 cellProp[iCell].texAvg > cellStdDevMax &&
-                 (cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
-                // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
-                // bird migration --see discussion of issue #37 on GitHub.
-                cellProp[iCell].drop = 1;
-            }
+        if (cellProp[iCell].area < areaMin ||
+            (cellProp[iCell].dbzAvg < cellDbzMin &&
+             cellProp[iCell].texAvg > cellStdDevMax &&
+             (cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
+            // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
+            // bird migration --see discussion of issue #37 on GitHub.
+            cellProp[iCell].drop = 1;
         }
     }
 

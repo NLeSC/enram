@@ -36,7 +36,6 @@ jfloat cellClutterFraction,
 jfloat vradMinValue,
 jfloat dbzClutterMin,
 jint cmFlagInt,
-jint dualPolFlagInt,
 jint verboseInt
 )
 {
@@ -58,7 +57,6 @@ jint verboseInt
     unsigned char texImageBody[nGlobal];
     unsigned char clutterImageBody[nGlobal];
     unsigned char cmFlag;
-    unsigned char dualPolFlag;
     unsigned char verbose;
 
 
@@ -141,14 +139,6 @@ jint verboseInt
         return -1;
     }
 
-    // cast to unsigned char
-    if (0<=dualPolFlagInt && dualPolFlagInt<=255) {
-        dualPolFlag = (unsigned char) dualPolFlagInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type.");
-        return -1;
-    }
 
     // cast to unsigned char
     if (0<=verboseInt && verboseInt<=255) {
@@ -165,7 +155,7 @@ jint verboseInt
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
                                vradMinValue, dbzClutterMin, cmFlag,
-                               dualPolFlag, verbose);
+                               verbose);
 
 
 
