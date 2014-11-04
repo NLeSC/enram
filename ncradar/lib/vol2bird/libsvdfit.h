@@ -37,8 +37,7 @@ int svd_vvp1func(float points[], int nDims, float afunc[], int nParsFitted);
 int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[]);
 int svdcmp(float *a, int m, int n, float w[], float *v);
 float svdfit(float *points, int nDims, float yObs[], float yFitted[], int nPoints,
-        int (*funcs)(float points[], int nDims, float afunc[], int nParsFitted),
-        float parameterVector[], float avar[], int nParsFitted);
+             float parameterVector[], float avar[], int nParsFitted);
 
 
 
