@@ -1224,9 +1224,9 @@ jint nParsFitted
     // do some Java Native interface tricks:
     (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
     (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, yFitted, yFittedBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, parameterVector, parameterVectorBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, avar, avarBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, yFitted, yFittedBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, parameterVector, parameterVectorBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, avar, avarBody, 0);
     // end of Java Native Interface tricks
 
 
