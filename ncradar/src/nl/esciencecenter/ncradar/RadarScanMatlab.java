@@ -19,7 +19,7 @@ public class RadarScanMatlab {
 
     public void calcVerticesAndFaces() {
 
-        this.radarScanJava.getPolarData().calcVerticesAndFaces();
+        this.radarScanJava.polarData.calcVerticesAndFaces();
     }
 
 

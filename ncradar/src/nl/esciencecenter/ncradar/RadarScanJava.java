@@ -10,7 +10,7 @@ import ucar.nc2.Variable;
 
 public class RadarScanJava extends NetcdfAttributeReader {
 
-    private final PolarData polarData;
+    public PolarData polarData;
     private final ScanMeta scanMeta;
     private final RadarMeta radarMeta;
 
