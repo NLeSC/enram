@@ -28,6 +28,9 @@ public class PolarData {
         this.dataOffset = dataOffset;
         this.dataRaw = dataRaw;
         this.dataScale = dataScale;
+        if (iAzimFirstRay > (numberOfAzimuthBins-1)) {
+            System.err.format("Zero-based index of first ray (%d) is larger than the number of rays (%d).",iAzimFirstRay,numberOfAzimuthBins);
+        }
         this.iAzimFirstRay = iAzimFirstRay;
         this.missingValueValue = missingValueValue;
         this.numberOfAzimuthBins = numberOfAzimuthBins;
@@ -123,6 +126,13 @@ public class PolarData {
                 dataRaw, dataOffset, dataScale,
                 rangeOffset, rangeScale,
                 missingValueValue, iAzimFirstRay);
+        
+        if (faces != null) {
+            polarData.faces = this.faces.clone();
+        }
+        if (vertices!= null) {
+            polarData.vertices = this.vertices.clone();
+        }
 
         return polarData;
 
