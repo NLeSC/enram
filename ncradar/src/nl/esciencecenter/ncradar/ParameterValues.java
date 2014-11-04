@@ -28,7 +28,6 @@ public class ParameterValues {
     private final double RANGMAXSTDEV;
     private final double RANGMIN;
     private final double RANGMINSTDEV;
-    private final double RHOMIN;
     private final double SIGMABIRD;
     private final double STDEVBIRD;
     private final double STDEVCELL;
@@ -36,7 +35,6 @@ public class ParameterValues {
     private final double VDIFMAX;
     private final double VMASKMAX;
     private final double VRADMIN;
-    private final double ZDRMIN;
 
 
 
@@ -62,8 +60,6 @@ public class ParameterValues {
         this.VDIFMAX = 10.0;
         this.VMASKMAX = 0.0;
         this.EMASKMAX = 5.0;
-        this.RHOMIN = 0.9;
-        this.ZDRMIN = 3.0;
         this.DBZMIN = -100.0;
         this.DBZMAX = 20.0;
         this.DBZNOISE = -40.0;
@@ -268,13 +264,6 @@ public class ParameterValues {
 
 
 
-    public double getRHOMIN() {
-
-        return RHOMIN;
-    }
-
-
-
     public double getSIGMABIRD() {
 
         return SIGMABIRD;
@@ -324,9 +313,5 @@ public class ParameterValues {
 
 
 
-    public double getZDRMIN() {
-
-        return ZDRMIN;
-    }
 
 }
