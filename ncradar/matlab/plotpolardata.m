@@ -1,17 +1,21 @@
-function varargout = plotppi(rs,varargin)
+function varargout = plotpolardata(polarData,varargin)
+
+polarDataClass = class(polarData);
+if ~strncmp(polarDataClass,'nl.esciencecenter.ncradar.PolarData',35)
+    disp('This function only takes ''nl.esciencecenter.ncradar.PolarData'' input arguments. Aborting.')
+    return
+end
 
 
-rs.calcVerticesAndFaces()
+polarData.calcVerticesAndFaces()
     
 
-faces = rs.getFaces();
-vertices = rs.getVertices();
-facesValues = rs.getFacesValues();
+faces = polarData.getFaces();
+vertices = polarData.getVertices();
+facesValues = polarData.getFacesValues();
 
 
 colorbarVerticalAlign = 'bottom';
-titlePrepend = '';
-titleAppend = '';
 colorbarTitle = '';
 showColorbar = true;
 colorbarRelativeHeight = 0.5;
@@ -24,13 +28,13 @@ nAzimLines = 8;
 nRangeLines = 5;
 showAzimLabels = true;
 showRangeLabels = true;
-showTitle = true;
+
 
 authorizedOptions ={'cLimLow','cLimHigh','colorbarVerticalAlign',...
-    'titleAppend','titlePrepend','colorbarTitle','showColorbar',...
+    'colorbarTitle','showColorbar',...
     'colorbarRelativeHeight','axisMarginFactor','showRangeLines',...
     'showAzimLines','nAzimLines','nRangeLines','showAzimLabels',...
-    'showAzimLabels','showRangeLabels','showTitle'};
+    'showAzimLabels','showRangeLabels'};
 
 parsePairs
 
@@ -46,7 +50,7 @@ frac = (facesValues-cLimLow)/(cLimHigh-cLimLow);
 
 faceColor = 1+floor(frac(:)*(nColormapColors-1));
 
-if strcmp(rs.getClass,'class nl.esciencecenter.ncradar.PolarData')
+if strcmp(polarData.getClass,'class nl.esciencecenter.ncradar.PolarData')
     % matlab uses 1-based indexing
     faces = faces + 1;
 end
@@ -64,13 +68,6 @@ set(hAxes,'YLim',get(hAxes,'YLim')*axisMarginFactor)
 set(hAxes,'color','none')
 axis off
 
-if showTitle
-    
-    if strcmp(rs.getClass,'class nl.esciencecenter.ncradar.RadarScanMatlab')
-        title([rs.getDatasetName(),' // ',rs.getScanType()])
-    end
-    
-end
 
 if showColorbar
     
