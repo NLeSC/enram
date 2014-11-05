@@ -40,7 +40,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
     public void calcTexture(int nRangNeighborhood, int nAzimNeighborhood, int nCountMin, float texOffset, float texScale, int vradMissing) {
 
         int[][] dbzImage2D = reflectivity.getScanDataRaw2D();
-        int[][] vradImage2D = reflectivity.getScanDataRaw2D();
+        int[][] vradImage2D = radialVelocity.getScanDataRaw2D();
 
         int[] texImage = new int[nAzim * nRang];
         int[] dbzImage = new int[nAzim * nRang];
@@ -73,13 +73,9 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
 
 
-    public int findCells() {
+    public int findCells(float dbzThresMin, float rCellMax, int sign) {
 
         int[] dbzImage = reflectivity.getScanDataRaw();
-
-        int[] rhoImage = null;
-        int[] zdrImage = null;
-
         int dbzMissing = reflectivity.getMissingValueValue();
         int dbznAzim = reflectivity.getNumberOfAzimuthBins();
         int dbznRang = reflectivity.getNumberOfRangeBins();
@@ -87,9 +83,6 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         float dbzValueOffset = (float) reflectivity.getDataOffset();
         float dbzValueScale = (float) reflectivity.getDataScale();
 
-        float dbzThresMin = 0f;
-        float rCellMax = 0f;
-        int sign = 0;
 
         int nCells;
 
