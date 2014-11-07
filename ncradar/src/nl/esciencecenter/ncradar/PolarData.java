@@ -61,6 +61,8 @@ public class PolarData {
 
                 iVertex = iRang * nAzim + iAzim;
                 double alpha = azimuthScaleRad * (iAzim - 0.5);
+                // TODO maybe I have to incorporate the rangeOffset 
+                // (resulting in a hole in the middle of the ppi)?
                 vertices[iVertex] = new double[] { Math.sin(alpha) * s,
                         Math.cos(alpha) * s };
 
