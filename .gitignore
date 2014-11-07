@@ -26,3 +26,6 @@ testdata/stations.txt
 private
 visualization-output
 *.m~
+.metadata/
+ncradar/.externalToolBuilders/
+
