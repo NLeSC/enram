@@ -24,7 +24,7 @@ public class JNIMethodsVol2Bird {
             float texValueScale, float texValueOffset,
             int nCells, int areaMin, float cellDbzMin, float cellStdDevMax,
             float cellClutterFraction, float vradMinValue, float dbzClutterMin,
-            int cmFlagInt, int dualPolFlagInt, int verboseInt);
+            int cmFlagInt, int verboseInt);
 
     protected final native float calcDist(int range1, int azimuth1,
             int range2, int azimuth2, float rangeScale, float azimuthScale);
