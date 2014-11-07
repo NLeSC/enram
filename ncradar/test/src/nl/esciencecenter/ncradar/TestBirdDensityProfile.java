@@ -97,7 +97,6 @@ public class TestBirdDensityProfile {
         float vradMinValue = (float) parameterValues.getVRADMIN();
         float dbzClutterMin = 0; // FIXME DBZCLUTTER?
         int cmFlag = 0; // FIXME
-        int dualPolFlag = 0; // FIXME
         int verbose = 0; // FIXME
 
         int nCellsValid = birdDensityProfileJava.analyzeCells(dbzImage, vradImage,
@@ -106,7 +105,7 @@ public class TestBirdDensityProfile {
                 vradScale, vradOffset, clutterScale, clutterOffset,
                 texScale, texOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
                 cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag,
-                dualPolFlag, verbose);
+                verbose);
 
         final float DEG2RAD = (float) (2 * Math.PI) / 360;
         float azimuthScale = (360.0f / nAzim) * DEG2RAD;
