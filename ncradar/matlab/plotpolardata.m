@@ -26,15 +26,18 @@ showRangeLines = true;
 showAzimLines = true;
 nAzimLines = 8;
 nRangeLines = 5;
+rangeResolution = 50000;
 showAzimLabels = true;
 showRangeLabels = true;
-
+azimLineStyle = {'color',0.5*[1,1,1]};
+rangeLineStyle = {'color',0.5*[1,1,1]};
 
 authorizedOptions ={'cLimLow','cLimHigh','colorbarVerticalAlign',...
     'colorbarTitle','showColorbar',...
     'colorbarRelativeHeight','axisMarginFactor','showRangeLines',...
-    'showAzimLines','nAzimLines','nRangeLines','showAzimLabels',...
-    'showAzimLabels','showRangeLabels'};
+    'showAzimLines','nAzimLines','showAzimLabels',...
+    'showAzimLabels','showRangeLabels','rangeResolution',...
+    'azimLineStyle','rangeLineStyle'};
 
 parsePairs
 
@@ -43,6 +46,7 @@ parsePairs
 
 radius = (max(vertices(:,1))-min(vertices(:,1)))/2;
 
+rangeLinesVec = 0:rangeResolution:radius;
 
 nColormapColors = size(colormap,1);
 
@@ -102,11 +106,15 @@ if showAzimLines
     
     for iAzimLines = 1:nAzimLines
         
-        xv = [(1/nRangeLines),1.0] * radius * sin((iAzimLines-1)/nAzimLines*2*pi);
-        yv = [(1/nRangeLines),1.0] * radius * cos((iAzimLines-1)/nAzimLines*2*pi);
+        xv = [(rangeResolution/radius),1.0] * radius * sin((iAzimLines-1)/nAzimLines*2*pi);
+        yv = [(rangeResolution/radius),1.0] * radius * cos((iAzimLines-1)/nAzimLines*2*pi);
         
-        plot(xv,yv,'-k')
         
+        if iscell(azimLineStyle)
+            plot(xv,yv,azimLineStyle{:})
+        else
+            plot(xv,yv,azimLineStyle)
+        end
     end
     
 end
@@ -131,13 +139,21 @@ end
 if showRangeLines
     
     radVec = linspace(0,2*pi,1000);
-    for iRangeLine = 1:nRangeLines
+    
+    for iRangeLine = 1:numel(rangeLinesVec);
         
         
-        xv = (iRangeLine/nRangeLines) * radius * sin(radVec);
-        yv = (iRangeLine/nRangeLines) * radius * cos(radVec);
+        %xv = (iRangeLine/nRangeLines) * radius * sin(radVec);
+        %yv = (iRangeLine/nRangeLines) * radius * cos(radVec);
         
-        plot(xv,yv,'-k')
+        xv = rangeLinesVec(iRangeLine) * sin(radVec);
+        yv = rangeLinesVec(iRangeLine) * cos(radVec);
+        
+        if iscell(rangeLineStyle)
+            plot(xv,yv,rangeLineStyle{:})
+        else
+            plot(xv,yv,rangeLineStyle)
+        end
         
     end
     
