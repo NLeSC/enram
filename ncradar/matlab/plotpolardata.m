@@ -25,12 +25,13 @@ axisMarginFactor = 1.1;
 showRangeLines = true;
 showAzimLines = true;
 nAzimLines = 8;
-nRangeLines = 5;
+%nRangeLines = 5;
 rangeResolution = 50000;
 showAzimLabels = true;
 showRangeLabels = true;
 azimLineStyle = {'color',0.5*[1,1,1]};
 rangeLineStyle = {'color',0.5*[1,1,1]};
+azimLabelAngle = (3/4) * 2 * pi;
 
 authorizedOptions ={'cLimLow','cLimHigh','colorbarVerticalAlign',...
     'colorbarTitle','showColorbar',...
@@ -121,7 +122,7 @@ end
 
 if showAzimLabels
     
-    azimLabelRadius = radius * (1.0 + (axisMarginFactor - 1.0)/2)
+    azimLabelRadius = radius * (1.0 + (axisMarginFactor - 1.0)/2);
     for iAzimLines = 1:nAzimLines
         
         x = azimLabelRadius*sin((iAzimLines-1)/nAzimLines*2*pi);
@@ -142,10 +143,6 @@ if showRangeLines
     
     for iRangeLine = 1:numel(rangeLinesVec);
         
-        
-        %xv = (iRangeLine/nRangeLines) * radius * sin(radVec);
-        %yv = (iRangeLine/nRangeLines) * radius * cos(radVec);
-        
         xv = rangeLinesVec(iRangeLine) * sin(radVec);
         yv = rangeLinesVec(iRangeLine) * cos(radVec);
         
@@ -162,19 +159,18 @@ end
 
 if showRangeLabels
     
-    for iRangeLine = 1:nRangeLines
+    for iRangeLine = 1:numel(rangeLinesVec)
         
+        x = rangeLinesVec(iRangeLine) * sin(azimLabelAngle);
+        y = rangeLinesVec(iRangeLine) * cos(azimLabelAngle);
         
-        x = (iRangeLine/nRangeLines) * radius * sin(pi);
-        y = (iRangeLine/nRangeLines) * radius * cos(pi);
-        
-        text(x,y,num2str(radius*(iRangeLine/nRangeLines)),...
+        text(x,y,num2str(rangeLinesVec(iRangeLine)),...
             'horizontalalign','center',...
             'verticalalign','middle','backgroundColor','k',...
             'Color','w')
         
     end
-    
+
 end
 
 
