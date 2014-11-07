@@ -42,7 +42,7 @@ end
 
 defaultParameterValues = ParameterValues();
 
-iScan = 11;
+iScan = 3;
 theDataDir = fullfile(pwd,'../../testdata/harmonized/odim/CZ_brd/20110815/');
 
 
@@ -52,11 +52,11 @@ rsVRAD = RadarScanJava(theDataDir,'T_PAHZ60_C_OKPR_20110815000447.hdf',iScan);
 
 bdp = BirdDensityProfileJava(rsDBZH,rsVRAD)
 
-nRangNeighborhood = 3
-nAzimNeighborhood = 3
-nCountMin = 0
+nRangNeighborhood = defaultParameterValues.getNTEXBINRANG();
+nAzimNeighborhood = defaultParameterValues.getNTEXBINAZIM();
+nCountMin = defaultParameterValues.getNTEXMIN();
 texOffset = 0
-texScale = 1
+texScale = defaultParameterValues.getSTDEVSCALE();
 vradMissing = 255;
 
 bdp.calcTexture(nRangNeighborhood, nAzimNeighborhood, nCountMin, texOffset, texScale, vradMissing)
@@ -65,8 +65,8 @@ bdp.calcTexture(nRangNeighborhood, nAzimNeighborhood, nCountMin, texOffset, texS
 numberOfAzimuthBins = rsDBZH.getNumberOfAzimuthBins();
 numberOfRangeBins = rsDBZH.getNumberOfRangeBins();
 dataRaw = bdp.getTexture();
-dataOffset = 0;
-dataScale = 1.0;
+dataOffset = rsDBZH.getDataOffset();
+dataScale = rsDBZH.getDataScale();
 rangeOffset = rsDBZH.getRangeOffset();
 rangeScale = rsDBZH.getRangeScale();
 missingValueValue = rsDBZH.getMissingValueValue();
@@ -119,8 +119,6 @@ set(gcf,'name',str3)
 
 
 
-
-
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 
@@ -139,7 +137,7 @@ dbzThresMin = defaultParameterValues.getDBZMIN;
 rCellMax = defaultParameterValues.getRANGMAX + 5; % 5 is magic number
 theSign = -1;
 
-bdp.findCells(dbzThresMin,rCellMax,theSign)
+nCells = bdp.findCells(dbzThresMin,rCellMax,theSign);
 
 polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCellImage,...
             dataOffset, dataScale,...
@@ -148,8 +146,12 @@ polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCe
 
         
 subplotScreen(2,3,1)
-imagesc(polarDataCellImage.getData2D)
-colorbar
+plotpolardata(polarDataCellImage)
+str4 = ['cellImage // ',char(rsDBZH.getDatasetName),' // ',char(rsDBZH.getStartDate),' // ',char(rsDBZH.getStartTime)]; 
+title(str4)
+xlabel('range [km]')
+ylabel('azimuth [degrees]')
+set(gcf,'name',str4)
 
 
 
