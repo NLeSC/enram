@@ -29,7 +29,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float vradMinValue, const float dbzClutterMin, const unsigned char clutterFlag,
+        const float vradMinValue, const float clutterValueMax, const unsigned char clutterFlag,
         const unsigned char verbose) {
 
     //  *********************************************************************************
@@ -126,7 +126,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
             //pixels in clutter map not included in calculation cell properties
             if (clutterFlag == 1){
-                if (clutterValue > dbzClutterMin){
+                if (clutterValue > clutterValueMax){
                     cellProp[iCell].clutterArea += 1;
                     continue;
                 }

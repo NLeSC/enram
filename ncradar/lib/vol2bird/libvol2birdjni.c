@@ -34,7 +34,7 @@ jfloat cellDbzMin,
 jfloat cellStdDevMax,
 jfloat cellClutterFraction,
 jfloat vradMinValue,
-jfloat dbzClutterMin,
+jfloat clutterValueMax,
 jint cmFlagInt,
 jint verboseInt
 )
@@ -154,7 +154,7 @@ jint verboseInt
                                &clutterImageBody[0], &cellImageIntBody[0],
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
-                               vradMinValue, dbzClutterMin, cmFlag,
+                               vradMinValue, clutterValueMax, cmFlag,
                                verbose);
 
 

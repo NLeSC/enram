@@ -87,7 +87,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float vradMinValue, const float dbzClutterMin, const unsigned char cmFlag,
+        const float vradMinValue, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
