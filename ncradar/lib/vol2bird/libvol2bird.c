@@ -114,6 +114,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
             //low radial velocities are treated as clutter, not included in calculation cell properties
             if (fabs(vradValue) < vradMinValue){
+                // FIXME why fabs()?
                 cellProp[iCell].clutterArea += 1;
 
                 #ifdef FPRINTFON
