@@ -80,7 +80,7 @@ public class TestBirdDensityProfile {
 
         int nCells = birdDensityProfileJava.findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzOffset, dbzScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         int[] vradImage = birdDensityProfileJava.getRadialVelocityRaw();
         int[] texImage = birdDensityProfileJava.getTexture();
