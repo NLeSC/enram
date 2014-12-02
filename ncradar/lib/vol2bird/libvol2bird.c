@@ -709,10 +709,11 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
 
     // see issue #54
 
+    // I am not using sign variable anymore
 
     //  *****************************************************************************
-    //  This function detects the cells in 'texImage' using an integer
-    //  threshold value of 'texThres' and a non-recursive algorithm which
+    //  This function detects the cells in 'dbzImage' using a
+    //  threshold value of 'dbzThresMin' and a non-recursive algorithm which
     //  looks for neighboring pixels above threshold. On return the marked cells are
     //  contained by 'cellImage'. The number of detected cells/highest index value is
     //  returned.
@@ -746,6 +747,12 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
 
     int nAzimNeighborhood;
     int nRangNeighborhood;
+    int nHalfNeighborhood;
+
+    int cellIdentifierGlobal;
+    int cellIdentifierGlobalOther;
+    int iGlobalInner;
+
 
     #ifdef FPRINTFON
     int dbg = 0;
@@ -765,6 +772,8 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
     nAzimNeighborhood = 3;
     nRangNeighborhood = 3;
     nNeighborhood = nAzimNeighborhood * nRangNeighborhood;
+    nHalfNeighborhood = (nNeighborhood - 1)/2;
+
 
     if (dbzImage != NULL) {
         dbzThres = ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
@@ -817,7 +826,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
                 continue;
             }
 
-            if (sign * dbzImage[iGlobal] > sign * dbzThres) {
+            if (dbzImage[iGlobal] < dbzThres) {
 
                 // see issue #51
 
@@ -839,7 +848,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
                     // iLocal below zero are error codes
                     continue;
                 }
-                if (sign * dbzImage[iLocal] <= sign * dbzThres) {
+                if (dbzImage[iLocal] > dbzThres) {
                     // FIXME sign 2x ? see issue #51
                     count++;
                 }
@@ -858,7 +867,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
             /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
             /*connections.*/
 
-            for (iNeighborhood = 0; iNeighborhood < 4; iNeighborhood++) {
+            for (iNeighborhood = 0; iNeighborhood < nHalfNeighborhood; iNeighborhood++) {
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
 
@@ -904,8 +913,43 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
         } // (iRang=0; iRang<nRang; iRang++)
     } // for (iAzim=0; iAzim<nAzim; iAzim++)
 
-    /*Returning number of detected cells (including fringe/clutter) .*/
 
+    // check whether a cell crosses the border of the array (remember that iAzim=0 is
+    // adjacent to iAzim=nAzim-1):
+    iAzim = 0;
+
+    for (iRang = 0; iRang < nRang; iRang++) {
+
+        iGlobal = iRang + iAzim * nRang;
+        // index 1 in a 3x3 child array refers to the cell that is a direct neighbor of
+        // iGlobal, but on the other side of the array (because the polar plot is wrapped
+        // in the azimuth dimension):
+        iGlobalOther = findNearbyGateIndex(nAzim,nRang,iGlobal,3,3,1);
+
+        #ifdef FPRINTFON
+        fprintf(stderr,"iGlobal = %d, iGlobalOther = %d\n",iGlobal,iGlobalOther);
+        #endif
+
+        cellIdentifierGlobal = cellImage[iGlobal];
+        cellIdentifierGlobalOther = cellImage[iGlobalOther];
+        if (cellIdentifierGlobal != cellImageInitialValue && cellIdentifierGlobalOther != cellImageInitialValue ) {
+            // adjacent gates, both part of a cell -> assign them the same identifier, i.e. assign
+            // all elements of cellImage that are equal to cellImage[iGlobalOther] the value of
+            // cellImage[iGlobal]
+
+            for (iGlobalInner = 0; iGlobalInner < nGlobal; iGlobalInner++) {
+                if (cellImage[iGlobalInner] == cellIdentifierGlobalOther) {
+                    cellImage[iGlobalInner] = cellIdentifierGlobal;
+                }
+            }
+        }
+
+
+    }
+
+
+
+    /*Returning number of detected cells (including fringe/clutter) .*/
     nCells = iCellIdentifier;
 
     return nCells;
