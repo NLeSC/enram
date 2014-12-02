@@ -125,11 +125,9 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
             //pixels in clutter map not included in calculation cell properties
             if (clutterFlag == 1){
-                if (iAzim < nAzim && iRang < nRang){
-                    if (clutterValue > dbzClutterMin){
-                        cellProp[iCell].clutterArea += 1;
-                        continue;
-                    }
+                if (clutterValue > dbzClutterMin){
+                    cellProp[iCell].clutterArea += 1;
+                    continue;
                 }
             }
 
