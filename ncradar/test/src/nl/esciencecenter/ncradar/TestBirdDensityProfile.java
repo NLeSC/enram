@@ -95,7 +95,7 @@ public class TestBirdDensityProfile {
         float cellStdDevMax = 0; // FIXME STDEVCELL?
         float cellClutterFraction = 0; // FIXME CLUTPERCCELL * 100 ?
         float vradMinValue = (float) parameterValues.getVRADMIN();
-        float dbzClutterMin = 0; // FIXME DBZCLUTTER?
+        float clutterValueMax = 0; // FIXME DBZCLUTTER?
         int cmFlag = 0; // FIXME
         int verbose = 0; // FIXME
 
@@ -104,7 +104,7 @@ public class TestBirdDensityProfile {
                 dbznRang, dbznAzim, dbzElev, dbzScale, dbzOffset,
                 vradScale, vradOffset, clutterScale, clutterOffset,
                 texScale, texOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
-                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag,
+                cellClutterFraction, vradMinValue, clutterValueMax, cmFlag,
                 verbose);
 
         final float DEG2RAD = (float) (2 * Math.PI) / 360;
