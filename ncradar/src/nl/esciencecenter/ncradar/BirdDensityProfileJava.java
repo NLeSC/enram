@@ -73,7 +73,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
 
 
-    public int findCells(float dbzThresMin, float rCellMax, int sign) {
+    public int findCells(float dbzThresMin, float rCellMax) {
 
         int[] dbzImage = reflectivity.getScanDataRaw();
         int dbzMissing = reflectivity.getMissingValueValue();
@@ -88,7 +88,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
         nCells = findCells(dbzImage, cellImage, 
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzRangeScale, dbzValueScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         return nCells;
 

@@ -102,12 +102,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float dbzRangeScale = 10.0f;
         float dbzThresMin = 130.0f;
         int rCellMax = (int) (nRang * dbzRangeScale);
-        int sign = -1;
         int nCellsActual;
 
         nCellsActual = findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         // first test the number of detected cells:
         int nCellsExpected = 3;
@@ -160,12 +159,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float dbzRangeScale = 10.0f;
         float dbzThresMin = 130.0f;
         int rCellMax = (int) (nRang * dbzRangeScale);
-        int sign = -1;
         int nCellsActual;
 
         nCellsActual = findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -212,12 +210,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float dbzRangeScale = 10.0f;
         float dbzThresMin = 130.0f;
         int rCellMax = (int) (nRang * dbzRangeScale);
-        int sign = -1;
         int nCellsActual;
 
         nCellsActual = findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -264,12 +261,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float dbzRangeScale = 10.0f;
         float dbzThresMin = 130.0f;
         int rCellMax = (int) (nRang * dbzRangeScale);
-        int sign = -1;
         int nCellsActual;
 
         nCellsActual = findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         // first test the number of detected cells:
         int nCellsExpected = 1;
@@ -314,12 +310,11 @@ public class TestJNIFindCells extends JNIMethodsVol2Bird {
         float dbzRangeScale = 1.0f;
         float dbzThresMin = 32.0f;
         int rCellMax = (int) (nRang * dbzRangeScale);
-        int sign = -1;
         int nCellsActual;
 
         nCellsActual = findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzValueScale, dbzRangeScale, dbzThresMin,
-                rCellMax, sign);
+                rCellMax);
 
         // first test the number of detected cells:
         // (one cell is cut in two due to too thin a connection between the two

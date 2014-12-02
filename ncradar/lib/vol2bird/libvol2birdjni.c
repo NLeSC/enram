@@ -707,8 +707,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
         const jfloat dbzValueScale,
         const jfloat dbzRangeScale,
         const jfloat dbzThresMin,
-        const jfloat rCellMax,
-        const jint signInt)
+        const jfloat rCellMax)
 {
 
     int nAzim = dbznAzim;
@@ -743,12 +742,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
     // end of Java Native Interface tricks
 
 
-    unsigned char sign;
-
-
-
     // Allocating and initializing memory for cell properties.
-
     SCANMETA dbzMeta;
 
     dbzMeta.missing = dbzMissing;
@@ -760,19 +754,10 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_findCells(
 
     int nCells;
 
-    if (-128<=signInt && signInt<=127) {
-        sign = (char) signInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type.\n");
-        return -1;
-    }
-
     nCells = findCells(&dbzImageBody[0], &cellImageIntBody[0],
                        &dbzMeta,
                        dbzThresMin,
-                       rCellMax, sign);
-
+                       rCellMax);
 
 
     for (iAzim = 0; iAzim < nAzim; iAzim++){

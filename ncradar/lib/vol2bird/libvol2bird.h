@@ -119,8 +119,7 @@ int findCells(const unsigned char *dbzImage,
               int *cellImage,
               const SCANMETA *dbzMeta,
               const float dbzThresMin,
-              const float rCellMax,
-              const char sign);
+              const float rCellMax);
 
 int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                         const int nAzimChild,  const int nRangChild,  const int iChild);

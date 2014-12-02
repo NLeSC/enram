@@ -702,21 +702,13 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 int findCells(const unsigned char *dbzImage, int *cellImage,
         const SCANMETA *dbzMeta,
         const float dbzThresMin,
-        const float rCellMax, const char sign) {
-
-    // I deleted an input variable, texThresMin, because after renaming it to dbzThresMin, it turns out
-    // there already was a dbzThresMin
-
-    // see issue #54
-
-    // I am not using sign variable anymore
+        const float rCellMax) {
 
     //  *****************************************************************************
-    //  This function detects the cells in 'dbzImage' using a
-    //  threshold value of 'dbzThresMin' and a non-recursive algorithm which
-    //  looks for neighboring pixels above threshold. On return the marked cells are
-    //  contained by 'cellImage'. The number of detected cells/highest index value is
-    //  returned.
+    //  This function detects the cells in 'dbzImage' using a threshold value of
+    //  'dbzThresMin' and a non-recursive algorithm which looks for neighboring
+    //  pixels above threshold. On return the marked cells are contained by
+    //  'cellImage'. The number of detected cells/highest index value is returned.
     //  *****************************************************************************
 
 
@@ -827,14 +819,6 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
             }
 
             if (dbzImage[iGlobal] < dbzThres) {
-
-                // see issue #51
-
-                #ifdef FPRINTFON
-                fprintf(stderr,"sign * dbzImage[%d] > sign * dbzThres\n",iGlobal);
-                fprintf(stderr,"sign = %d; dbzImage[%d] = %d; dbzThres = %d\n",sign,iGlobal,dbzImage[iGlobal],dbzThres);
-                #endif
-
                 continue;
             }
 
@@ -849,7 +833,6 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
                     continue;
                 }
                 if (dbzImage[iLocal] > dbzThres) {
-                    // FIXME sign 2x ? see issue #51
                     count++;
                 }
 
