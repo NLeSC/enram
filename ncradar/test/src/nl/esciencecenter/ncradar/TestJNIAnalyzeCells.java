@@ -101,6 +101,8 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         int[] texImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-tex.txt");
         int[] clutterImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern0.txt");
         int[] cellImage = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-cell.txt");
+        int[] cellImageExpected = readDataFromFile(startDir + "/data/case1/testdata-12x11-pattern-cell-analyzed.txt");
+        
         int dbznRang = nRang;
         int dbznAzim = nAzim;
         float dbzElev = 23.4f;
@@ -120,94 +122,32 @@ public class TestJNIAnalyzeCells extends JNIMethodsVol2Bird {
         float vradMinValue = 0;
         float dbzClutterMin = 0;
         int cmFlag = 0;
-        int dualPolFlag = 0;
-        int verbose = 0;
-
-        int nCellsValidExpected = 433; // FIXME not sure what the right anwer
-                                       // is;
-
-        int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
-                dbznRang, dbznAzim, dbzElev, dbzValueScale, dbzValueOffset,
-                vradValueScale, vradValueOffset, clutterValueScale, clutterValueOffset,
-                texValueScale, texValueOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
-                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag, dualPolFlag, verbose);
-
-        int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
-
-        int[][] expected = {};
-
-        print(cellImage, nAzim, nRang);
-
-        // TODO complete the unit test with verification of cellImage
-
-        // assertEquals(nCellsValid, nCellsValidExpected);
-
-    }
-
-
-
-    @Test
-    public void testNativeAnalyzeCells2() throws Exception {
-
-        // test for when the input arrays are all zeros
-
-        int nAzim = 12;
-        int nRang = 11;
-
-        String startDir = System.getProperty("user.dir");
-        System.err.println(startDir);
-
-        int[] zeros = new int[nAzim * nRang];
-        int[] dbzImage = zeros.clone();
-        int[] vradImage = zeros.clone();
-        int[] texImage = zeros.clone();
-        int[] clutterImage = zeros.clone();
-        int[] cellImage = zeros.clone();
-
-        int dbznRang = nRang;
-        int dbznAzim = nAzim;
-        float dbzElev = 23.4f;
-        float dbzValueScale = 1.0f;
-        float dbzValueOffset = 0.0f;
-        float vradValueScale = 1.0f;
-        float vradValueOffset = 0.0f;
-        float clutterValueScale = 1.0f;
-        float clutterValueOffset = 0.0f;
-        float texValueScale = 1.0f;
-        float texValueOffset = 0.0f;
-        int nCells = 0;
-        int areaMin = 0;
-        float cellDbzMin = 0;
-        float cellStdDevMax = 0;
-        float cellClutterFraction = 0;
-        float vradMinValue = 0;
-        float dbzClutterMin = 0;
-        int cmFlag = 0;
-        int dualPolFlag = 0;
         int verbose = 0;
 
         int nCellsValid = analyzeCells(dbzImage, vradImage, texImage, clutterImage, cellImage,
                 dbznRang, dbznAzim, dbzElev, dbzValueScale, dbzValueOffset,
                 vradValueScale, vradValueOffset, clutterValueScale, clutterValueOffset,
                 texValueScale, texValueOffset, nCells, areaMin, cellDbzMin, cellStdDevMax,
-                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag, dualPolFlag, verbose);
+                cellClutterFraction, vradMinValue, dbzClutterMin, cmFlag, verbose);
 
-        int[][] actual = reshapeTo2D(cellImage, nAzim, nRang);
-
-        int expected = -1;
+        int nCellsValidExpected = 4;
+        
+        assertEquals(nCellsValid, nCellsValidExpected);
+        
+        int iGlobal = 0;
         for (int iAzim = 0; iAzim < nAzim; iAzim++) {
             for (int iRang = 0; iRang < nRang; iRang++) {
 
-                assertEquals(actual[iAzim][iRang], expected);
+                assertEquals(cellImage[iGlobal], cellImageExpected[iGlobal]);
 
+                iGlobal++;
+                
             }
         }
 
         print(cellImage, nAzim, nRang);
 
-        // test whether the number of identified cells equals zero.
-        assertEquals(nCellsValid, 0);
-
     }
+
 
 }
