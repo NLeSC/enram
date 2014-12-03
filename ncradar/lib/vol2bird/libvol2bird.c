@@ -21,7 +21,7 @@
 #include "libvol2bird.h"
 
 
-// #define FPRINTFON (1)
+#define FPRINTFON (1)
 
 
 
@@ -146,8 +146,8 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             }
             cellProp[iCell].dbzAvg += dbzValue;
             cellProp[iCell].texAvg += texValue;
-        }
-    }
+        } // for (iRang = 0; iRang < nRang; iRang++)
+    } // for (iAzim = 0; iAzim < nAzim; iAzim++)
 
 
     for (iCell = 0; iCell < nCells; iCell++) {
@@ -178,7 +178,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     fprintf(stderr,"before the call to updateMap().\n");
     #endif
 
-   // nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
+    nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
 
     #ifdef FPRINTFON
     fprintf(stderr,"after the call to updateMap().\n");
@@ -1137,9 +1137,6 @@ void sortCells(CELLPROP *cellProp, int nCells) {
     //  Assume an area equal to zero for cells that are marked 'dropped'
     //  *****************************************************************************
 
-
-    // see issue #53
-
     int iCell;
     int iCellOther;
     CELLPROP tmp;
@@ -1191,11 +1188,6 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
         if (cellImage[iGlobal] == -1) {
             continue;
         }
-        // FIXME this may be a bug: the line below reads an identifier number
-        // from cellImage, which is then used as an index into cellProp[].
-        // I imagine the cellProp array starts at index 0, which should contain
-        // the properties of the cell which is identifiable in cellImage by
-        // its value...2!  (0 and 1 are reserved for other stuff it seems)
 
         cellImageValue = cellImage[iGlobal];
 
@@ -1214,14 +1206,38 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
         }
     }
 
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"before the call to sortCells().\n");
+    #endif
+
     /*Sort the cells by area and determine number of valid cells*/
     sortCells(cellProp, nCells);
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"after the call to sortCells().\n");
+    #endif
+
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"nCellsValid = %d.\n",nCellsValid);
+    if (nCellsValid > 0) {
+        fprintf(stderr,"cellProp[nCellsValid - 1].area = %f.\n",cellProp[nCellsValid - 1].area);
+        fprintf(stderr,"cellProp[nCellsValid - 1].drop = %d.\n",cellProp[nCellsValid - 1].drop);
+        fprintf(stderr,"minCellArea = %d.\n",minCellArea);
+    }
+    #endif
+
 
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
 
         // FIXME possible error: the condition above does not
         // take into account the value of cellProp[].drop
         nCellsValid--;
+
+        #ifdef FPRINTFON
+        fprintf(stderr,"nCellsValid = %d.\n",nCellsValid);
+        #endif
     }
 
     // make a copy of the cellImage map
@@ -1243,17 +1259,6 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
                 cellImage[iGlobal] = iCellNew;
             }
         }
-    }
-
-    for (iCell = 0; iCell < nCells; iCell++) {
-
-        if (iCell < nCellsValid) {
-            iCellNew = iCell + 1;
-        }
-        else {
-            iCellNew = -1;
-        }
-
         // re-index the cellproperties object
         cellProp[iCell].index = iCellNew;
     }
