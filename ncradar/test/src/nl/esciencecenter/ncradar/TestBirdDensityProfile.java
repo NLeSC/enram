@@ -19,7 +19,7 @@ public class TestBirdDensityProfile {
     @Before
     public void setUp() throws Exception {
 
-        iScan = 3;
+        iScan = 0;
 
         String userName = System.getProperty("user.name");
         String theDir;
@@ -72,11 +72,16 @@ public class TestBirdDensityProfile {
         float dbzScale = (float) this.reflectivity.getDataScale();
         // FIXME dbzRangeScale seems to be stored as a number in [m], Adriaan
         // assumes [km]?
-        float dbzRangeScale = (float) this.reflectivity.getRangeScale() / 1000;
-        float dbzThresMin = (float) this.parameterValues.getDBZRAIN() * dbzScale + dbzOffset;
+        float dbzRangeScale = (float) this.reflectivity.getRangeScale();
+        
+        
+        // FIXME I first had this: float dbzThresMin = (float) this.parameterValues.getDBZRAIN() * dbzScale + dbzOffset;
+        // FIXME but then I changed it to 
+        float dbzThresMin = (float) this.parameterValues.getDBZMIN();
+        
+        
         // FIXME plus 5? magic number
         int rCellMax = (int) (this.parameterValues.getRANGMAX() + 5);
-        int sign = -1;
 
         int nCells = birdDensityProfileJava.findCells(dbzImage, cellImage,
                 dbzMissing, dbznAzim, dbznRang, dbzOffset, dbzScale, dbzRangeScale, dbzThresMin,
@@ -110,7 +115,7 @@ public class TestBirdDensityProfile {
         final float DEG2RAD = (float) (2 * Math.PI) / 360;
         float azimuthScale = (360.0f / nAzim) * DEG2RAD;
         // FIXME again, what are the units?
-        float rangeScale = (float) this.radialVelocity.getRangeScale() / 1000;
+        float rangeScale = (float) this.radialVelocity.getRangeScale();
         float fringeDist = (float) this.parameterValues.getEMASKMAX();
 
         birdDensityProfileJava.fringeCells(cellImage, nRang, nAzim, azimuthScale,
