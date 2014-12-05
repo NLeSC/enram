@@ -42,6 +42,8 @@
                              /*with dBZ>DBZRAIN [1-8]                         */
 #define NDATA       (3)      /*Data dimension height layers.                  */
 #define PI          (3.14159265358979323846)
+#define TRUE        (1)
+#define FALSE       (0)
 
 
 ///******************************************************************************/
@@ -66,11 +68,11 @@ struct cellprop {
     float dbzAvg;
     float texAvg;
     float cv;
-    float area;
-    float clutterArea;
+    int area;
+    int clutterArea;
     float dbzMax;
     int index;
-    char drop;
+    int drop;
 };
 
 typedef struct scanmeta SCANMETA;
