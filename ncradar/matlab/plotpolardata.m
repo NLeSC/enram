@@ -70,6 +70,7 @@ hAxes = gca;
 
 set(hAxes,'XLim',get(hAxes,'XLim')*axisMarginFactor)
 set(hAxes,'YLim',get(hAxes,'YLim')*axisMarginFactor)
+set(hAxes,'cLim',[cLimLow,cLimHigh])
 set(hAxes,'color','none')
 axis off
 
@@ -97,9 +98,9 @@ if showColorbar
     set(hAxes,'Position',posAxes)
     
     setColorbarTitle(hColorbar,colorbarTitle);
-    
-    yticklabels = (((get(hColorbar,'YTick')-1)/nColormapColors) * (cLimHigh-cLimLow)) + cLimLow;
-    set(hColorbar,'YTickLabel',yticklabels)
+
+    yticks = linspace(cLimLow,cLimHigh,5);
+    set(hColorbar,'YTick',yticks)
     
 end
 

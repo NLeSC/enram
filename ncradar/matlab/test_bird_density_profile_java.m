@@ -38,11 +38,16 @@ if ~libraryHasBeenImported
     import nl.esciencecenter.ncradar.*
     
 end
+clear iImport
+clear nImports
+clear theImports
+clear libraryHasBeenImported
+
 
 
 defaultParameterValues = ParameterValues();
 
-iScan = 3;
+iScan = 0;
 theDataDir = fullfile(pwd,'../../testdata/harmonized/odim/CZ_brd/20110815/');
 
 
@@ -52,14 +57,7 @@ rsVRAD = RadarScanJava(theDataDir,'T_PAHZ60_C_OKPR_20110815000447.hdf',iScan);
 
 bdp = BirdDensityProfileJava(rsDBZH,rsVRAD)
 
-nRangNeighborhood = defaultParameterValues.getNTEXBINRANG();
-nAzimNeighborhood = defaultParameterValues.getNTEXBINAZIM();
-nCountMin = defaultParameterValues.getNTEXMIN();
-texOffset = 0
-texScale = defaultParameterValues.getSTDEVSCALE();
-vradMissing = 255;
-
-bdp.calcTexture(nRangNeighborhood, nAzimNeighborhood, nCountMin, texOffset, texScale, vradMissing)
+bdp.calcTexture();
 
 
 numberOfAzimuthBins = rsDBZH.getNumberOfAzimuthBins();
@@ -122,39 +120,49 @@ set(gcf,'name',str3)
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 
-polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCellImage,...
-            dataOffset, dataScale,...
-            rangeOffset, rangeScale,...
-            missingValueValue, iAzimFirstRay);
-
-        
-subplotScreen(2,3,1)
-imagesc(polarDataCellImage.getData2D)
-colorbar
-
-
-dbzThresMin = defaultParameterValues.getDBZMIN;
-rCellMax = defaultParameterValues.getRANGMAX + 5; % 5 is magic number
-theSign = -1;
-
-nCells = bdp.findCells(dbzThresMin,rCellMax,theSign);
+nCells = bdp.findCells();
 
 polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCellImage,...
             dataOffset, dataScale,...
             rangeOffset, rangeScale,...
             missingValueValue, iAzimFirstRay);
 
-        
-subplotScreen(2,3,1)
-plotpolardata(polarDataCellImage)
-str4 = ['cellImage // ',char(rsDBZH.getDatasetName),' // ',char(rsDBZH.getStartDate),' // ',char(rsDBZH.getStartTime)]; 
+subplotScreen(1,2,1)
+plotpolardata(polarDataCellImage,'rangeResolution',5000)
+str4 = ['cellImage after findCells() // ',char(rsDBZH.getDatasetName),' // ',char(rsDBZH.getStartDate),' // ',char(rsDBZH.getStartTime)]; 
 title(str4)
-xlabel('range [km]')
-ylabel('azimuth [degrees]')
 set(gcf,'name',str4)
+set(gca, 'xlim',[-1,1]*3e4,'ylim',[-1,1]*3e4)
+colormap(rand(nCells+1,3))
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+
+
+cmFlag = 0;
+verbose = 1;
+nCellsValid = bdp.analyzeCells(nCells, cmFlag, verbose);
+
+
+polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCellImage,...
+            0, 1,...
+            rangeOffset, rangeScale,...
+            missingValueValue, iAzimFirstRay);
+
+
+subplotScreen(1,2,2)
+plotpolardata(polarDataCellImage,'rangeResolution',5000)
+str4 = ['cellImage after analyzeCells() // ',char(rsDBZH.getDatasetName),' // ',char(rsDBZH.getStartDate),' // ',char(rsDBZH.getStartTime)]; 
+title(str4)
+set(gcf,'name',str4)
+set(gca, 'xlim',[-1,1]*3e4,'ylim',[-1,1]*3e4)
+
+
+
+
 
 
 
 
         
-
+        
