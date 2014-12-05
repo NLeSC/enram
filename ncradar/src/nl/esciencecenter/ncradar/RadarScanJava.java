@@ -150,8 +150,14 @@ public class RadarScanJava extends NetcdfAttributeReader {
         return scanMeta.getFilename();
     }
 
+    
 
+    public double getAzimuthScaleDeg() {
 
+        return polarData.getAzimuthScaleDeg();
+    }
+
+    
     public int getiAzimFirstRay() {
 
         return polarData.getiAzimFirstRay();
