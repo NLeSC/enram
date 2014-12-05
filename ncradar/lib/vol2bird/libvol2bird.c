@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define FPRINTFON (1)
+//#define FPRINTFON (1)
 #include "libvol2bird.h"
 
 
@@ -182,18 +182,18 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
     //Printing of cell properties to stdout.
     if (verbose==1){
-        fprintf(stdout,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
-        fprintf(stdout,"#Minimum cell area in pixels   : %i\n",areaMin);
-        fprintf(stdout,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
-        fprintf(stdout,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
-        fprintf(stdout,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
-        fprintf(stdout,"cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
+        fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
+        fprintf(stderr,"#Minimum cell area in pixels   : %i\n",areaMin);
+        fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
+        fprintf(stderr,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
+        fprintf(stderr,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
+        fprintf(stderr,"cellProp: .index .area .clutterArea .dbzAvg .texAvg   .cv .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
         for (iCell = 0; iCell < nCells; iCell++) {
             if (cellProp[iCell].area==0) {
                 continue;
             }
-            fprintf(stdout,"cellinfo: %3d %8.1f %8.1f %6.2f %6.2f %6.2f %6.2f %6d %6d %6d\n",
-                    iCell+2,
+            fprintf(stderr,"cellProp: %6d %5d %12d %7.2f %7.2f %3.2f %7.2f %11d %11d %5d\n",
+                    cellProp[iCell].index,
                     cellProp[iCell].area,
                     cellProp[iCell].clutterArea,
                     cellProp[iCell].dbzAvg,
@@ -1026,7 +1026,7 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
     int iLocal;
     int rBlock;
     int aBlock;
-    int edge;  // FIXME isEdge would be better, also define TRUE and FALSE in preprocessor
+    int isEdge;
     int iGlobal;
     float theDist;
     int nAzimChild;
@@ -1043,37 +1043,28 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
             iGlobal = iRang + iAzim * nRang;
 
             if (cellImage[iGlobal] <= 1) {
-
-                #ifdef FPRINTFON
-                fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: skip\n", iGlobal, cellImage[iGlobal]);
-                #endif
-
-                continue; //already fringe or not in cellImage
+                continue; // // with the next iGlobal; already fringe or not in cellImage
             }
 
-            #ifdef FPRINTFON
-            fprintf(stderr, "iGlobal = %d; cellImage[iGlobal] = %d: pass\n", iGlobal, cellImage[iGlobal]);
-            #endif
-
-            //determine whether current pixel is a pixel on the edge of a cell
-            edge = 0;
-            for (iNeighborhood = 0; iNeighborhood < 9 && !edge; iNeighborhood++) {
+            // determine whether current pixel is a pixel on the edge of a cell
+            isEdge = FALSE;
+            for (iNeighborhood = 0; iNeighborhood < 9 && isEdge == FALSE; iNeighborhood++) {
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,3,3,iNeighborhood);
 
                 if (iLocal < 0) {
                     // iLocal less than zero are error codes
-                    continue;
+                    continue; // with the next iGlobal
                 }
 
-                if (cellImage[iLocal] < 1) {
-                    edge = 1; //FIXME THIS SHOULD BE <=1, BUT THEN TAKES MUCH MUCH LONGER
+                if (cellImage[iLocal] < 1) { //FIXME THIS SHOULD BE <=1, BUT THEN TAKES MUCH MUCH LONGER
+                    isEdge = TRUE;
                 }
 
             } //NOW ONLY CELL PIXELS WITHOUT ANY BORDERING FRINGE ARE 'FRINGED'
 
-            if (!edge) {  // FIXME  edge == 0 ?
-                continue;
+            if (isEdge == FALSE) {
+                continue; // with the next iGlobal
             }
 
             actualRange = (iRang+0.5) * rScale;
@@ -1108,14 +1099,17 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
                 //if not within range or already in cellImage or already a fringe, do nothing
                 theDist = calcDist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale);
                 if (theDist > fringeDist || cellImage[iLocal] >= 1) {
-                    continue;
+                    continue; // with the next iGlobal
                 }
                 //include pixel (iRangLocal,iAzimLocal) in fringe
-                cellImage[iLocal] = 1; //assign index 1 to fringes
-            }
-        }
-    } //for
+                cellImage[iLocal] = 1;
+            } // (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++)
+        } // (iRang = 0; iRang < nRang; iRang++)
+    } // (iAzim = 0; iAzim < nAzim; iAzim++)
+
+
     return;
+
 } // fringeCells
 
 
@@ -1231,7 +1225,7 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
     for (iCell = 0; iCell < nCells; iCell++) {
 
         if (iCell < nCellsValid) {
-            iCellNew = -1 * (iCell + 1 + 100);
+            iCellNew = -1 * (iCell + 2 + 100);
         }
         else {
             iCellNew = -1;
@@ -1239,7 +1233,7 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
         #ifdef FPRINTFON
         fprintf(stderr,"before: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
-        fprintf(stderr,"before: cellProp[%d].area = %f.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"before: cellProp[%d].area = %d.\n",iCell,cellProp[iCell].area);
         fprintf(stderr,"before: iCell = %d.\n",iCell);
         fprintf(stderr,"before: iCellNew = %d.\n",iCellNew);
         fprintf(stderr,"\n");
@@ -1285,7 +1279,7 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
         #ifdef FPRINTFON
         fprintf(stderr,"after: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
-        fprintf(stderr,"after: cellProp[%d].area = %f.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"after: cellProp[%d].area = %d.\n",iCell,cellProp[iCell].area);
         fprintf(stderr,"\n");
         #endif
     }
