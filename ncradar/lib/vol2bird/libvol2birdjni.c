@@ -7,6 +7,9 @@
 #include "libsvdfit.h"
 
 
+#ifndef FPRINTFON
+#define FPRINTFON (1)
+#endif
 
 JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyzeCells(
@@ -40,17 +43,16 @@ jint verboseInt
 )
 {
 
-
-
-
     // do some Java Native interface tricks:
     jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
     jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
     jint *texImageIntBody = (*env)->GetIntArrayElements(env, texImageInt, NULL);
     jint *clutterImageIntBody = (*env)->GetIntArrayElements(env, clutterImageInt, NULL);
     jint *cellImageIntBody = (*env)->GetIntArrayElements(env, cellImageInt, NULL);
-    jsize nGlobal = (*env)->GetArrayLength(env, texImageInt);
+    jsize nGlobal = (*env)->GetArrayLength(env, dbzImageInt);
     // end of Java Native Interface tricks
+
+
 
     unsigned char dbzImageBody[nGlobal];
     unsigned char vradImageBody[nGlobal];
@@ -150,6 +152,7 @@ jint verboseInt
     }
 
 
+
     nCellsValid = analyzeCells(&dbzImageBody[0], &vradImageBody[0], &texImageBody[0],
                                &clutterImageBody[0], &cellImageIntBody[0],
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
@@ -158,10 +161,32 @@ jint verboseInt
                                verbose);
 
 
+    #ifdef FPRINTFON
+    int minValue = cellImageIntBody[0];
+    int maxValue = cellImageIntBody[0];
+    for (iGlobal = 0;iGlobal < nGlobal;iGlobal++) {
+        if (cellImageIntBody[iGlobal] < minValue) {
+            minValue = cellImageIntBody[iGlobal];
+        }
+        if (cellImageIntBody[iGlobal] > maxValue) {
+            maxValue = cellImageIntBody[iGlobal];
+        }
+    }
+    fprintf(stderr,"minimum value in cellImageIntBody array = %d.\n", minValue);
+    fprintf(stderr,"maximum value in cellImageIntBody array = %d.\n", maxValue);
+    #endif
+
+
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"DEBUG libvol2birdjni.c before casting to jint\n");
+    #endif
+
 
     // cast to the right type:
-    for (iAzim = 0;iAzim<nAzim;iAzim++){
-        for (iRang= 0 ; iRang<nRang;iRang++){
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+        for (iRang = 0; iRang < nRang; iRang++){
+
             iGlobal = iAzim*nRang + iRang;
 
             dbzImageIntBody[iGlobal] = (jint) dbzImageBody[iGlobal];
@@ -180,6 +205,11 @@ jint verboseInt
     (*env)->ReleaseIntArrayElements(env, clutterImageInt, clutterImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
     (*env)->ReleaseIntArrayElements(env, cellImageInt, cellImageIntBody, 0);
     // end of Java Native Interface tricks
+
+
+    #ifdef FPRINTFON
+    fprintf(stderr,"DEBUG libvol2birdjni.c end of analyzeCells\n");
+    #endif
 
 
     return nCellsValid;
@@ -1007,7 +1037,7 @@ const jint minCellArea)
         cellProp[iCell].drop = cellPropDropBody[iCell];
     }
 
-    nCellsValid = updateMap(cellImageBody,cellProp,nCells,nGlobal,minCellArea);
+    nCellsValid = updateMap(cellImageBody,nGlobal,cellProp,nCells,minCellArea);
 
 
     // deconstruct the CELLPROP struct

@@ -18,10 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "libvol2bird.h"
-
 
 #define FPRINTFON (1)
+#include "libvol2bird.h"
+
 
 
 
@@ -38,9 +38,11 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     //  The final number of cells in cellImage is returned as an integer.
     //  *********************************************************************************
 
+
     CELLPROP *cellProp;
     int iCell;
     int iGlobal;
+    int nGlobal;
     int iRang;
     int iAzim;
     int nCellsValid;
@@ -55,7 +57,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     nCellsValid = nCells;
     nRang = dbzMeta->nRang;
     nAzim = dbzMeta->nAzim;
-
+    nGlobal = nAzim*nRang;
     nCellsValid = 0;
 
     if (nCells == 0) {
@@ -73,11 +75,11 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
         printf("Requested memory could not be allocated!\n");
-        return(-10);
+        return -10;
     }
     for (iCell = 0; iCell < nCells; iCell++) {
-        cellProp[iCell].iRangOfMax = 0;
-        cellProp[iCell].iAzimOfMax = 0;
+        cellProp[iCell].iRangOfMax = -1;
+        cellProp[iCell].iAzimOfMax = -1;
         cellProp[iCell].area = 0;
         cellProp[iCell].clutterArea = 0;
         cellProp[iCell].dbzAvg = 0;
@@ -169,35 +171,28 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
             // bird migration --see discussion of issue #37 on GitHub.
             cellProp[iCell].drop = 1;
+            cellProp[iCell].area = 0;
         }
     }
 
     /*Sorting cell properties according to cell area. Drop small cells from map*/
-    // TODO FIXME updateMap() causes SEGFAULTs
-    #ifdef FPRINTFON
-    fprintf(stderr,"before the call to updateMap().\n");
-    #endif
+    nCellsValid = updateMap(cellImage,nGlobal,cellProp,nCells,areaMin);
 
-    nCellsValid = updateMap(cellImage,cellProp,nCells,nAzim*nRang,areaMin);
-
-    #ifdef FPRINTFON
-    fprintf(stderr,"after the call to updateMap().\n");
-    #endif
 
 
     //Printing of cell properties to stdout.
     if (verbose==1){
-        printf("#Cell analysis for elevation %f:\n",dbzMeta->elev);
-        printf("#Minimum cell area in pixels   : %i\n",areaMin);
-        printf("#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
-        printf("#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
-        printf("#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
-        printf("cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
+        fprintf(stdout,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
+        fprintf(stdout,"#Minimum cell area in pixels   : %i\n",areaMin);
+        fprintf(stdout,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
+        fprintf(stdout,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
+        fprintf(stdout,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
+        fprintf(stdout,"cellinfo: NUM CellArea ClutArea AvgDbz AvgStdev CV MaxVal MaxIII MaxJJJ Dropped\n");
         for (iCell = 0; iCell < nCells; iCell++) {
             if (cellProp[iCell].area==0) {
                 continue;
             }
-            printf("cellinfo: %3d %8.1f %8.1f %6.2f %6.2f %6.2f %6.2f %6d %6d %6d\n",
+            fprintf(stdout,"cellinfo: %3d %8.1f %8.1f %6.2f %6.2f %6.2f %6.2f %6d %6d %6d\n",
                     iCell+2,
                     cellProp[iCell].area,
                     cellProp[iCell].clutterArea,
@@ -212,7 +207,6 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     }
 
     free(cellProp);
-
 
     return nCellsValid;
 } // analyzeCells
@@ -1166,7 +1160,7 @@ void sortCells(CELLPROP *cellProp, int nCells) {
 
 
 
-int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int minCellArea) {
+int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int minCellArea) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map
@@ -1179,7 +1173,22 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
     int iCellNew;
     int nCellsValid;
     int cellImageValue;
-    int cellImageOld[nGlobal];
+
+
+    #ifdef FPRINTFON
+    int minValue = cellImage[0];
+    int maxValue = cellImage[0];
+    for (iGlobal = 1;iGlobal < nGlobal;iGlobal++) {
+        if (cellImage[iGlobal] < minValue) {
+            minValue = cellImage[iGlobal];
+        }
+        if (cellImage[iGlobal] > maxValue) {
+            maxValue = cellImage[iGlobal];
+        }
+    }
+    fprintf(stderr,"minimum value in cellImage array = %d.\n", minValue);
+    fprintf(stderr,"maximum value in cellImage array = %d.\n", maxValue);
+    #endif
 
     nCellsValid = nCells;
 
@@ -1192,76 +1201,96 @@ int updateMap(int *cellImage, CELLPROP *cellProp, int nCells, int nGlobal, int m
         cellImageValue = cellImage[iGlobal];
 
         if (cellImageValue > nCells - 1) {
-
-            #ifdef FPRINTFON
             fprintf(stderr, "You just asked for the properties of cell %d, which does not exist.\n", cellImageValue);
-            #endif
-
             continue;
         }
 
         if (cellProp[cellImageValue].drop == 1) {
-
             cellImage[iGlobal] = -1;
         }
+
+//        #ifdef FPRINTFON
+//        fprintf(stderr,"cellImage[%d] = %d\n",iGlobal,cellImage[iGlobal]);
+//        #endif
     }
 
-
-    #ifdef FPRINTFON
-    fprintf(stderr,"before the call to sortCells().\n");
-    #endif
 
     /*Sort the cells by area and determine number of valid cells*/
     sortCells(cellProp, nCells);
 
-    #ifdef FPRINTFON
-    fprintf(stderr,"after the call to sortCells().\n");
-    #endif
-
-
-    #ifdef FPRINTFON
-    fprintf(stderr,"nCellsValid = %d.\n",nCellsValid);
-    if (nCellsValid > 0) {
-        fprintf(stderr,"cellProp[nCellsValid - 1].area = %f.\n",cellProp[nCellsValid - 1].area);
-        fprintf(stderr,"cellProp[nCellsValid - 1].drop = %d.\n",cellProp[nCellsValid - 1].drop);
-        fprintf(stderr,"minCellArea = %d.\n",minCellArea);
-    }
-    #endif
-
-
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
-
-        // FIXME possible error: the condition above does not
-        // take into account the value of cellProp[].drop
         nCellsValid--;
-
-        #ifdef FPRINTFON
-        fprintf(stderr,"nCellsValid = %d.\n",nCellsValid);
-        #endif
     }
 
-    // make a copy of the cellImage map
-    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-        cellImageOld[iGlobal] = cellImage[iGlobal];
-    }
-    // re-index the map
+    #ifdef FPRINTFON
+    fprintf(stderr,"nCellsValid = %d\n",nCellsValid);
+    fprintf(stderr,"\n");
+    #endif
+
+    // replace the values in cellImage with newly calculated index values:
     for (iCell = 0; iCell < nCells; iCell++) {
 
         if (iCell < nCellsValid) {
-            iCellNew = iCell + 1;
+            iCellNew = -1 * (iCell + 1 + 100);
         }
         else {
             iCellNew = -1;
         }
 
+        #ifdef FPRINTFON
+        fprintf(stderr,"before: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
+        fprintf(stderr,"before: cellProp[%d].area = %f.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"before: iCell = %d.\n",iCell);
+        fprintf(stderr,"before: iCellNew = %d.\n",iCellNew);
+        fprintf(stderr,"\n");
+        #endif
+
+
         for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-            if (cellImageOld[iGlobal] == cellProp[iCell].index) {
+            if (cellImage[iGlobal] == cellProp[iCell].index) {
                 cellImage[iGlobal] = iCellNew;
             }
         }
-        // re-index the cellproperties object
+        // have the indices in cellProp match the re-numbering
         cellProp[iCell].index = iCellNew;
+
+    } // (iCell = 0; iCell < nCells; iCell++)
+
+//    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+//        if (cellImage[iGlobal] > -1) {
+//            cellImage[iGlobal] = -1;
+//        }
+//    }
+
+
+    // once you've re-numbered everything, flip the sign back and
+    // remove the offset of 100...
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        if (cellImage[iGlobal] == -1) {
+            // do nothing
+        }
+        else {
+            cellImage[iGlobal] = (-1 * cellImage[iGlobal]) - 100;
+        }
     }
+    // ...and make sure the indices in cellProp match that change
+    for (iCell = 0; iCell < nCells; iCell++) {
+
+        if (cellProp[iCell].index == -1) {
+            // do nothing
+        }
+        else {
+            cellProp[iCell].index = (-1 * cellProp[iCell].index) - 100;
+        }
+
+        #ifdef FPRINTFON
+        fprintf(stderr,"after: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
+        fprintf(stderr,"after: cellProp[%d].area = %f.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"\n");
+        #endif
+    }
+
+
 
     return nCellsValid;
 } //updateMap

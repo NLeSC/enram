@@ -128,7 +128,7 @@ void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale
 
 void sortCells(CELLPROP *cellProp,int nCells);
 
-int updateMap(int *cellImage,CELLPROP *cellProp, int nCells,int nGlobal, int minCellArea);
+int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells, const int minCellArea);
 
 
 
