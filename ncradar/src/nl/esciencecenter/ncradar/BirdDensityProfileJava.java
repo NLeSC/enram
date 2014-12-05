@@ -156,6 +156,25 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         return nCells;
     };
 
+    
+    
+    
+    
+    public void fringeCells() throws Exception {
+
+        
+        int nRang = this.reflectivity.getNumberOfRangeBins();
+        int nAzim = this.reflectivity.getNumberOfAzimuthBins();
+        float azimuthScale = (float) this.reflectivity.getAzimuthScaleDeg();
+        float rangeScale = (float) this.reflectivity.getRangeScale();
+        float fringeDist = (float) this.parameterValues.getEMASKMAX();
+        
+        fringeCells(cellImage, nRang, nAzim, azimuthScale, rangeScale, fringeDist);
+
+    }
+    
+
+    
 
 
     public int[] getTexture() throws Exception {
