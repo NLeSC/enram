@@ -34,8 +34,6 @@ public class TestBirdDensityProfile {
 
         birdDensityProfileJava = new BirdDensityProfileJava(reflectivity, radialVelocity);
 
-        System.out.println("I have a BirdDensityProfile object.");
-
         this.parameterValues = new ParameterValues();
 
     }
@@ -49,20 +47,14 @@ public class TestBirdDensityProfile {
 
         int nCells = birdDensityProfileJava.findCells();
 
-        int cluttermapFlag = 0; // FIXME
-        int verbosityFlag = 0; // FIXME
+        int cluttermapFlag = 0;
+        int verbosityFlag = 1;
 
         int nCellsValid = birdDensityProfileJava.analyzeCells(nCells, cluttermapFlag, verbosityFlag);
 
-        final float DEG2RAD = (float) (2 * Math.PI) / 360;
-//        float azimuthScale = (360.0f / nAzim) * DEG2RAD;
-//        // FIXME again, what are the units?
-//        float rangeScale = (float) this.radialVelocity.getRangeScale();
-//        float fringeDist = (float) this.parameterValues.getEMASKMAX();
-//
-//        birdDensityProfileJava.fringeCells(cellImage, nRang, nAzim, azimuthScale,
-//                rangeScale, fringeDist);
-//
+        birdDensityProfileJava.fringeCells();
+        
+
 //        float dbzHeig = (float) this.reflectivity.getRadarPositionHeight();
 //        float dbzAzimScale = (360.0f / nAzim) * DEG2RAD;
 //        int rawReflMissing = missing;
