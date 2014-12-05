@@ -7,10 +7,6 @@
 #include "libsvdfit.h"
 
 
-#ifndef FPRINTFON
-#define FPRINTFON (1)
-#endif
-
 JNIEXPORT jint JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_analyzeCells(
 JNIEnv *env,
@@ -884,7 +880,7 @@ jfloatArray cellPropArea,
 jfloatArray cellPropClutterArea,
 jfloatArray cellPropDbzMax,
 jintArray cellPropIndex,
-jcharArray cellPropDrop,
+jintArray cellPropDrop,
 const jint nCells
 )
 {
@@ -901,7 +897,7 @@ const jint nCells
     jfloat *cellPropClutterAreaBody = (*env)->GetFloatArrayElements(env, cellPropClutterArea, NULL);
     jfloat *cellPropDbzMaxBody = (*env)->GetFloatArrayElements(env, cellPropDbzMax, NULL);
     jint *cellPropIndexBody = (*env)->GetIntArrayElements(env, cellPropIndex, NULL);
-    jchar *cellPropDropBody = (*env)->GetCharArrayElements(env, cellPropDrop, NULL);
+    jint *cellPropDropBody = (*env)->GetIntArrayElements(env, cellPropDrop, NULL);
     // end of Java Native Interface tricks
 
     int iCell;
@@ -925,13 +921,13 @@ const jint nCells
     }
 
     for (iCell=0;iCell<nCells;iCell++) {
-        fprintf(stderr,"B: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"B: cellProp[%d].area = %d\n",iCell,cellProp[iCell].area);
     }
 
     sortCells(cellProp,nCells);
 
     for (iCell=0;iCell<nCells;iCell++) {
-        fprintf(stderr,"A: cellProp[%d].area = %f\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"A: cellProp[%d].area = %d\n",iCell,cellProp[iCell].area);
     }
 
     // deconstruct the CELLPROP struct
@@ -961,7 +957,7 @@ const jint nCells
     (*env)->ReleaseFloatArrayElements(env, cellPropClutterArea, cellPropClutterAreaBody, 0);
     (*env)->ReleaseFloatArrayElements(env, cellPropDbzMax, cellPropDbzMaxBody, 0);
     (*env)->ReleaseIntArrayElements(env, cellPropIndex, cellPropIndexBody, 0);
-    (*env)->ReleaseCharArrayElements(env, cellPropDrop, cellPropDropBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellPropDrop, cellPropDropBody, 0);
     // end of Java Native Interface tricks
 
 
@@ -994,7 +990,7 @@ jfloatArray cellPropArea,
 jfloatArray cellPropClutterArea,
 jfloatArray cellPropDbzMax,
 jintArray cellPropIndex,
-jcharArray cellPropDrop,
+jintArray cellPropDrop,
 const jint nCells,
 const jint nGlobal,
 const jint minCellArea)
@@ -1013,7 +1009,7 @@ const jint minCellArea)
     jfloat *cellPropClutterAreaBody = (*env)->GetFloatArrayElements(env, cellPropClutterArea, NULL);
     jfloat *cellPropDbzMaxBody = (*env)->GetFloatArrayElements(env, cellPropDbzMax, NULL);
     jint *cellPropIndexBody = (*env)->GetIntArrayElements(env, cellPropIndex, NULL);
-    jchar *cellPropDropBody = (*env)->GetCharArrayElements(env, cellPropDrop, NULL);
+    jint *cellPropDropBody = (*env)->GetIntArrayElements(env, cellPropDrop, NULL);
     // end of Java Native Interface tricks
 
     int iCell;
@@ -1068,7 +1064,7 @@ const jint minCellArea)
     (*env)->ReleaseFloatArrayElements(env, cellPropClutterArea, cellPropClutterAreaBody, 0);
     (*env)->ReleaseFloatArrayElements(env, cellPropDbzMax, cellPropDbzMaxBody, 0);
     (*env)->ReleaseIntArrayElements(env, cellPropIndex, cellPropIndexBody, 0);
-    (*env)->ReleaseCharArrayElements(env, cellPropDrop, cellPropDropBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellPropDrop, cellPropDropBody, 0);
     // end of Java Native Interface tricks
 
     free(cellProp);
