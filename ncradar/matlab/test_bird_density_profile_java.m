@@ -161,6 +161,39 @@ set(gca, 'xlim',[-1,1]*3e4,'ylim',[-1,1]*3e4)
 
 
 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+
+A = bdp.getCellImage();
+
+bdp.fringeCells();
+
+B = bdp.getCellImage();
+
+if isequal(A,B)
+    disp('No effect of fringing... maybe you need to increase the fringeDist?')
+end
+
+polarDataCellImage = PolarData(numberOfAzimuthBins, numberOfRangeBins, bdp.getCellImage,...
+            0, 1,...
+            rangeOffset, rangeScale,...
+            missingValueValue, iAzimFirstRay);
+
+
+subplotScreen(1,2,2)
+plotpolardata(polarDataCellImage,'rangeResolution',5000)
+str4 = ['cellImage after fringeCells() // ',char(rsDBZH.getDatasetName),' // ',char(rsDBZH.getStartDate),' // ',char(rsDBZH.getStartTime)]; 
+title(str4)
+set(gcf,'name',str4)
+set(gca, 'xlim',[-1,1]*3e4,'ylim',[-1,1]*3e4)
+
+
+
+
+
+
+
+
 
 
 
