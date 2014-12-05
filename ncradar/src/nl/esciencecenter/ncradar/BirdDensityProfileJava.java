@@ -4,8 +4,10 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
     private final RadarScanJava reflectivity;
     private final RadarScanJava radialVelocity;
+    private final ParameterValues parameterValues;
     private int[] texture;
     private int[] cellImage;
+    private int[] clutterImage;
     private final int nRang;
     private final int nAzim;
 
@@ -15,10 +17,12 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
         this.reflectivity = reflectivity;
         this.radialVelocity = radialVelocity;
+        this.parameterValues = new ParameterValues();
 
         nAzim = reflectivity.getNumberOfAzimuthBins();
         nRang = reflectivity.getNumberOfRangeBins();
         cellImage = new int[nAzim * nRang];
+        clutterImage = new int[nAzim * nRang];
 
         {
             int nAzim = radialVelocity.getNumberOfAzimuthBins();
@@ -36,30 +40,90 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
 
 
+    public int analyzeCells(int nCells, int cmFlagInt, int verboseInt) throws Exception {
 
-    public void calcTexture(int nRangNeighborhood, int nAzimNeighborhood, int nCountMin, float texOffset, float texScale, int vradMissing) {
+        int[] dbzImage = this.reflectivity.getScanDataRaw();
+        int[] vradImage = this.radialVelocity.getScanDataRaw();
+        int[] texImage = this.getTexture();
+        int[] clutterImage = this.getClutterImage();
+        int[] cellImage = this.getCellImage();
+        int dbznRang = this.reflectivity.getNumberOfRangeBins();
+        int dbznAzim = this.radialVelocity.getNumberOfAzimuthBins();
+        float dbzElev = (float) this.reflectivity.getElevationAngle();
+        float dbzValueScale = (float) this.reflectivity.getDataScale();
+        float dbzValueOffset = (float) this.reflectivity.getDataOffset();
+        float vradValueScale = (float) this.radialVelocity.getDataScale();
+        float vradValueOffset = (float) this.radialVelocity.getDataOffset();
+        float clutterValueScale = 1.0f;
+        float clutterValueOffset = 0.0f;
+        float texValueScale = (float) this.parameterValues.getSTDEVSCALE();
+        float texValueOffset = 0;
 
-        int[][] dbzImage2D = reflectivity.getScanDataRaw2D();
-        int[][] vradImage2D = radialVelocity.getScanDataRaw2D();
+        
+        int areaMin = this.parameterValues.getAREACELL();
+        float cellDbzMin = (float) this.parameterValues.getDBZCELL();
+        float cellStdDevMax = (float) this.parameterValues.getSTDEVCELL();
+        float cellClutterFraction = (float) this.parameterValues.getCLUTPERCCELL();
+        float vradMinValue = (float) parameterValues.getVRADMIN();
+        float clutterValueMax = (float) this.parameterValues.getDBZCLUTTER();
+        
+        
+        int nCellsValid = analyzeCells(dbzImage, vradImage, texImage,
+                clutterImage, cellImage, dbznRang, dbznAzim,
+                dbzElev, dbzValueScale, dbzValueOffset,
+                vradValueScale, vradValueOffset,
+                clutterValueScale, clutterValueOffset,
+                texValueScale, texValueOffset,
+                nCells, areaMin, cellDbzMin, cellStdDevMax,
+                cellClutterFraction, vradMinValue, clutterValueMax,
+                cmFlagInt, verboseInt);
+        
+        
+        this.cellImage = cellImage.clone();
+        
+        int iGlobal;
+        int nGlobal = cellImage.length;
 
-        int[] texImage = new int[nAzim * nRang];
-        int[] dbzImage = new int[nAzim * nRang];
-        int[] vradImage = new int[nAzim * nRang];
-
-        int iGlobal = 0;
-        for (int iAzim = 0; iAzim < nAzim; iAzim++) {
-            for (int iRang = 0; iRang < nRang; iRang++) {
-                dbzImage[iGlobal] = dbzImage2D[iAzim][iRang];
-                vradImage[iGlobal] = vradImage2D[iAzim][iRang];
-                iGlobal++;
+        int minValue = cellImage[0];
+        int maxValue = cellImage[0];
+        for (iGlobal = 1;iGlobal < nGlobal;iGlobal++) {
+            if (cellImage[iGlobal] < minValue) {
+                minValue = cellImage[iGlobal];
+            }
+            if (cellImage[iGlobal] > maxValue) {
+                maxValue = cellImage[iGlobal];
             }
         }
+        System.out.println("minimum value in cellImage array = " + minValue);
+        System.out.println("maximum value in cellImage array = " + maxValue);
+        
+        
+        return nCellsValid; 
+        
+    }
+    
+    
+    
+    
+
+    public void calcTexture() {
+
+        int[] dbzImage = reflectivity.getScanDataRaw();
+        int[] vradImage = radialVelocity.getScanDataRaw();
+        int[] texImage = new int[nAzim * nRang];
 
         float dbzOffset = (float) reflectivity.getDataOffset();
         float dbzScale = (float) reflectivity.getDataScale();
         float vradOffset = (float) radialVelocity.getDataOffset();
         float vradScale = (float) radialVelocity.getDataScale();
-
+        float texOffset = 0;
+        float texScale = (float) this.parameterValues.getSTDEVSCALE();
+        
+        int nRangNeighborhood = this.parameterValues.getNTEXBINRANG();
+        int nAzimNeighborhood = this.parameterValues.getNTEXBINAZIM();
+        int nCountMin = this.parameterValues.getNTEXMIN();
+        int vradMissing = this.radialVelocity.getMissingValueValue();
+        
         calcTexture(texImage, dbzImage, vradImage,
                 nRangNeighborhood, nAzimNeighborhood, nCountMin,
                 texOffset, texScale,
@@ -73,7 +137,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
 
 
-    public int findCells(float dbzThresMin, float rCellMax) {
+    public int findCells() {
 
         int[] dbzImage = reflectivity.getScanDataRaw();
         int dbzMissing = reflectivity.getMissingValueValue();
@@ -82,16 +146,14 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         float dbzRangeScale = (float) reflectivity.getRangeScale();
         float dbzValueOffset = (float) reflectivity.getDataOffset();
         float dbzValueScale = (float) reflectivity.getDataScale();
-
-
-        int nCells;
-
-        nCells = findCells(dbzImage, cellImage, 
-                dbzMissing, dbznAzim, dbznRang, dbzValueOffset, dbzRangeScale, dbzValueScale, dbzThresMin,
-                rCellMax);
+        float dbzThresMin = (float) this.parameterValues.getDBZMIN();
+        // FIXME plus 5? magic number
+        int rCellMax = (int) (this.parameterValues.getRANGMAX() + 5);
+        
+        int nCells = findCells(dbzImage, cellImage, dbzMissing, dbznAzim, dbznRang, dbzValueOffset, 
+                dbzRangeScale, dbzValueScale, dbzThresMin, rCellMax);
 
         return nCells;
-
     };
 
 
@@ -201,5 +263,13 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         return this.radialVelocity.getScanDataRaw();
 
     }
+
+
+
+    public int[] getClutterImage() {
+
+        return clutterImage;
+    }
+
 
 }
