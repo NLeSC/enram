@@ -363,28 +363,16 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 
 
-void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellImage, int nDims, int *nPointsMaxPtr, int NGAPBIN,
-        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
-        float vradMin, int iData, int layer, int id, int *nPoints)
+int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellImage,
+        float rangeMin, float rangeMax, float layerThickness, float heightInputPar,
+        float vradMin, int iData, int layer, int nPoints)
 {
 
-    // FIXME this function's name suggest that the vvp analysis takes place in its body, but
-    // that is not the case -- the function merely handles the selection of valid gates, which
-    // are then supposedly passed on to svdfit()
-    // FIXME NGAPBIN not used
-    // FIXME id not used
-    // FIXME HLAYER suggests preprocessor but is not
-    // FIXME NGAPBIN suggest preprocessor but is not
-
-    /******************************************************************************/
-    /* This function computes the wind velocity components                        */
-    /******************************************************************************/
-
+    int nDims;
     int iAzim;
     int iRang;
     int iPoint;
-    int nPointsMax;    // FIXME nothing really happens to either nPointsMax or nPointsMaxPtr.. maybe delete altogether?
     float gateHeight;
     float gateRange;
     float gateAzim;
@@ -399,8 +387,7 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     float valueOffset;
     float valueScale;
 
-    iPoint = *nPoints;
-    nPointsMax = *nPointsMaxPtr;
+    iPoint = nPoints;
 
     nRang = vradMeta.nRang;
     nAzim = vradMeta.nAzim;
@@ -411,6 +398,8 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     radarHeight = vradMeta.heig;
     valueOffset = vradMeta.valueOffset;
     valueScale = vradMeta.valueScale;
+
+    nDims = 2;
 
 
     for (iRang = 0; iRang < nRang; iRang++) {
@@ -426,7 +415,7 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
             // or (2) too far away.
             continue;
         }
-        if (fabs(heightInputPar-gateHeight) > 0.5*HLAYER) {
+        if (fabs(heightInputPar-gateHeight) > 0.5*layerThickness) {
             // if the height of the middle of the current gate is too far away from
             // the requested height, continue with the next gate
             continue;
@@ -460,12 +449,7 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
 
             points[iPoint * nDims + 0] = gateAzim;
             points[iPoint * nDims + 1] = elevAngle;
-            if (nDims > 2) {
-                points[iPoint * nDims + 2] = gateRange;
-            }
-            if (nDims > 3) {
-                points[iPoint * nDims + 3] = heightInputPar-radarHeight;
-            }
+
             yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
             c[iPoint] = cellImage[iGlobal];
 
@@ -478,17 +462,12 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
         }  //for iAzim
     } //for iRang
 
-    *nPoints = iPoint;
-    *nPointsMaxPtr = nPointsMax;
+    nPoints = iPoint;
 
-    #ifdef FPRINTFON
-    //for (iPoint = 0; iPoint < nPointsMax; iPoint++) {
-    fprintf(stderr, "points[0] = %f\n",points[0]);
-    //}
-    #endif
+    return nPoints;
 
 
-} //calcVvp
+} //getListOfSelectedGates
 
 
 
@@ -501,7 +480,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
         float XSCALE, float XMEAN, float height,
         float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
-        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
+        float dBZx, float DBZNOISE, int NGAPMIN, int NDBZMIN,
         int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
@@ -515,15 +494,12 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
     // FIXME regarding the 'classify' method name...classify what?
 
-    // FIXME HLAYER suggests preprocessor but isn't
     // FIXME XOFFSET suggests preprocessor but isn't
     // FIXME XSCALE suggests preprocessor but isn't
     // FIXME XMEAN suggests preprocessor but isn't
     // FIXME DBZNOISE suggests preprocessor but isn't
     // FIXME NGAPMIN suggests preprocessor but isn't
-    // FIXME NGAPBIN suggests preprocessor but isn't
     // FIXME NDBZMIN suggests preprocessor but isn't
-    // FIXME id unused
     // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA" (x4)?
 
     int iAzim;

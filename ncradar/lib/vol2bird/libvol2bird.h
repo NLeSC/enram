@@ -99,20 +99,20 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
         const unsigned char nRangNeighborhood, const unsigned char nAzimNeighborhood,
         const unsigned char nCountMin);
 
-void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellmap, int nDims, int *nPointsMaxPtr, int NGAPBIN,
-        float rangeMin, float rangeMax, float HLAYER, float heightInputPar,
-        float vradMin, int iData, int layer, int id, int *nPoints);
+int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
+        int *c, int *cellmap,
+        float rangeMin, float rangeMax, float layerThickness, float heightInputPar,
+        float vradMin, int iData, int layer, int nPoints);
 
 void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         SCANMETA clutterMeta, int *cellImage,
         unsigned char *dbzImage, unsigned char *vradImage,
         unsigned char *uzscan, unsigned char *clutterImage,
         float *zdata,
-        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
+        float rangeMin, float rangeMax, float layerThickness, float XOFFSET,
         float XSCALE, float XMEAN, float height,
         float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
-        float dBZx, float DBZNOISE, int NGAPMIN, int NGAPBIN, int NDBZMIN,
+        float dBZx, float DBZNOISE, int NGAPMIN, int NDBZMIN,
         int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
         unsigned char clutterFlag, unsigned char uzflag, unsigned char xflag);

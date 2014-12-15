@@ -374,7 +374,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcVvp(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_getListOfSelectedGates(
 JNIEnv *env,
 jobject obj,
 jint nRang,
@@ -391,16 +391,14 @@ jfloatArray points,
 jfloatArray yObs,
 jintArray c,
 jintArray cellImage,
-jint nDims,
-jint nPointsMaxPtr,
 jfloat rangeMin,
 jfloat rangeMax,
-jfloat HLAYER,
+jfloat layerThickness,
 jfloat heightInputPar,
 jfloat vradMin,
 jint iData,
 jint layer,
-jint nPointsPtr)
+jint nPoints)
 {
 
     int iAzim;
@@ -448,14 +446,11 @@ jint nPointsPtr)
     vradMeta.valueScale = valueScale;
 
 
-    int NGAPBIN = NULL;
-    int id = NULL;
-
     fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
 
-    calcVvp(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
-        nDims, &nPointsMaxPtr, NGAPBIN, rangeMin, rangeMax, HLAYER, heightInputPar,
-        vradMin, iData, layer, id, &nPointsPtr);
+    nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
+        rangeMin, rangeMax, layerThickness, heightInputPar,
+        vradMin, iData, layer, nPoints);
 
     fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
 
@@ -529,7 +524,6 @@ const jfloat dbzMin,
 const jfloat dBZx,
 const jfloat DBZNOISE,
 const jint NGAPMIN,
-const jint NGAPBIN,
 const jint NDBZMIN,
 const jint layer,
 jint np,
@@ -684,7 +678,7 @@ const jint xflagInt
             rangeMin, rangeMax, HLAYER, XOFFSET,
             XSCALE, XMEAN, height,
             azimMin, azimMax, vradMin, dbzClutter, dbzMin,
-            dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN,
+            dBZx, DBZNOISE, NGAPMIN, NDBZMIN,
             layer, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
             &nPointsRainPtr, &nPointsRainNoFringePtr,
             clutterFlag, rawReflFlag, xflag);
