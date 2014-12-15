@@ -372,7 +372,6 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
     // FIXME this function's name suggest that the vvp analysis takes place in its body, but
     // that is not the case -- the function merely handles the selection of valid gates, which
     // are then supposedly passed on to svdfit()
-    // FIXME heightInputPar could be the height for which you want to calculate the VVP
     // FIXME NGAPBIN not used
     // FIXME id not used
     // FIXME HLAYER suggests preprocessor but is not
@@ -423,11 +422,13 @@ void calcVvp(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *
         gateHeight = gateRange * sin(elevAngle*DEG2RAD) + radarHeight;
 
         if (gateRange < rangeMin || gateRange > rangeMax) {
+            // the current gate is either (1) too close to the radar
+            // or (2) too far away.
             continue;
         }
         if (fabs(heightInputPar-gateHeight) > 0.5*HLAYER) {
-            // FIXME what does this if statement mean?  Maybe "if the height of the current gate
-            // is too far away from the requested height, continue with the next gate"?
+            // if the height of the middle of the current gate is too far away from
+            // the requested height, continue with the next gate
             continue;
         }
 
@@ -566,7 +567,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
             range = (iRang+0.5) * dbzMeta.rangeScale;
             // FIXME equivalent line in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 491
-            azim = iAzim * dbzMeta.azimScale;                                    // FIXME why not iAzim+0.5?
+            azim = iAzim * dbzMeta.azimScale;
             heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
             #ifdef FPRINTFON
@@ -1043,7 +1044,7 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
             iGlobal = iRang + iAzim * nRang;
 
             if (cellImage[iGlobal] <= 1) {
-                continue; // // with the next iGlobal; already fringe or not in cellImage
+                continue; // with the next iGlobal; already fringe or not in cellImage
             }
 
             // determine whether current pixel is a pixel on the edge of a cell
