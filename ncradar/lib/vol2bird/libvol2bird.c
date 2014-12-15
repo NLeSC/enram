@@ -447,16 +447,16 @@ int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *p
             // so at this point we've checked a couple of things and we see no reason
             // why vRadImage[iGlobal] shouldn't be part of the points array
 
-            points[iPoint * nDims + 0] = gateAzim;
-            points[iPoint * nDims + 1] = elevAngle;
-
-            yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
-            c[iPoint] = cellImage[iGlobal];
-
             if (fabs(yObs[iPoint]) >= vradMin) {
+
                 // FIXME why fabs?
-                // FIXME at this point, you've already added the point. What if the condition is false, but there
-                // are no more gates to overwrite points[iPoint+whatever], yObs[iPoint] and c[iPoint] later?
+
+                points[iPoint * nDims + 0] = gateAzim;
+                points[iPoint * nDims + 1] = elevAngle;
+
+                yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
+                c[iPoint] = cellImage[iGlobal];
+
                 iPoint++;
             }
         }  //for iAzim
