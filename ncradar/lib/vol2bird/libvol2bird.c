@@ -531,6 +531,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
     #endif
 
     llayer = layer * NDATA;
+    // I think what happens is this: you want to calculate a profile of bird densities with height. For each
+    // layer in that profile, you keep track of a number of variables, which I think is equal to NDATA.
+    // The variable llayer then represents the index of the start of this layer's data into zdata.
 
     nRang = dbzMeta.nRang;
     nAzim = dbzMeta.nAzim;
@@ -548,11 +551,12 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
             #endif
 
             if (range < rangeMin || range > rangeMax) {
+                // ignore range gates that are either too close or too far away
                 continue;
             }
 
             if (azim <= azimMin || azim > azimMax) {
-                // FIXME what is this clause for?
+                // This clause is for when the user wants to use only those range gates from a certain direction
                 continue;
             }
 
@@ -581,7 +585,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                 // take clutter into account
                 if (clutterValue > dbzClutter){
 
-                    // the current gate is classifed as clutter. Raise the corresponding counter:
+                    // the current gate is classified as clutter. Raise the corresponding counter:
                     nPointsClutter++;
 
                     #ifdef FPRINTFON
@@ -594,7 +598,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
             if (rawReflFlag == 1){
 
-                // Take into account that some points have been dropped by the signal processor
+                // Take into account that points can be dropped by the signal processor
 
                 if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
 
@@ -620,7 +624,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
                 dbzValue = DBZNOISE;
 
-                // FIXME why reset the dbzValue to DBZNOISE? Also, I don't think it does anything, since dbzValue is never written to dbzImage
+                // FIXME why reset the dbzValue to DBZNOISE?
             }
 
             if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < absVradMin){
@@ -637,7 +641,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                 if (cellImage[iGlobal] > 1) {
 
                     // i.e. the cells from cellImage, without any added fringes
-
+                    // TODO indexing should probably use 3 separate variables
                     if (isnan(zdata[1+llayer])) {
                         zdata[1+llayer] = 0;
                     }
