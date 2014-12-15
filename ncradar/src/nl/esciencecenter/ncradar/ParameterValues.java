@@ -59,7 +59,7 @@ public class ParameterValues {
         this.NDBZMIN = 25;
         this.VDIFMAX = 10.0;
         this.VMASKMAX = 0.0;
-        this.EMASKMAX = 5.0;
+        this.EMASKMAX = 500.0;  // original value was 5, but that does nothing. In any case, must be same units as rangeScale 
         this.DBZMIN = -100.0;
         this.DBZMAX = 20.0;
         this.DBZNOISE = -40.0;
