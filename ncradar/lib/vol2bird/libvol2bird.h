@@ -101,8 +101,8 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
 
 int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellmap,
-        float rangeMin, float rangeMax, float layerThickness, float heightInputPar,
-        float vradMin, int iData, int layer, int nPoints);
+        float rangeMin, float rangeMax, float layerThickness, float heightOfInterest,
+        float absVradMin, int iData, int layer, int nPoints);
 
 void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         SCANMETA clutterMeta, int *cellImage,
@@ -110,8 +110,8 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA uzmeta,
         unsigned char *uzscan, unsigned char *clutterImage,
         float *zdata,
         float rangeMin, float rangeMax, float layerThickness, float XOFFSET,
-        float XSCALE, float XMEAN, float height,
-        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
+        float XSCALE, float XMEAN, float heightOfInterest,
+        float azimMin, float azimMax, float absVradMin, float dbzClutter, float dbzMin,
         float dBZx, float DBZNOISE, int NGAPMIN, int NDBZMIN,
         int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,

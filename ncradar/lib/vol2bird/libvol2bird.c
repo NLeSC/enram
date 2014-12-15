@@ -365,8 +365,8 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
         int *c, int *cellImage,
-        float rangeMin, float rangeMax, float layerThickness, float heightInputPar,
-        float vradMin, int iData, int layer, int nPoints)
+        float rangeMin, float rangeMax, float layerThickness, float heightOfInterest,
+        float absVradMin, int iData, int layer, int nPoints)
 {
 
     int nDims;
@@ -415,7 +415,7 @@ int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *p
             // or (2) too far away.
             continue;
         }
-        if (fabs(heightInputPar-gateHeight) > 0.5*layerThickness) {
+        if (fabs(heightOfInterest-gateHeight) > 0.5*layerThickness) {
             // if the height of the middle of the current gate is too far away from
             // the requested height, continue with the next gate
             continue;
@@ -445,11 +445,9 @@ int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *p
             }
 
             // so at this point we've checked a couple of things and we see no reason
-            // why vRadImage[iGlobal] shouldn't be part of the points array
+            // why vRadImage[iGlobal] shouldn't be part of the 'points' array
 
-            if (fabs(yObs[iPoint]) >= vradMin) {
-
-                // FIXME why fabs?
+            if (fabs(yObs[iPoint]) >= absVradMin) {
 
                 points[iPoint * nDims + 0] = gateAzim;
                 points[iPoint * nDims + 1] = elevAngle;
@@ -477,9 +475,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         unsigned char *dbzImage, unsigned char *vradImage,
         unsigned char *rawReflImage, unsigned char *clutterImage,
         float *zdata,
-        float rangeMin, float rangeMax, float HLAYER, float XOFFSET,
-        float XSCALE, float XMEAN, float height,
-        float azimMin, float azimMax, float vradMin, float dbzClutter, float dbzMin,
+        float rangeMin, float rangeMax, float layerThickness, float XOFFSET,
+        float XSCALE, float XMEAN, float heightOfInterest,
+        float azimMin, float azimMax, float absVradMin, float dbzClutter, float dbzMin,
         float dBZx, float DBZNOISE, int NGAPMIN, int NDBZMIN,
         int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
@@ -542,8 +540,7 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
             range = (iRang+0.5) * dbzMeta.rangeScale;
-            // FIXME equivalent line in ~/enram/doc/vol2bird-adriaans-version-20140716/vol2birdprof_h5.c is 491
-            azim = iAzim * dbzMeta.azimScale;
+            azim = iAzim * dbzMeta.azimScale;  // FIXME (iAzim + 0.5) would be better I think
             heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
             #ifdef FPRINTFON
@@ -559,7 +556,9 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                 continue;
             }
 
-            if (fabs(height-heightBeam) > 0.5*HLAYER) {
+            if (fabs(heightOfInterest-heightBeam) > 0.5*layerThickness) {
+                // if the height of the current gate is not within half a layerThickness distance from
+                // the height of interest, continue with the next gate.
                 continue;
             }
 
@@ -578,9 +577,11 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
 
             nPointsAll++;
 
-            //cluttermap points:
             if (clutterFlag == 1){
+                // take clutter into account
                 if (clutterValue > dbzClutter){
+
+                    // the current gate is classifed as clutter. Raise the corresponding counter:
                     nPointsClutter++;
 
                     #ifdef FPRINTFON
@@ -591,43 +592,62 @@ void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
                 }
             }
 
-            //points without valid reflectivity data, but WITH raw reflectivity data are points
-            //dropped by the signal preprocessor. These will be treated as clutter.
             if (rawReflFlag == 1){
+
+                // Take into account that some points have been dropped by the signal processor
+
                 if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
+
+                    // points without valid reflectivity data, but WITH raw reflectivity data are points
+                    // dropped by the signal preprocessor. These will be treated as clutter.
+
                     nPointsClutter++;
                     continue;
                 }
             }
-            //if non-zero reflectivity but doppler data missing, treat as clutter:
+
             if (dbzImage[iGlobal] != dbzMeta.missing && vradImage[iGlobal] == vradMeta.missing){
+
+                // we have reflectivity but the corresponding doppler data is missing. The gate is classified as clutter:
+
                 nPointsClutter++;
                 continue;
             }
 
             if (dbzValue < dbzMin) {
+
+                // the reflectivity value is too low to be considered.
+
                 dbzValue = DBZNOISE;
+
+                // FIXME why reset the dbzValue to DBZNOISE? Also, I don't think it does anything, since dbzValue is never written to dbzImage
             }
 
-            //treat zero doppler speed as clutter:
-            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
+            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < absVradMin){
+
+                // we have a valid value for vrad but the magnitude of the value is too
+                // low. The gate is classified as clutter:
+
                 nPointsClutter++;
                 continue;
             }
 
             // FIXME what does dBZx represent?
             if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
-                if (cellImage[iGlobal] > 1) { //cluttermap without added fringes  // FIXME "cluttermap"? I think you mean cellmap
-                    // FIXME what does "1+llayer" represent? ANSWER: pseudocolumn 1 in zdata
+                if (cellImage[iGlobal] > 1) {
+
+                    // i.e. the cells from cellImage, without any added fringes
+
                     if (isnan(zdata[1+llayer])) {
                         zdata[1+llayer] = 0;
                     }
+
                     zdata[1+llayer] += exp(0.1*log(10)*dbzValue);
                     nPointsRainNoFringe++;
+
                 }
 
                 if (isnan(zdata[2+llayer])) {
-                    // FIXME what does "2+llayer" represent?  ANSWER: pseudocolumn 2 in zdata
                     zdata[2+llayer] = 0;
                 }
                 zdata[2+llayer] += exp(0.1*log(10)*dbzValue);

@@ -394,8 +394,8 @@ jintArray cellImage,
 jfloat rangeMin,
 jfloat rangeMax,
 jfloat layerThickness,
-jfloat heightInputPar,
-jfloat vradMin,
+jfloat heightOfInterest,
+jfloat absVradMin,
 jint iData,
 jint layer,
 jint nPoints)
@@ -449,8 +449,8 @@ jint nPoints)
     fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
 
     nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
-        rangeMin, rangeMax, layerThickness, heightInputPar,
-        vradMin, iData, layer, nPoints);
+        rangeMin, rangeMax, layerThickness, heightOfInterest,
+        absVradMin, iData, layer, nPoints);
 
     fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
 
@@ -515,10 +515,10 @@ const jfloat HLAYER,
 const jfloat XOFFSET,
 const jfloat XSCALE,
 const jfloat XMEAN,
-const jfloat height,
+const jfloat heightOfInterest,
 const jfloat azimMin,
 const jfloat azimMax,
-const jfloat vradMin,
+const jfloat absVradMin,
 const jfloat dbzClutter,
 const jfloat dbzMin,
 const jfloat dBZx,
@@ -676,8 +676,8 @@ const jint xflagInt
             &rawReflImageBody[0], &clutterImageBody[0],
             &zdataBody[0],
             rangeMin, rangeMax, HLAYER, XOFFSET,
-            XSCALE, XMEAN, height,
-            azimMin, azimMax, vradMin, dbzClutter, dbzMin,
+            XSCALE, XMEAN, heightOfInterest,
+            azimMin, azimMax, absVradMin, dbzClutter, dbzMin,
             dBZx, DBZNOISE, NGAPMIN, NDBZMIN,
             layer, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
             &nPointsRainPtr, &nPointsRainNoFringePtr,
