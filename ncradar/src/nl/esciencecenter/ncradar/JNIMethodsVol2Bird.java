@@ -38,9 +38,9 @@ public class JNIMethodsVol2Bird {
     protected final native int getListOfSelectedGates(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
             int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
             float[] yObs, int[] c, int[] cellImage, float rangeMin, float rangeMax,
-            float layerThickness, float heightOfInterest, float absVradMin, int iData, int layer, int nPoints);
+            float layerThickness, float heightOfInterest, float absVradMin, int iData, int nPoints);
 
-    protected final native void classify(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
+    protected final native void classifyGates(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
             float dbzHeig, float dbzValueScale, float dbzValueOffset, float dbzAzimScale,
             int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
             int rawReflMissing, float clutterValueScale, float clutterValueOffset,
@@ -48,8 +48,7 @@ public class JNIMethodsVol2Bird {
             int[] rawReflImageInt, int[] clutterImageInt, float[] zdata,
             float rangeMin, float rangeMax, float HLAYER, float XOFFSET, float XSCALE,
             float XMEAN, float heightOfInterest, float azimMin, float azimMax, float absVradMin,
-            float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int NGAPMIN,
-            int NDBZMIN, int layer, int np, int nPointsPtr,
+            float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int layer, int np, int nPointsPtr,
             int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
 

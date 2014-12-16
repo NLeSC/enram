@@ -29,7 +29,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float vradMinValue, const float clutterValueMax, const unsigned char clutterFlag,
+        const float absVradMin, const float clutterValueMax, const unsigned char clutterFlag,
         const unsigned char verbose) {
 
     //  *********************************************************************************
@@ -96,10 +96,10 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
             iGlobal = iRang + iAzim * nRang;
 
-            dbzValue = dbzMeta->valueScale * dbzImage[iGlobal] + dbzMeta->valueOffset;
-            vradValue = vradMeta->valueScale * vradImage[iGlobal] + vradMeta->valueOffset;
-            clutterValue = clutterMeta->valueScale * clutterImage[iGlobal] + clutterMeta->valueOffset;
-            texValue = texMeta->valueScale * texImage[iGlobal] + texMeta->valueOffset;
+            dbzValue = dbzMeta->valueScale * (float) dbzImage[iGlobal] + dbzMeta->valueOffset;
+            vradValue = vradMeta->valueScale * (float) vradImage[iGlobal] + vradMeta->valueOffset;
+            clutterValue = clutterMeta->valueScale * (float) clutterImage[iGlobal] + clutterMeta->valueOffset;
+            texValue = texMeta->valueScale * (float) texImage[iGlobal] + texMeta->valueOffset;
 
             iCell = cellImage[iGlobal];
 
@@ -115,8 +115,8 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             cellProp[iCell].area += 1;
 
             //low radial velocities are treated as clutter, not included in calculation cell properties
-            if (fabs(vradValue) < vradMinValue){
-                // FIXME why fabs()?
+            if (fabs(vradValue) < absVradMin){
+
                 cellProp[iCell].clutterArea += 1;
 
                 #ifdef FPRINTFON
@@ -127,7 +127,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             }
 
             //pixels in clutter map not included in calculation cell properties
-            if (clutterFlag == 1){
+            if ((int) clutterFlag == 1){
                 if (clutterValue > clutterValueMax){
                     cellProp[iCell].clutterArea += 1;
                     continue;
@@ -167,7 +167,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         if (cellProp[iCell].area < areaMin ||
             (cellProp[iCell].dbzAvg < cellDbzMin &&
              cellProp[iCell].texAvg > cellStdDevMax &&
-             (cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
+             ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
             // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
             // bird migration --see discussion of issue #37 on GitHub.
             cellProp[iCell].drop = 1;
@@ -181,7 +181,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 
     //Printing of cell properties to stdout.
-    if (verbose==1){
+    if ((int) verbose==1){
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
         fprintf(stderr,"#Minimum cell area in pixels   : %i\n",areaMin);
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
@@ -228,15 +228,16 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
     float azimuth1;
     float azimuth2;
 
-    range1 = iRang1 * rangScale;
-    range2 = iRang2 * rangScale;
+    range1 = (float) iRang1 * rangScale;
+    range2 = (float) iRang2 * rangScale;
 
-    azimuth1 = iAzim1 * azimScaleDeg * DEG2RAD;
-    azimuth2 = iAzim2 * azimScaleDeg * DEG2RAD;
+    azimuth1 = (float) iAzim1 * azimScaleDeg * (float) DEG2RAD;
+    azimuth2 = (float) iAzim2 * azimScaleDeg * (float) DEG2RAD;
 
-    return sqrt(pow(range1,2) +
-                pow(range2,2) -
+    return (float) sqrt((range1 * range1) +
+                (range2 * range2) -
                 2 * (range1 * range2) * cos(azimuth1-azimuth2));
+
 
 } // calcDist
 
@@ -247,8 +248,8 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
-        const SCANMETA *dbzMeta, const unsigned char nRangNeighborhood,
-        const unsigned char nAzimNeighborhood, const unsigned char nCountMin) {
+        const SCANMETA *dbzMeta, const int nRangNeighborhood,
+        const int nAzimNeighborhood, const int nCountMin) {
 
 
     //  ****************************************************************************************
@@ -265,7 +266,7 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     int iNeighborhood;
     int nNeighborhood;
     int count;
-    int missingValue;
+    unsigned char missingValue;
     double vmoment1;
     double vmoment2;
     double dbz;
@@ -293,7 +294,7 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     texOffset = texMeta->valueOffset;
     texScale = texMeta->valueScale;
 
-    nNeighborhood = nRangNeighborhood * nAzimNeighborhood;
+    nNeighborhood = (int)(nRangNeighborhood * nAzimNeighborhood);
 
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
         for (iRang = 0; iRang < nRang; iRang++) {
@@ -324,11 +325,11 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                     continue;
                 }
 
-                vRadDiff = vradOffset + vradScale * (vradImage[iGlobal] - vradImage[iLocal]);
+                vRadDiff = vradOffset + vradScale * (float) (vradImage[iGlobal] - vradImage[iLocal]);
                 vmoment1 += vRadDiff;
                 vmoment2 += SQUARE(vRadDiff);
 
-                dbz += dbzOffset + dbzScale * dbzImage[iLocal];
+                dbz += dbzOffset + dbzScale * (float) dbzImage[iLocal];
 
                 count++;
 
@@ -347,7 +348,7 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                 tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
 
                 // FIXME maybe add safeguard against negative outcomes of ROUND((tex - texOffset) / texScale);
-                texImage[iGlobal] = ROUND((tex - texOffset) / texScale);
+                texImage[iGlobal] = (unsigned char) ROUND((tex - texOffset) / texScale);
 
                 #ifdef FPRINTFON
                 fprintf(stderr,
@@ -363,125 +364,18 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 
 
-int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
-        int *c, const int *cellImage,
-        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
-        const float absVradMin, const int iData, const int layer, int nPoints)
-{
-
-    int nDims;
-    int iAzim;
-    int iRang;
-    int iPoint;
-    float gateHeight;
-    float gateRange;
-    float gateAzim;
-    int nRang;
-    int nAzim;
-    float rangeScale;
-    float azimuthScale;
-    float elevAngle;
-    int missing;
-    float radarHeight;
-    int iGlobal;
-    float valueOffset;
-    float valueScale;
-
-    iPoint = nPoints;
-
-    nRang = vradMeta.nRang;
-    nAzim = vradMeta.nAzim;
-    rangeScale = vradMeta.rangeScale;
-    azimuthScale = vradMeta.azimScale;
-    elevAngle = vradMeta.elev;
-    missing = vradMeta.missing;
-    radarHeight = vradMeta.heig;
-    valueOffset = vradMeta.valueOffset;
-    valueScale = vradMeta.valueScale;
-
-    nDims = 2;
-
-
-    for (iRang = 0; iRang < nRang; iRang++) {
-
-        // so gateRange represents a distance along the view direction (not necessarily horizontal)
-        gateRange = (iRang + 0.5) * rangeScale;
-
-        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
-        gateHeight = gateRange * sin(elevAngle*DEG2RAD) + radarHeight;
-
-        if (gateRange < rangeMin || gateRange > rangeMax) {
-            // the current gate is either (1) too close to the radar
-            // or (2) too far away.
-            continue;
-        }
-        if (fabs(heightOfInterest-gateHeight) > 0.5*layerThickness) {
-            // if the height of the middle of the current gate is too far away from
-            // the requested height, continue with the next gate
-            continue;
-        }
-
-
-        for (iAzim = 0; iAzim < nAzim; iAzim++) {
-
-            iGlobal = iRang + iAzim * nRang;
-            gateAzim = (iAzim + 0.5) * azimuthScale;
-
-            if (vradImage[iGlobal] == missing) {
-                continue;
-            }
-
-            switch (iData) {
-            case 0:
-                if (cellImage[iGlobal]>0) {
-                    continue; // outside rain clutter map only
-                }
-                break;
-            case 1:
-                if (cellImage[iGlobal]<2) {
-                    continue; // inside rain clutter map without fringe only
-                }
-                break;
-            }
-
-            // so at this point we've checked a couple of things and we see no reason
-            // why vRadImage[iGlobal] shouldn't be part of the 'points' array
-
-            if (fabs(yObs[iPoint]) >= absVradMin) {
-
-                points[iPoint * nDims + 0] = gateAzim;
-                points[iPoint * nDims + 1] = elevAngle;
-
-                yObs[iPoint] = valueScale * vradImage[iGlobal] + valueOffset;
-                c[iPoint] = cellImage[iGlobal];
-
-                iPoint++;
-            }
-        }  //for iAzim
-    } //for iRang
-
-    nPoints = iPoint;
-
-    return nPoints;
-
-
-} //getListOfSelectedGates
 
 
 
 
-void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta,
-        const SCANMETA clutterMeta, const int *cellImage,
-        const unsigned char *dbzImage, const unsigned char *vradImage,
-        unsigned char *rawReflImage, const unsigned char *clutterImage,
-        float *zdata,
-        const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
-        const float XSCALE, const float XMEAN, const float heightOfInterest,
-        const float azimMin, const float azimMax, const float absVradMin, const float dbzClutter, const float dbzMin,
-        const float dBZx, const float DBZNOISE, const int NGAPMIN, const int NDBZMIN,
-        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
-        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
-        const unsigned char clutterFlag, const unsigned char rawReflFlag, const unsigned char xflag) {
+void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta, const SCANMETA clutterMeta,
+        const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *rawReflImage, const unsigned char *clutterImage,
+        float *zdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
+        const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
+        const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
+        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr, int *nPointsRainPtr,
+        int *nPointsRainNoFringePtr, const unsigned char clutterFlag, const unsigned char rawReflFlag,
+        const unsigned char xflag) {
 
 
     //  *****************************************************************************
@@ -542,9 +436,9 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
-            range = (iRang+0.5) * dbzMeta.rangeScale;
-            azim = iAzim * dbzMeta.azimScale;  // FIXME (iAzim + 0.5) would be better I think
-            heightBeam = range * sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
+            range = (float) (iRang+0.5) * dbzMeta.rangeScale;
+            azim = (float) iAzim * dbzMeta.azimScale;  // FIXME (iAzim + 0.5) would be better I think
+            heightBeam = range * (float) sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
 
             #ifdef FPRINTFON
             fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
@@ -569,9 +463,9 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
             iGlobal = iRang + iAzim * nRang;
 
-            dbzValue = dbzMeta.valueScale*dbzImage[iGlobal] + dbzMeta.valueOffset;
-            vradValue = vradMeta.valueScale*vradImage[iGlobal] + vradMeta.valueOffset;
-            clutterValue = clutterMeta.valueScale*clutterImage[iGlobal] + clutterMeta.valueOffset;
+            dbzValue = dbzMeta.valueScale*(float) dbzImage[iGlobal] + dbzMeta.valueOffset;
+            vradValue = vradMeta.valueScale*(float) vradImage[iGlobal] + vradMeta.valueOffset;
+            clutterValue = clutterMeta.valueScale*(float) clutterImage[iGlobal] + clutterMeta.valueOffset;
 
             #ifdef FPRINTFON
             fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
@@ -581,7 +475,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
             nPointsAll++;
 
-            if (clutterFlag == 1){
+            if ((int) clutterFlag == 1){
                 // take clutter into account
                 if (clutterValue > dbzClutter){
 
@@ -596,7 +490,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
                 }
             }
 
-            if (rawReflFlag == 1){
+            if ((int) rawReflFlag == 1){
 
                 // Take into account that points can be dropped by the signal processor
 
@@ -667,7 +561,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
                 zdata[2+llayer] = 0;
             }
 
-            if (xflag==1) {
+            if ((int) xflag==1) {
                 zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range);
             }
             else {
@@ -686,8 +580,117 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
     *nPointsRainNoFringePtr = nPointsRainNoFringe;
 
     return;
-} // classify
+} // classifyGates
 
+
+
+
+
+
+
+int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
+        int *c, const int *cellImage,
+        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
+        const float absVradMin, const int iData, int nPoints)
+{
+
+    int nDims;
+    int iAzim;
+    int iRang;
+    int iPoint;
+    float gateHeight;
+    float gateRange;
+    float gateAzim;
+    int nRang;
+    int nAzim;
+    float rangeScale;
+    float azimuthScale;
+    float elevAngle;
+    unsigned char missing;
+    float radarHeight;
+    int iGlobal;
+    float valueOffset;
+    float valueScale;
+
+    iPoint = nPoints;
+
+    nRang = vradMeta.nRang;
+    nAzim = vradMeta.nAzim;
+    rangeScale = vradMeta.rangeScale;
+    azimuthScale = vradMeta.azimScale;
+    elevAngle = vradMeta.elev;
+    missing = vradMeta.missing;
+    radarHeight = vradMeta.heig;
+    valueOffset = vradMeta.valueOffset;
+    valueScale = vradMeta.valueScale;
+
+    nDims = 2;
+
+
+    for (iRang = 0; iRang < nRang; iRang++) {
+
+        // so gateRange represents a distance along the view direction (not necessarily horizontal)
+        gateRange = ((float) iRang + 0.5f) * rangeScale;
+
+        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
+        gateHeight = gateRange * (float) sin(elevAngle*DEG2RAD) + radarHeight;
+
+        if (gateRange < rangeMin || gateRange > rangeMax) {
+            // the current gate is either (1) too close to the radar
+            // or (2) too far away.
+            continue;
+        }
+        if (fabs(heightOfInterest-gateHeight) > 0.5*layerThickness) {
+            // if the height of the middle of the current gate is too far away from
+            // the requested height, continue with the next gate
+            continue;
+        }
+
+
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+            iGlobal = iRang + iAzim * nRang;
+            gateAzim = ((float) iAzim + 0.5f) * azimuthScale;
+
+            if (vradImage[iGlobal] == missing) {
+                continue;
+            }
+
+            switch (iData) {
+            case 0:
+                if (cellImage[iGlobal]>0) {
+                    continue; // outside rain clutter map only
+                }
+                break;
+            case 1:
+                if (cellImage[iGlobal]<2) {
+                    continue; // inside rain clutter map without fringe only
+                }
+                break;
+            }
+
+            // so at this point we've checked a couple of things and we see no reason
+            // why vRadImage[iGlobal] shouldn't be part of the 'points' array
+
+            if (fabs(yObs[iPoint]) >= absVradMin) {
+
+                points[iPoint * nDims + 0] = gateAzim;
+                points[iPoint * nDims + 1] = elevAngle;
+
+                yObs[iPoint] = valueScale * (float) vradImage[iGlobal] + valueOffset;
+                c[iPoint] = cellImage[iGlobal];
+
+                iPoint++;
+            }
+        }  //for iAzim
+    } //for iRang
+
+    nPoints = iPoint;
+
+    return nPoints;
+
+
+} //getListOfSelectedGates
 
 
 
@@ -717,14 +720,14 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
     int count;
     int cellImageInitialValue;
 
-    int dbzThres;
+    unsigned char dbzThres;
 
     int iGlobal;
     int iGlobalOther;
     int nGlobal;
     int iLocal;
 
-    int dbzMissing;
+    unsigned char dbzMissing;
     int dbznAzim;
     int dbznRang;
     float dbzValueOffset;
@@ -744,6 +747,11 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
     int dbg = 0;
     #endif
 
+    if (dbzImage==NULL) {
+        fprintf(stderr,"Input argument dbzImage is NULL.\n");
+        return -1;
+    }
+
     dbzMissing = dbzMeta->missing;
     dbznAzim = dbzMeta->nAzim;
     dbznRang = dbzMeta->nRang;
@@ -762,7 +770,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
 
 
     if (dbzImage != NULL) {
-        dbzThres = ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
+        dbzThres = (unsigned char) ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
     }
 
     /*Initializing of connection cellImage.*/
@@ -787,9 +795,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
 
             iGlobal = iRang + iAzim * nRang;
 
-            if ((iRang + 1) * dbzRangeScale > rCellMax) {
-                // FIXME the left hand side of the condition above is a distance; the
-                // right hand side's data type suggests a number of array elements
+            if ((float)(iRang + 1) * dbzRangeScale > rCellMax) {
                 continue;
             }
             else {
@@ -803,7 +809,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
             fprintf(stderr,"iGlobal = %d\n",iGlobal);
             #endif
 
-            if (dbzImage[iGlobal] == dbzMissing) {
+            if (dbzImage[iGlobal] == (unsigned char) dbzMissing) {
 
                 #ifdef FPRINTFON
                 fprintf(stderr,"dbzImage[%d] == dbzMissing\n",iGlobal);
@@ -812,7 +818,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
                 continue;
             }
 
-            if (dbzImage[iGlobal] < dbzThres) {
+            if (dbzImage[iGlobal] < (unsigned char) dbzThres) {
                 continue;
             }
 

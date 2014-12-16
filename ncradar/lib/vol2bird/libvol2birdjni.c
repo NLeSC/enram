@@ -32,7 +32,7 @@ jint areaMin,
 jfloat cellDbzMin,
 jfloat cellStdDevMax,
 jfloat cellClutterFraction,
-jfloat vradMinValue,
+jfloat absVradMin,
 jfloat clutterValueMax,
 jint cmFlagInt,
 jint verboseInt
@@ -153,7 +153,7 @@ jint verboseInt
                                &clutterImageBody[0], &cellImageIntBody[0],
                                &dbzMeta, &vradMeta, &texMeta, &clutterMeta,
                                nCells, areaMin, cellDbzMin, cellStdDevMax, cellClutterFraction,
-                               vradMinValue, clutterValueMax, cmFlag,
+                               absVradMin, clutterValueMax, cmFlag,
                                verbose);
 
 
@@ -245,9 +245,9 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         jintArray texImageInt,
         const jintArray dbzImageInt,
         const jintArray vradImageInt,
-        const jint nRangNeighborhoodInt,
-        const jint nAzimNeighborhoodInt,
-        const jint nCountMinInt,
+        const jint nRangNeighborhood,
+        const jint nAzimNeighborhood,
+        const jint nCountMin,
         const jfloat texOffset,
         const jfloat texScale,
         const jfloat dbzOffset,
@@ -298,36 +298,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
         }
     }
 
-    unsigned char nRangNeighborhoodUChar;
-    unsigned char nAzimNeighborhoodUChar;
-    unsigned char nCountMinUChar;
-
-    if (0<=nRangNeighborhoodInt && nRangNeighborhoodInt<=255) {
-        nRangNeighborhoodUChar = (unsigned char) nRangNeighborhoodInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type (nRangNeighborhoodInt).\n");
-        return;
-    }
-
-
-    if (0<=nAzimNeighborhoodInt && nAzimNeighborhoodInt<=255) {
-        nAzimNeighborhoodUChar = (unsigned char) nAzimNeighborhoodInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type (nAzimNeighborhoodInt).\n");
-        return;
-    }
-
-    if (0<=nCountMinInt && nCountMinInt<=255) {
-        nCountMinUChar = (unsigned char) nCountMinInt;
-    }
-    else {
-        fprintf(stderr,"Error converting type (nCountMinInt).\n");
-        return;
-    }
-
-
     SCANMETA texMeta;
     SCANMETA dbzMeta;
     SCANMETA vradMeta;
@@ -348,8 +318,7 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
     calcTexture(texImageUCharBody, vradImageUCharBody, dbzImageUCharBody,
             &texMeta, &vradMeta, &dbzMeta,
-            nRangNeighborhoodUChar, nAzimNeighborhoodUChar,
-            nCountMinUChar);
+            nRangNeighborhood, nAzimNeighborhood, nCountMin);
 
 
 
@@ -397,7 +366,6 @@ jfloat layerThickness,
 jfloat heightOfInterest,
 jfloat absVradMin,
 jint iData,
-jint layer,
 jint nPoints)
 {
 
@@ -450,7 +418,7 @@ jint nPoints)
 
     nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
         rangeMin, rangeMax, layerThickness, heightOfInterest,
-        absVradMin, iData, layer, nPoints);
+        absVradMin, iData, nPoints);
 
     fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
 
@@ -523,8 +491,6 @@ const jfloat dbzClutter,
 const jfloat dbzMin,
 const jfloat dBZx,
 const jfloat DBZNOISE,
-const jint NGAPMIN,
-const jint NDBZMIN,
 const jint layer,
 jint np,
 jint nPointsPtr,
@@ -678,7 +644,7 @@ const jint xflagInt
             rangeMin, rangeMax, HLAYER, XOFFSET,
             XSCALE, XMEAN, heightOfInterest,
             azimMin, azimMax, absVradMin, dbzClutter, dbzMin,
-            dBZx, DBZNOISE, NGAPMIN, NDBZMIN,
+            dBZx, DBZNOISE,
             layer, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
             &nPointsRainPtr, &nPointsRainNoFringePtr,
             clutterFlag, rawReflFlag, xflag);

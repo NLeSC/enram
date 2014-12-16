@@ -1,30 +1,30 @@
-/*
- * Copyright 2013 Netherlands eScience Center
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//
+// Copyright 2013 Netherlands eScience Center
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 
 
 
-/******************************************************************************/
-/*Definition of standard parameters.                                          */
-/******************************************************************************/
+// ****************************************************************************
+// Definition of standard parameters.
+// ****************************************************************************
 
-#define DEG2RAD    (0.017453293)  /*Degrees to radians.*/
+#define DEG2RAD    (0.017453293)  // Degrees to radians.
 
-/******************************************************************************/
-/*Definition of general macros:                                               */
-/******************************************************************************/
+// ****************************************************************************
+// Definition of general macros:
+// ****************************************************************************
 
 #define XABS(x)    (((x)<0)?(-(x)):(x))
 #define SIGN(x)    (((x)<0)?-1:1)
@@ -33,22 +33,22 @@
 #define XYMAX(x,y) (((x)<(y))?(y):(x))
 #define XYMIN(x,y) (((x)<(y))?(x):(y))
 
-/******************************************************************************/
-/*Defined (default) parameters.                                               */
-/******************************************************************************/
+// ****************************************************************************
+// Defined (default) parameters.
+// ****************************************************************************
 
 
-#define NEIGHBOURS  (5)      /*Minimum number of directly neighouring pixels  */
-                             /*with dBZ>DBZRAIN [1-8]                         */
-#define NDATA       (3)      /*Data dimension height layers.                  */
+#define NEIGHBOURS  (5)      // Minimum number of directly neighouring pixels
+                             // with dBZ>DBZRAIN [1-8]
+#define NDATA       (3)      // Data dimension height layers.
 #define PI          (3.14159265358979323846)
 #define TRUE        (1)
 #define FALSE       (0)
 
 
-///******************************************************************************/
-///*Structure for containing SCAN metadata:                                     */
-///******************************************************************************/
+// ****************************************************************************
+//  Structure for containing SCAN metadata:
+// ****************************************************************************
 
 struct scanmeta {
     float heig;              // Height of radar antenna in km.
@@ -59,7 +59,7 @@ struct scanmeta {
     float azimScale;         // Size of azimuth steps in scan in deg.
     float valueOffset;       // Offset value of quantity contained by scan.
     float valueScale;        // Scale of value of quantity contained by scan.
-    int missing;             // Missing value of quantity contained by scan.
+    unsigned char missing;   // Missing value of quantity contained by scan.
 };
 
 struct cellprop {
@@ -89,33 +89,29 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float vradMinValue, const float clutterValueMax, const unsigned char cmFlag,
+        const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
-        const unsigned char nRangNeighborhood, const unsigned char nAzimNeighborhood,
-        const unsigned char nCountMin);
+        const int nRangNeighborhood, const int nAzimNeighborhood,
+        const int nCountMin);
 
 int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
         int *c, const int *cellImage,
         const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
-        const float absVradMin, const int iData, const int layer, int nPoints);
+        const float absVradMin, const int iData, int nPoints);
 
-void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta,
-        const SCANMETA clutterMeta, const int *cellImage,
-        const unsigned char *dbzImage, const unsigned char *vradImage,
-        unsigned char *uzscan, const unsigned char *clutterImage,
-        float *zdata,
-        const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
-        const float XSCALE, const float XMEAN, const float heightOfInterest,
-        const float azimMin, const float azimMax, const float absVradMin, const float dbzClutter, const float dbzMin,
-        const float dBZx, const float DBZNOISE, const int NGAPMIN, const int NDBZMIN,
-        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
-        int *nPointsRainPtr, int *nPointsRainNoFringePtr,
-        const unsigned char clutterFlag, const unsigned char uzflag, const unsigned char xflag);
+void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta, const SCANMETA clutterMeta,
+        const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *uzscan, const unsigned char *clutterImage,
+        float *zdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
+        const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
+        const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
+        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr, int *nPointsRainPtr,
+        int *nPointsRainNoFringePtr, const unsigned char clutterFlag, const unsigned char uzflag,
+        const unsigned char xflag);
 
 int findCells(const unsigned char *dbzImage,
               int *cellImage,
