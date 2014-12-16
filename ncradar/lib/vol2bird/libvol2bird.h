@@ -99,12 +99,12 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
         const unsigned char nRangNeighborhood, const unsigned char nAzimNeighborhood,
         const unsigned char nCountMin);
 
-int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellmap,
-        float rangeMin, float rangeMax, float layerThickness, float heightOfInterest,
-        float absVradMin, int iData, int layer, int nPoints);
+int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
+        int *c, const int *cellImage,
+        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
+        const float absVradMin, const int iData, const int layer, int nPoints);
 
-void classify(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta,
+void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta,
         const SCANMETA clutterMeta, const int *cellImage,
         const unsigned char *dbzImage, const unsigned char *vradImage,
         unsigned char *uzscan, const unsigned char *clutterImage,

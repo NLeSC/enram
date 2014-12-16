@@ -485,7 +485,7 @@ jint nPoints)
 
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_classify(
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_classifyGates(
 JNIEnv *env,
 jobject obj,
 const jint dbznRang,
@@ -671,7 +671,7 @@ const jint xflagInt
 
     fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
 
-    classify(dbzMeta, vradMeta, rawReflMeta,
+    classifyGates(dbzMeta, vradMeta, rawReflMeta,
             clutterMeta, cellImageBody, &dbzImageBody[0], &vradImageBody[0],
             &rawReflImageBody[0], &clutterImageBody[0],
             &zdataBody[0],

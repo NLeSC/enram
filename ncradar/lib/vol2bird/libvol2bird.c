@@ -363,10 +363,10 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 
 
-int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *points, float *yObs,
-        int *c, int *cellImage,
-        float rangeMin, float rangeMax, float layerThickness, float heightOfInterest,
-        float absVradMin, int iData, int layer, int nPoints)
+int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
+        int *c, const int *cellImage,
+        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
+        const float absVradMin, const int iData, const int layer, int nPoints)
 {
 
     int nDims;
@@ -470,7 +470,7 @@ int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *p
 
 
 
-void classify(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta,
+void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta,
         const SCANMETA clutterMeta, const int *cellImage,
         const unsigned char *dbzImage, const unsigned char *vradImage,
         unsigned char *rawReflImage, const unsigned char *clutterImage,
