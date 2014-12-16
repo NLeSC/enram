@@ -470,18 +470,18 @@ int getListOfSelectedGates(SCANMETA vradMeta, unsigned char *vradImage, float *p
 
 
 
-void classify(SCANMETA dbzMeta, SCANMETA vradMeta, SCANMETA rawReflMeta,
-        SCANMETA clutterMeta, int *cellImage,
-        unsigned char *dbzImage, unsigned char *vradImage,
-        unsigned char *rawReflImage, unsigned char *clutterImage,
+void classify(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta,
+        const SCANMETA clutterMeta, const int *cellImage,
+        const unsigned char *dbzImage, const unsigned char *vradImage,
+        unsigned char *rawReflImage, const unsigned char *clutterImage,
         float *zdata,
-        float rangeMin, float rangeMax, float layerThickness, float XOFFSET,
-        float XSCALE, float XMEAN, float heightOfInterest,
-        float azimMin, float azimMax, float absVradMin, float dbzClutter, float dbzMin,
-        float dBZx, float DBZNOISE, int NGAPMIN, int NDBZMIN,
-        int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
+        const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
+        const float XSCALE, const float XMEAN, const float heightOfInterest,
+        const float azimMin, const float azimMax, const float absVradMin, const float dbzClutter, const float dbzMin,
+        const float dBZx, const float DBZNOISE, const int NGAPMIN, const int NDBZMIN,
+        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr,
         int *nPointsRainPtr, int *nPointsRainNoFringePtr,
-        unsigned char clutterFlag, unsigned char rawReflFlag, unsigned char xflag) {
+        const unsigned char clutterFlag, const unsigned char rawReflFlag, const unsigned char xflag) {
 
 
     //  *****************************************************************************
