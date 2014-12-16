@@ -35,20 +35,15 @@ public class JNIMethodsVol2Bird {
             float texOffset, float texScale, float dbzOffset, float dbzScale,
             float vradOffset, float vradScale, int vradMissing, int nRang, int nAzim);
 
-    protected final native int getListOfSelectedGates(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
-            int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
-            float[] yObs, int[] c, int[] cellImage, float rangeMin, float rangeMax,
-            float layerThickness, float heightOfInterest, float absVradMin, int iData, int nPoints);
-
     protected final native void classifyGates(int dbznRang, int dbznAzim, float dbzRangeScale, float dbzElev,
             float dbzHeig, float dbzValueScale, float dbzValueOffset, float dbzAzimScale,
             int dbzMissing, float vradValueScale, float vradValueOffset, int vradMissing,
             int rawReflMissing, float clutterValueScale, float clutterValueOffset,
             int[] cellImageInt, int[] dbzImageInt, int[] vradImageInt,
-            int[] rawReflImageInt, int[] clutterImageInt, float[] zdata,
+            int[] rawReflImageInt, int[] clutterImageInt, float[] zdata, int[] nzdata,
             float rangeMin, float rangeMax, float HLAYER, float XOFFSET, float XSCALE,
             float XMEAN, float heightOfInterest, float azimMin, float azimMax, float absVradMin,
-            float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int layer, int np, int nPointsPtr,
+            float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int iLayer, int np, int nPointsPtr,
             int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
 
@@ -64,6 +59,10 @@ public class JNIMethodsVol2Bird {
     protected final native void fringeCells(int[] cellImage, int nRange,
             int nAzim, float azimuthScale, float rangeScale, float fringeDist);
 
+    protected final native int getListOfSelectedGates(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
+            int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
+            float[] yObs, int[] c, int[] cellImage, float rangeMin, float rangeMax,
+            float layerThickness, float heightOfInterest, float absVradMin, int iData, int nPoints);
 
     protected final native void sortCells(int[] cellPropIRangOfMax,
             int[] cellPropIAzimOfMax, float[] cellPropDbzAvg,
