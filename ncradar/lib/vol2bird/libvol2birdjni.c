@@ -343,116 +343,6 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_calcTexture(
 
 
 JNIEXPORT void JNICALL
-Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_getListOfSelectedGates(
-JNIEnv *env,
-jobject obj,
-jint nRang,
-jint nAzim,
-jfloat rangeScale,
-jfloat azimuthScale,
-jfloat elevAngle,
-jint missing,
-jfloat radarHeight,
-jfloat valueOffset,
-jfloat valueScale,
-jintArray vradImageInt,
-jfloatArray points,
-jfloatArray yObs,
-jintArray c,
-jintArray cellImage,
-jfloat rangeMin,
-jfloat rangeMax,
-jfloat layerThickness,
-jfloat heightOfInterest,
-jfloat absVradMin,
-jint iData,
-jint nPoints)
-{
-
-    int iAzim;
-    int iRang;
-    int iGlobal;
-
-    // do some Java Native interface tricks:
-    jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
-    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
-    jfloat *yObsBody = (*env)->GetFloatArrayElements(env, yObs, NULL);
-    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
-    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
-    jsize nGlobal = (*env)->GetArrayLength(env, vradImageInt);
-    // end of Java Native Interface tricks
-
-    unsigned char vradImageBody[nGlobal];
-    for (iAzim = 0; iAzim < nAzim; iAzim++){
-         for (iRang = 0; iRang < nRang; iRang++){
-             iGlobal = iAzim*nRang + iRang;
-             if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
-                 vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
-             }
-             else {
-                 fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
-             }
-         }
-     }
-
-
-    // TODO define size pointsBody as nPoints*nDims?
-    // TODO define size yObsBody as nPoints?
-    // TODO define size cBody as nPoints?
-
-
-    SCANMETA vradMeta;
-
-    vradMeta.nRang = nRang;
-    vradMeta.nAzim = nAzim;
-    vradMeta.rangeScale = rangeScale;
-    vradMeta.azimScale = azimuthScale;
-    vradMeta.elev = elevAngle;
-    vradMeta.missing = missing;
-    vradMeta.heig = radarHeight;
-    vradMeta.valueOffset = valueOffset;
-    vradMeta.valueScale = valueScale;
-
-
-    fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
-
-    nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
-        rangeMin, rangeMax, layerThickness, heightOfInterest,
-        absVradMin, iData, nPoints);
-
-    fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
-
-
-    // cast to the right type:
-    for (iAzim = 0; iAzim < nAzim; iAzim++){
-        for (iRang = 0; iRang < nRang; iRang++){
-
-            iGlobal = iAzim*nRang + iRang;
-            vradImageIntBody[iGlobal] = (jint) vradImageBody[iGlobal];
-
-        }
-    }
-
-
-
-    // do some Java Native interface tricks:
-
-    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);            // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);                // FIXME maybe don't use ABORT?
-    (*env)->ReleaseIntArrayElements(env, c, cBody, JNI_ABORT);                        // FIXME maybe don't use ABORT?
-    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);        // FIXME maybe don't use ABORT?
-
-    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
-    // end of Java Native Interface tricks
-
-
-}
-
-
-
-
-
-JNIEXPORT void JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_classifyGates(
 JNIEnv *env,
 jobject obj,
@@ -477,6 +367,7 @@ const jintArray vradImageInt,
 const jintArray rawReflImageInt,
 const jintArray clutterImageInt,
 jfloatArray zdata,
+jintArray nzdata,
 const jfloat rangeMin,
 const jfloat rangeMax,
 const jfloat HLAYER,
@@ -491,20 +382,14 @@ const jfloat dbzClutter,
 const jfloat dbzMin,
 const jfloat dBZx,
 const jfloat DBZNOISE,
-const jint layer,
-jint np,
-jint nPointsPtr,
-jint nPointsAllPtr,
-jint nPointsClutterPtr,
-jint nPointsRainPtr,
-jint nPointsRainNoFringePtr,
+const jint iLayer,
 const jint clutterFlagInt,
 const jint rawReflFlagInt,
 const jint xflagInt
 )
 {
 
-//    fprintf(stderr, "hello jni\n");
+
 //    fprintf(stderr, "dbznRang = %d\n", dbznRang);
 //    fprintf(stderr, "dbznAzim = %d\n", dbznAzim);
 //    fprintf(stderr, "dbzRangeScale = %f\n", dbzRangeScale);
@@ -530,6 +415,7 @@ const jint xflagInt
     jint *rawReflImageIntBody = (*env)->GetIntArrayElements(env, rawReflImageInt, NULL);
     jint *clutterImageIntBody = (*env)->GetIntArrayElements(env, clutterImageInt, NULL);
     jfloat *zdataBody = (*env)->GetFloatArrayElements(env, zdata, NULL);
+    jint *nzdataBody = (*env)->GetIntArrayElements(env, nzdata, NULL);
     jsize nGlobal = (*env)->GetArrayLength(env, cellImage);
     // end of Java Native Interface tricks
 
@@ -635,21 +521,15 @@ const jint xflagInt
     }
 
 
-    fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
-
     classifyGates(dbzMeta, vradMeta, rawReflMeta,
             clutterMeta, cellImageBody, &dbzImageBody[0], &vradImageBody[0],
             &rawReflImageBody[0], &clutterImageBody[0],
-            &zdataBody[0],
+            &zdataBody[0], &nzdataBody[0],
             rangeMin, rangeMax, HLAYER, XOFFSET,
             XSCALE, XMEAN, heightOfInterest,
             azimMin, azimMax, absVradMin, dbzClutter, dbzMin,
             dBZx, DBZNOISE,
-            layer, &np, &nPointsPtr, &nPointsAllPtr, &nPointsClutterPtr,
-            &nPointsRainPtr, &nPointsRainNoFringePtr,
-            clutterFlag, rawReflFlag, xflag);
-
-    fprintf(stderr,"%d@%p\n",nPointsClutterPtr,&nPointsClutterPtr);
+            iLayer, clutterFlag, rawReflFlag, xflag);
 
     // cast back to integer type:
     for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
@@ -667,6 +547,7 @@ const jint xflagInt
     (*env)->ReleaseIntArrayElements(env, rawReflImageInt, rawReflImageIntBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, clutterImageInt, clutterImageIntBody, JNI_ABORT);
     (*env)->ReleaseFloatArrayElements(env, zdata, zdataBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, nzdata, nzdataBody, JNI_ABORT);
     // end of Java Native Interface tricks
 
     return;
@@ -819,6 +700,118 @@ const jfloat fringeDist)
 
 
 }
+
+
+
+
+
+
+JNIEXPORT void JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_getListOfSelectedGates(
+JNIEnv *env,
+jobject obj,
+jint nRang,
+jint nAzim,
+jfloat rangeScale,
+jfloat azimuthScale,
+jfloat elevAngle,
+jint missing,
+jfloat radarHeight,
+jfloat valueOffset,
+jfloat valueScale,
+jintArray vradImageInt,
+jfloatArray points,
+jfloatArray yObs,
+jintArray c,
+jintArray cellImage,
+jfloat rangeMin,
+jfloat rangeMax,
+jfloat layerThickness,
+jfloat heightOfInterest,
+jfloat absVradMin,
+jint iData,
+jint nPoints)
+{
+
+    int iAzim;
+    int iRang;
+    int iGlobal;
+
+    // do some Java Native interface tricks:
+    jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
+    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
+    jfloat *yObsBody = (*env)->GetFloatArrayElements(env, yObs, NULL);
+    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
+    jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
+    jsize nGlobal = (*env)->GetArrayLength(env, vradImageInt);
+    // end of Java Native Interface tricks
+
+    unsigned char vradImageBody[nGlobal];
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+         for (iRang = 0; iRang < nRang; iRang++){
+             iGlobal = iAzim*nRang + iRang;
+             if (0<=vradImageIntBody[iGlobal] && vradImageIntBody[iGlobal]<=255) {
+                 vradImageBody[iGlobal] = (unsigned char) vradImageIntBody[iGlobal];
+             }
+             else {
+                 fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
+             }
+         }
+     }
+
+
+    // TODO define size pointsBody as nPoints*nDims?
+    // TODO define size yObsBody as nPoints?
+    // TODO define size cBody as nPoints?
+
+
+    SCANMETA vradMeta;
+
+    vradMeta.nRang = nRang;
+    vradMeta.nAzim = nAzim;
+    vradMeta.rangeScale = rangeScale;
+    vradMeta.azimScale = azimuthScale;
+    vradMeta.elev = elevAngle;
+    vradMeta.missing = missing;
+    vradMeta.heig = radarHeight;
+    vradMeta.valueOffset = valueOffset;
+    vradMeta.valueScale = valueScale;
+
+
+    fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
+
+    nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
+        rangeMin, rangeMax, layerThickness, heightOfInterest,
+        absVradMin, iData, nPoints);
+
+    fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
+
+
+    // cast to the right type:
+    for (iAzim = 0; iAzim < nAzim; iAzim++){
+        for (iRang = 0; iRang < nRang; iRang++){
+
+            iGlobal = iAzim*nRang + iRang;
+            vradImageIntBody[iGlobal] = (jint) vradImageBody[iGlobal];
+
+        }
+    }
+
+
+
+    // do some Java Native interface tricks:
+
+    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);            // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);                // FIXME maybe don't use ABORT?
+    (*env)->ReleaseIntArrayElements(env, c, cBody, JNI_ABORT);                        // FIXME maybe don't use ABORT?
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);        // FIXME maybe don't use ABORT?
+
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    // end of Java Native Interface tricks
+
+
+}
+
 
 
 

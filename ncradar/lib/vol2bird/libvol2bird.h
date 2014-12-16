@@ -40,7 +40,6 @@
 
 #define NEIGHBOURS  (5)      // Minimum number of directly neighouring pixels
                              // with dBZ>DBZRAIN [1-8]
-#define NDATA       (3)      // Data dimension height layers.
 #define PI          (3.14159265358979323846)
 #define TRUE        (1)
 #define FALSE       (0)
@@ -106,12 +105,10 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
 
 void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta, const SCANMETA clutterMeta,
         const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *uzscan, const unsigned char *clutterImage,
-        float *zdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
+        float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
         const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
         const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
-        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr, int *nPointsRainPtr,
-        int *nPointsRainNoFringePtr, const unsigned char clutterFlag, const unsigned char uzflag,
-        const unsigned char xflag);
+        const int iLayer, const unsigned char clutterFlag, const unsigned char uzflag, const unsigned char xflag);
 
 int findCells(const unsigned char *dbzImage,
               int *cellImage,

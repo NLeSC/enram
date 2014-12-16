@@ -370,12 +370,10 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta, const SCANMETA clutterMeta,
         const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *rawReflImage, const unsigned char *clutterImage,
-        float *zdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
+        float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
         const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
         const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
-        const int layer, int *np, int *nPointsPtr, int *nPointsAllPtr, int *nPointsClutterPtr, int *nPointsRainPtr,
-        int *nPointsRainNoFringePtr, const unsigned char clutterFlag, const unsigned char rawReflFlag,
-        const unsigned char xflag) {
+        const int iLayer, const unsigned char clutterFlag, const unsigned char rawReflFlag, const unsigned char xflag) {
 
 
     //  *****************************************************************************
@@ -384,22 +382,20 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
     //  and layer counters
     //  *****************************************************************************
 
-    // FIXME regarding the 'classify' method name...classify what?
-
     // FIXME XOFFSET suggests preprocessor but isn't
     // FIXME XSCALE suggests preprocessor but isn't
     // FIXME XMEAN suggests preprocessor but isn't
     // FIXME DBZNOISE suggests preprocessor but isn't
-    // FIXME NGAPMIN suggests preprocessor but isn't
     // FIXME NDBZMIN suggests preprocessor but isn't
-    // FIXME why not "SCANMETA*" (x4) instead of "SCANMETA" (x4)?
 
     int iAzim;
     int nAzim;
     int iRang;
     int nRang;
-    int llayer;
-    int n;
+    int iCol0;
+    int iCol1;
+    int iCol2;
+    int nCols;
     int nPoints;
     int nPointsAll;
     int nPointsClutter;
@@ -410,24 +406,23 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
     float heightBeam;
     float azim;
     float dbzValue;
+    float unDbzValue;
     float vradValue;
     float clutterValue;
 
-    n = *np;                      // FIXME I think this information is already contained in iGlobal
-    nPoints = *nPointsPtr;        // FIXME I think this information is already contained in iGlobal
-    nPointsAll = *nPointsAllPtr;  // FIXME I think this information is already contained in iGlobal
-    nPointsClutter = *nPointsClutterPtr;
-    nPointsRain = *nPointsRainPtr;
-    nPointsRainNoFringe = *nPointsRainNoFringePtr;
+    nPoints = 0;
+    nPointsAll = 0;
+    nPointsClutter = 0;
+    nPointsRain = 0;
+    nPointsRainNoFringe = 0;
 
-    #ifdef FPRINTFON
-    fprintf(stderr, "nPointsRainNoFringe = %d\n",nPointsRainNoFringe);
-    #endif
+    // for each height layer (a.k.a each bin in the density profiles), keep track of nCols variables:
+    nCols = 3;
 
-    llayer = layer * NDATA;
-    // I think what happens is this: you want to calculate a profile of bird densities with height. For each
-    // layer in that profile, you keep track of a number of variables, which I think is equal to NDATA.
-    // The variable llayer then represents the index of the start of this layer's data into zdata.
+    // These are the indices into 'zdata' for the 3 variables that we track for each height layer:
+    iCol0 = (iLayer * nCols) + 0;  // nPointsAll - nPointsRain - nPointsClutter
+    iCol1 = (iLayer * nCols) + 1;  // nPointsRainNoFringe
+    iCol2 = (iLayer * nCols) + 2;  // nPointsAll - nPointsClutter
 
     nRang = dbzMeta.nRang;
     nAzim = dbzMeta.nAzim;
@@ -464,14 +459,15 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
             iGlobal = iRang + iAzim * nRang;
 
             dbzValue = dbzMeta.valueScale*(float) dbzImage[iGlobal] + dbzMeta.valueOffset;
+            unDbzValue = (float) exp(0.1*log(10)*dbzValue);
             vradValue = vradMeta.valueScale*(float) vradImage[iGlobal] + vradMeta.valueOffset;
             clutterValue = clutterMeta.valueScale*(float) clutterImage[iGlobal] + clutterMeta.valueOffset;
+
+
 
             #ifdef FPRINTFON
             fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
             #endif
-
-            n++;
 
             nPointsAll++;
 
@@ -517,6 +513,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
                 // the reflectivity value is too low to be considered.
 
                 dbzValue = DBZNOISE;
+                unDbzValue = (float) exp(0.1*log(10)*DBZNOISE);
 
                 // FIXME why reset the dbzValue to DBZNOISE?
             }
@@ -535,49 +532,52 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
                 if (cellImage[iGlobal] > 1) {
 
                     // i.e. the cells from cellImage, without any added fringes
-                    // TODO indexing should probably use 3 separate variables
-                    if (isnan(zdata[1+llayer])) {
-                        zdata[1+llayer] = 0;
+                    if (isnan(zdata[iCol1])) {
+                        // FIXME what is this clause for
+                        zdata[iCol1] = 0;
                     }
 
-                    zdata[1+llayer] += exp(0.1*log(10)*dbzValue);
+                    zdata[iCol1] += unDbzValue;
                     nPointsRainNoFringe++;
 
                 }
 
-                if (isnan(zdata[2+llayer])) {
-                    zdata[2+llayer] = 0;
+                if (isnan(zdata[iCol2])) {
+                    // FIXME what is this clause for
+                    zdata[iCol2] = 0;
                 }
-                zdata[2+llayer] += exp(0.1*log(10)*dbzValue);
+                zdata[iCol2] += unDbzValue;
                 nPointsRain++;
                 continue;
             }
 
-            if (isnan(zdata[0+llayer])) {
-                zdata[0+llayer] = 0;
+            if (isnan(zdata[iCol0])) {
+                // FIXME what is this clause for
+                zdata[iCol0] = 0;
             }
 
-            if (isnan(zdata[2+llayer])) {
-                zdata[2+llayer] = 0;
+            if (isnan(zdata[iCol2])) {
+                // FIXME what is this clause for
+                zdata[iCol2] = 0;
             }
 
             if ((int) xflag==1) {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue)*XMEAN/(XOFFSET+XSCALE/range);
+                zdata[iCol0] += unDbzValue*XMEAN/(XOFFSET+XSCALE/range);
             }
             else {
-                zdata[0+llayer] += exp(0.1*log(10)*dbzValue);
+                zdata[iCol0] += unDbzValue;
             }
-            zdata[2+llayer] += exp(0.1*log(10)*dbzValue);
+            zdata[iCol2] += unDbzValue;
             nPoints++;
         }//for iAzim
     }//for iRang
 
-    *np = n;
-    *nPointsPtr = nPoints;
-    *nPointsAllPtr = nPointsAll;
-    *nPointsClutterPtr = nPointsClutter;
-    *nPointsRainPtr = nPointsRain;
-    *nPointsRainNoFringePtr = nPointsRainNoFringe;
+    nzdata[iCol0] = nPointsAll - nPointsRain - nPointsClutter;
+    nzdata[iCol1] = nPointsRainNoFringe;
+    nzdata[iCol2] = nPointsAll - nPointsClutter;
+
+    // FIXME Adriaan's latest code has some additional calculations to calculate the various fractions
+
 
     return;
 } // classifyGates
@@ -678,6 +678,8 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
                 points[iPoint * nDims + 1] = elevAngle;
 
                 yObs[iPoint] = valueScale * (float) vradImage[iGlobal] + valueOffset;
+
+                // FIXME what does the variable 'c' represent?
                 c[iPoint] = cellImage[iGlobal];
 
                 iPoint++;
