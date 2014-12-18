@@ -556,7 +556,32 @@ const jint xflagInt
 
 
 
+JNIEXPORT jint JNICALL
+Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_detNumberOfGates(
+        JNIEnv *env,
+        jobject obj,
+        const jint iLayer,
+        const jfloat layerThickness,
+        const jfloat rangeMin,
+        const jfloat rangeMax,
+        const jfloat rangeScale,
+        const jfloat elevAngle,
+        const jint nRang,
+        const jint nAzim,
+        const jfloat radarHeight)
+{
 
+    int nGates;
+
+    nGates = detNumberOfGates(iLayer, layerThickness,
+                              rangeMin, rangeMax,
+                              rangeScale, elevAngle,
+                              nRang, nAzim,
+                              radarHeight);
+
+    return nGates;
+
+}
 
 
 

@@ -584,7 +584,46 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
 
 
+int detNumberOfGates(const int iLayer, const float layerThickness,
+                     const float rangeMin, const float rangeMax,
+                     const float rangeScale, const float elevAngle,
+                     const int nRang, const int nAzim,
+                     const float radarHeight) {
 
+    // Determine the number of gates that are within the limits set
+    // by (rangeMin,rangeMax) as well as by (iLayer*layerThickness,
+    // (iLayer+1)*layerThickness).
+
+    int nGates;
+    float layerHeight;
+    int iRang;
+    float range;
+    float beamHeight;
+
+    nGates = 0;
+    layerHeight = (iLayer + 0.5) * layerThickness;
+    for (iRang = 0; iRang < nRang; iRang++) {
+        range = (iRang + 0.5) * rangeScale;
+        if (range < rangeMin || range > rangeMax) {
+            // the gate is too close to the radar, or too far away
+            continue;
+        }
+        beamHeight = range * sin(elevAngle * DEG2RAD) + radarHeight;
+        if (fabs(layerHeight - beamHeight) > 0.5*layerThickness) {
+            // the gate is not close enough to the altitude layer of interest
+            continue;
+        }
+
+        #ifdef FPRINTFON
+        fprintf(stderr, "iRang = %d; range = %f; beamHeight = %f\n",iRang,range,beamHeight);
+        #endif
+
+        nGates += nAzim;
+    } // iRang
+
+    return nGates;
+
+} // detNumberOfGates()
 
 
 
@@ -669,20 +708,26 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
                 break;
             }
 
-            // so at this point we've checked a couple of things and we see no reason
-            // why vRadImage[iGlobal] shouldn't be part of the 'points' array
-
             if (fabs(yObs[iPoint]) >= absVradMin) {
 
+                // so at this point we've checked a couple of things and we see no reason
+                // why vRadImage[iGlobal] shouldn't be part of the 'points' array
+
+                // store the location as an azimuth angle, elevation angle combination
                 points[iPoint * nDims + 0] = gateAzim;
                 points[iPoint * nDims + 1] = elevAngle;
 
+                // store the corresponding observed vrad value
                 yObs[iPoint] = valueScale * (float) vradImage[iGlobal] + valueOffset;
 
-                // FIXME what does the variable 'c' represent?
+                // FIXME Adriaan's latest version also stores the dbz value --useful when estimating the bird density
+
+                // store the corresponding cellImage value
                 c[iPoint] = cellImage[iGlobal];
 
+                // raise the counter by 1
                 iPoint++;
+
             }
         }  //for iAzim
     } //for iRang

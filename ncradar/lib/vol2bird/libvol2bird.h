@@ -98,6 +98,12 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
         const int nRangNeighborhood, const int nAzimNeighborhood,
         const int nCountMin);
 
+int detNumberOfGates(const int iLayer, const float layerThickness,
+                     const float rangeMin, const float rangeMax,
+                     const float rangeScale, const float elevAngle,
+                     const int nRang, const int nAzim,
+                     const float radarHeight);
+
 int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
         int *c, const int *cellImage,
         const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
