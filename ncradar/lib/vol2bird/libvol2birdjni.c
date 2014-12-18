@@ -731,7 +731,7 @@ const jfloat fringeDist)
 
 
 
-JNIEXPORT void JNICALL
+JNIEXPORT int JNICALL
 Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_getListOfSelectedGates(
 JNIEnv *env,
 jobject obj,
@@ -791,14 +791,14 @@ jint nPoints)
              }
              else {
                  fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
-                 return;
+                 return -1;
              }
              if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
                  dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
              }
              else {
                  fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
-                 return;
+                 return -1;
              }
          }
      }
@@ -815,7 +815,7 @@ jint nPoints)
         vradMeta.missing = (unsigned char) missing;
     } else {
         fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
-        return;
+        return -1;
     }
     vradMeta.heig = radarHeight;
     vradMeta.valueOffset = vradValueOffset;
@@ -864,6 +864,8 @@ jint nPoints)
     (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
     // end of Java Native Interface tricks
+
+    return nPoints;
 
 
 }
