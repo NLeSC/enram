@@ -46,7 +46,13 @@ public class JNIMethodsVol2Bird {
             float dbzClutter, float dbzMin, float dBZx, float DBZNOISE, int iLayer, int np, int nPointsPtr,
             int nPointsAllPtr, int nPointsClutterPtr, int nPointsRainPtr, int nPointsRainNoFringePtr,
             int clutterFlagInt, int rawReflFlagInt, int xflagInt);
-
+    
+    protected final native int detNumberOfGates(int iLayer, float layerThickness,
+            float rangeMin, float rangeMax,
+            float rangeScale, float elevAngle,
+            int nRang, int nAzim,
+            float radarHeight);
+    
     protected final native int findCells(int[] dbzImage,
             int[] cellImage, int dbzMissing,
             int dbznAzim, int dbznRang, float dbzValueOffset,
