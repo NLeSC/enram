@@ -10,6 +10,11 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
     private int[] clutterImage;
     private final int nRang;
     private final int nAzim;
+    private float[] altitudeProfileLowerBound;
+    private float[] altitudeProfileCentre;
+    private float[] altitudeProfileUpperBound;
+    private float[][] windVector;
+    private float[] svdfitPerformance;
 
 
 
@@ -23,7 +28,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         nRang = reflectivity.getNumberOfRangeBins();
         cellImage = new int[nAzim * nRang];
         clutterImage = new int[nAzim * nRang];
-
+        
         {
             int nAzim = radialVelocity.getNumberOfAzimuthBins();
             int nRang = radialVelocity.getNumberOfRangeBins();
@@ -35,7 +40,23 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
                 throw new Exception("Number of range bins differ.");
             }
         }
-
+        
+        int nLayers = this.parameterValues.getNLAYER();
+        float layerThickness = (float) this.parameterValues.getHLAYER();
+        
+        altitudeProfileLowerBound = new float[nLayers];
+        altitudeProfileCentre = new float[nLayers];
+        altitudeProfileUpperBound = new float[nLayers];
+        windVector = new float[nLayers][3];
+        svdfitPerformance = new float[nLayers];
+        
+        for (int iLayer = 0; iLayer < nLayers; iLayer++) {
+            altitudeProfileLowerBound[iLayer] = iLayer * layerThickness;
+            altitudeProfileCentre[iLayer] = (iLayer + 0.5f) * layerThickness;
+            altitudeProfileUpperBound[iLayer] = (iLayer + 1) * layerThickness;
+            windVector[iLayer] = new float[] {Float.NaN,Float.NaN,Float.NaN};
+            svdfitPerformance[iLayer] = Float.NaN;
+        }
     }
 
 
@@ -240,11 +261,11 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         cellIds = new int[nGates];
         
         for (iGate = 0; iGate < nGates; iGate++) {
-            points[iGate*2+0] = -1.0f;
-            points[iGate*2+1] = -1.0f;
-            vradObs[iGate] = -1.0f;
-            dbzObs[iGate] = -1.0f;
-            cellIds[iGate] = -11;
+            points[iGate*2+0] = Float.NaN;
+            points[iGate*2+1] = Float.NaN;
+            vradObs[iGate] = Float.NaN;
+            dbzObs[iGate] = Float.NaN;
+            cellIds[iGate] = (int) Float.NaN;
         }
         
         getListOfSelectedGates(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, 
@@ -252,9 +273,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
                                          dbzValueOffset, dbzValueScale, dbzImageInt, points, 
                                          vradObs, dbzObs, cellIds, cellImage, rangeMin, rangeMax, layerThickness, 
                                          heightOfInterest, absVradMin, iData, nPoints);
-        
-        System.out.println("sdsd");
-        
+
     }
     
 
