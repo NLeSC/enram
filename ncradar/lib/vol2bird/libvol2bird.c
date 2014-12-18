@@ -627,31 +627,39 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
 
 
 
-int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
-        int *c, const int *cellImage,
-        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
-        const float absVradMin, const int iData, int nPoints)
+void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *vradObs,
+                            const SCANMETA dbzMeta, const unsigned char *dbzImage, float *dbzObs,
+                            const int *cellImage, int *c, float *points,
+                            const float rangeMin, const float rangeMax,
+                            const float layerThickness, const float heightOfInterest,
+                            const float absVradMin, const int iData, int *nPoints)
 {
 
     int nDims;
     int iAzim;
     int iRang;
     int iPoint;
+    int iGlobal;
+    int nRang;
+    int nAzim;
+
+    unsigned char missing;
+
     float gateHeight;
     float gateRange;
     float gateAzim;
-    int nRang;
-    int nAzim;
     float rangeScale;
     float azimuthScale;
     float elevAngle;
-    unsigned char missing;
     float radarHeight;
-    int iGlobal;
-    float valueOffset;
-    float valueScale;
+    float vradValueOffset;
+    float vradValueScale;
+    float dbzValueOffset;
+    float dbzValueScale;
+    float vradValue;
+    float dbzValue;
 
-    iPoint = nPoints;
+    iPoint = *nPoints;
 
     nRang = vradMeta.nRang;
     nAzim = vradMeta.nAzim;
@@ -660,8 +668,11 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
     elevAngle = vradMeta.elev;
     missing = vradMeta.missing;
     radarHeight = vradMeta.heig;
-    valueOffset = vradMeta.valueOffset;
-    valueScale = vradMeta.valueScale;
+    vradValueOffset = vradMeta.valueOffset;
+    vradValueScale = vradMeta.valueScale;
+
+    dbzValueOffset = dbzMeta.valueOffset;
+    dbzValueScale = dbzMeta.valueScale;
 
     nDims = 2;
 
@@ -690,6 +701,8 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
 
             iGlobal = iRang + iAzim * nRang;
             gateAzim = ((float) iAzim + 0.5f) * azimuthScale;
+            vradValue = vradValueScale * (float) vradImage[iGlobal] + vradValueOffset;
+            dbzValue = dbzValueScale * (float) dbzImage[iGlobal] + dbzValueOffset;
 
             if (vradImage[iGlobal] == missing) {
                 continue;
@@ -697,18 +710,20 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
 
             switch (iData) {
             case 0:
-                if (cellImage[iGlobal]>0) {
+                if (cellImage[iGlobal] == -1) {
                     continue; // outside rain clutter map only
                 }
                 break;
             case 1:
-                if (cellImage[iGlobal]<2) {
+                if (cellImage[iGlobal] == -1 || cellImage[iGlobal] == 1 ) {
                     continue; // inside rain clutter map without fringe only
                 }
                 break;
             }
 
-            if (fabs(yObs[iPoint]) >= absVradMin) {
+
+
+            if (fabs(vradValue) >= absVradMin) {
 
                 // so at this point we've checked a couple of things and we see no reason
                 // why vRadImage[iGlobal] shouldn't be part of the 'points' array
@@ -718,9 +733,10 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
                 points[iPoint * nDims + 1] = elevAngle;
 
                 // store the corresponding observed vrad value
-                yObs[iPoint] = valueScale * (float) vradImage[iGlobal] + valueOffset;
+                vradObs[iPoint] = vradValue;
 
-                // FIXME Adriaan's latest version also stores the dbz value --useful when estimating the bird density
+                // also store the dbz value --useful when estimating the bird density
+                dbzObs[iPoint] = dbzValue;
 
                 // store the corresponding cellImage value
                 c[iPoint] = cellImage[iGlobal];
@@ -732,9 +748,9 @@ int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIma
         }  //for iAzim
     } //for iRang
 
-    nPoints = iPoint;
+    *nPoints = iPoint;
 
-    return nPoints;
+    return;
 
 
 } //getListOfSelectedGates

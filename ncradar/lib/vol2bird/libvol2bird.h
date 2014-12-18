@@ -104,10 +104,12 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
                      const int nRang, const int nAzim,
                      const float radarHeight);
 
-int getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *points, float *yObs,
-        int *c, const int *cellImage,
-        const float rangeMin, const float rangeMax, const float layerThickness, const float heightOfInterest,
-        const float absVradMin, const int iData, int nPoints);
+void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *vradObs,
+                            const SCANMETA dbzMeta, const unsigned char *dbzImage, float *dbzObs,
+                            const int *cellImage, int *c, float *points,
+                            const float rangeMin, const float rangeMax,
+                            const float layerThickness, const float heightOfInterest,
+                            const float absVradMin, const int iData, int *nPoints);
 
 void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta, const SCANMETA clutterMeta,
         const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *uzscan, const unsigned char *clutterImage,

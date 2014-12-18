@@ -742,11 +742,15 @@ jfloat azimuthScale,
 jfloat elevAngle,
 jint missing,
 jfloat radarHeight,
-jfloat valueOffset,
-jfloat valueScale,
+jfloat vradValueOffset,
+jfloat vradValueScale,
 jintArray vradImageInt,
+jfloat dbzValueOffset,
+jfloat dbzValueScale,
+jintArray dbzImageInt,
 jfloatArray points,
-jfloatArray yObs,
+jfloatArray vradObs,
+jfloatArray dbzObs,
 jintArray c,
 jintArray cellImage,
 jfloat rangeMin,
@@ -761,17 +765,24 @@ jint nPoints)
     int iAzim;
     int iRang;
     int iGlobal;
+    int iPoint;
 
     // do some Java Native interface tricks:
     jint *vradImageIntBody = (*env)->GetIntArrayElements(env, vradImageInt, NULL);
-    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
-    jfloat *yObsBody = (*env)->GetFloatArrayElements(env, yObs, NULL);
-    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
+    jint *dbzImageIntBody = (*env)->GetIntArrayElements(env, dbzImageInt, NULL);
     jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     jsize nGlobal = (*env)->GetArrayLength(env, vradImageInt);
+
+    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
+    jfloat *vradObsBody = (*env)->GetFloatArrayElements(env, vradObs, NULL);
+    jfloat *dbzObsBody = (*env)->GetFloatArrayElements(env, dbzObs, NULL);
+    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
+
     // end of Java Native Interface tricks
 
     unsigned char vradImageBody[nGlobal];
+    unsigned char dbzImageBody[nGlobal];
+
     for (iAzim = 0; iAzim < nAzim; iAzim++){
          for (iRang = 0; iRang < nRang; iRang++){
              iGlobal = iAzim*nRang + iRang;
@@ -780,14 +791,17 @@ jint nPoints)
              }
              else {
                  fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
+                 return;
+             }
+             if (0<=dbzImageIntBody[iGlobal] && dbzImageIntBody[iGlobal]<=255) {
+                 dbzImageBody[iGlobal] = (unsigned char) dbzImageIntBody[iGlobal];
+             }
+             else {
+                 fprintf(stderr,"Error converting type (dbzImageIntBody[iGlobal]).\n");
+                 return;
              }
          }
      }
-
-
-    // TODO define size pointsBody as nPoints*nDims?
-    // TODO define size yObsBody as nPoints?
-    // TODO define size cBody as nPoints?
 
 
     SCANMETA vradMeta;
@@ -797,20 +811,37 @@ jint nPoints)
     vradMeta.rangeScale = rangeScale;
     vradMeta.azimScale = azimuthScale;
     vradMeta.elev = elevAngle;
-    vradMeta.missing = missing;
+    if (0<=missing && missing<=255) {
+        vradMeta.missing = (unsigned char) missing;
+    } else {
+        fprintf(stderr,"Error converting type (vradImageIntBody[iGlobal]).\n");
+        return;
+    }
     vradMeta.heig = radarHeight;
-    vradMeta.valueOffset = valueOffset;
-    vradMeta.valueScale = valueScale;
+    vradMeta.valueOffset = vradValueOffset;
+    vradMeta.valueScale = vradValueScale;
 
 
-    fprintf(stderr, "B:  pointsBody[0] = %f\n", pointsBody[0]);
+    SCANMETA dbzMeta;
+    dbzMeta.valueOffset = dbzValueOffset;
+    dbzMeta.valueScale = dbzValueScale;
 
-    nPoints = getListOfSelectedGates(vradMeta, &vradImageBody[0], &pointsBody[0], &yObsBody[0], &cBody[0], &cellImageBody[0],
-        rangeMin, rangeMax, layerThickness, heightOfInterest,
-        absVradMin, iData, nPoints);
+    fprintf(stderr, "nPoints = %d\n", nPoints);
 
-    fprintf(stderr, "A:  pointsBody[0] = %f\n", pointsBody[0]);
+    getListOfSelectedGates(vradMeta, &vradImageBody[0], &vradObsBody[0],
+                           dbzMeta, &dbzImageBody[0], &dbzObsBody[0],
+                           &cellImageBody[0], &cBody[0], &pointsBody[0],
+                           rangeMin, rangeMax,
+                           layerThickness, heightOfInterest,
+                           absVradMin, iData, &nPoints);
 
+
+    for (iPoint = 0; iPoint < nPoints ; iPoint++) {
+        if (pointsBody[iPoint*2+0] != -1.0f) {
+            fprintf(stderr, "%5d %10.3f %10.3f %10.3f %10.3f %4d\n", iPoint, pointsBody[iPoint*2+0], pointsBody[iPoint*2+1], vradObsBody[iPoint], dbzObsBody[iPoint], cBody[iPoint]);
+        }
+    }
+    fprintf(stderr, "nPoints = %d\n", nPoints);
 
     // cast to the right type:
     for (iAzim = 0; iAzim < nAzim; iAzim++){
@@ -826,12 +857,12 @@ jint nPoints)
 
     // do some Java Native interface tricks:
 
-    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);            // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);                // FIXME maybe don't use ABORT?
-    (*env)->ReleaseIntArrayElements(env, c, cBody, JNI_ABORT);                        // FIXME maybe don't use ABORT?
-    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);        // FIXME maybe don't use ABORT?
-
-    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, vradObs, vradObsBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, dbzObs, dbzObsBody, 0);
+    (*env)->ReleaseIntArrayElements(env, c, cBody, 0);
+    (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
     // end of Java Native Interface tricks
 
 
@@ -1088,8 +1119,8 @@ jint nParsFitted
             &parameterVectorBody[0], &avarBody[0], nParsFitted);
 
     // do some Java Native interface tricks:
-    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
-    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);  // FIXME maybe don't use ABORT?
+    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, JNI_ABORT);
+    (*env)->ReleaseFloatArrayElements(env, yObs, yObsBody, JNI_ABORT);
     (*env)->ReleaseFloatArrayElements(env, yFitted, yFittedBody, 0);
     (*env)->ReleaseFloatArrayElements(env, parameterVector, parameterVectorBody, 0);
     (*env)->ReleaseFloatArrayElements(env, avar, avarBody, 0);
@@ -1193,7 +1224,6 @@ jfloatArray arrayV
     (*env)->ReleaseFloatArrayElements(env, arrayA, arrayABody, 0);
     (*env)->ReleaseFloatArrayElements(env, arrayW, arrayWBody, 0);
     (*env)->ReleaseFloatArrayElements(env, arrayV, arrayVBody, 0);
-    // FIXME maybe don't use ABORT? ...looks like if you want the values back, you use 0, otherwise use JNI_ABORT
     // end of Java Native Interface tricks
 
     return status;
