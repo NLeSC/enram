@@ -175,6 +175,88 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
     
 
     
+    public void getListOfSelectedGates(int iLayer, float layerThickness, int iData) throws Exception {
+        
+        int nRang;
+        int nAzim;
+        int missing;
+        int nGates;
+        int nDims;
+        int iGate;
+        int nPoints;
+        
+        float absVradMin;
+        float radarHeight;
+        float vradValueOffset;
+        float vradValueScale;
+        float dbzValueOffset;
+        float dbzValueScale;
+        float rangeScale;
+        float azimuthScale;
+        float elevAngle;
+        float heightOfInterest;
+        float rangeMin;
+        float rangeMax;
+        
+        int[] vradImageInt;
+        int[] dbzImageInt;
+        int[] cellImage;
+        int[] cellIds;
+        
+        float[] points;
+        float[] vradObs;
+        float[] dbzObs;
+ 
+        
+        
+        nRang = this.getNumberOfRangeBins();
+        nAzim = this.getNumberOfAzimuthBins();
+        nDims = 2;
+        rangeScale = (float) this.reflectivity.getRangeScale();
+        azimuthScale = (float) this.reflectivity.getAzimuthScaleDeg();
+        elevAngle = (float) this.reflectivity.getElevationAngle();
+        missing = this.reflectivity.getMissingValueValue();
+        radarHeight = (float) this.reflectivity.radarMeta.getRadarPositionHeight();
+        dbzValueOffset = (float) this.reflectivity.getDataOffset();
+        dbzValueScale = (float) this.reflectivity.getDataScale();
+        vradValueOffset = (float) this.radialVelocity.getDataOffset();
+        vradValueScale = (float) this.radialVelocity.getDataScale();
+        absVradMin = (float) this.parameterValues.getVRADMIN();
+        heightOfInterest = (float) ((iLayer+0.5) * layerThickness);
+        rangeMin = (float) this.parameterValues.getRANGMIN();
+        rangeMax = (float) this.parameterValues.getRANGMAX();
+
+        
+        vradImageInt = this.radialVelocity.getScanDataRaw();
+        dbzImageInt = this.reflectivity.getScanDataRaw();
+        cellImage = this.getCellImage();
+        
+        nGates = this.detNumberOfGates(iLayer, layerThickness, rangeMin, rangeMax, rangeScale, elevAngle, nRang, nAzim, radarHeight);
+        nPoints = 0;
+        
+        points = new float[nGates*nDims];
+        vradObs = new float[nGates];
+        dbzObs = new float[nGates];
+        cellIds = new int[nGates];
+        
+        for (iGate = 0; iGate < nGates; iGate++) {
+            points[iGate*2+0] = -1.0f;
+            points[iGate*2+1] = -1.0f;
+            vradObs[iGate] = -1.0f;
+            dbzObs[iGate] = -1.0f;
+            cellIds[iGate] = -11;
+        }
+        
+        getListOfSelectedGates(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, 
+                                         radarHeight, vradValueOffset, vradValueScale, vradImageInt,
+                                         dbzValueOffset, dbzValueScale, dbzImageInt, points, 
+                                         vradObs, dbzObs, cellIds, cellImage, rangeMin, rangeMax, layerThickness, 
+                                         heightOfInterest, absVradMin, iData, nPoints);
+        
+        System.out.println("sdsd");
+        
+    }
+    
 
 
     public int[] getTexture() throws Exception {
@@ -266,6 +348,42 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
 
         return this.reflectivity.getNumberOfRangeBins();
     }
+
+    
+    public double getAzimuthScale() {
+
+        return this.reflectivity.getAzimuthScaleDeg();
+        
+    }
+    
+    public double getElevationAngle() {
+
+        return this.reflectivity.getElevationAngle();
+        
+    }
+    
+    
+    public int getMissingValueValue() {
+
+        return this.reflectivity.getMissingValueValue();
+        
+    }
+    
+//    public float getRangeScale() {
+//
+//        return this.reflectivity.
+//        
+//    }
+//    
+//    public float getRangeScale() {
+//
+//        return (float) this.reflectivity.getRangeScale();
+//        
+//    }
+//    
+//    float radarHeight;
+//    float valueOffset;
+//    float valueScale;
 
 
 

@@ -66,8 +66,9 @@ public class JNIMethodsVol2Bird {
             int nAzim, float azimuthScale, float rangeScale, float fringeDist);
 
     protected final native int getListOfSelectedGates(int nRang, int nAzim, float rangeScale, float azimuthScale, float elevAngle,
-            int missing, float radarHeight, float valueOffset, float valueScale, int[] vradImageInt, float[] points,
-            float[] yObs, int[] c, int[] cellImage, float rangeMin, float rangeMax,
+            int missing, float radarHeight, float vradValueOffset, float vradValueScale, int[] vradImageInt, 
+            float dbzValueOffset, float dbzValueScale, int[] dbzImageInt, float[] points,
+            float[] vradObs, float[] dbzObs, int[] c, int[] cellImage, float rangeMin, float rangeMax,
             float layerThickness, float heightOfInterest, float absVradMin, int iData, int nPoints);
 
     protected final native void sortCells(int[] cellPropIRangOfMax,

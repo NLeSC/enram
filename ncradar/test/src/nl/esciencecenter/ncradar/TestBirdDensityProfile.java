@@ -10,7 +10,6 @@ public class TestBirdDensityProfile {
     private RadarScanJava radialVelocity;
     private int iScan;
     private BirdDensityProfileJava birdDensityProfileJava;
-    private ParameterValues parameterValues;
 
 
 
@@ -34,8 +33,6 @@ public class TestBirdDensityProfile {
 
         birdDensityProfileJava = new BirdDensityProfileJava(reflectivity, radialVelocity);
 
-        this.parameterValues = new ParameterValues();
-
     }
 
 
@@ -53,75 +50,15 @@ public class TestBirdDensityProfile {
         int nCellsValid = birdDensityProfileJava.analyzeCells(nCells, cluttermapFlag, verbosityFlag);
 
         birdDensityProfileJava.fringeCells();
+
+        int iLayer = 4;
+        float layerThickness = 200.0f;
+        int iData = 0;
+        
+        birdDensityProfileJava.getListOfSelectedGates(iLayer, layerThickness, iData);
         
 
-//        float dbzHeig = (float) this.reflectivity.getRadarPositionHeight();
-//        float dbzAzimScale = (360.0f / nAzim) * DEG2RAD;
-//        int rawReflMissing = missing;
-//        int[] rawReflImage = zeros.clone();
-//        // FIXME is zdata the profile information? (Then it should have multiple
-//        // pseudo-columns)
-//        float[] zdata = new float[1000];
-//        float rangeMin = (float) this.parameterValues.getRANGMIN();
-//        float rangeMax = (float) this.parameterValues.getRANGMAX();
-//        float HLAYER = (float) this.parameterValues.getHLAYER();
-//        float XOFFSET = 0.0f; // FIXME unclear what this does
-//        float XSCALE = 1.0f; // FIXME unclear what this does
-//        float XMEAN = 0.0f; // FIXME unclear what this does
-//        float height = 600.0f;
-//        float azimMin = (float) this.parameterValues.getAZIMMIN();
-//        float azimMax = (float) this.parameterValues.getAZIMMAX();
-//        float vradMin = (float) this.parameterValues.getVRADMIN();
-//        float dbzClutter = (float) this.parameterValues.getDBZCLUTTER();
-//        float dbzMin = (float) this.parameterValues.getDBZMIN();
-//        float dBZx = (float) this.parameterValues.getDBZMAX();
-//        float DBZNOISE = (float) this.parameterValues.getDBZNOISE();
-//        int NGAPMIN = this.parameterValues.getNGAPMIN();
-//        int NGAPBIN = this.parameterValues.getNGAPBIN();
-//        int NDBZMIN = this.parameterValues.getNDBZMIN();
-//
-//        // TODO this is how far I got with mapping this.parameterValues to the
-//        // variables used here
-//
-//        int layer = 0;
-//        int np = 0;
-//        int nPointsPtr = 0;
-//        int nPointsAllPtr = 0;
-//        int nPointsClutterPtr = 0;
-//        int nPointsRainPtr = 0;
-//        int nPointsRainNoFringePtr = 0;
-//        int clutterFlagInt = 1;
-//        int rawReflFlagInt = 0;
-//        int xflagInt = 0;
-//
-//        // FIXME it seems zdata should be bigger, probably NDATA * llayer or
-//        // something to accommodate all the stuff that classify() wants to put
-//        // in it.
-//
-//        birdDensityProfileJava.classify(dbznRang, dbznAzim, dbzRangeScale,
-//                dbzElev, dbzHeig, dbzScale, dbzOffset,
-//                dbzAzimScale, dbzMissing, vradScale, vradOffset, vradMissing,
-//                rawReflMissing,
-//                clutterScale, clutterOffset, cellImage, dbzImage, vradImage,
-//                rawReflImage, clutterImage, zdata, rangeMin, rangeMax,
-//                HLAYER, XOFFSET, XSCALE, XMEAN, height, azimMin, azimMax, vradMin,
-//                dbzClutter,
-//                dbzMin, dBZx, DBZNOISE, NGAPMIN, NGAPBIN, NDBZMIN, layer, np,
-//                nPointsPtr,
-//                nPointsAllPtr, nPointsClutterPtr, nPointsRainPtr,
-//                nPointsRainNoFringePtr,
-//                clutterFlagInt, rawReflFlagInt, xflagInt);
-//
-//        System.err.print("Done\n");
-//        // TODO finish this stuff right here
-
     }
 
-
-
-    public ParameterValues getParameterValues() {
-
-        return parameterValues;
-    }
 
 }
