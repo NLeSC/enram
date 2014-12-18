@@ -50,7 +50,7 @@ public class ParameterValues {
         this.RANGMINSTDEV = 5.0; // equivalent of RANGMINSTDEV, but for VRAD
                                  // instead of DBZ?
         this.RANGMAXSTDEV = 25.0;
-        this.RANGMAX = 25.0 * 1000; // p.84   // FIXME original value was in km
+        this.RANGMAX = (25.0 + 5.0) * 1000; // p.84   // FIXME original value was in km
         this.AZIMMIN = 0.0;
         this.AZIMMAX = 360.0;
         this.VRADMIN = 1.0; // p. 74
