@@ -46,11 +46,11 @@ public class ParameterValues {
         this.HLAYER = 0.200; // p. 84
         this.NLAYER = 30;
         this.NDATA = 4;
-        this.RANGMIN = 5.0; // p. 84 says 10.0
+        this.RANGMIN = 5.0 * 1000; // p. 84 says 10.0  // FIXME original value was in km
         this.RANGMINSTDEV = 5.0; // equivalent of RANGMINSTDEV, but for VRAD
                                  // instead of DBZ?
         this.RANGMAXSTDEV = 25.0;
-        this.RANGMAX = 25.0; // p.84
+        this.RANGMAX = 25.0 * 1000; // p.84   // FIXME original value was in km
         this.AZIMMIN = 0.0;
         this.AZIMMAX = 360.0;
         this.VRADMIN = 1.0; // p. 74
