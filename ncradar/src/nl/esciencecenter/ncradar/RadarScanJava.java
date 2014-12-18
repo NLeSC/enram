@@ -12,7 +12,7 @@ public class RadarScanJava extends NetcdfAttributeReader {
 
     public PolarData polarData;
     private final ScanMeta scanMeta;
-    private final RadarMeta radarMeta;
+    public final RadarMeta radarMeta;
 
 
 
