@@ -168,8 +168,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         float dbzValueOffset = (float) reflectivity.getDataOffset();
         float dbzValueScale = (float) reflectivity.getDataScale();
         float dbzThresMin = (float) this.parameterValues.getDBZMIN();
-        // FIXME plus 5? magic number
-        int rCellMax = (int) (this.parameterValues.getRANGMAX() + 5);
+        int rCellMax = (int) (this.parameterValues.getRANGMAX());
         
         int nCells = findCells(dbzImage, cellImage, dbzMissing, dbznAzim, dbznRang, dbzValueOffset, 
                 dbzRangeScale, dbzValueScale, dbzThresMin, rCellMax);
@@ -205,6 +204,8 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         int nDims;
         int iGate;
         int nPoints;
+        int iPoint;
+        int iParFitted;
         
         float absVradMin;
         float radarHeight;
@@ -268,11 +269,26 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
             cellIds[iGate] = (int) Float.NaN;
         }
         
-        getListOfSelectedGates(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, 
+        nPoints = getListOfSelectedGates(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, 
                                          radarHeight, vradValueOffset, vradValueScale, vradImageInt,
                                          dbzValueOffset, dbzValueScale, dbzImageInt, points, 
                                          vradObs, dbzObs, cellIds, cellImage, rangeMin, rangeMax, layerThickness, 
                                          heightOfInterest, absVradMin, iData, nPoints);
+
+
+        float[] vradFitted = new float[nPoints];
+        for (iPoint = 0; iPoint < nPoints; iPoint++) {
+            vradFitted[iPoint] = Float.NaN; 
+        }
+        float[] parameterVector = {Float.NaN,Float.NaN,Float.NaN};
+        int nParsFitted = 3;
+        float[] avar = new float[nParsFitted];
+        for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
+            avar[iParFitted] = Float.NaN; 
+        }
+        
+        float chisq = svdfit(points, nDims, vradObs, vradFitted, nPoints, parameterVector, avar, nParsFitted);
+
 
     }
     
