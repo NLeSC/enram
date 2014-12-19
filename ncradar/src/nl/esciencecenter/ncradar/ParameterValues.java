@@ -43,7 +43,7 @@ public class ParameterValues {
         // FIXME still have to rename properties to more meaningful names;
         // FIXME also make compliant with naming convention
 
-        this.HLAYER = 0.200; // p. 84
+        this.HLAYER = 0.200 * 1000; // p. 84 // FIXME original value was in km
         this.NLAYER = 30;
         this.NDATA = 4;
         this.RANGMIN = 5.0 * 1000; // p. 84 says 10.0  // FIXME original value was in km
