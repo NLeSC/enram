@@ -565,27 +565,19 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_detNumberOfGates(
         const jfloat rangeMin,
         const jfloat rangeMax,
         const jfloat rangeScale,
-        const jfloatArray elevAngles,
-        const jint nElevAngles,
+        const jfloat elevAngle,
         const jint nRang,
         const jint nAzim,
         const jfloat radarHeight)
 {
 
-    // do some Java Native interface tricks:
-    jfloat *elevAnglesBody = (*env)->GetFloatArrayElements(env, elevAngles, NULL);
-    // end of Java Native Interface tricks
     int nRecordsMax;
 
     nRecordsMax = detNumberOfGates(iLayer, layerThickness,
                               rangeMin, rangeMax,
-                              rangeScale, &elevAnglesBody[0], nElevAngles,
+                              rangeScale, elevAngle,
                               nRang, nAzim,
                               radarHeight);
-
-    // do some Java Native interface tricks:
-    (*env)->ReleaseFloatArrayElements(env, elevAngles, elevAnglesBody, JNI_ABORT);
-    // end of Java Native Interface tricks
 
 
     return nRecordsMax;
@@ -757,15 +749,16 @@ jintArray vradImageInt,
 jfloat dbzValueOffset,
 jfloat dbzValueScale,
 jintArray dbzImageInt,
-jfloatArray points,
-jfloatArray vradObs,
-jfloatArray dbzObs,
-jintArray c,
+jfloatArray listOfAzimuths,
+jfloatArray listOfElevAngles,
+jfloatArray listOfVradObs,
+jfloatArray listOfDbzObs,
+jintArray listOfCellIds,
 jintArray cellImage,
 jfloat rangeMin,
 jfloat rangeMax,
-jfloat layerThickness,
-jfloat heightOfInterest,
+jfloat altitudeMin,
+jfloat altitudeMax,
 jfloat absVradMin,
 jint iData,
 jint nPoints)
@@ -782,11 +775,11 @@ jint nPoints)
     jint *cellImageBody = (*env)->GetIntArrayElements(env, cellImage, NULL);
     jsize nGlobal = (*env)->GetArrayLength(env, vradImageInt);
 
-    jfloat *pointsBody = (*env)->GetFloatArrayElements(env, points, NULL);
-    jfloat *vradObsBody = (*env)->GetFloatArrayElements(env, vradObs, NULL);
-    jfloat *dbzObsBody = (*env)->GetFloatArrayElements(env, dbzObs, NULL);
-    jint *cBody = (*env)->GetIntArrayElements(env, c, NULL);
-
+    jfloat *listOfAzimuthsBody = (*env)->GetFloatArrayElements(env, listOfAzimuths, NULL);
+    jfloat *listOfElevAnglesBody = (*env)->GetFloatArrayElements(env, listOfElevAngles, NULL);
+    jfloat *listOfVradObsBody = (*env)->GetFloatArrayElements(env, listOfVradObs, NULL);
+    jfloat *listOfDbzObsBody = (*env)->GetFloatArrayElements(env, listOfDbzObs, NULL);
+    jint *listOfCellIdsBody = (*env)->GetIntArrayElements(env, listOfCellIds, NULL);
     // end of Java Native Interface tricks
 
     unsigned char vradImageBody[nGlobal];
@@ -837,17 +830,25 @@ jint nPoints)
 
     fprintf(stderr, "nPoints = %d\n", nPoints);
 
-    getListOfSelectedGates(vradMeta, &vradImageBody[0], &vradObsBody[0],
-                           dbzMeta, &dbzImageBody[0], &dbzObsBody[0],
-                           &cellImageBody[0], &cBody[0], &pointsBody[0],
-                           rangeMin, rangeMax,
-                           layerThickness, heightOfInterest,
-                           absVradMin, iData, &nPoints);
+
+    getListOfSelectedGates(vradMeta, &vradImageBody[0],
+                             dbzMeta, &dbzImageBody[0],
+                             &cellImageBody[0],
+                             rangeMin, rangeMax,
+                             altitudeMin, altitudeMax,
+                             absVradMin, iData,
+                             &nPoints, &listOfAzimuthsBody[0], &listOfElevAnglesBody[0], &listOfVradObsBody[0],
+                             &listOfDbzObsBody[0], &listOfCellIdsBody[0]);
+
+
+
+
 
 
     for (iPoint = 0; iPoint < nPoints ; iPoint++) {
-        if (pointsBody[iPoint*2+0] != -1.0f) {
-            fprintf(stderr, "%5d %10.3f %10.3f %10.3f %10.3f %4d\n", iPoint, pointsBody[iPoint*2+0], pointsBody[iPoint*2+1], vradObsBody[iPoint], dbzObsBody[iPoint], cBody[iPoint]);
+        if (listOfAzimuthsBody[iPoint] != -1.0f) {
+            fprintf(stderr, "%5d %10.3f %10.3f %10.3f %10.3f %4d\n", iPoint, listOfAzimuthsBody[iPoint], listOfElevAnglesBody[iPoint],
+                    listOfVradObsBody[iPoint], listOfDbzObsBody[iPoint], listOfCellIdsBody[iPoint]);
         }
     }
     fprintf(stderr, "nPoints = %d\n", nPoints);
@@ -863,15 +864,17 @@ jint nPoints)
     }
 
 
-
     // do some Java Native interface tricks:
 
-    (*env)->ReleaseFloatArrayElements(env, points, pointsBody, 0);
-    (*env)->ReleaseFloatArrayElements(env, vradObs, vradObsBody, 0);
-    (*env)->ReleaseFloatArrayElements(env, dbzObs, dbzObsBody, 0);
-    (*env)->ReleaseIntArrayElements(env, c, cBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, listOfAzimuths, listOfAzimuthsBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, listOfElevAngles, listOfElevAnglesBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, listOfVradObs, listOfVradObsBody, 0);
+    (*env)->ReleaseFloatArrayElements(env, listOfDbzObs, listOfDbzObsBody, 0);
+    (*env)->ReleaseIntArrayElements(env, listOfCellIds, listOfCellIdsBody, 0);
+
     (*env)->ReleaseIntArrayElements(env, cellImage, cellImageBody, JNI_ABORT);
     (*env)->ReleaseIntArrayElements(env, vradImageInt, vradImageIntBody, JNI_ABORT);
+
     // end of Java Native Interface tricks
 
     return nPoints;
