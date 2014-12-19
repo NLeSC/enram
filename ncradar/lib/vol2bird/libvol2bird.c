@@ -23,51 +23,6 @@
 #include "libvol2bird.h"
 
 
-//
-//int test(const int nLayers, const float layerThickness,
-//        const float rangeMin, const float rangeMax,
-//        const float rangeScale, const float elevAngle,
-//        const int nRang, const int nAzim,
-//        const float radarHeight) {
-//
-//    int iLayer
-//    int nRecordsMax;
-//
-//
-//    for (iLayer = 0; iLayer < nLayers; iLayer++) {
-//
-//        SVDFITRECORD *svdfitRecords;
-//        svdfitRecords = (SVDFITRECORD *)malloc(nRecords*sizeof(SVDFITRECORD));
-//        if (!svdfitRecords) {
-//            printf("Requested memory could not be allocated!\n");
-//            return -1;
-//        }
-//
-//        for (iScan = 0; iScan < nScans; iScan++) {
-//
-//            // determine additional space need for the next scan:
-//
-//            nRecordsMax = detNumberOfGates(iLayer, layerThickness,
-//                                 rangeMin, rangeMax,
-//                                 rangeScale, elevAngle,
-//                                 nRang, nAzim,
-//                                 radarHeight);
-//
-//            // expand the struct array svdfitRecords by copy the existing data to a
-//
-//
-//
-//
-//        } // for iScan
-//
-//    } // for iLayer
-//
-//
-//    return 0;
-//
-//}
-
-
 
 int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
@@ -118,7 +73,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     /*Allocating and initializing memory for cell properties.*/
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
-        printf("Requested memory could not be allocated!\n");
+        fprintf(stderr,"Requested memory could not be allocated!\n");
         return -10;
     }
     for (iCell = 0; iCell < nCells; iCell++) {
@@ -630,8 +585,8 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
 int detNumberOfGates(const int iLayer, const float layerThickness,
                      const float rangeMin, const float rangeMax,
-                     const float rangeScale, const float elevAngles[],
-                     const int nElevAngles, const int nRang, const int nAzim,
+                     const float rangeScale, const float elevAngle,
+                     const int nRang, const int nAzim,
                      const float radarHeight) {
 
     // Determine the number of gates that are within the limits set
@@ -639,172 +594,39 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
     // (iLayer+1)*layerThickness).
 
     int nGates;
-    int iElevAngle;
     int iRang;
 
     float layerHeight;
     float range;
     float beamHeight;
-    float elevAngle;
 
 
     nGates = 0;
     layerHeight = (iLayer + 0.5) * layerThickness;
-    for (iElevAngle = 0; iElevAngle < nElevAngles; iElevAngle++) {
-        for (iRang = 0; iRang < nRang; iRang++) {
-            range = (iRang + 0.5) * rangeScale;
-            if (range < rangeMin || range > rangeMax) {
-                // the gate is too close to the radar, or too far away
-                continue;
-            }
-            elevAngle = elevAngles[iElevAngle];
-            beamHeight = range * sin(elevAngle * DEG2RAD) + radarHeight;
-            if (fabs(layerHeight - beamHeight) > 0.5*layerThickness) {
-                // the gate is not close enough to the altitude layer of interest
-                continue;
-            }
+    for (iRang = 0; iRang < nRang; iRang++) {
+        range = (iRang + 0.5) * rangeScale;
+        if (range < rangeMin || range > rangeMax) {
+            // the gate is too close to the radar, or too far away
+            continue;
+        }
+        beamHeight = range * sin(elevAngle * DEG2RAD) + radarHeight;
+        if (fabs(layerHeight - beamHeight) > 0.5*layerThickness) {
+            // the gate is not close enough to the altitude layer of interest
+            continue;
+        }
 
-            #ifdef FPRINTFON
-            fprintf(stderr, "iRang = %d; range = %f; beamHeight = %f\n",iRang,range,beamHeight);
-            #endif
+        #ifdef FPRINTFON
+        fprintf(stderr, "iRang = %d; range = %f; beamHeight = %f\n",iRang,range,beamHeight);
+        #endif
 
-            nGates += nAzim;
-        } // for iRang
-    } // for iElevAngle
+        nGates += nAzim;
+
+    } // for iRang
 
     return nGates;
 
 } // detNumberOfGates()
 
-
-
-void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *vradObs,
-                            const SCANMETA dbzMeta, const unsigned char *dbzImage, float *dbzObs,
-                            const int *cellImage, int *c, float *points,
-                            const float rangeMin, const float rangeMax,
-                            const float layerThickness, const float heightOfInterest,
-                            const float absVradMin, const int iData, int *nPoints)
-{
-
-    int nDims;
-    int iAzim;
-    int iRang;
-    int iPoint;
-    int iGlobal;
-    int nRang;
-    int nAzim;
-
-    unsigned char missing;
-
-    float gateHeight;
-    float gateRange;
-    float gateAzim;
-    float rangeScale;
-    float azimuthScale;
-    float elevAngle;
-    float radarHeight;
-    float vradValueOffset;
-    float vradValueScale;
-    float dbzValueOffset;
-    float dbzValueScale;
-    float vradValue;
-    float dbzValue;
-
-    iPoint = *nPoints;
-
-    nRang = vradMeta.nRang;
-    nAzim = vradMeta.nAzim;
-    rangeScale = vradMeta.rangeScale;
-    azimuthScale = vradMeta.azimScale;
-    elevAngle = vradMeta.elev;
-    missing = vradMeta.missing;
-    radarHeight = vradMeta.heig;
-    vradValueOffset = vradMeta.valueOffset;
-    vradValueScale = vradMeta.valueScale;
-
-    dbzValueOffset = dbzMeta.valueOffset;
-    dbzValueScale = dbzMeta.valueScale;
-
-    nDims = 2;
-
-
-    for (iRang = 0; iRang < nRang; iRang++) {
-
-        // so gateRange represents a distance along the view direction (not necessarily horizontal)
-        gateRange = ((float) iRang + 0.5f) * rangeScale;
-
-        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
-        gateHeight = gateRange * (float) sin(elevAngle*DEG2RAD) + radarHeight;
-
-        if (gateRange < rangeMin || gateRange > rangeMax) {
-            // the current gate is either (1) too close to the radar
-            // or (2) too far away.
-            continue;
-        }
-        if (fabs(heightOfInterest-gateHeight) > 0.5*layerThickness) {
-            // if the height of the middle of the current gate is too far away from
-            // the requested height, continue with the next gate
-            continue;
-        }
-
-
-        for (iAzim = 0; iAzim < nAzim; iAzim++) {
-
-            iGlobal = iRang + iAzim * nRang;
-            gateAzim = ((float) iAzim + 0.5f) * azimuthScale;
-            vradValue = vradValueScale * (float) vradImage[iGlobal] + vradValueOffset;
-            dbzValue = dbzValueScale * (float) dbzImage[iGlobal] + dbzValueOffset;
-
-            if (vradImage[iGlobal] == missing) {
-                continue;
-            }
-
-            switch (iData) {
-            case 0:
-                if (cellImage[iGlobal] == -1) {
-                    continue; // outside rain clutter map only
-                }
-                break;
-            case 1:
-                if (cellImage[iGlobal] == -1 || cellImage[iGlobal] == 1 ) {
-                    continue; // inside rain clutter map without fringe only
-                }
-                break;
-            }
-
-
-
-            if (fabs(vradValue) >= absVradMin) {
-
-                // so at this point we've checked a couple of things and we see no reason
-                // why vRadImage[iGlobal] shouldn't be part of the 'points' array
-
-                // store the location as an azimuth angle, elevation angle combination
-                points[iPoint * nDims + 0] = gateAzim;
-                points[iPoint * nDims + 1] = elevAngle;
-
-                // store the corresponding observed vrad value
-                vradObs[iPoint] = vradValue;
-
-                // also store the dbz value --useful when estimating the bird density
-                dbzObs[iPoint] = dbzValue;
-
-                // store the corresponding cellImage value
-                c[iPoint] = cellImage[iGlobal];
-
-                // raise the counter by 1
-                iPoint++;
-
-            }
-        }  //for iAzim
-    } //for iRang
-
-    *nPoints = iPoint;
-
-    return;
-
-
-} //getListOfSelectedGates
 
 
 
@@ -1234,6 +1056,139 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
 } // fringeCells
 
 
+
+
+void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage,
+                            const SCANMETA dbzMeta, const unsigned char *dbzImage,
+                            const int *cellImage,
+                            const float rangeMin, const float rangeMax,
+                            const float altitudeMin, const float altitudeMax,
+                            const float absVradMin, const int iData,
+                            int *nPoints, float *listOfAzimuths, float *listOfElevAngles, float *listOfVradObs,
+                            float *listOfDbzObs, int *listOfCellIds) {
+
+    // Construct a list of combinations of azimuths, elevation angles, the observed vrad value, the observed
+    // dbz value, and the cell identifier value. The lists are specific to the current scan elevation as well the
+    // altitude layer.
+
+
+    int iAzim;
+    int iRang;
+    int iPoint;
+    int iGlobal;
+    int nRang;
+    int nAzim;
+
+    unsigned char missing;
+
+    float gateHeight;
+    float gateRange;
+    float gateAzim;
+    float rangeScale;
+    float azimuthScale;
+    float elevAngle;
+    float radarHeight;
+    float vradValueOffset;
+    float vradValueScale;
+    float dbzValueOffset;
+    float dbzValueScale;
+    float vradValue;
+    float dbzValue;
+
+
+    iPoint = *nPoints;
+
+    nRang = vradMeta.nRang;
+    nAzim = vradMeta.nAzim;
+    rangeScale = vradMeta.rangeScale;
+    azimuthScale = vradMeta.azimScale;
+    elevAngle = vradMeta.elev;
+    missing = vradMeta.missing;
+    radarHeight = vradMeta.heig;
+    vradValueOffset = vradMeta.valueOffset;
+    vradValueScale = vradMeta.valueScale;
+
+    dbzValueOffset = dbzMeta.valueOffset;
+    dbzValueScale = dbzMeta.valueScale;
+
+
+    for (iRang = 0; iRang < nRang; iRang++) {
+
+        // so gateRange represents a distance along the view direction (not necessarily horizontal)
+        gateRange = ((float) iRang + 0.5f) * rangeScale;
+
+        // note that "sin(elevAngle*DEG2RAD)" is equivalent to = "cos((90 - elevAngle)*DEG2RAD)":
+        gateHeight = gateRange * (float) sin(elevAngle*DEG2RAD) + radarHeight;
+
+        if (gateRange < rangeMin || gateRange > rangeMax) {
+            // the current gate is either (1) too close to the radar
+            // or (2) too far away.
+            continue;
+        }
+        if (gateHeight < altitudeMin || gateHeight > altitudeMax) {
+            // if the height of the middle of the current gate is too far away from
+            // the requested height, continue with the next gate
+            continue;
+        }
+
+
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+            iGlobal = iRang + iAzim * nRang;
+            gateAzim = ((float) iAzim + 0.5f) * azimuthScale;
+            vradValue = vradValueScale * (float) vradImage[iGlobal] + vradValueOffset;
+            dbzValue = dbzValueScale * (float) dbzImage[iGlobal] + dbzValueOffset;
+
+            if (vradImage[iGlobal] == missing) {
+                continue;
+            }
+
+            switch (iData) {
+            case 0:
+                if (cellImage[iGlobal] == -1) {
+                    continue; // outside rain clutter map only
+                }
+                break;
+            case 1:
+                if (cellImage[iGlobal] == -1 || cellImage[iGlobal] == 1 ) {
+                    continue; // inside rain clutter map without fringe only
+                }
+                break;
+            }
+
+
+
+            if (fabs(vradValue) >= absVradMin) {
+
+                // so at this point we've checked a couple of things and we see no reason
+                // why vRadImage[iGlobal] shouldn't be part of the 'points' array
+
+                // store the location as an azimuth angle, elevation angle combination
+                listOfAzimuths[iPoint] = gateAzim;
+                listOfElevAngles[iPoint] = elevAngle;
+
+                // store the corresponding observed vrad value
+                listOfVradObs[iPoint] = vradValue;
+
+                // also store the dbz value --useful when estimating the bird density
+                listOfDbzObs[iPoint] = dbzValue;
+
+                // store the corresponding cellImage value
+                listOfCellIds[iPoint] = cellImage[iGlobal];
+
+                // raise the counter by 1
+                iPoint++;
+
+            }
+        }  //for iAzim
+    } //for iRang
+
+    *nPoints = iPoint;
+
+    return;
+
+
+} //getListOfSelectedGates
 
 
 
