@@ -4,13 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestBirdDensityProfile {
+public class TestTwinScan {
 
     private RadarScanJava reflectivity;
     private RadarScanJava radialVelocity;
+    private ParameterValues parameterValues;
     private int iScan;
-    private BirdDensityProfileJava birdDensityProfileJava;
-
+    private TwinScan twinScan;
 
 
     @Before
@@ -30,32 +30,32 @@ public class TestBirdDensityProfile {
 
         reflectivity = new RadarScanJava(theDir, "T_PAGZ60_C_OKPR_20110815000447.hdf", iScan);
         radialVelocity = new RadarScanJava(theDir, "T_PAHZ60_C_OKPR_20110815000447.hdf", iScan);
-
-        birdDensityProfileJava = new BirdDensityProfileJava(reflectivity, radialVelocity);
+        parameterValues = new ParameterValues();
+        
+        twinScan = new TwinScan(reflectivity, radialVelocity, parameterValues);
 
     }
 
 
 
     @Test
-    public void testBirdDensityProfile() throws Exception {
+    public void testTwinScan() throws Exception {
 
-        birdDensityProfileJava.calcTexture();
+        twinScan.calcTexture();
 
-        int nCells = birdDensityProfileJava.findCells();
+        int nCells = twinScan.findCells();
 
         int cluttermapFlag = 0;
         int verbosityFlag = 1;
 
-        int nCellsValid = birdDensityProfileJava.analyzeCells(nCells, cluttermapFlag, verbosityFlag);
+        int nCellsValid = twinScan.analyzeCells(nCells, cluttermapFlag, verbosityFlag);
 
-        birdDensityProfileJava.fringeCells();
+        twinScan.fringeCells();
 
         int iLayer = 4;
-        float layerThickness = 200.0f;
         int iData = 0;
         
-        birdDensityProfileJava.getListOfSelectedGates(iLayer, layerThickness, iData);
+        twinScan.getListOfSelectedGates(iLayer, iData);
         
 
     }

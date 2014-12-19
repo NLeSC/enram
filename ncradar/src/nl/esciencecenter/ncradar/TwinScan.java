@@ -1,6 +1,6 @@
 package nl.esciencecenter.ncradar;
 
-public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
+public class TwinScan extends JNIMethodsVol2Bird {
 
     private final RadarScanJava reflectivity;
     private final RadarScanJava radialVelocity;
@@ -10,19 +10,14 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
     private int[] clutterImage;
     private final int nRang;
     private final int nAzim;
-    private float[] altitudeProfileLowerBound;
-    private float[] altitudeProfileCentre;
-    private float[] altitudeProfileUpperBound;
-    private float[][] windVector;
-    private float[] svdfitPerformance;
 
 
 
-    public BirdDensityProfileJava(RadarScanJava reflectivity, RadarScanJava radialVelocity) throws Exception {
+    public TwinScan(RadarScanJava reflectivity, RadarScanJava radialVelocity, ParameterValues parameterValues) throws Exception {
 
         this.reflectivity = reflectivity;
         this.radialVelocity = radialVelocity;
-        this.parameterValues = new ParameterValues();
+        this.parameterValues = parameterValues;
 
         nAzim = reflectivity.getNumberOfAzimuthBins();
         nRang = reflectivity.getNumberOfRangeBins();
@@ -41,22 +36,7 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
             }
         }
         
-        int nLayers = this.parameterValues.getNLAYER();
-        float layerThickness = (float) this.parameterValues.getHLAYER();
-        
-        altitudeProfileLowerBound = new float[nLayers];
-        altitudeProfileCentre = new float[nLayers];
-        altitudeProfileUpperBound = new float[nLayers];
-        windVector = new float[nLayers][3];
-        svdfitPerformance = new float[nLayers];
-        
-        for (int iLayer = 0; iLayer < nLayers; iLayer++) {
-            altitudeProfileLowerBound[iLayer] = iLayer * layerThickness;
-            altitudeProfileCentre[iLayer] = (iLayer + 0.5f) * layerThickness;
-            altitudeProfileUpperBound[iLayer] = (iLayer + 1) * layerThickness;
-            windVector[iLayer] = new float[] {Float.NaN,Float.NaN,Float.NaN};
-            svdfitPerformance[iLayer] = Float.NaN;
-        }
+
     }
 
 
@@ -195,17 +175,18 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
     
 
     
-    public void getListOfSelectedGates(int iLayer, float layerThickness, int iData) throws Exception {
+    public void getListOfSelectedGates(int iLayer, int iData) throws Exception {
         
         int nRang;
         int nAzim;
         int missing;
-        int nGates;
-        int nDims;
-        int iGate;
+        int nRecordsMax;
+        int iRecord;
         int nPoints;
         int iPoint;
         int iParFitted;
+        int nDims;
+        int nParsFitted;
         
         float absVradMin;
         float radarHeight;
@@ -216,24 +197,29 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         float rangeScale;
         float azimuthScale;
         float elevAngle;
-        float heightOfInterest;
+        float altitudeMin;
+        float altitudeMax;
         float rangeMin;
         float rangeMax;
+        float layerThickness;
         
         int[] vradImageInt;
         int[] dbzImageInt;
         int[] cellImage;
-        int[] cellIds;
+        int[] listOfCellIds;
         
+        float[] listOfAzimuths;
+        float[] listOfElevAngles;
+        float[] listOfVradObs;
+        float[] listOfVradFitted;
+        float[] listOfDbzObs;
+        float[] parameterVector;
+        float[] avar; 
         float[] points;
-        float[] vradObs;
-        float[] dbzObs;
- 
         
         
         nRang = this.getNumberOfRangeBins();
         nAzim = this.getNumberOfAzimuthBins();
-        nDims = 2;
         rangeScale = (float) this.reflectivity.getRangeScale();
         azimuthScale = (float) this.reflectivity.getAzimuthScaleDeg();
         elevAngle = (float) this.reflectivity.getElevationAngle();
@@ -244,7 +230,9 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         vradValueOffset = (float) this.radialVelocity.getDataOffset();
         vradValueScale = (float) this.radialVelocity.getDataScale();
         absVradMin = (float) this.parameterValues.getVRADMIN();
-        heightOfInterest = (float) ((iLayer+0.5) * layerThickness);
+        layerThickness = (float) this.parameterValues.getHLAYER();
+        altitudeMin = (float) (iLayer * layerThickness);
+        altitudeMax = (float) ((iLayer+1.0f) * layerThickness);
         rangeMin = (float) this.parameterValues.getRANGMIN();
         rangeMax = (float) this.parameterValues.getRANGMAX();
 
@@ -253,41 +241,53 @@ public class BirdDensityProfileJava extends JNIMethodsVol2Bird {
         dbzImageInt = this.reflectivity.getScanDataRaw();
         cellImage = this.getCellImage();
         
-        nGates = this.detNumberOfGates(iLayer, layerThickness, rangeMin, rangeMax, rangeScale, elevAngle, nRang, nAzim, radarHeight);
+        nRecordsMax = this.detNumberOfGates(iLayer, layerThickness, rangeMin, rangeMax, rangeScale, elevAngle, nRang, nAzim, radarHeight);
         nPoints = 0;
         
-        points = new float[nGates*nDims];
-        vradObs = new float[nGates];
-        dbzObs = new float[nGates];
-        cellIds = new int[nGates];
+        listOfAzimuths = new float[nRecordsMax];
+        listOfElevAngles = new float[nRecordsMax];
+        listOfVradObs = new float[nRecordsMax];
+        listOfDbzObs = new float[nRecordsMax];
+        listOfCellIds = new int[nRecordsMax];
         
-        for (iGate = 0; iGate < nGates; iGate++) {
-            points[iGate*2+0] = Float.NaN;
-            points[iGate*2+1] = Float.NaN;
-            vradObs[iGate] = Float.NaN;
-            dbzObs[iGate] = Float.NaN;
-            cellIds[iGate] = (int) Float.NaN;
+        for (iRecord = 0; iRecord < nRecordsMax; iRecord++) {
+            listOfAzimuths[iRecord] = Float.NaN;
+            listOfElevAngles[iRecord] = Float.NaN;
+            listOfVradObs[iRecord] = Float.NaN;
+            listOfDbzObs[iRecord] = Float.NaN;
+            listOfCellIds[iRecord] = (int) Float.NaN;
         }
         
         nPoints = getListOfSelectedGates(nRang, nAzim, rangeScale, azimuthScale, elevAngle, missing, 
                                          radarHeight, vradValueOffset, vradValueScale, vradImageInt,
-                                         dbzValueOffset, dbzValueScale, dbzImageInt, points, 
-                                         vradObs, dbzObs, cellIds, cellImage, rangeMin, rangeMax, layerThickness, 
-                                         heightOfInterest, absVradMin, iData, nPoints);
+                                         dbzValueOffset, dbzValueScale, dbzImageInt, 
+                                         listOfAzimuths, listOfElevAngles, listOfVradObs, listOfDbzObs, listOfCellIds, 
+                                         cellImage, rangeMin, rangeMax, altitudeMin, 
+                                         altitudeMax, absVradMin, iData, nPoints);
 
+        
+        // TODO the part below this should be moved to a higher level, where you collect results from all scan elevation angles
 
-        float[] vradFitted = new float[nPoints];
+        listOfVradFitted = new float[nPoints];
         for (iPoint = 0; iPoint < nPoints; iPoint++) {
-            vradFitted[iPoint] = Float.NaN; 
+            listOfVradFitted[iPoint] = Float.NaN; 
         }
-        float[] parameterVector = {Float.NaN,Float.NaN,Float.NaN};
-        int nParsFitted = 3;
-        float[] avar = new float[nParsFitted];
+        parameterVector = new float[] {Float.NaN,Float.NaN,Float.NaN};
+        nParsFitted = 3;
+        avar = new float[nParsFitted];
         for (iParFitted = 0; iParFitted < nParsFitted; iParFitted++) {
             avar[iParFitted] = Float.NaN; 
         }
+
+        nDims = 2;
+        points = new float[nDims * nPoints];
         
-        float chisq = svdfit(points, nDims, vradObs, vradFitted, nPoints, parameterVector, avar, nParsFitted);
+        for (iPoint = 0; iPoint < nPoints; iPoint++) {
+            points[iPoint*nDims + 0] = listOfAzimuths[iPoint];
+            points[iPoint*nDims + 1] = listOfElevAngles[iPoint];
+        }
+        
+        float chisq = svdfit(points, nDims, listOfVradObs, listOfVradFitted, nPoints, parameterVector, avar, nParsFitted);
 
 
     }
