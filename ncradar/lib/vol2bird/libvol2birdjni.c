@@ -565,21 +565,30 @@ Java_nl_esciencecenter_ncradar_JNIMethodsVol2Bird_detNumberOfGates(
         const jfloat rangeMin,
         const jfloat rangeMax,
         const jfloat rangeScale,
-        const jfloat elevAngle,
+        const jfloatArray elevAngles,
+        const jint nElevAngles,
         const jint nRang,
         const jint nAzim,
         const jfloat radarHeight)
 {
 
-    int nGates;
+    // do some Java Native interface tricks:
+    jfloat *elevAnglesBody = (*env)->GetFloatArrayElements(env, elevAngles, NULL);
+    // end of Java Native Interface tricks
+    int nRecordsMax;
 
-    nGates = detNumberOfGates(iLayer, layerThickness,
+    nRecordsMax = detNumberOfGates(iLayer, layerThickness,
                               rangeMin, rangeMax,
-                              rangeScale, elevAngle,
+                              rangeScale, &elevAnglesBody[0], nElevAngles,
                               nRang, nAzim,
                               radarHeight);
 
-    return nGates;
+    // do some Java Native interface tricks:
+    (*env)->ReleaseFloatArrayElements(env, elevAngles, elevAnglesBody, JNI_ABORT);
+    // end of Java Native Interface tricks
+
+
+    return nRecordsMax;
 
 }
 
