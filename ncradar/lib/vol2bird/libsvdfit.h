@@ -33,11 +33,11 @@
 // Function prototypes
 // *****************************************************************************
 
-int svd_vvp1func(float points[], int nDims, float afunc[], int nParsFitted);
-int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[]);
+int svd_vvp1func(const float points[], const int nDims, float afunc[], const int nParsFitted);
+int svbksb(float *u, float w[], float *v, int m, int n, const float b[], float x[]);
 int svdcmp(float *a, int m, int n, float w[], float *v);
-float svdfit(float *points, int nDims, float yObs[], float yFitted[], int nPoints,
-             float parameterVector[], float avar[], int nParsFitted);
+float svdfit(const float *points, const int nDims, const float yObs[], float yFitted[], const int nPoints,
+             float parameterVector[], float avar[], const int nParsFitted);
 
 
 

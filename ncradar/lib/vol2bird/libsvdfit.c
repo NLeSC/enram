@@ -31,7 +31,7 @@
 
 
 
-int svd_vvp1func(float points[],int nDims,float afunc[],int nParsFitted) {
+int svd_vvp1func(const float points[], const int nDims, float afunc[], const int nParsFitted) {
 
     // ************************************************************************************
     // This function contains the basis-functions and other relevant parameters of
@@ -418,8 +418,8 @@ int svdcmp(float *a,int m,int n,float w[],float *v) {
 
 
 
-float svdfit(float *points, int nDims, float vradObs[], float vradFitted[], int nPoints,
-             float parameterVector[], float avar[], int nParsFitted) {
+float svdfit(const float *points, const int nDims, const float vradObs[], float vradFitted[], const int nPoints,
+             float parameterVector[], float avar[], const int nParsFitted) {
 
 
     // ************************************************************************************************
@@ -564,7 +564,7 @@ float svdfit(float *points, int nDims, float vradObs[], float vradFitted[], int 
 
 
 
-int svbksb(float *u,float w[],float *v,int m,int n,float b[],float x[])
+int svbksb(float *u,float w[],float *v,int m,int n,const float b[],float x[])
 {
     int jj,j,i;
     float sum,*tmp;
