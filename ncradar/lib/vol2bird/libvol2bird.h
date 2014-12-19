@@ -109,25 +109,19 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
         const int nRangNeighborhood, const int nAzimNeighborhood,
         const int nCountMin);
 
-int detNumberOfGates(const int iLayer, const float layerThickness,
-                     const float rangeMin, const float rangeMax,
-                     const float rangeScale, const float elevAngles[],
-                     const int nElevAngles, const int nRang, const int nAzim,
-                     const float radarHeight);
-
-void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *vradObs,
-                            const SCANMETA dbzMeta, const unsigned char *dbzImage, float *dbzObs,
-                            const int *cellImage, int *c, float *points,
-                            const float rangeMin, const float rangeMax,
-                            const float layerThickness, const float heightOfInterest,
-                            const float absVradMin, const int iData, int *nPoints);
-
 void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta, const SCANMETA clutterMeta,
         const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *uzscan, const unsigned char *clutterImage,
         float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
         const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
         const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
         const int iLayer, const unsigned char clutterFlag, const unsigned char uzflag, const unsigned char xflag);
+
+int detNumberOfGates(const int iLayer, const float layerThickness,
+                     const float rangeMin, const float rangeMax,
+                     const float rangeScale, const float elevAngle,
+                     const int nRang, const int nAzim,
+                     const float radarHeight);
+
 
 int findCells(const unsigned char *dbzImage,
               int *cellImage,
@@ -140,7 +134,16 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-void sortCells(CELLPROP *cellProp,int nCells);
+void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage,
+                            const SCANMETA dbzMeta, const unsigned char *dbzImage,
+                            const int *cellImage,
+                            const float rangeMin, const float rangeMax,
+                            const float altitudeMin, const float altitudeMax,
+                            const float absVradMin, const int iData,
+                            int *nPoints, float *listOfAzimuths, float *listOfElevAngles, float *listOfVradObs,
+                            float *listOfDbzObs, int *listOfCellIds);
+
+void sortCells(CELLPROP *cellProp, int nCells);
 
 int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells, const int minCellArea);
 
