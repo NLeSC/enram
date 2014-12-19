@@ -49,7 +49,7 @@ public class JNIMethodsVol2Bird {
     
     protected final native int detNumberOfGates(int iLayer, float layerThickness,
             float rangeMin, float rangeMax,
-            float rangeScale, float elevAngle,
+            float rangeScale, float[] elevAngles, int nElevAngles,
             int nRang, int nAzim,
             float radarHeight);
     
