@@ -49,17 +49,6 @@
 //  Structure for containing SCAN metadata:
 // ****************************************************************************
 
-struct scanmeta {
-    float heig;              // Height of radar antenna in km.
-    float elev;              // Elevation of scan in deg.
-    int nRang;               // Number of range bins in scan.
-    int nAzim;               // Number of azimuth rays in scan.
-    float rangeScale;        // Size of range bins in scan in km.
-    float azimScale;         // Size of azimuth steps in scan in deg.
-    float valueOffset;       // Offset value of quantity contained by scan.
-    float valueScale;        // Scale of value of quantity contained by scan.
-    unsigned char missing;   // Missing value of quantity contained by scan.
-};
 
 struct cellprop {
     int iRangOfMax;
@@ -74,11 +63,33 @@ struct cellprop {
     int drop;
 };
 
-typedef struct scanmeta SCANMETA;
+struct scanmeta {
+    float heig;              // Height of radar antenna in km.
+    float elev;              // Elevation of scan in deg.
+    int nRang;               // Number of range bins in scan.
+    int nAzim;               // Number of azimuth rays in scan.
+    float rangeScale;        // Size of range bins in scan in km.
+    float azimScale;         // Size of azimuth steps in scan in deg.
+    float valueOffset;       // Offset value of quantity contained by scan.
+    float valueScale;        // Scale of value of quantity contained by scan.
+    unsigned char missing;   // Missing value of quantity contained by scan.
+};
+
+
+
+struct svdfitrecord {
+    int recordNumber;
+    float azimuth;
+    float elevAngle;
+    float vradObs;
+    float dbzObs;
+    int cellId;
+};
+
+
 typedef struct cellprop CELLPROP;
-
-
-
+typedef struct scanmeta SCANMETA;
+typedef struct svdfitrecord SVDFITRECORD;
 
 // *****************************************************************************
 // Function prototypes
@@ -100,8 +111,8 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const 
 
 int detNumberOfGates(const int iLayer, const float layerThickness,
                      const float rangeMin, const float rangeMax,
-                     const float rangeScale, const float elevAngle,
-                     const int nRang, const int nAzim,
+                     const float rangeScale, const float elevAngles[],
+                     const int nElevAngles, const int nRang, const int nAzim,
                      const float radarHeight);
 
 void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage, float *vradObs,
