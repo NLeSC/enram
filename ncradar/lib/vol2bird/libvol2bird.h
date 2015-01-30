@@ -134,14 +134,13 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage,
-                            const SCANMETA dbzMeta, const unsigned char *dbzImage,
-                            const int *cellImage,
-                            const float rangeMin, const float rangeMax,
-                            const float altitudeMin, const float altitudeMax,
-                            const float absVradMin, const int iData,
-                            int *nPoints, float *listOfAzimuths, float *listOfElevAngles, float *listOfVradObs,
-                            float *listOfDbzObs, int *listOfCellIds);
+int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
+                           const SCANMETA* dbzMeta, const unsigned char *dbzImage,
+                           const int *cellImage,
+                           const float rangeMin, const float rangeMax,
+                           const float altitudeMin, const float altitudeMax,
+                           const float absVradMin, const int iData,
+                           float* points, int iPoint);
 
 void sortCells(CELLPROP *cellProp, int nCells);
 

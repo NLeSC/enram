@@ -1058,26 +1058,26 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
 
 
 
-void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage,
-                            const SCANMETA dbzMeta, const unsigned char *dbzImage,
-                            const int *cellImage,
-                            const float rangeMin, const float rangeMax,
-                            const float altitudeMin, const float altitudeMax,
-                            const float absVradMin, const int iData,
-                            int *nPoints, float *listOfAzimuths, float *listOfElevAngles, float *listOfVradObs,
-                            float *listOfDbzObs, int *listOfCellIds) {
+int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage, 
+                           const SCANMETA* dbzMeta, const unsigned char *dbzImage,
+                           const int *cellImage,
+                           const float rangeMin, const float rangeMax,
+                           const float altitudeMin, const float altitudeMax,
+                           const float absVradMin, const int iData,
+                           float* points, int iPoint) {
 
-    // Construct a list of combinations of azimuths, elevation angles, the observed vrad value, the observed
-    // dbz value, and the cell identifier value. The lists are specific to the current scan elevation as well the
-    // altitude layer.
+    // Write combinations of an azimuth angle, an elevation angle, an 
+    // observed vrad value, an observed dbz value, and a cell identifier
+    // value into an external larger list.
 
 
     int iAzim;
     int iRang;
-    int iPoint;
     int iGlobal;
     int nRang;
     int nAzim;
+    int nCols;
+    int nPointsWritten;
 
     unsigned char missing;
 
@@ -1094,22 +1094,23 @@ void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIm
     float dbzValueScale;
     float vradValue;
     float dbzValue;
+    
+    nPointsWritten = 0;
+    nCols = 5;
 
 
-    iPoint = *nPoints;
+    nRang = vradMeta->nRang;
+    nAzim = vradMeta->nAzim;
+    rangeScale = vradMeta->rangeScale;
+    azimuthScale = vradMeta->azimScale;
+    elevAngle = vradMeta->elev;
+    missing = vradMeta->missing;
+    radarHeight = vradMeta->heig;
+    vradValueOffset = vradMeta->valueOffset;
+    vradValueScale = vradMeta->valueScale;
 
-    nRang = vradMeta.nRang;
-    nAzim = vradMeta.nAzim;
-    rangeScale = vradMeta.rangeScale;
-    azimuthScale = vradMeta.azimScale;
-    elevAngle = vradMeta.elev;
-    missing = vradMeta.missing;
-    radarHeight = vradMeta.heig;
-    vradValueOffset = vradMeta.valueOffset;
-    vradValueScale = vradMeta.valueScale;
-
-    dbzValueOffset = dbzMeta.valueOffset;
-    dbzValueScale = dbzMeta.valueScale;
+    dbzValueOffset = dbzMeta->valueOffset;
+    dbzValueScale = dbzMeta->valueScale;
 
 
     for (iRang = 0; iRang < nRang; iRang++) {
@@ -1164,28 +1165,29 @@ void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradIm
                 // why vRadImage[iGlobal] shouldn't be part of the 'points' array
 
                 // store the location as an azimuth angle, elevation angle combination
-                listOfAzimuths[iPoint] = gateAzim;
-                listOfElevAngles[iPoint] = elevAngle;
+                points[iPoint + 0] = gateAzim;
+                points[iPoint + 1] = elevAngle;
 
                 // store the corresponding observed vrad value
-                listOfVradObs[iPoint] = vradValue;
+                points[iPoint + 2] = vradValue;
 
                 // also store the dbz value --useful when estimating the bird density
-                listOfDbzObs[iPoint] = dbzValue;
+                points[iPoint + 3] = dbzValue;
 
                 // store the corresponding cellImage value
-                listOfCellIds[iPoint] = cellImage[iGlobal];
+                points[iPoint + 4] = cellImage[iGlobal];
 
-                // raise the counter by 1
-                iPoint++;
+                // raise the counter by the number of pseudo-columns in the points table
+                iPoint += nCols;
+                
+                // raise number of points written by 1
+                nPointsWritten++;
 
             }
         }  //for iAzim
     } //for iRang
 
-    *nPoints = iPoint;
-
-    return;
+    return nPointsWritten;
 
 
 } //getListOfSelectedGates
