@@ -76,20 +76,8 @@ struct scanmeta {
 };
 
 
-
-struct svdfitrecord {
-    int recordNumber;
-    float azimuth;
-    float elevAngle;
-    float vradObs;
-    float dbzObs;
-    int cellId;
-};
-
-
 typedef struct cellprop CELLPROP;
 typedef struct scanmeta SCANMETA;
-typedef struct svdfitrecord SVDFITRECORD;
 
 // *****************************************************************************
 // Function prototypes
@@ -102,7 +90,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
 
-int azimuth_gap(float x[],int Ndx,int Npnt,int ngapmin,int NGAPBIN);
+int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin);
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 

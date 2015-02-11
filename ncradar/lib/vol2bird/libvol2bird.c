@@ -213,41 +213,45 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 
 
-/******************************************************************************/
-/*This function detects gaps in the azimuthal distribution of the radial      */
-/*velocity data. For this, a histogram of the azimuths of the available       */
-/*velocity data is made using 'NGAPBIN' azimuth bins. Subsequently, the number*/
-/*data points per azimuth bin is determined. When two consecutive azimuth bins*/
-/*contain less than 'NGAPMIN' velocity points, a gap is detected.             */
-/*The number of velocity datapoints is 'Npnt' and the dimension of each       */
-/*x-point is 'Ndx' (x[0...Npnt*Ndx-1]). The azimuth coordinate is assumed to  */
-/*be the first x-coordinate.                                                  */
-/*The function returns true (1) when a gap is detected and false (0) when no  */
-/*gap is found.                                                               */
-/******************************************************************************/
-int azimuth_gap(float x[],int Ndx,int Npnt,int ngapmin,int NGAPBIN)
+
+int hasAzimuthGap(const float* points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin)
 {
-    int gap=0,Nsector[NGAPBIN],n,m;
 
-    /*Initialize histogram.*/
+    int hasGap;
+    int nObs[nBinsGap];
+    int iPoint;
+    int iBinGap;
+    int iBinGapNext;
+    float azimuth;
 
-    for (m=0 ; m<NGAPBIN ; m++) Nsector[m]=0;
+    hasGap = FALSE;
 
-    /*Collect histogram.*/
-
-    for (n=0 ; n<Npnt ; n++) {
-        m=(x[Ndx*n]*NGAPBIN)/360.0;
-        Nsector[m%NGAPBIN]++;
+    // Initialize histogram
+    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
+        nObs[iBinGap] = 0;
     }
 
-    /*Detect gaps.*/
-
-    for (gap=0, m=0 ; m<NGAPBIN ; m++) {
-        if (Nsector[m]<ngapmin&&Nsector[(m+1)%NGAPBIN]<ngapmin) gap=1;
+    // Collect histogram data
+    for (iPoint = 0; iPoint < nPoints; iPoint++) {
+        azimuth = points[iPoint*nDims];
+        iBinGap = ((int) floor((azimuth / 360.0) * nBinsGap)) % nBinsGap;
+        nObs[iBinGap]++;
     }
 
-    return gap;
-} //azimuth_gap
+    // Detect adjacent bins in which the number of azimuth observations 
+    // is less than the minimum required number
+    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
+        
+        iBinGapNext = (iBinGap + 1) % nBinsGap;
+        
+        if (nObs[iBinGap] < nObsGapMin && nObs[iBinGapNext] < nObsGapMin) {
+            hasGap = TRUE;
+        }
+    }
+
+    return hasGap;
+    
+} // hasAzimuthGap
 
 
 
@@ -614,8 +618,8 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
 
     // FIXME Adriaan's latest code has some additional calculations to calculate the various fractions
 
-
     return;
+    
 } // classifyGates
 
 
