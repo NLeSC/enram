@@ -213,6 +213,43 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 
 
+/******************************************************************************/
+/*This function detects gaps in the azimuthal distribution of the radial      */
+/*velocity data. For this, a histogram of the azimuths of the available       */
+/*velocity data is made using 'NGAPBIN' azimuth bins. Subsequently, the number*/
+/*data points per azimuth bin is determined. When two consecutive azimuth bins*/
+/*contain less than 'NGAPMIN' velocity points, a gap is detected.             */
+/*The number of velocity datapoints is 'Npnt' and the dimension of each       */
+/*x-point is 'Ndx' (x[0...Npnt*Ndx-1]). The azimuth coordinate is assumed to  */
+/*be the first x-coordinate.                                                  */
+/*The function returns true (1) when a gap is detected and false (0) when no  */
+/*gap is found.                                                               */
+/******************************************************************************/
+int azimuth_gap(float x[],int Ndx,int Npnt,int ngapmin,int NGAPBIN)
+{
+    int gap=0,Nsector[NGAPBIN],n,m;
+
+    /*Initialize histogram.*/
+
+    for (m=0 ; m<NGAPBIN ; m++) Nsector[m]=0;
+
+    /*Collect histogram.*/
+
+    for (n=0 ; n<Npnt ; n++) {
+        m=(x[Ndx*n]*NGAPBIN)/360.0;
+        Nsector[m%NGAPBIN]++;
+    }
+
+    /*Detect gaps.*/
+
+    for (gap=0, m=0 ; m<NGAPBIN ; m++) {
+        if (Nsector[m]<ngapmin&&Nsector[(m+1)%NGAPBIN]<ngapmin) gap=1;
+    }
+
+    return gap;
+} //azimuth_gap
+
+
 
 
 
@@ -736,7 +773,15 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
             }
             else {
                 #ifdef FPRINTFON
-                fprintf(stderr, "iGlobal = %d\niRang + 1 = %d\ndbzRangeScale = %f\nrCellMax = %f\n(iRang + 1) * dbzRangeScale = %f\n((iRang + 1) * dbzRangeScale > rCellMax) = %d\ndbg=%d\n",iGlobal,iRang + 1,dbzRangeScale,rCellMax,(iRang + 1) * dbzRangeScale,((iRang + 1) * dbzRangeScale > rCellMax),dbg);
+                fprintf(stderr, "iGlobal = %d\niRang + 1 = %d\n"
+                "dbzRangeScale = %f\n"
+                "rCellMax = %f\n"
+                "(iRang + 1) * dbzRangeScale = %f\n"
+                "((iRang + 1) * dbzRangeScale > rCellMax) = %d\n"
+                "dbg=%d\n",iGlobal,iRang + 1,dbzRangeScale,rCellMax,
+                (iRang + 1) * dbzRangeScale,
+                ((iRang + 1) * dbzRangeScale > rCellMax),dbg);
+                
                 dbg++;
                 #endif
             }
@@ -1064,7 +1109,7 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
                            const float rangeMin, const float rangeMax,
                            const float altitudeMin, const float altitudeMax,
                            const float absVradMin, const int iData,
-                           float* points, int iPoint) {
+                           float* points, int iRowPoints) {
 
     // Write combinations of an azimuth angle, an elevation angle, an 
     // observed vrad value, an observed dbz value, and a cell identifier
@@ -1076,8 +1121,8 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
     int iGlobal;
     int nRang;
     int nAzim;
-    int nCols;
     int nPointsWritten;
+    const int nColsPoints = 5;
 
     unsigned char missing;
 
@@ -1096,8 +1141,6 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
     float dbzValue;
     
     nPointsWritten = 0;
-    nCols = 5;
-
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
@@ -1165,23 +1208,23 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
                 // why vRadImage[iGlobal] shouldn't be part of the 'points' array
 
                 // store the location as an azimuth angle, elevation angle combination
-                points[iPoint + 0] = gateAzim;
-                points[iPoint + 1] = elevAngle;
+                points[iRowPoints * nColsPoints + 0] = gateAzim;
+                points[iRowPoints * nColsPoints + 1] = elevAngle;
 
                 // store the corresponding observed vrad value
-                points[iPoint + 2] = vradValue;
+                points[iRowPoints * nColsPoints + 2] = vradValue;
 
                 // also store the dbz value --useful when estimating the bird density
-                points[iPoint + 3] = dbzValue;
+                points[iRowPoints * nColsPoints + 3] = dbzValue;
 
                 // store the corresponding cellImage value
-                points[iPoint + 4] = cellImage[iGlobal];
+                points[iRowPoints * nColsPoints + 4] = (float) cellImage[iGlobal];
 
-                // raise the counter by the number of pseudo-columns in the points table
-                iPoint += nCols;
+                // raise the row counter by 1
+                iRowPoints += 1;
                 
                 // raise number of points written by 1
-                nPointsWritten++;
+                nPointsWritten += 1;
 
             }
         }  //for iAzim

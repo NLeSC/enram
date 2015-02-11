@@ -102,6 +102,8 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
 
+int azimuth_gap(float x[],int Ndx,int Npnt,int ngapmin,int NGAPBIN);
+
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
