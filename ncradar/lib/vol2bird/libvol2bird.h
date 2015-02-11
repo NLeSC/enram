@@ -76,20 +76,8 @@ struct scanmeta {
 };
 
 
-
-struct svdfitrecord {
-    int recordNumber;
-    float azimuth;
-    float elevAngle;
-    float vradObs;
-    float dbzObs;
-    int cellId;
-};
-
-
 typedef struct cellprop CELLPROP;
 typedef struct scanmeta SCANMETA;
-typedef struct svdfitrecord SVDFITRECORD;
 
 // *****************************************************************************
 // Function prototypes
@@ -101,6 +89,8 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
         const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
+
+int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin);
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
@@ -134,14 +124,13 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-void getListOfSelectedGates(const SCANMETA vradMeta, const unsigned char *vradImage,
-                            const SCANMETA dbzMeta, const unsigned char *dbzImage,
-                            const int *cellImage,
-                            const float rangeMin, const float rangeMax,
-                            const float altitudeMin, const float altitudeMax,
-                            const float absVradMin, const int iData,
-                            int *nPoints, float *listOfAzimuths, float *listOfElevAngles, float *listOfVradObs,
-                            float *listOfDbzObs, int *listOfCellIds);
+int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
+                           const SCANMETA* dbzMeta, const unsigned char *dbzImage,
+                           const int *cellImage,
+                           const float rangeMin, const float rangeMax,
+                           const float altitudeMin, const float altitudeMax,
+                           const float absVradMin, const int iData,
+                           float* points, int iPoint);
 
 void sortCells(CELLPROP *cellProp, int nCells);
 
