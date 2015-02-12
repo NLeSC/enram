@@ -65,9 +65,10 @@ int svd_vvp1func(const float points[], const int nDims, float afunc[], const int
     cosAlpha = cos(points[0] * DEG2RAD);
     sinGamma = sin(points[1] * DEG2RAD);
     cosGamma = cos(points[1] * DEG2RAD);
-    afunc[0] = sinGamma;
-    afunc[1] = sinAlpha * cosGamma;
-    afunc[2] = cosAlpha * cosGamma;
+    
+    afunc[0] = sinAlpha * cosGamma;   // u
+    afunc[1] = cosAlpha * cosGamma;   // v
+    afunc[2] = sinGamma;              // w
 
     return 0;
 
