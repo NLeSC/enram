@@ -28,7 +28,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float absVradMin, const float clutterValueMax, const unsigned char clutterFlag,
+        const float vradMin, const float clutterValueMax, const unsigned char clutterFlag,
         const unsigned char verbose) {
 
     //  *********************************************************************************
@@ -114,7 +114,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
             cellProp[iCell].area += 1;
 
             //low radial velocities are treated as clutter, not included in calculation cell properties
-            if (fabs(vradValue) < absVradMin){
+            if (vradValue < vradMin){
 
                 cellProp[iCell].clutterArea += 1;
 
@@ -209,49 +209,6 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
     return nCellsValid;
 } // analyzeCells
-
-
-
-
-
-int hasAzimuthGap(const float* points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin)
-{
-
-    int hasGap;
-    int nObs[nBinsGap];
-    int iPoint;
-    int iBinGap;
-    int iBinGapNext;
-    float azimuth;
-
-    hasGap = FALSE;
-
-    // Initialize histogram
-    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
-        nObs[iBinGap] = 0;
-    }
-
-    // Collect histogram data
-    for (iPoint = 0; iPoint < nPoints; iPoint++) {
-        azimuth = points[iPoint*nDims];
-        iBinGap = ((int) floor((azimuth / 360.0) * nBinsGap)) % nBinsGap;
-        nObs[iBinGap]++;
-    }
-
-    // Detect adjacent bins in which the number of azimuth observations 
-    // is less than the minimum required number
-    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
-        
-        iBinGapNext = (iBinGap + 1) % nBinsGap;
-        
-        if (nObs[iBinGap] < nObsGapMin && nObs[iBinGapNext] < nObsGapMin) {
-            hasGap = TRUE;
-        }
-    }
-
-    return hasGap;
-    
-} // hasAzimuthGap
 
 
 
@@ -403,7 +360,82 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 } // calcTexture
 
 
+void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const float vradMin) {
+    
+    const int azimAngleCol = 0;
+    const int elevAngleCol = 1;
+    const int dbzValueCol = 2;
+    const int vradValueCol = 3;
+    const int cellValueCol = 4;
+    const int gateCodeCol = 5;
+    
+    const int nColsPoints = 6;
+    
+    const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];
+    const float vradValue = points[iPoint * nColsPoints + vradValueCol];
+    const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
+    
+    int iFlag;
+    
+    int gateCode = 0;
+    
+    if (FALSE) {
+        // this gate is true in the static clutter map (which we don't have yet TODO)
+        iFlag = 0;
+        gateCode |= 1<<iFlag;
+    }
 
+    if (cellValue == 1) {
+        // this gate is part of the cluttermap (without fringe)
+        iFlag = 1;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (cellValue == 2) {
+        // this gate is part of the fringe of the cluttermap
+        iFlag = 2;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (FALSE) {
+        // this gate has reflectivity data but no corresponding radial velocity data
+        // TODO no condition for this yet
+        iFlag = 3;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (dbzValue > dbzMax) {
+        // this gate's dbz value is too high to be due to birds, it must be 
+        // caused by something else
+        iFlag = 4;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (vradValue < vradMin) {
+        // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
+        iFlag = 5;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (FALSE) {
+        // TODO no condition for this yet
+        iFlag = 6;
+        gateCode |= 1<<iFlag;
+    }
+
+    if (FALSE) {
+        // TODO no condition for this yet
+        iFlag = 7;
+        gateCode |= 1<<iFlag;
+    }
+
+
+    points[iPoint * nColsPoints + gateCodeCol] = gateCode;
+
+    return;
+    
+    
+};
 
 
 
@@ -412,7 +444,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
         const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *rawReflImage, const unsigned char *clutterImage,
         float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
         const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
-        const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
+        const float vradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
         const int iLayer, const unsigned char clutterFlag, const unsigned char rawReflFlag, const unsigned char xflag) {
 
 
@@ -558,7 +590,7 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
                 // FIXME why reset the dbzValue to DBZNOISE?
             }
 
-            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < absVradMin){
+            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
 
                 // we have a valid value for vrad but the magnitude of the value is too
                 // low. The gate is classified as clutter:
@@ -1112,7 +1144,6 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
                            const int *cellImage,
                            const float rangeMin, const float rangeMax,
                            const float altitudeMin, const float altitudeMax,
-                           const float absVradMin, const int iData,
                            float* points, int iRowPoints) {
 
     // Write combinations of an azimuth angle, an elevation angle, an 
@@ -1126,9 +1157,7 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
     int nRang;
     int nAzim;
     int nPointsWritten;
-    const int nColsPoints = 5;
-
-    unsigned char missing;
+    const int nColsPoints = 6;
 
     float gateHeight;
     float gateRange;
@@ -1151,7 +1180,6 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
     rangeScale = vradMeta->rangeScale;
     azimuthScale = vradMeta->azimScale;
     elevAngle = vradMeta->elev;
-    missing = vradMeta->missing;
     radarHeight = vradMeta->heig;
     vradValueOffset = vradMeta->valueOffset;
     vradValueScale = vradMeta->valueScale;
@@ -1179,6 +1207,8 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
             continue;
         }
 
+        // the gates at this range and elevation angle are within bounds,
+        // include their data in the 'points' array:
 
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
 
@@ -1187,50 +1217,29 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
             vradValue = vradValueScale * (float) vradImage[iGlobal] + vradValueOffset;
             dbzValue = dbzValueScale * (float) dbzImage[iGlobal] + dbzValueOffset;
 
-            if (vradImage[iGlobal] == missing) {
-                continue;
-            }
+            // store the location as an azimuth angle, elevation angle combination
+            points[iRowPoints * nColsPoints + 0] = gateAzim;
+            points[iRowPoints * nColsPoints + 1] = elevAngle;
 
-            switch (iData) {
-            case 0:
-                if (cellImage[iGlobal] == -1) {
-                    continue; // outside rain clutter map only
-                }
-                break;
-            case 1:
-                if (cellImage[iGlobal] == -1 || cellImage[iGlobal] == 1 ) {
-                    continue; // inside rain clutter map without fringe only
-                }
-                break;
-            }
+            // also store the dbz value --useful when estimating the bird density
+            points[iRowPoints * nColsPoints + 2] = dbzValue;
+            
+            // store the corresponding observed vrad value
+            points[iRowPoints * nColsPoints + 3] = vradValue;
+
+            // store the corresponding cellImage value
+            points[iRowPoints * nColsPoints + 4] = (float) cellImage[iGlobal];
+
+            // set the gateCode to zero for now
+            points[iRowPoints * nColsPoints + 5] = (float) 0;
+
+            // raise the row counter by 1
+            iRowPoints += 1;
+            
+            // raise number of points written by 1
+            nPointsWritten += 1;
 
 
-
-            if (fabs(vradValue) >= absVradMin) {
-
-                // so at this point we've checked a couple of things and we see no reason
-                // why vRadImage[iGlobal] shouldn't be part of the 'points' array
-
-                // store the location as an azimuth angle, elevation angle combination
-                points[iRowPoints * nColsPoints + 0] = gateAzim;
-                points[iRowPoints * nColsPoints + 1] = elevAngle;
-
-                // store the corresponding observed vrad value
-                points[iRowPoints * nColsPoints + 2] = vradValue;
-
-                // also store the dbz value --useful when estimating the bird density
-                points[iRowPoints * nColsPoints + 3] = dbzValue;
-
-                // store the corresponding cellImage value
-                points[iRowPoints * nColsPoints + 4] = (float) cellImage[iGlobal];
-
-                // raise the row counter by 1
-                iRowPoints += 1;
-                
-                // raise number of points written by 1
-                nPointsWritten += 1;
-
-            }
         }  //for iAzim
     } //for iRang
 
@@ -1239,6 +1248,266 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
 
 } //getListOfSelectedGates
 
+
+
+
+int hasAzimuthGap(const float* points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin)
+{
+
+    int hasGap;
+    int nObs[nBinsGap];
+    int iPoint;
+    int iBinGap;
+    int iBinGapNext;
+    float azimuth;
+
+    hasGap = FALSE;
+
+    // Initialize histogram
+    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
+        nObs[iBinGap] = 0;
+    }
+
+    // Collect histogram data
+    for (iPoint = 0; iPoint < nPoints; iPoint++) {
+        azimuth = points[iPoint*nDims];
+        iBinGap = ((int) floor((azimuth / 360.0) * nBinsGap)) % nBinsGap;
+        nObs[iBinGap]++;
+    }
+
+    // Detect adjacent bins in which the number of azimuth observations 
+    // is less than the minimum required number
+    for (iBinGap = 0; iBinGap < nBinsGap; iBinGap++) {
+        
+        iBinGapNext = (iBinGap + 1) % nBinsGap;
+        
+        if (nObs[iBinGap] < nObsGapMin && nObs[iBinGapNext] < nObsGapMin) {
+            hasGap = TRUE;
+        }
+    }
+
+    return hasGap;
+    
+} // hasAzimuthGap
+
+
+
+
+
+
+int includeGate(int iProfileType, int gateCode) {
+    
+    int doInclude = TRUE;
+    
+    if (gateCode & 1<<0) {
+        
+        // i.e. flag 0 in gateCode is true
+        // this gate is true in the static clutter map (which we don't have yet TODO)
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = FALSE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+
+        
+    }
+    
+    if (gateCode & 1<<1) {
+        
+        // i.e. flag 1 in gateCode is true
+        // this gate is part of the cluttermap (without fringe)
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = TRUE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+        
+    if (gateCode & 1<<2) {
+        
+        // i.e. flag 2 in gateCode is true
+        // this gate is part of the fringe of the cluttermap
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = TRUE;
+                break;
+            case 3 : 
+                doInclude = TRUE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+    
+    if (gateCode & 1<<3) {
+        
+        // i.e. flag 3 in gateCode is true
+        // this gate has reflectivity data but no corresponding radial velocity data
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = FALSE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+    
+    if (gateCode & 1<<4) {
+        
+        // i.e. flag 4 in gateCode is true
+        // this gate's dbz value is too high to be due to birds, it must be 
+        // caused by something else
+
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = TRUE;
+                break;
+            case 3 : 
+                doInclude = TRUE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+    
+    if (gateCode & 1<<5) {
+        
+        // i.e. flag 5 in gateCode is true
+        // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = FALSE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+    
+    if (gateCode & 1<<6) {
+        
+        // i.e. flag 6 in gateCode is true
+        // TODO no condition for this yet
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = TRUE;
+                break;
+            case 2 : 
+                doInclude = TRUE;
+                break;
+            case 3 : 
+                doInclude = TRUE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+    }
+    
+    if (gateCode & 1<<7) {
+        
+        // i.e. flag 7 in gateCode is true
+        // TODO no condition for this yet
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = TRUE;
+                break;
+            case 2 : 
+                doInclude = TRUE;
+                break;
+            case 3 : 
+                doInclude = TRUE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+        
+    }
+
+    return doInclude;
+
+}
+
+
+char* printGateCode(int gateCode) {
+
+    int iFlag;
+    int nFlags;
+    
+    if (gateCode <= 0) {
+        nFlags = 0;
+    }
+    else {
+        nFlags = (int) ceil(log(gateCode + 1)/log(2));
+    }
+
+    char flags[nFlags+1];
+
+    for (iFlag = nFlags-1; iFlag >= 0; iFlag--) {
+    
+        int iFlagIsActive = (gateCode & (1 << iFlag)) >> iFlag;
+        
+        if (iFlagIsActive == TRUE) {
+            flags[nFlags-iFlag-1] = '1';
+        }
+        else {
+            flags[nFlags-iFlag-1] = '0';
+        };
+    }
+    
+    flags[nFlags] = '\0';
+    
+    // FIXME returns pointer to local variable 
+    return &flags[0];
+    
+
+
+}
 
 
 
@@ -1413,6 +1682,9 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
     return nCellsValid;
 } //updateMap
+
+
+
 
 
 

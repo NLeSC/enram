@@ -21,6 +21,7 @@
 // ****************************************************************************
 
 #define DEG2RAD    (0.017453293)  // Degrees to radians.
+#define RAD2DEG    (57.29578)     // Radians to degrees.
 
 // ****************************************************************************
 // Definition of general macros:
@@ -90,8 +91,6 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
         const unsigned char verbose);
 
-int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin);
-
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
@@ -105,6 +104,8 @@ void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANME
         const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
         const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
         const int iLayer, const unsigned char clutterFlag, const unsigned char uzflag, const unsigned char xflag);
+        
+void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const float vradMin);
 
 int detNumberOfGates(const int iLayer, const float layerThickness,
                      const float rangeMin, const float rangeMax,
@@ -129,8 +130,13 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
                            const int *cellImage,
                            const float rangeMin, const float rangeMax,
                            const float altitudeMin, const float altitudeMax,
-                           const float absVradMin, const int iData,
                            float* points, int iPoint);
+
+int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin);
+
+int includeGate(int iProfileType, int gateCode);
+
+char* printGateCode(int gateCode);
 
 void sortCells(CELLPROP *cellProp, int nCells);
 
