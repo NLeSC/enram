@@ -42,8 +42,8 @@
 #define NEIGHBOURS  (5)      // Minimum number of directly neighouring pixels
                              // with dBZ>DBZRAIN [1-8]
 #define PI          (3.14159265358979323846)
-#define TRUE        (1)
-#define FALSE       (0)
+#define TRUE        ((int) (1))
+#define FALSE       ((int) (0))
 
 
 // ****************************************************************************
@@ -140,9 +140,10 @@ char* printGateCode(int gateCode);
 
 void sortCells(CELLPROP *cellProp, int nCells);
 
+void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
+                                   const int nPointsIncluded, const float absVDifMax, float* points);
+
 int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells, const int minCellArea);
 
-
-
-
+            
 

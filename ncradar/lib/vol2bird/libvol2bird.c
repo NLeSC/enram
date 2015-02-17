@@ -24,6 +24,59 @@
 
 
 
+// the 'points' array has this many pseudo-columns
+const int nColsPoints = 6;
+
+// column 1 in 'points' holds the azimuth angle
+const int azimAngleCol = 0;
+
+// column 1 in 'points' holds the elevation angle
+const int elevAngleCol = 1;
+
+// column 1 in 'points' holds the dbz value
+const int dbzValueCol = 2;
+
+// column 1 in 'points' holds the vrad value
+const int vradValueCol = 3;
+
+// column 1 in 'points' holds the cell value
+const int cellValueCol = 4;
+
+// column 1 in 'points' holds the gate classification code
+const int gateCodeCol = 5;
+
+
+
+
+// the 0th bit in gateCode says whether this gate is true in the static
+// clutter map (which we don't have yet TODO)
+const int flagPositionStaticClutter = 0;
+
+// the 1st bit in gateCode says whether this gate is part of the 
+// calculated cluttermap (without fringe)
+const int flagPositionDynamicClutter = 1;
+
+// the 2nd bit in gateCode says whether this gate is part of the 
+// fringe of the calculated cluttermap
+const int flagPositionDynamicClutterFringe = 2;
+
+// the 3rd bit in gateCode says whether this gate has reflectivity data 
+// but no corresponding radial velocity data
+const int flagPositionVradMissing = 3;
+
+// the 4th bit in gateCode says whether this gate's dbz value is too
+// high to be due to birds, it must be caused by something else
+const int flagPositionDbzTooHighForBirds = 4;
+
+// the 5th bit in gateCode says whether this gate's radial velocity is
+//  too low to be due to actual scatterers; likely just noise
+const int flagPositionVradTooLow = 5;
+
+// the 6th bit in gateCode says whether this gate passed the VDIFMAX test
+const int flagPositionVDifMax = 6;
+
+
+
 int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
@@ -362,75 +415,55 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const float vradMin) {
     
-    const int azimAngleCol = 0;
-    const int elevAngleCol = 1;
-    const int dbzValueCol = 2;
-    const int vradValueCol = 3;
-    const int cellValueCol = 4;
-    const int gateCodeCol = 5;
-    
-    const int nColsPoints = 6;
-    
     const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];
     const float vradValue = points[iPoint * nColsPoints + vradValueCol];
     const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
-    
-    int iFlag;
+
     
     int gateCode = 0;
     
     if (FALSE) {
         // this gate is true in the static clutter map (which we don't have yet TODO)
-        iFlag = 0;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionStaticClutter;
     }
 
     if (cellValue == 1) {
         // this gate is part of the cluttermap (without fringe)
-        iFlag = 1;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionDynamicClutter;
     }
 
     if (cellValue == 2) {
         // this gate is part of the fringe of the cluttermap
-        iFlag = 2;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionDynamicClutterFringe;
     }
 
     if (FALSE) {
         // this gate has reflectivity data but no corresponding radial velocity data
         // TODO no condition for this yet
-        iFlag = 3;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionVradMissing;
     }
 
     if (dbzValue > dbzMax) {
         // this gate's dbz value is too high to be due to birds, it must be 
         // caused by something else
-        iFlag = 4;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionDbzTooHighForBirds;
     }
 
     if (vradValue < vradMin) {
         // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
-        iFlag = 5;
-        gateCode |= 1<<iFlag;
+        gateCode |= 1<<flagPositionVradTooLow;
     }
 
     if (FALSE) {
-        // TODO no condition for this yet
-        iFlag = 6;
-        gateCode |= 1<<iFlag;
+        // this flag is set later on by updateFlagFieldsInPointsArray()
+        // flagPositionVDifMax
     }
 
     if (FALSE) {
-        // TODO no condition for this yet
-        iFlag = 7;
-        gateCode |= 1<<iFlag;
+        // no condition for this yet
     }
 
-
-    points[iPoint * nColsPoints + gateCodeCol] = gateCode;
+    points[iPoint * nColsPoints + gateCodeCol] = (float) gateCode;
 
     return;
     
@@ -1429,18 +1462,22 @@ int includeGate(int iProfileType, int gateCode) {
     }
     
     if (gateCode & 1<<6) {
-        
+
         // i.e. flag 6 in gateCode is true
-        // TODO no condition for this yet
+        // after the first svdfit, this gate's fitted vRad was more than 
+        // VDIFMAX away from the observed vRad for that gate. It is therefore
+        // considered an outlier
         
         switch (iProfileType) {
             case 1 : 
-                doInclude = TRUE;
+                doInclude = FALSE;
                 break;
             case 2 : 
+                // FIXME not sure if this should be FALSE for iProfileType==2
                 doInclude = TRUE;
                 break;
             case 3 : 
+                // FIXME not sure if this should be FALSE for iProfileType==3
                 doInclude = TRUE;
                 break;
             default :
@@ -1544,6 +1581,30 @@ void sortCells(CELLPROP *cellProp, int nCells) {
     return;
 } // sortCells
 
+
+
+
+void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
+                                   const int nPointsIncluded, const float absVDifMax, float* points) {
+
+    int iPointIncluded;
+    int iPoint;
+    int gateCode;
+
+    for (iPointIncluded = 0; iPointIncluded < nPointsIncluded; iPointIncluded++) {
+
+        float absVDif = fabs(yObs[iPointIncluded]-yFitted[iPointIncluded]);
+        
+        if (absVDif > absVDifMax) {
+            
+            iPoint = includedIndex[iPointIncluded];
+            gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
+            points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode |= 1<<flagPositionVDifMax);
+
+        }
+    } 
+
+} // updateFlagFieldsInPointsArray
 
 
 
@@ -1682,12 +1743,6 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
     return nCellsValid;
 } //updateMap
-
-
-
-
-
-
 
 
 
