@@ -147,3 +147,9 @@ int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int n
 
             
 
+
+
+
+
+int detSvdfitArraySize(PolarVolume_t* volume, int* indexFrom, int* indexTo, 
+    int nLayers, float layerThickness, float rangeMin, float rangeMax);

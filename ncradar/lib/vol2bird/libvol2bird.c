@@ -18,10 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-//#define FPRINTFON (1)
+#include "polarvolume.h"
 #include "libvol2bird.h"
-
+#include "libsvdfit.h"
 
 
 // the 'points' array has this many pseudo-columns
@@ -733,6 +732,76 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
     return nGates;
 
 } // detNumberOfGates()
+
+
+
+
+
+int detSvdfitArraySize(PolarVolume_t* volume, int* indexFrom, int* indexTo, 
+    int nLayers, float layerThickness, float rangeMin, float rangeMax) {
+    
+    int iScan;
+    int nScans = PolarVolume_getNumberOfScans(volume);
+
+    int iLayer;
+    int nRowsPoints = 0;
+    
+    int* nGates = malloc(sizeof(int) * nLayers);
+    int* nGatesAcc = malloc(sizeof(int) * nLayers);
+    
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        nGates[iLayer] = 0;
+        nGatesAcc[iLayer] = 0;
+    }
+
+    for (iScan = 0; iScan < nScans; iScan++) {
+        for (iLayer = 0; iLayer < nLayers; iLayer++) {
+
+            PolarScan_t* scan = PolarVolume_getScan(volume, iScan);
+            
+            int nRang = (int) PolarScan_getNbins(scan);
+            int nAzim = (int) PolarScan_getNrays(scan);
+            float elevAngle = (float) (360 * PolarScan_getElangle(scan) / 2 / PI );
+            float rangeScale = (float) PolarScan_getRscale(scan);
+            float radarHeight = (float) PolarScan_getHeight(scan);
+
+            nGates[iLayer] += detNumberOfGates(iLayer, layerThickness,
+                rangeMin, rangeMax, rangeScale, elevAngle, nRang, 
+                nAzim, radarHeight);
+                
+            RAVE_OBJECT_RELEASE(scan);
+
+        }
+    }
+
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        if (iLayer == 0) {
+            nGatesAcc[iLayer] = nGates[iLayer];
+        }
+        else {
+            nGatesAcc[iLayer] = nGatesAcc[iLayer-1] + nGates[iLayer];
+        }
+    }
+    nRowsPoints = nGatesAcc[nLayers-1];
+
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        if (iLayer == 0) {
+            indexFrom[iLayer] = 0;
+        }
+        else {
+            indexFrom[iLayer] = nGatesAcc[iLayer-1];
+        }
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        indexTo[iLayer] = nGatesAcc[iLayer];
+    }
+
+    free((void*) nGates);
+    free((void*) nGatesAcc);
+
+    return nRowsPoints;
+    
+}  // detSvdfitArraySize()
 
 
 
@@ -1716,6 +1785,17 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
     return nCellsValid;
 } //updateMap
+
+
+
+
+
+
+
+
+
+
+
 
 
 
