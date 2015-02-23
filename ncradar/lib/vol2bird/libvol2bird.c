@@ -25,56 +25,56 @@
 
 
 // the 'points' array has this many pseudo-columns
-const int nColsPoints = 6;
+static int nColsPoints = 6;
 
 // column 1 in 'points' holds the azimuth angle
-const int azimAngleCol = 0;
+static int azimAngleCol = 0;
 
 // column 1 in 'points' holds the elevation angle
-const int elevAngleCol = 1;
+static int elevAngleCol = 1;
 
 // column 1 in 'points' holds the dbz value
-const int dbzValueCol = 2;
+static int dbzValueCol = 2;
 
 // column 1 in 'points' holds the vrad value
-const int vradValueCol = 3;
+static int vradValueCol = 3;
 
 // column 1 in 'points' holds the cell value
-const int cellValueCol = 4;
+static int cellValueCol = 4;
 
 // column 1 in 'points' holds the gate classification code
-const int gateCodeCol = 5;
+static int gateCodeCol = 5;
 
 
 
 
 // the 0th bit in gateCode says whether this gate is true in the static
 // clutter map (which we don't have yet TODO)
-const int flagPositionStaticClutter = 0;
+static int flagPositionStaticClutter = 0;
 
 // the 1st bit in gateCode says whether this gate is part of the 
 // calculated cluttermap (without fringe)
-const int flagPositionDynamicClutter = 1;
+static int flagPositionDynamicClutter = 1;
 
 // the 2nd bit in gateCode says whether this gate is part of the 
 // fringe of the calculated cluttermap
-const int flagPositionDynamicClutterFringe = 2;
+static int flagPositionDynamicClutterFringe = 2;
 
 // the 3rd bit in gateCode says whether this gate has reflectivity data 
 // but no corresponding radial velocity data
-const int flagPositionVradMissing = 3;
+static int flagPositionVradMissing = 3;
 
 // the 4th bit in gateCode says whether this gate's dbz value is too
 // high to be due to birds, it must be caused by something else
-const int flagPositionDbzTooHighForBirds = 4;
+static int flagPositionDbzTooHighForBirds = 4;
 
 // the 5th bit in gateCode says whether this gate's radial velocity is
 // close to zero. These gates are all discarded to exclude ground 
 // clutter, which often has a radial velocity near zero.
-const int flagPositionVradTooLow = 5;
+static int flagPositionVradTooLow = 5;
 
 // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
-const int flagPositionVDifMax = 6;
+static int flagPositionVDifMax = 6;
 
 
 
@@ -1351,8 +1351,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-
-        
     }
     
     if (gateCode & 1<<flagPositionDynamicClutter) {
@@ -1373,7 +1371,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-        
     }
         
     if (gateCode & 1<<flagPositionDynamicClutterFringe) {
@@ -1394,7 +1391,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-        
     }
     
     if (gateCode & 1<<flagPositionVradMissing) {
@@ -1415,7 +1411,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-        
     }
     
     if (gateCode & 1<<flagPositionDbzTooHighForBirds) {
@@ -1438,10 +1433,9 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-        
     }
     
-    if (gateCode & 1<<flagPositionVradTooLow {
+    if (gateCode & 1<<flagPositionVradTooLow) {
         
         // i.e. flag 5 in gateCode is true
         // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
@@ -1459,7 +1453,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-        
     }
     
     if (gateCode & 1<<flagPositionVDifMax) {
@@ -1484,8 +1477,6 @@ int includeGate(int iProfileType, int gateCode) {
             default :
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
-    }
-
     }
 
     return doInclude;
