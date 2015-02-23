@@ -69,7 +69,8 @@ const int flagPositionVradMissing = 3;
 const int flagPositionDbzTooHighForBirds = 4;
 
 // the 5th bit in gateCode says whether this gate's radial velocity is
-//  too low to be due to actual scatterers; likely just noise
+// close to zero. These gates are all discarded to exclude ground 
+// clutter, which often has a radial velocity near zero.
 const int flagPositionVradTooLow = 5;
 
 // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
@@ -1332,7 +1333,7 @@ int includeGate(int iProfileType, int gateCode) {
     
     int doInclude = TRUE;
     
-    if (gateCode & 1<<0) {
+    if (gateCode & 1<<flagPositionStaticClutter) {
         
         // i.e. flag 0 in gateCode is true
         // this gate is true in the static clutter map (which we don't have yet TODO)
@@ -1354,7 +1355,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
     
-    if (gateCode & 1<<1) {
+    if (gateCode & 1<<flagPositionDynamicClutter) {
         
         // i.e. flag 1 in gateCode is true
         // this gate is part of the cluttermap (without fringe)
@@ -1364,7 +1365,7 @@ int includeGate(int iProfileType, int gateCode) {
                 doInclude = FALSE;
                 break;
             case 2 : 
-                doInclude = FALSE;
+                doInclude = TRUE;
                 break;
             case 3 : 
                 doInclude = TRUE;
@@ -1375,7 +1376,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
         
-    if (gateCode & 1<<2) {
+    if (gateCode & 1<<flagPositionDynamicClutterFringe) {
         
         // i.e. flag 2 in gateCode is true
         // this gate is part of the fringe of the cluttermap
@@ -1385,7 +1386,7 @@ int includeGate(int iProfileType, int gateCode) {
                 doInclude = FALSE;
                 break;
             case 2 : 
-                doInclude = TRUE;
+                doInclude = FALSE;
                 break;
             case 3 : 
                 doInclude = TRUE;
@@ -1396,7 +1397,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
     
-    if (gateCode & 1<<3) {
+    if (gateCode & 1<<flagPositionVradMissing) {
         
         // i.e. flag 3 in gateCode is true
         // this gate has reflectivity data but no corresponding radial velocity data
@@ -1417,7 +1418,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
     
-    if (gateCode & 1<<4) {
+    if (gateCode & 1<<flagPositionDbzTooHighForBirds) {
         
         // i.e. flag 4 in gateCode is true
         // this gate's dbz value is too high to be due to birds, it must be 
@@ -1440,7 +1441,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
     
-    if (gateCode & 1<<5) {
+    if (gateCode & 1<<flagPositionVradTooLow {
         
         // i.e. flag 5 in gateCode is true
         // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
@@ -1461,7 +1462,7 @@ int includeGate(int iProfileType, int gateCode) {
         
     }
     
-    if (gateCode & 1<<6) {
+    if (gateCode & 1<<flagPositionVDifMax) {
 
         // i.e. flag 6 in gateCode is true
         // after the first svdfit, this gate's fitted vRad was more than 
@@ -1484,26 +1485,7 @@ int includeGate(int iProfileType, int gateCode) {
                 fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
         }
     }
-    
-    if (gateCode & 1<<7) {
-        
-        // i.e. flag 7 in gateCode is true
-        // TODO no condition for this yet
-        
-        switch (iProfileType) {
-            case 1 : 
-                doInclude = TRUE;
-                break;
-            case 2 : 
-                doInclude = TRUE;
-                break;
-            case 3 : 
-                doInclude = TRUE;
-                break;
-            default :
-                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
-        }
-        
+
     }
 
     return doInclude;
