@@ -39,11 +39,9 @@
 // ****************************************************************************
 
 
-#define NEIGHBOURS  (5)      // Minimum number of directly neighouring pixels
-                             // with dBZ>DBZRAIN [1-8]
 #define PI          (3.14159265358979323846)
-#define TRUE        ((int) (1))
-#define FALSE       ((int) (0))
+#define TRUE        1
+#define FALSE       0
 
 
 // ****************************************************************************
@@ -93,25 +91,31 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
+void calcProfile(int iProfileType);
+
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
         const int nRangNeighborhood, const int nAzimNeighborhood,
         const int nCountMin);
 
-void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA uzmeta, const SCANMETA clutterMeta,
-        const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *uzscan, const unsigned char *clutterImage,
-        float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
-        const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
-        const float absVradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
-        const int iLayer, const unsigned char clutterFlag, const unsigned char uzflag, const unsigned char xflag);
-        
-void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const float vradMin);
+void classifyGatesSimple(void);
+
+int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, 
+    int nGlobal, int initValue);
+
+int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, 
+    int nGlobal, unsigned char initValue);
+
+void constructPointsArray(PolarVolume_t* volume);
 
 int detNumberOfGates(const int iLayer, const float layerThickness,
                      const float rangeMin, const float rangeMax,
                      const float rangeScale, const float elevAngle,
                      const int nRang, const int nAzim,
                      const float radarHeight);
+
+
+int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness, float rangeMin, float rangeMax);
 
 
 int findCells(const unsigned char *dbzImage,
@@ -136,20 +140,37 @@ int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const
 
 int includeGate(int iProfileType, int gateCode);
 
+int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
+                    unsigned char *values, char *paramStr);
+
 char* printGateCode(int gateCode);
 
+int printImageInt(int* image, int printCountMax, int nGlobal, char* varName);
+
+int printImageUChar(unsigned char* image, int printCountMax, int nGlobal, 
+    char* varName);
+    
+void printIndexArrays(void);
+    
+int printMeta(SCANMETA* meta, char* varName);
+
+void printPointsArray(void);
+
+void printProfile(void);
+
+void setUpVol2Bird(PolarVolume_t* volume);
+
 void sortCells(CELLPROP *cellProp, int nCells);
+
+void tearDownVol2Bird();
 
 void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
                                    const int nPointsIncluded, const float absVDifMax, float* points);
 
 int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells, const int minCellArea);
 
-            
 
 
 
 
 
-int detSvdfitArraySize(PolarVolume_t* volume, int* indexFrom, int* indexTo, 
-    int nLayers, float layerThickness, float rangeMin, float rangeMax);
