@@ -33,4 +33,4 @@
 #define STDEVBIRD                 2.0
 #define NBINSGAP                  8
 #define NOBSGAPMIN                5
-#define COMPLEX_REFRACTIVE_INDEX  0.964
+#define REFRACTIVE_INDEX_OF_WATER 0.964

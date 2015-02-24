@@ -2033,8 +2033,8 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     // minimum quality of the fit
     chisqMin = CHISQMIN;
 
-    // the complex refractive index of water
-    complRefracIndex = COMPLEX_REFRACTIVE_INDEX;
+    // the refractive index of water
+    complRefracIndex = REFRACTIVE_INDEX_OF_WATER;
 
     // the bird radar cross section
     birdRadarCrossSection = SIGMABIRD;
