@@ -21,59 +21,212 @@
 #include "polarvolume.h"
 #include "libvol2bird.h"
 #include "libsvdfit.h"
+#include "constants.h"
+
 
 
 // the 'points' array has this many pseudo-columns
-static int nColsPoints = 6;
+static int nColsPoints;
+
+//
+static int nRowsPoints;
 
 // column 1 in 'points' holds the azimuth angle
-static int azimAngleCol = 0;
+static int azimAngleCol;
 
 // column 1 in 'points' holds the elevation angle
-static int elevAngleCol = 1;
+static int elevAngleCol;
 
 // column 1 in 'points' holds the dbz value
-static int dbzValueCol = 2;
+static int dbzValueCol;
 
 // column 1 in 'points' holds the vrad value
-static int vradValueCol = 3;
+static int vradValueCol;
 
 // column 1 in 'points' holds the cell value
-static int cellValueCol = 4;
+static int cellValueCol;
 
 // column 1 in 'points' holds the gate classification code
-static int gateCodeCol = 5;
+static int gateCodeCol;
 
 
 
 
 // the 0th bit in gateCode says whether this gate is true in the static
 // clutter map (which we don't have yet TODO)
-static int flagPositionStaticClutter = 0;
+static int flagPositionStaticClutter;
 
 // the 1st bit in gateCode says whether this gate is part of the 
 // calculated cluttermap (without fringe)
-static int flagPositionDynamicClutter = 1;
+static int flagPositionDynamicClutter;
 
 // the 2nd bit in gateCode says whether this gate is part of the 
 // fringe of the calculated cluttermap
-static int flagPositionDynamicClutterFringe = 2;
+static int flagPositionDynamicClutterFringe;
 
 // the 3rd bit in gateCode says whether this gate has reflectivity data 
 // but no corresponding radial velocity data
-static int flagPositionVradMissing = 3;
+static int flagPositionVradMissing;
 
 // the 4th bit in gateCode says whether this gate's dbz value is too
 // high to be due to birds, it must be caused by something else
-static int flagPositionDbzTooHighForBirds = 4;
+static int flagPositionDbzTooHighForBirds;
 
 // the 5th bit in gateCode says whether this gate's radial velocity is
 // close to zero. These gates are all discarded to exclude ground 
 // clutter, which often has a radial velocity near zero.
-static int flagPositionVradTooLow = 5;
+static int flagPositionVradTooLow;
 
 // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
-static int flagPositionVDifMax = 6;
+static int flagPositionVDifMax;
+
+
+
+// the number of layers in an altitude profile
+static int nLayers;
+
+// when analyzing cells, AREAMIN determines the minimum size of a 
+// cell to be considered in the rest of the analysis
+static int areaMin;
+
+// when analyzing cells, only cells for which the average dbz is 
+// more than DBZCELL are considered in the rest of the analysis
+static float cellDbzMin;
+
+// when analyzing cells, only cells for which the stddev of vrad
+// (aka the texture) is less than STDEVCELL are considered in the
+// rest of the analysis
+static float cellStdDevMax;
+
+// ...TODO
+static float cellClutterFraction;
+
+// When analyzing cells, radial velocities lower than VRADMIN 
+// are treated as clutter
+static float vradMin;
+
+// ...TODO
+static float clutterValueMax;
+
+// ...TODO
+static float dbzThresMin;
+
+// ...TODO
+static float dbzMax;
+
+// ...TODO
+static int rCellMax;
+
+// ...TODO
+static float fringeDist;
+
+// vrad's texture is calculated based on the local neighborhood. The
+// neighborhood size in the range direction is equal to NTEXBINRANG
+static int nRangNeighborhood;
+
+// vrad's texture is calculated based on the local neighborhood. The
+// neighborhood size in the azimuth direction is equal to NTEXBINAZIM
+static int nAzimNeighborhood;
+
+// ...TODO
+static int nCountMin; 
+
+// the thickness in meters of a layer in the altitude profile
+static float layerThickness;
+
+// the range below which observations are excluded when constructing 
+// the altitude profile
+static float rangeMin;
+
+// the range beyond which observations are excluded when constructing 
+// the altitude profile
+static float rangeMax;
+
+// when determining whether there are enough vrad observations in 
+// each direction, use NBINSGAP sectors
+static int nBinsGap;
+
+// there should be at least NOBSGAPMIN vrad observations in each 
+// sector
+static int nObsGapMin;
+
+// minimum quality of the fit
+static float chisqMin;
+
+// the complex refractive index of water
+static float complRefracIndex;
+
+// the bird radar cross section
+static float birdRadarCrossSection;
+
+// when calculating the altitude-layer averaged dbz, there should 
+// be at least NDBZMIN valid data points
+static int nPointsIncludedMin;
+
+// after fitting the vrad data, throw out any vrad observations that 
+// are more that VDIFMAX away from the fitted value, since these are
+// likely outliers 
+static float absVDifMax;
+
+// TODO
+static int* indexFrom;
+
+// TODO
+static int* indexTo;
+
+// TODO
+static int* nPointsWritten;
+
+// TODO
+static float* points;
+
+
+
+// the maximum number that printCount is allowed to reach before 
+// printing ceases
+static int printCountMax;
+
+// whether clutter data is used
+static unsigned char clutterFlag;
+
+// whether verbose output is required
+static unsigned char verbose;
+
+// the number of dimensions to describe the location of an echo 
+// (azimuth and elevAngle)
+static int nDims;
+
+// how many parameters are fitted by the svdfit procedure
+static int nParsFitted;
+
+// maximum number of gates possible given the elevation angles of 
+// the scans and the limits set by RANGMIN and RANGMAX, i.e. the
+// number of pseudo rows in the points array
+static int nRowsPoints;
+
+// the number of pseudo columns in the points array
+static int nColsPoints;
+
+// TODO
+static int nRowsProfile;
+
+// columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
+static int nColsProfile; 
+
+// the wavelength of the radar in units of centimeter
+static float radarWavelength;
+
+// the factor that is used when converting from Z to eta
+static float dbzFactor;
+
+// the types of profile we're making
+static int nProfileTypes;
+
+// the profile data
+static float* profile;
+
+// the type of profile that was last calculated
+static int iProfileTypeLast;
 
 
 
@@ -295,6 +448,211 @@ float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, 
 
 
 
+void calcProfile(int iProfileType) {
+ 
+ 
+        // ------------------------------------------------------------- //
+        //                        prepare the profile                    //
+        // ------------------------------------------------------------- //
+        
+        iProfileTypeLast = iProfileType;
+           
+        int iPoint;
+        
+        // reset the flagPositionVDifMax bit before calculating each profile
+        for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
+            int gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
+            points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode &= ~(1<<flagPositionVDifMax));
+        }
+        
+        int iLayer;
+        
+        for (iLayer = 0; iLayer < nLayers; iLayer++) {
+
+            int iPassSvdfit;
+
+            for (iPassSvdfit = 0; iPassSvdfit < 2; iPassSvdfit++) {
+
+                const int iPointFrom = indexFrom[iLayer];
+                const int iPointTo = indexTo[iLayer];
+                const int nPointsLayer = nPointsWritten[iLayer];
+
+                int iPointLayer;
+                int iPointIncluded;
+                int nPointsIncluded;
+
+                float parameterVector[] = {NAN,NAN,NAN};
+                float avar[] = {NAN,NAN,NAN};
+                
+                float* pointsSelection = malloc(sizeof(float) * nPointsLayer * nDims);
+                float* yObs = malloc(sizeof(float) * nPointsLayer);
+                float* yFitted = malloc(sizeof(float) * nPointsLayer);
+                int* includedIndex = malloc(sizeof(int) * nPointsLayer);
+                
+                float dbzValue = NAN;
+                float undbzValue = NAN;
+                double undbzSum = 0.0;
+                float undbzAvg = NAN;
+                float dbzAvg = NAN;
+                float birdDensity = NAN;
+                float reflectivity = NAN;
+                int hasGap = TRUE;
+                float chisq = NAN;
+                float chi = NAN;
+                float hSpeed = NAN;
+                float hDir = NAN;
+
+
+                for (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
+
+                    pointsSelection[iPointLayer * nDims + 0] = 0.0f;
+                    pointsSelection[iPointLayer * nDims + 1] = 0.0f;
+                    
+                    yObs[iPointLayer] = 0.0f;
+                    yFitted[iPointLayer] = 0.0f;
+                    
+                    includedIndex[iPointLayer] = -1;
+
+                };
+
+                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
+                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
+                profile[iLayer*nColsProfile +  2] = NAN;
+                profile[iLayer*nColsProfile +  3] = NAN;
+                profile[iLayer*nColsProfile +  4] = NAN;
+                profile[iLayer*nColsProfile +  5] = NAN;
+                profile[iLayer*nColsProfile +  6] = NAN;
+                profile[iLayer*nColsProfile +  7] = NAN;
+                profile[iLayer*nColsProfile +  8] = NAN;
+                profile[iLayer*nColsProfile +  9] = NAN;
+                profile[iLayer*nColsProfile + 10] = NAN;
+                profile[iLayer*nColsProfile + 11] = NAN;
+                profile[iLayer*nColsProfile + 12] = NAN;
+
+                iPointIncluded = 0;
+                
+                for (iPointLayer = iPointFrom; iPointLayer < iPointFrom + nPointsLayer; iPointLayer++) {
+                    
+                    int gateCode = (int) points[iPointLayer * nColsPoints + gateCodeCol];
+
+                    if (includeGate(iProfileType,gateCode) == TRUE) {
+
+                        // copy azimuth angle from the 'points' array
+                        pointsSelection[iPointIncluded * nDims + 0] = points[iPointLayer * nColsPoints + 0];
+                        // copy elevation angle from the 'points' array
+                        pointsSelection[iPointIncluded * nDims + 1] = points[iPointLayer * nColsPoints + 1];
+                        // get the dbz value at this [azimuth, elevation] 
+                        dbzValue = points[iPointLayer * nColsPoints + 2];
+                        // convert from dB scale to linear scale 
+                        undbzValue = (float) exp(0.1*log(10)*dbzValue);
+                        // sum the undbz in this layer
+                        undbzSum += undbzValue;
+                        // copy the observed vrad value at this [azimuth, elevation] 
+                        yObs[iPointIncluded] = points[iPointLayer * nColsPoints + 3];
+                        // pre-allocate the fitted vrad value at this [azimuth,elevation]
+                        yFitted[iPointIncluded] = 0.0f;
+                        // keep a record of which index was just included
+                        includedIndex[iPointIncluded] = iPointLayer;
+                        
+                        // raise the counter
+                        iPointIncluded += 1;
+                        
+                    }
+                } // endfor (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
+                nPointsIncluded = iPointIncluded;
+                undbzAvg = (float) (undbzSum/nPointsIncluded);
+                
+                if (nPointsIncluded > nPointsIncludedMin) {   
+                    // when there are enough valid points, convert undbzAvg back to dB-scale
+                    dbzAvg = (10*log(undbzAvg))/log(10);
+                }
+                else {
+                    dbzAvg = NAN;
+                }
+
+                // convert from Z (not dBZ) in units of mm^6/m^3 to 
+                // reflectivity eta in units of cm^2/km^3
+                reflectivity = dbzFactor * undbzAvg;
+                
+                if (iProfileType==1) {
+                    // calculate bird density in number of birds/km^3 by
+                    // dividing the reflectivity by the (assumed) cross section
+                    // of one bird
+                    birdDensity = reflectivity / birdRadarCrossSection;
+                }
+                else {
+                    birdDensity = NAN;
+                }
+
+                // check if there are directions that have almost no observations
+                // (as this makes the svdfit result really uncertain)  
+
+                hasGap = hasAzimuthGap(&pointsSelection[0], nDims, nPointsIncluded, nBinsGap, nObsGapMin);
+                
+                if (hasGap==FALSE) {
+                    
+                    // ------------------------------------------------------------- //
+                    //                       do the svdfit                           //
+                    // ------------------------------------------------------------- //
+
+                    chisq = svdfit(&pointsSelection[0], nDims, &yObs[0], &yFitted[0], 
+                            nPointsIncluded, &parameterVector[0], &avar[0], nParsFitted);
+
+                    if (chisq < chisqMin) {
+                        // the fit was not good enough, reset parameter vector array 
+                        // elements to NAN and continue with the next layer
+                        parameterVector[0] = NAN;
+                        parameterVector[1] = NAN;
+                        parameterVector[2] = NAN;
+                        continue;
+                    } 
+                    else {
+                        
+                        chi = sqrt(chisq);
+                        hSpeed = sqrt(pow(parameterVector[0],2) + pow(parameterVector[1],2));
+                        hDir = (atan2(parameterVector[0],parameterVector[1])*RAD2DEG);
+                        
+                        if (hDir < 0) {
+                            hDir += 360.0f;
+                        }
+                        
+                    }
+                } // hasGap==FALSE
+                
+                // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
+                // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
+                // gate in the secong svdfit iteration
+                updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
+                                              absVDifMax, &points[0]);
+
+
+                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
+                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
+                profile[iLayer*nColsProfile +  2] = parameterVector[0];
+                profile[iLayer*nColsProfile +  3] = parameterVector[1];
+                profile[iLayer*nColsProfile +  4] = parameterVector[2];
+                profile[iLayer*nColsProfile +  5] = hSpeed;
+                profile[iLayer*nColsProfile +  6] = hDir;
+                profile[iLayer*nColsProfile +  7] = chi;
+                profile[iLayer*nColsProfile +  8] = (float) hasGap;
+                profile[iLayer*nColsProfile +  9] = dbzAvg;
+                profile[iLayer*nColsProfile + 10] = (float) nPointsIncluded;
+                profile[iLayer*nColsProfile + 11] = reflectivity;
+                profile[iLayer*nColsProfile + 12] = birdDensity;
+                
+                
+                free((void*) yObs);
+                free((void*) yFitted);
+                free((void*) pointsSelection);
+        
+            } // endfor (iPassSvdfit = 0; iPassSvdfit < 2; iPassSvdfit++)
+            
+        } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
+
+} // calcProfile
+
+
+
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
@@ -413,57 +771,63 @@ void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 } // calcTexture
 
 
-void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const float vradMin) {
+void classifyGatesSimple(void) {
     
-    const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];
-    const float vradValue = points[iPoint * nColsPoints + vradValueCol];
-    const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
-
+    int iPoint;
     
-    int gateCode = 0;
+    for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
     
-    if (FALSE) {
-        // this gate is true in the static clutter map (which we don't have yet TODO)
-        gateCode |= 1<<flagPositionStaticClutter;
-    }
+        const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];
+        const float vradValue = points[iPoint * nColsPoints + vradValueCol];
+        const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
 
-    if (cellValue == 1) {
-        // this gate is part of the cluttermap (without fringe)
-        gateCode |= 1<<flagPositionDynamicClutter;
-    }
+        
+        int gateCode = 0;
+        
+        if (FALSE) {
+            // this gate is true in the static clutter map (which we don't have yet TODO)
+            gateCode |= 1<<flagPositionStaticClutter;
+        }
 
-    if (cellValue == 2) {
-        // this gate is part of the fringe of the cluttermap
-        gateCode |= 1<<flagPositionDynamicClutterFringe;
-    }
+        if (cellValue == 1) {
+            // this gate is part of the cluttermap (without fringe)
+            gateCode |= 1<<flagPositionDynamicClutter;
+        }
 
-    if (FALSE) {
-        // this gate has reflectivity data but no corresponding radial velocity data
-        // TODO no condition for this yet
-        gateCode |= 1<<flagPositionVradMissing;
-    }
+        if (cellValue == 2) {
+            // this gate is part of the fringe of the cluttermap
+            gateCode |= 1<<flagPositionDynamicClutterFringe;
+        }
 
-    if (dbzValue > dbzMax) {
-        // this gate's dbz value is too high to be due to birds, it must be 
-        // caused by something else
-        gateCode |= 1<<flagPositionDbzTooHighForBirds;
-    }
+        if (FALSE) {
+            // this gate has reflectivity data but no corresponding radial velocity data
+            // TODO no condition for this yet
+            gateCode |= 1<<flagPositionVradMissing;
+        }
 
-    if (vradValue < vradMin) {
-        // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
-        gateCode |= 1<<flagPositionVradTooLow;
-    }
+        if (dbzValue > dbzMax) {
+            // this gate's dbz value is too high to be due to birds, it must be 
+            // caused by something else
+            gateCode |= 1<<flagPositionDbzTooHighForBirds;
+        }
 
-    if (FALSE) {
-        // this flag is set later on by updateFlagFieldsInPointsArray()
-        // flagPositionVDifMax
-    }
+        if (vradValue < vradMin) {
+            // this gate's radial velocity is too low to be due to actual scatterers; likely just noise
+            gateCode |= 1<<flagPositionVradTooLow;
+        }
 
-    if (FALSE) {
-        // no condition for this yet
-    }
+        if (FALSE) {
+            // this flag is set later on by updateFlagFieldsInPointsArray()
+            // flagPositionVDifMax
+        }
 
-    points[iPoint * nColsPoints + gateCodeCol] = (float) gateCode;
+        if (FALSE) {
+            // no condition for this yet
+        }
+
+        points[iPoint * nColsPoints + gateCodeCol] = (float) gateCode;
+        
+    }
 
     return;
     
@@ -473,219 +837,219 @@ void classifyGatesSimple(float* points, int iPoint, const float dbzMax, const fl
 
 
 
-void classifyGates(const SCANMETA dbzMeta, const SCANMETA vradMeta, const SCANMETA rawReflMeta, const SCANMETA clutterMeta,
-        const int *cellImage, const unsigned char *dbzImage, const unsigned char *vradImage, unsigned char *rawReflImage, const unsigned char *clutterImage,
-        float *zdata, int *nzdata, const float rangeMin, const float rangeMax, const float layerThickness, const float XOFFSET,
-        const float XSCALE, const float XMEAN, const float heightOfInterest, const float azimMin, const float azimMax,
-        const float vradMin, const float dbzClutter, const float dbzMin, const float dBZx, const float DBZNOISE,
-        const int iLayer, const unsigned char clutterFlag, const unsigned char rawReflFlag, const unsigned char xflag) {
 
+int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue) {
 
-    //  *****************************************************************************
-    //  This function classifies the range gates, distinguishing between clutter,
-    //  rain, fringes, empty and valid gates. It returns the classification
-    //  and layer counters
-    //  *****************************************************************************
-
-    // FIXME XOFFSET suggests preprocessor but isn't
-    // FIXME XSCALE suggests preprocessor but isn't
-    // FIXME XMEAN suggests preprocessor but isn't
-    // FIXME DBZNOISE suggests preprocessor but isn't
-    // FIXME NDBZMIN suggests preprocessor but isn't
-
-    int iAzim;
-    int nAzim;
-    int iRang;
-    int nRang;
-    int iCol0;
-    int iCol1;
-    int iCol2;
-    int nCols;
-    int nPoints;
-    int nPointsAll;
-    int nPointsClutter;
-    int nPointsRain;
-    int nPointsRainNoFringe;
     int iGlobal;
-    float range;
-    float heightBeam;
-    float azim;
-    float dbzValue;
-    float unDbzValue;
-    float vradValue;
-    float clutterValue;
-
-    nPoints = 0;
-    nPointsAll = 0;
-    nPointsClutter = 0;
-    nPointsRain = 0;
-    nPointsRainNoFringe = 0;
-
-    // for each height layer (a.k.a each bin in the density profiles), keep track of nCols variables:
-    nCols = 3;
-
-    // These are the indices into 'zdata' for the 3 variables that we track for each height layer:
-    iCol0 = (iLayer * nCols) + 0;  // nPointsAll - nPointsRain - nPointsClutter
-    iCol1 = (iLayer * nCols) + 1;  // nPointsRainNoFringe
-    iCol2 = (iLayer * nCols) + 2;  // nPointsAll - nPointsClutter
-
-    nRang = dbzMeta.nRang;
-    nAzim = dbzMeta.nAzim;
-
-    for (iRang = 0; iRang < nRang; iRang++) {
-
-        for (iAzim = 0; iAzim < nAzim; iAzim++) {
-
-            range = (float) (iRang+0.5) * dbzMeta.rangeScale;
-            azim = (float) iAzim * dbzMeta.azimScale;  // FIXME (iAzim + 0.5) would be better I think
-            heightBeam = range * (float) sin(dbzMeta.elev*DEG2RAD) + dbzMeta.heig;
-
-            #ifdef FPRINTFON
-            fprintf(stderr,"range = %f; azim = %f; heightBeam = %f\n",range, azim, heightBeam);
-            #endif
-
-            if (range < rangeMin || range > rangeMax) {
-                // ignore range gates that are either too close or too far away
-                continue;
-            }
-
-            if (azim <= azimMin || azim > azimMax) {
-                // This clause is for when the user wants to use only those range gates from a certain direction
-                continue;
-            }
-
-            if (fabs(heightOfInterest-heightBeam) > 0.5*layerThickness) {
-                // if the height of the current gate is not within half a layerThickness distance from
-                // the height of interest, continue with the next gate.
-                continue;
-            }
-
-
-            iGlobal = iRang + iAzim * nRang;
-
-            dbzValue = dbzMeta.valueScale*(float) dbzImage[iGlobal] + dbzMeta.valueOffset;
-            unDbzValue = (float) exp(0.1*log(10)*dbzValue);
-            vradValue = vradMeta.valueScale*(float) vradImage[iGlobal] + vradMeta.valueOffset;
-            clutterValue = clutterMeta.valueScale*(float) clutterImage[iGlobal] + clutterMeta.valueOffset;
-
-
-
-            #ifdef FPRINTFON
-            fprintf(stderr,"dbzValue = %f; vradValue = %f; clutterValue = %f\n",dbzValue, vradValue, clutterValue);
-            #endif
-
-            nPointsAll++;
-
-            if ((int) clutterFlag == 1){
-                // take clutter into account
-                if (clutterValue > dbzClutter){
-
-                    // the current gate is classified as clutter. Raise the corresponding counter:
-                    nPointsClutter++;
-
-                    #ifdef FPRINTFON
-                    fprintf(stderr,"nPointsClutter = %d\n",nPointsClutter);
-                    #endif
-
-                    continue;
-                }
-            }
-
-            if ((int) rawReflFlag == 1){
-
-                // Take into account that points can be dropped by the signal processor
-
-                if (dbzImage[iGlobal] == dbzMeta.missing && rawReflImage[iGlobal] != rawReflMeta.missing){
-
-                    // points without valid reflectivity data, but WITH raw reflectivity data are points
-                    // dropped by the signal preprocessor. These will be treated as clutter.
-
-                    nPointsClutter++;
-                    continue;
-                }
-            }
-
-            if (dbzImage[iGlobal] != dbzMeta.missing && vradImage[iGlobal] == vradMeta.missing){
-
-                // we have reflectivity but the corresponding doppler data is missing. The gate is classified as clutter:
-
-                nPointsClutter++;
-                continue;
-            }
-
-            if (dbzValue < dbzMin) {
-
-                // the reflectivity value is too low to be considered.
-
-                dbzValue = DBZNOISE;
-                unDbzValue = (float) exp(0.1*log(10)*DBZNOISE);
-
-                // FIXME why reset the dbzValue to DBZNOISE?
-            }
-
-            if (vradImage[iGlobal] != vradMeta.missing && fabs(vradValue) < vradMin){
-
-                // we have a valid value for vrad but the magnitude of the value is too
-                // low. The gate is classified as clutter:
-
-                nPointsClutter++;
-                continue;
-            }
-
-            // FIXME what does dBZx represent?
-            if (cellImage[iGlobal] > 0 || dbzValue > dBZx) {
-                if (cellImage[iGlobal] > 1) {
-
-                    // i.e. the cells from cellImage, without any added fringes
-                    if (isnan(zdata[iCol1])) {
-                        // FIXME what is this clause for
-                        zdata[iCol1] = 0;
-                    }
-
-                    zdata[iCol1] += unDbzValue;
-                    nPointsRainNoFringe++;
-
-                }
-
-                if (isnan(zdata[iCol2])) {
-                    // FIXME what is this clause for
-                    zdata[iCol2] = 0;
-                }
-                zdata[iCol2] += unDbzValue;
-                nPointsRain++;
-                continue;
-            }
-
-            if (isnan(zdata[iCol0])) {
-                // FIXME what is this clause for
-                zdata[iCol0] = 0;
-            }
-
-            if (isnan(zdata[iCol2])) {
-                // FIXME what is this clause for
-                zdata[iCol2] = 0;
-            }
-
-            if ((int) xflag==1) {
-                zdata[iCol0] += unDbzValue*XMEAN/(XOFFSET+XSCALE/range);
-            }
-            else {
-                zdata[iCol0] += unDbzValue;
-            }
-            zdata[iCol2] += unDbzValue;
-            nPoints++;
-        }//for iAzim
-    }//for iRang
-
-    nzdata[iCol0] = nPointsAll - nPointsRain - nPointsClutter;
-    nzdata[iCol1] = nPointsRainNoFringe;
-    nzdata[iCol2] = nPointsAll - nPointsClutter;
-
-    // FIXME Adriaan's latest code has some additional calculations to calculate the various fractions
-
-    return;
     
-} // classifyGates
+    if (image == NULL) {
+        fprintf(stderr,"Error allocating image");
+        return -2;
+    }
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        image[iGlobal] = initValue;
+    }
+    meta->heig = (float) PolarScan_getHeight(scan);
+    meta->elev = (float) (360 * PolarScan_getElangle(scan) / 2 / PI );
+    meta->nRang = (int) PolarScan_getNbins(scan);
+    meta->nAzim = (int) PolarScan_getNrays(scan);
+    meta->rangeScale = (float) PolarScan_getRscale(scan);
+    meta->azimScale = 360.0f/meta->nAzim;   // FIXME not sure if this always works
+    meta->valueOffset = 0.0f;
+    meta->valueScale = 1.0f;
+    meta->missing = (unsigned char) 255;  // FIXME this does not work as intended for type int
+    
+    return 0;
+
+}
+
+
+
+
+int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue) {
+
+    int iGlobal;
+    
+    if (image == NULL) {
+        fprintf(stderr,"Error allocating image");
+        return -2;
+    }
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        image[iGlobal] = initValue;
+    }
+    meta->heig = (float) PolarScan_getHeight(scan);
+    meta->elev = (float) (360 * PolarScan_getElangle(scan) / 2 / PI );
+    meta->nRang = (int) PolarScan_getNbins(scan);
+    meta->nAzim = (int) PolarScan_getNrays(scan);
+    meta->rangeScale = (float) PolarScan_getRscale(scan);
+    meta->azimScale = 360.0f/meta->nAzim;   // FIXME not sure if this always works
+    meta->valueOffset = 0.0f;
+    meta->valueScale = 1.0f;
+    meta->missing = (unsigned char) 255;
+    
+    return 0;
+
+}
+
+
+
+void constructPointsArray(PolarVolume_t* volume) {
+    
+        // iterate over the scans in 'volume'
+        int iScan;
+        int nScans;
+        
+        // determine how many scan elevations the volume object contains
+        nScans = PolarVolume_getNumberOfScans(volume);
+
+
+        for (iScan = 0; iScan < nScans; iScan++) {
+            
+            // initialize the scan object
+            PolarScan_t* scan = NULL;
+        
+            // extract the scan object from the volume object
+            scan = PolarVolume_getScan(volume, iScan);
+            
+            // determine the number of array elements in the polar scan
+            int nGlobal = (int) PolarScan_getNbins(scan) * PolarScan_getNrays(scan);
+            
+            // pre-allocate the dbz variables
+            unsigned char* dbzImage = malloc(sizeof(unsigned char) * nGlobal);
+            SCANMETA dbzMeta;
+            constructorUChar(&dbzMeta, &dbzImage[0], scan, nGlobal, 0);
+            
+            // pre-allocate the vrad variables
+            unsigned char* vradImage = malloc(sizeof(unsigned char) * nGlobal);
+            SCANMETA vradMeta;
+            constructorUChar(&vradMeta, &vradImage[0], scan, nGlobal, 0);
+            
+            // pre-allocate the tex variables
+            unsigned char* texImage = malloc(sizeof(unsigned char) * nGlobal);
+            SCANMETA texMeta;
+            constructorUChar(&texMeta, &texImage[0], scan, nGlobal, 0);
+            
+            // pre-allocate the clutter variables
+            unsigned char* clutterImage = malloc(sizeof(unsigned char) * nGlobal);
+            SCANMETA clutterMeta;
+            constructorUChar(&clutterMeta, &clutterImage[0], scan, nGlobal, 0);
+            
+            // pre-allocate the cell variables
+            int* cellImage = malloc(sizeof(int) * nGlobal);
+            SCANMETA cellMeta;
+            constructorInt(&cellMeta, &cellImage[0], scan, nGlobal, -1);
+
+            // populate the dbzMeta and dbzImage variables with data from 
+            // the Rave scan object:
+            int rcDbz = mapDataFromRave(scan, &dbzMeta, &dbzImage[0],"DBZH");
+
+            // print a selection of what's been read just now
+            printMeta(&dbzMeta,"dbzMeta");
+            printImageUChar(&dbzImage[0], printCountMax, nGlobal, "dbzImage");
+
+
+            // populate the vradMeta and vradImage variables with data from  
+            // the Rave scan object:
+            int rcVrad = mapDataFromRave(scan, &vradMeta, &vradImage[0],"VRAD");
+
+            // print a selection of what's been read just now
+            printMeta(&vradMeta,"vradMeta");
+            printImageUChar(&vradImage[0], printCountMax, nGlobal, "vradImage");
+
+
+            // ------------------------------------------------------------- //
+            //                      calculate vrad texture                   //
+            // ------------------------------------------------------------- //
+
+            calcTexture(&texImage[0], &vradImage[0], &dbzImage[0], 
+                        &texMeta, &vradMeta, &dbzMeta, 
+                        nRangNeighborhood, nAzimNeighborhood, nCountMin);
+
+            printMeta(&texMeta,"texMeta");
+            printImageUChar(&texImage[0], printCountMax, nGlobal, "texImage");
+
+            // ------------------------------------------------------------- //
+            //        find (weather) cells in the reflectivity image         //
+            // ------------------------------------------------------------- //
+            
+            int nCells = findCells(&dbzImage[0], &cellImage[0], 
+                                   &dbzMeta, dbzThresMin, rCellMax);
+                                   
+            fprintf(stderr,"Found %d cells.\n",nCells);
+
+            // ------------------------------------------------------------- //
+            //                      analyze cells                            //
+            // ------------------------------------------------------------- //
+
+            int nCellsValid = analyzeCells(&dbzImage[0], &vradImage[0], &texImage[0], 
+                &clutterImage[0], &cellImage[0], &dbzMeta, &vradMeta, &texMeta, 
+                &clutterMeta, nCells, areaMin, cellDbzMin, cellStdDevMax, 
+                cellClutterFraction, vradMin, clutterValueMax, 
+                clutterFlag, verbose);
+
+            // ------------------------------------------------------------- //
+            //                     calculate fringe                          //
+            // ------------------------------------------------------------- //
+
+            fringeCells(&cellImage[0], cellMeta.nRang, cellMeta.nAzim, 
+                cellMeta.azimScale, cellMeta.rangeScale, fringeDist);
+                
+            printMeta(&cellMeta,"cellMeta");
+            printImageInt(&cellImage[0], printCountMax, nGlobal, "cellImage");
+            
+            printMeta(&clutterMeta,"clutterMeta");
+            printImageUChar(&clutterImage[0], printCountMax, nGlobal, "clutterImage");
+            
+            // ------------------------------------------------------------- //
+            //    fill in the appropriate elements in the points array       //
+            // ------------------------------------------------------------- //
+
+            int iLayer;
+            
+            for (iLayer = 0; iLayer < nLayers; iLayer++) {
+                
+                float altitudeMin = iLayer * layerThickness;
+                float altitudeMax = (iLayer + 1) * layerThickness;
+                int iRowPoints = indexFrom[iLayer] + nPointsWritten[iLayer];
+
+                int n = getListOfSelectedGates(&vradMeta, &vradImage[0],
+                    &dbzMeta, &dbzImage[0], 
+                    &cellImage[0], 
+                    rangeMin, rangeMax, 
+                    altitudeMin, altitudeMax, 
+                    &points[0], iRowPoints);
+                    
+                nPointsWritten[iLayer] += n;
+
+                if (indexFrom[iLayer] + nPointsWritten[iLayer] > indexTo[iLayer]) {
+                    fprintf(stderr, "Problem occured: writing over existing data\n");
+                    return;
+                }
+
+
+            } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
+
+            printImageInt(&cellImage[0], printCountMax, nGlobal, "cellImage");
+
+            // ------------------------------------------------------------- //
+            //                         clean up                              //
+            // ------------------------------------------------------------- //
+
+
+            // free previously malloc'ed arrays
+            free((void*) dbzImage);
+            free((void*) vradImage);
+            free((void*) texImage);
+            free((void*) cellImage);
+            free((void*) clutterImage);
+            
+            RAVE_OBJECT_RELEASE(scan);
+            
+        } // endfor (iScan = 0; iScan < nScans; iScan++)
+
+}
+
+
 
 
 
@@ -737,8 +1101,7 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
 
 
 
-int detSvdfitArraySize(PolarVolume_t* volume, int* indexFrom, int* indexTo, 
-    int nLayers, float layerThickness, float rangeMin, float rangeMax) {
+int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness, float rangeMin, float rangeMax) {
     
     int iScan;
     int nScans = PolarVolume_getNumberOfScans(volume);
@@ -1550,7 +1913,389 @@ int includeGate(int iProfileType, int gateCode) {
 
     return doInclude;
 
+} // includeGate
+
+
+
+
+
+void printProfile(void) {
+    
+    
+    fprintf(stderr,"\n\nProfile type: %d\n",iProfileTypeLast);
+
+    fprintf(stderr,"altmin-altmax: [u         ,v         ,w         ]; "
+                   "hSpeed  , hDir    , chi     , hasGap  , dbzAvg  ,"
+                   " nPoints, eta     , rhobird \n");
+
+    int iLayer;
+    
+    for (iLayer = nLayers - 1; iLayer >= 0; iLayer--) {
+        
+        fprintf(stderr,"%6.0f-%-6.0f: [%10.2f,%10.2f,%10.2f]; %8.2f, "
+        "%8.1f, %8.1f, %8c, %8.2f, %7.0f, %8.2f, %8.2f\n",
+        profile[iLayer * nColsProfile +  0],
+        profile[iLayer * nColsProfile +  1],
+        profile[iLayer * nColsProfile +  2],
+        profile[iLayer * nColsProfile +  3],
+        profile[iLayer * nColsProfile +  4],
+        profile[iLayer * nColsProfile +  5],
+        profile[iLayer * nColsProfile +  6],
+        profile[iLayer * nColsProfile +  7],
+        profile[iLayer * nColsProfile +  8] == TRUE ? 'T' : 'F',
+        profile[iLayer * nColsProfile +  9],
+        profile[iLayer * nColsProfile + 10],
+        profile[iLayer * nColsProfile + 11],
+        profile[iLayer * nColsProfile + 12]);
+    }
+
+    
+} // printProfile()
+
+
+
+
+void setUpVol2Bird(PolarVolume_t* volume) {
+    
+
+    // ------------------------------------------------------------- //
+    //                     assigning the constants                   //
+    // ------------------------------------------------------------- //
+
+    // the number of layers in an altitude profile
+    nLayers = NLAYER;
+    
+    // when analyzing cells, AREAMIN determines the minimum size of a 
+    // cell to be considered in the rest of the analysis
+    areaMin = AREACELL;
+    
+    // when analyzing cells, only cells for which the average dbz is 
+    // more than DBZCELL are considered in the rest of the analysis
+    cellDbzMin = DBZCELL;
+    
+    // when analyzing cells, only cells for which the stddev of vrad
+    // (aka the texture) is less than STDEVCELL are considered in the
+    // rest of the analysis
+    cellStdDevMax = STDEVCELL;
+    
+    // ...TODO
+    cellClutterFraction = CLUTPERCCELL;
+    
+    // When analyzing cells, radial velocities lower than VRADMIN 
+    // are treated as clutter
+    vradMin = VRADMIN;
+    
+    // ...TODO
+    clutterValueMax = DBZCLUTTER;
+    
+    // ...TODO
+    dbzThresMin = DBZMIN;
+    
+    // ...TODO
+    dbzMax = DBZMAX;
+    
+    // ...TODO
+    rCellMax = RANGMAX + 5.0f;
+    
+    // ...TODO
+    fringeDist = EMASKMAX;
+    
+    // vrad's texture is calculated based on the local neighborhood. The
+    // neighborhood size in the range direction is equal to NTEXBINRANG
+    nRangNeighborhood = NTEXBINRANG;
+    
+    // vrad's texture is calculated based on the local neighborhood. The
+    // neighborhood size in the azimuth direction is equal to NTEXBINAZIM
+    nAzimNeighborhood = NTEXBINAZIM;
+    
+    // ...TODO
+    nCountMin = NTEXMIN; 
+
+    // the thickness in meters of a layer in the altitude profile
+    layerThickness = HLAYER;
+
+    // the range below which observations are excluded when constructing 
+    // the altitude profile
+    rangeMin = RANGMIN;
+
+    // the range beyond which observations are excluded when constructing 
+    // the altitude profile
+    rangeMax = RANGMAX; // FIXME same as rCellMax?
+
+    // when determining whether there are enough vrad observations in 
+    // each direction, use NBINSGAP sectors
+    nBinsGap = NBINSGAP;
+
+    // there should be at least NOBSGAPMIN vrad observations in each 
+    // sector
+    nObsGapMin = NOBSGAPMIN;
+
+    // minimum quality of the fit
+    chisqMin = CHISQMIN;
+
+    // the complex refractive index of water
+    complRefracIndex = COMPLEX_REFRACTIVE_INDEX;
+
+    // the bird radar cross section
+    birdRadarCrossSection = SIGMABIRD;
+
+    // when calculating the altitude-layer averaged dbz, there should 
+    // be at least NDBZMIN valid data points
+    nPointsIncludedMin = NDBZMIN;
+
+    // after fitting the vrad data, throw out any vrad observations that 
+    // are more that VDIFMAX away from the fitted value, since these are
+    // likely outliers 
+    absVDifMax = VDIFMAX;
+
+
+    // ------------------------------------------------------------- //
+    //                initialization of variables                    //
+    // ------------------------------------------------------------- //
+
+    // the maximum number that printCount is allowed to reach before 
+    // printing ceases
+    printCountMax = 10;
+
+    // whether clutter data is used
+    clutterFlag = FALSE;
+
+    // whether verbose output is required
+    verbose = TRUE;
+
+    // the number of dimensions to describe the location of an echo 
+    // (azimuth and elevAngle)
+    nDims = 2;
+
+    // how many parameters are fitted by the svdfit procedure
+    nParsFitted = 3;
+
+    // TODO
+    nRowsProfile = nLayers;
+
+    // columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
+    nColsProfile = (2 + nParsFitted + 8); 
+
+    // the wavelength of the radar in units of centimeter
+    radarWavelength = 5.3; // FIXME issue https://github.com/jspaaks/baltrad-node/issues/20
+
+    // calculate the factor that will convert from Z (not dBZ) in 
+    // units of mm^6/m^3 to reflectivity eta in units of cm^2/km^3
+    dbzFactor = (pow(complRefracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
+    
+    // the types of profile we're making
+    nProfileTypes = 3;
+    
+    
+    // the 'points' array has this many pseudo-columns
+    nColsPoints = 6;
+
+    // column 1 in 'points' holds the azimuth angle
+    azimAngleCol = 0;
+
+    // column 1 in 'points' holds the elevation angle
+    elevAngleCol = 1;
+
+    // column 1 in 'points' holds the dbz value
+    dbzValueCol = 2;
+
+    // column 1 in 'points' holds the vrad value
+    vradValueCol = 3;
+
+    // column 1 in 'points' holds the cell value
+    cellValueCol = 4;
+
+    // column 1 in 'points' holds the gate classification code
+    gateCodeCol = 5;
+
+
+    // the 0th bit in gateCode says whether this gate is true in the static
+    // clutter map (which we don't have yet TODO)
+    flagPositionStaticClutter = 0;
+
+    // the 1st bit in gateCode says whether this gate is part of the 
+    // calculated cluttermap (without fringe)
+    flagPositionDynamicClutter = 1;
+
+    // the 2nd bit in gateCode says whether this gate is part of the 
+    // fringe of the calculated cluttermap
+    flagPositionDynamicClutterFringe = 2;
+
+    // the 3rd bit in gateCode says whether this gate has reflectivity data 
+    // but no corresponding radial velocity data
+    flagPositionVradMissing = 3;
+
+    // the 4th bit in gateCode says whether this gate's dbz value is too
+    // high to be due to birds, it must be caused by something else
+    flagPositionDbzTooHighForBirds = 4;
+
+    // the 5th bit in gateCode says whether this gate's radial velocity is
+    // close to zero. These gates are all discarded to exclude ground 
+    // clutter, which often has a radial velocity near zero.
+    flagPositionVradTooLow = 5;
+
+    // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
+    flagPositionVDifMax = 6;
+    
+    
+    // the type of profile that was calculated last
+    iProfileTypeLast = -1;
+    
+
+    // The data needed for calculating bird densities are collected
+    // in one big array, 'points'. Although this array is one 
+    // variable, it is partitioned into 'nLayers' parts. The parts 
+    // are not equal in size, therefore we need to keep track of  
+    // where the data pertaining to a certain altitude bin can be
+    // written. The valid range of indexes into 'points' are stored 
+    // in arrays 'indexFrom' and 'indexTo'.
+
+    int iLayer;
+    
+    // pre-allocate the list with start-from indexes for each 
+    // altitude bin in the profile
+    indexFrom = (int*) malloc(sizeof(int) * nLayers);
+    if (indexFrom == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'indexFrom'\n");
+        return;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        indexFrom[iLayer] = 0;
+    }
+
+    // pre-allocate the list with end-before indexes for each 
+    // altitude bin in the profile
+    indexTo = (int*) malloc(sizeof(int) * nLayers);
+    if (indexTo == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'indexTo'\n");
+        return;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        indexTo[iLayer] = 0;
+    }
+
+    // for each altitude layer, you need to remember how many points 
+    // were already written. This information is stored in the 
+    // 'nPointsWritten' array
+    nPointsWritten = (int*) malloc(sizeof(int) * nLayers);
+    if (nPointsWritten == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'nPointsWritten'\n");
+        return;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        nPointsWritten[iLayer] = 0;
+    }
+    
+    nRowsPoints = detSvdfitArraySize(volume, nLayers, layerThickness, rangeMin, rangeMax);
+
+    // pre-allocate the 'points' array (note it has 'nColsPoints'
+    // pseudo-columns)
+    points = (float*) malloc(sizeof(float) * nRowsPoints * nColsPoints);
+    if (points == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'points'.\n"); 
+        return;
+    }
+
+    int iRowPoints;
+    int iColPoints;
+        
+    for (iRowPoints = 0; iRowPoints < nRowsPoints; iRowPoints++) {
+        for (iColPoints = 0; iColPoints < nColsPoints; iColPoints++) {
+            points[iRowPoints*nColsPoints + iColPoints] = NAN;
+        }
+    }
+    
+    // pre-allocate the array holding any profiled data (note it has 
+    // 'nColsPoints' pseudocolumns):
+    profile = (float*) malloc(sizeof(float) * nRowsProfile * nColsProfile);
+    if (profile == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'profile'.\n"); 
+        return;
+    }
+
+    int iRowProfile;
+    int iColProfile;
+        
+    for (iRowProfile = 0; iRowProfile < nRowsProfile; iRowProfile++) {
+        for (iColProfile = 0; iColProfile < nColsProfile; iColProfile++) {
+            profile[iRowProfile*nColsProfile + iColProfile] = NAN;
+        }
+    }
+
+
+
+} // setUpVol2Bird
+
+
+
+
+int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, char* paramStr) {
+    
+    fprintf(stderr,"The memory address of meta is: %p\n", (void*) meta);
+    
+    fprintf(stderr,"%s\n",paramStr);
+    
+    PolarScanParam_t* param = PolarScan_getParameter(scan,paramStr);
+
+    int iRang;
+    int iAzim;
+    
+    int nRang = PolarScan_getNbins(scan);
+    int nAzim = PolarScan_getNrays(scan);
+    int iGlobal;
+    
+    iGlobal = 0;    
+    
+    if (param != NULL) {
+
+        // scan includes requested information, apparently
+        
+        meta->heig = (float) PolarScan_getHeight(scan);
+        meta->elev = (float) (360 * PolarScan_getElangle(scan) / 2 / PI );
+        meta->nRang = (int) PolarScan_getNbins(scan);
+        meta->nAzim = (int) PolarScan_getNrays(scan);
+        meta->rangeScale = (float) PolarScan_getRscale(scan);
+        meta->azimScale = 360.0f/meta->nAzim;   // FIXME not sure if this always works
+        meta->valueOffset = (float) PolarScanParam_getOffset(param);
+        meta->valueScale = (float) PolarScanParam_getGain(param);
+        meta->missing = (unsigned char) PolarScanParam_getNodata(param);
+
+        double value;
+        double* valuePtr = &value;
+        unsigned char valueUChar;
+        
+        for (iRang = 0; iRang < nRang; iRang++) {
+            for (iAzim = 0; iAzim < nAzim; iAzim++) {
+
+                RaveValueType t = PolarScanParam_getValue(param, iRang, iAzim, valuePtr);
+                if (0 <= value && value <=255) {
+                    valueUChar = (unsigned char) value;
+                }
+                else {
+                    fprintf(stderr,"Out of range value read at iRang = %d, iAzim = %d\n",iRang,iAzim);
+                    return -1;
+                }
+                values[iGlobal] = valueUChar;
+                iGlobal++;
+            }
+        }
+        
+
+    } 
+    else {
+        
+        fprintf(stderr,"Requested parameter not available\n");
+        return -1;
+
+    }
+    
+    
+    return 0;
+
 }
+
+
+
 
 
 char* printGateCode(int gateCode) {
@@ -1590,6 +2335,107 @@ char* printGateCode(int gateCode) {
 
 
 
+
+
+int printImageInt(int* image, int printCountMax, int nGlobal, char* varName) {
+
+    int printCount = 0;
+    int iGlobal;
+    
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        if (printCount < printCountMax && image[iGlobal] != 0) {
+            fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
+            printCount++;
+        }
+    }
+    if (printCount == 0) {
+        fprintf(stderr, "all entries in '%s' are 0.\n",varName);
+    }
+    
+    return 0;
+}
+
+
+
+int printImageUChar(unsigned char* image, int printCountMax, int nGlobal, char* varName) {
+
+    int printCount = 0;
+    int iGlobal;
+    
+    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        if (printCount < printCountMax && image[iGlobal] != 0) {
+            fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
+            printCount++;
+        }
+    }
+    if (printCount == 0) {
+        fprintf(stderr, "all entries in '%s' are 0.\n",varName);
+    }
+    
+    return 0;
+}
+
+
+
+void printIndexArrays(void) {
+    
+    int iLayer;
+
+    fprintf(stderr, "iLayer  iFrom   iTo     iTo-iFrom nWritten\n");
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        fprintf(stderr, "%7d %7d %7d %10d %8d\n",
+            iLayer, 
+            indexFrom[iLayer], 
+            indexTo[iLayer], 
+            indexTo[iLayer] - indexFrom[iLayer], 
+            nPointsWritten[iLayer]);
+    }
+}
+
+
+
+int printMeta(SCANMETA* meta, char* varName) {
+    
+    fprintf(stderr,"%s->heig = %f\n",varName,meta->heig);
+    fprintf(stderr,"%s->elev = %f\n",varName,meta->elev);
+    fprintf(stderr,"%s->nRang = %d\n",varName,meta->nRang);
+    fprintf(stderr,"%s->nAzim = %d\n",varName,meta->nAzim);
+    fprintf(stderr,"%s->rangeScale = %f\n",varName,meta->rangeScale);
+    fprintf(stderr,"%s->azimScale = %f\n",varName,meta->azimScale);
+    fprintf(stderr,"%s->valueOffset = %f\n",varName,meta->valueOffset);
+    fprintf(stderr,"%s->valueScale = %f\n",varName,meta->valueScale);
+    fprintf(stderr,"%s->missing = %d\n",varName,meta->missing);
+    
+    return 0;
+
+}
+
+
+
+void printPointsArray(void) {
+        
+    int iPoint;
+    
+    fprintf(stderr, "iPoint  azim    elev    dbz         vrad        cell    gateCode  flags     \n");
+    for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
+            fprintf(stderr, "  %6d",iPoint/nColsPoints);
+            fprintf(stderr, "  %6.2f", points[iPoint + 0]);
+            fprintf(stderr, "  %6.2f", points[iPoint + 1]);
+            fprintf(stderr, "  %10.2f", points[iPoint + 2]);
+            fprintf(stderr, "  %10.2f", points[iPoint + 3]);
+            fprintf(stderr, "  %6.0f", points[iPoint + 4]);
+            fprintf(stderr, "  %8.0f", points[iPoint + 5]);
+            fprintf(stderr, "  %8s", printGateCode(points[iPoint + 5]));
+            fprintf(stderr, "\n");
+    }    
+    
+
+}
+
+
+
+
+
 void sortCells(CELLPROP *cellProp, int nCells) {
 
 
@@ -1622,6 +2468,24 @@ void sortCells(CELLPROP *cellProp, int nCells) {
 
     return;
 } // sortCells
+
+
+
+
+
+void tearDownVol2Bird() {
+
+    // free the points array, the indexes into it, the counters, as well
+    // as the profile data array
+    free((void*) points);
+    free((void*) profile);
+    free((void*) indexFrom);
+    free((void*) indexTo);
+    free((void*) nPointsWritten);
+
+} // tearDownVol2Bird
+
+
 
 
 
@@ -1699,10 +2563,6 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
         if (cellProp[cellImageValue].drop == 1) {
             cellImage[iGlobal] = -1;
         }
-
-//        #ifdef FPRINTFON
-//        fprintf(stderr,"cellImage[%d] = %d\n",iGlobal,cellImage[iGlobal]);
-//        #endif
     }
 
 
@@ -1747,12 +2607,6 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
     } // (iCell = 0; iCell < nCells; iCell++)
 
-//    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-//        if (cellImage[iGlobal] > -1) {
-//            cellImage[iGlobal] = -1;
-//        }
-//    }
-
 
     // once you've re-numbered everything, flip the sign back and
     // remove the offset of 100...
@@ -1784,18 +2638,12 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
 
 
     return nCellsValid;
-} //updateMap
+} // updateMap
 
 
 
 
 
 
-
-
-
-
-
-
-
+    
 
