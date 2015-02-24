@@ -153,8 +153,8 @@ static int nObsGapMin;
 // minimum quality of the fit
 static float chisqMin;
 
-// the complex refractive index of water
-static float complRefracIndex;
+// the refractive index of water
+static float refracIndex;
 
 // the bird radar cross section
 static float birdRadarCrossSection;
@@ -2034,7 +2034,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     chisqMin = CHISQMIN;
 
     // the refractive index of water
-    complRefracIndex = REFRACTIVE_INDEX_OF_WATER;
+    refracIndex = REFRACTIVE_INDEX_OF_WATER;
 
     // the bird radar cross section
     birdRadarCrossSection = SIGMABIRD;
@@ -2081,7 +2081,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
 
     // calculate the factor that will convert from Z (not dBZ) in 
     // units of mm^6/m^3 to reflectivity eta in units of cm^2/km^3
-    dbzFactor = (pow(complRefracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
+    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
     
     // the types of profile we're making
     nProfileTypes = 3;
