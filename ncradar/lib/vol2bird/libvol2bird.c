@@ -82,6 +82,11 @@ static int flagPositionVradTooLow;
 // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
 static int flagPositionVDifMax;
 
+// the 7th bit says whether the gate's azimuth angle was too low
+static int flagPositionAzimTooLow;
+
+// the 8th bit says whether the gate's azimuth angle was too high
+static int flagPositionAzimTooHigh;
 
 
 // the number of layers in an altitude profile
@@ -144,6 +149,14 @@ static float rangeMin;
 // the altitude profile
 static float rangeMax;
 
+// the user can specify to exclude gates based on their azimuth;
+// the minimum is set by azimMin
+static float azimMin;
+
+// the user can specify to exclude gates based on their azimuth;
+// the maximum is set by azmMax
+static float azimMax;
+
 // when determining whether there are enough vrad observations in 
 // each direction, use NBINSGAP sectors
 static int nBinsGap;
@@ -202,7 +215,7 @@ static int nDims;
 static int nParsFitted;
 
 // maximum number of gates possible given the elevation angles of 
-// the scans and the limits set by RANGMIN and RANGMAX, i.e. the
+// the scans and the limits set by RANGEMIN and RANGEMAX, i.e. the
 // number of pseudo rows in the points array
 static int nRowsPoints;
 
@@ -235,7 +248,7 @@ static cfg_t* cfg;
 
 
 
-int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
+static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, 
@@ -425,7 +438,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
 
 
 
-float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
+static float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
 
     //  ******************************************************************************
     //  This function calculates the distance in km between two gates
@@ -659,7 +672,7 @@ void calcProfile(int iProfileType) {
 
 
 
-void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
+static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
         const SCANMETA *dbzMeta, const int nRangNeighborhood,
         const int nAzimNeighborhood) {
@@ -782,7 +795,8 @@ void classifyGatesSimple(void) {
     
     for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
     
-        const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];
+        const float azimValue = points[iPoint * nColsPoints + azimAngleCol];
+        const float dbzValue = points[iPoint * nColsPoints + dbzValueCol];        
         const float vradValue = points[iPoint * nColsPoints + vradValueCol];
         const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
 
@@ -826,8 +840,16 @@ void classifyGatesSimple(void) {
             // flagPositionVDifMax
         }
 
-        if (FALSE) {
-            // no condition for this yet
+        if (azimValue < azimMin) {
+            // the user can specify to exclude gates based on their azimuth;
+            // this clause is for gates that have too low azimuth
+            gateCode |= 1<<flagPositionAzimTooLow;
+        }
+        
+        if (azimValue > azimMax) {
+            // the user can specify to exclude gates based on their azimuth;
+            // this clause is for gates that have too high azimuth
+            gateCode |= 1<<flagPositionAzimTooHigh;
         }
 
         points[iPoint * nColsPoints + gateCodeCol] = (float) gateCode;
@@ -843,7 +865,7 @@ void classifyGatesSimple(void) {
 
 
 
-int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue) {
+static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue) {
 
     int iGlobal;
     
@@ -871,7 +893,7 @@ int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, i
 
 
 
-int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue) {
+static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue) {
 
     int iGlobal;
     
@@ -947,20 +969,29 @@ void constructPointsArray(PolarVolume_t* volume) {
             // populate the dbzMeta and dbzImage variables with data from 
             // the Rave scan object:
             int rcDbz = mapDataFromRave(scan, &dbzMeta, &dbzImage[0],"DBZH");
+            if (rcDbz != 0) {
+                fprintf(stderr, "Something went wrong while mapping DBZH data from RAVE to LIBVOL2BIRD.\n");
+            }
 
             // print a selection of what's been read just now
-            printMeta(&dbzMeta,"dbzMeta");
-            printImageUChar(&dbzImage[0], nGlobal, "dbzImage");
+            if (printCountMax > 0) {
+                printMeta(&dbzMeta,"dbzMeta");
+                printImageUChar(&dbzImage[0], nGlobal, "dbzImage");
+            }
 
 
             // populate the vradMeta and vradImage variables with data from  
             // the Rave scan object:
             int rcVrad = mapDataFromRave(scan, &vradMeta, &vradImage[0],"VRAD");
+            if (rcVrad != 0) {
+                fprintf(stderr, "Something went wrong while mapping VRAD data from RAVE to LIBVOL2BIRD.\n");
+            }
 
             // print a selection of what's been read just now
-            printMeta(&vradMeta,"vradMeta");
-            printImageUChar(&vradImage[0], nGlobal, "vradImage");
-
+            if (printCountMax > 0) {
+                printMeta(&vradMeta,"vradMeta");
+                printImageUChar(&vradImage[0], nGlobal, "vradImage");
+            }
 
             // ------------------------------------------------------------- //
             //                      calculate vrad texture                   //
@@ -970,8 +1001,10 @@ void constructPointsArray(PolarVolume_t* volume) {
                         &texMeta, &vradMeta, &dbzMeta, 
                         nRangNeighborhood, nAzimNeighborhood);
 
-            printMeta(&texMeta,"texMeta");
-            printImageUChar(&texImage[0], nGlobal, "texImage");
+            if (printCountMax > 0) {
+                printMeta(&texMeta,"texMeta");
+                printImageUChar(&texImage[0], nGlobal, "texImage");
+            }
 
             // ------------------------------------------------------------- //
             //        find (weather) cells in the reflectivity image         //
@@ -998,11 +1031,13 @@ void constructPointsArray(PolarVolume_t* volume) {
             fringeCells(&cellImage[0], cellMeta.nRang, cellMeta.nAzim, 
                 cellMeta.azimScale, cellMeta.rangeScale, fringeDist);
                 
-            printMeta(&cellMeta,"cellMeta");
-            printImageInt(&cellImage[0], nGlobal, "cellImage");
+            if (printCountMax > 0) {
+                printMeta(&cellMeta,"cellMeta");
+                printImageInt(&cellImage[0], nGlobal, "cellImage");
             
-            printMeta(&clutterMeta,"clutterMeta");
-            printImageUChar(&clutterImage[0], nGlobal, "clutterImage");
+                printMeta(&clutterMeta,"clutterMeta");
+                printImageUChar(&clutterImage[0], nGlobal, "clutterImage");
+            }
             
             // ------------------------------------------------------------- //
             //    fill in the appropriate elements in the points array       //
@@ -1056,7 +1091,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
 
 
-int detNumberOfGates(const int iLayer, 
+static int detNumberOfGates(const int iLayer, 
                      const float rangeScale, const float elevAngle,
                      const int nRang, const int nAzim,
                      const float radarHeight) {
@@ -1103,7 +1138,7 @@ int detNumberOfGates(const int iLayer,
 
 
 
-int detSvdfitArraySize(PolarVolume_t* volume) {
+static int detSvdfitArraySize(PolarVolume_t* volume) {
     
     int iScan;
     int nScans = PolarVolume_getNumberOfScans(volume);
@@ -1173,7 +1208,7 @@ int detSvdfitArraySize(PolarVolume_t* volume) {
 
 
 
-int findCells(const unsigned char *dbzImage, int *cellImage,
+static int findCells(const unsigned char *dbzImage, int *cellImage,
         const SCANMETA *dbzMeta) {
 
     //  *****************************************************************************
@@ -1426,7 +1461,7 @@ int findCells(const unsigned char *dbzImage, int *cellImage,
 
 
 
-int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
+static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                         const int nAzimChild,  const int nRangChild,  const int iChild) {
 
 
@@ -1498,7 +1533,7 @@ int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int 
 
 
 
-void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale, float fringeDist) {
+static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale, float fringeDist) {
 
     //  ******************************************************************************
     //  This function enlarges cellImage by additional fringe.
@@ -1605,7 +1640,7 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
 
 
 
-int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage, 
+static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage, 
                            const SCANMETA* dbzMeta, const unsigned char *dbzImage,
                            const int *cellImage,
                            const float altitudeMin, const float altitudeMax,
@@ -1716,7 +1751,7 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
 
 
 
-int hasAzimuthGap(const float* points, const int nPoints) {
+static int hasAzimuthGap(const float* points, const int nPoints) {
 
     int hasGap;
     int nObs[nBinsGap];
@@ -1759,7 +1794,7 @@ int hasAzimuthGap(const float* points, const int nPoints) {
 
 
 
-int includeGate(int iProfileType, int gateCode) {
+static int includeGate(int iProfileType, int gateCode) {
     
     int doInclude = TRUE;
     
@@ -1909,6 +1944,53 @@ int includeGate(int iProfileType, int gateCode) {
         }
     }
 
+
+
+    if (gateCode & 1<<flagPositionAzimTooLow) {
+
+        // i.e. flag 7 in gateCode is true
+        // the user can specify to exclude gates based on their azimuth;
+        // this clause is for gates that have too low azimuth
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = FALSE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+    }
+
+
+    if (gateCode & 1<<flagPositionAzimTooHigh) {
+
+        // i.e. flag 8 in gateCode is true
+        // the user can specify to exclude gates based on their azimuth;
+        // this clause is for gates that have too high azimuth
+        
+        switch (iProfileType) {
+            case 1 : 
+                doInclude = FALSE;
+                break;
+            case 2 : 
+                doInclude = FALSE;
+                break;
+            case 3 : 
+                doInclude = FALSE;
+                break;
+            default :
+                fprintf(stderr, "Something went wrong; behavior not implemented for given iProfileType.\n");
+        }
+    }
+
+
+
     return doInclude;
 
 } // includeGate
@@ -1955,14 +2037,14 @@ void printProfile(void) {
 
 
 
-int readUserConfigOptions(void) {
+static int readUserConfigOptions(void) {
 
 
     cfg_opt_t opts[] = {
         CFG_FLOAT("HLAYER",    200.0f, CFGF_NONE),
         CFG_INT("NLAYER",          30, CFGF_NONE),
-        CFG_FLOAT("RANGMIN",  5000.0f, CFGF_NONE),
-        CFG_FLOAT("RANGMAX", 30000.0f, CFGF_NONE),
+        CFG_FLOAT("RANGEMIN",  5000.0f, CFGF_NONE),
+        CFG_FLOAT("RANGEMAX", 30000.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMIN",     0.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMAX",   360.0f, CFGF_NONE),
         CFG_INT("PRINTCOUNTMAX",   10, CFGF_NONE),
@@ -2047,11 +2129,11 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     // the range below which observations are excluded when constructing 
     // the altitude profile
-    rangeMin = cfg_getfloat(cfg, "RANGMIN");
+    rangeMin = cfg_getfloat(cfg, "RANGEMIN");
 
     // the range beyond which observations are excluded when constructing 
     // the altitude profile
-    rangeMax = cfg_getfloat(cfg, "RANGMAX"); // FIXME same as rCellMax?
+    rangeMax = cfg_getfloat(cfg, "RANGEMAX"); // FIXME same as rCellMax?
     
     // ...TODO
     rCellMax = rangeMax + 5.0f;
@@ -2081,6 +2163,14 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     // are more that VDIFMAX away from the fitted value, since these are
     // likely outliers 
     absVDifMax = VDIFMAX;
+    
+    // the user can specify to exclude gates based on their azimuth;
+    // the minimum is set by AZIMMIN
+    azimMin =  cfg_getfloat(cfg, "AZIMMIN");
+
+    // the user can specify to exclude gates based on their azimuth;
+    // the maximum is set by AZIMMAX
+    azimMax =  cfg_getfloat(cfg, "AZIMMAX");
 
 
     // ------------------------------------------------------------- //
@@ -2170,6 +2260,12 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
     flagPositionVDifMax = 6;
+    
+    // the 7th bit says whether the gate's azimuth angle was too low
+    flagPositionAzimTooLow = 7;
+
+    // the 8th bit says whether the gate's azimuth angle was too high
+    flagPositionAzimTooHigh = 8;
     
     
     // the type of profile that was calculated last
@@ -2264,11 +2360,12 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
 
 
-int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, char* paramStr) {
-    
-    fprintf(stderr,"The memory address of meta is: %p\n", (void*) meta);
-    
-    fprintf(stderr,"%s\n",paramStr);
+static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, char* paramStr) {
+
+    if (printCountMax > 0) {
+        fprintf(stderr,"The memory address of meta is: %p\n", (void*) meta);
+        fprintf(stderr,"%s\n",paramStr);
+    }
     
     PolarScanParam_t* param = PolarScan_getParameter(scan,paramStr);
 
@@ -2333,11 +2430,13 @@ int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, ch
 
 
 
-void printGateCode(char* flags, int gateCode) {
+static void printGateCode(char* flags, int gateCode) {
 
     int iFlag;
     int nFlagsNeeded;
     int nFlags;
+    int nFlagsMax;
+    
     
     if (gateCode <= 0) {
         nFlagsNeeded = 0;
@@ -2345,12 +2444,14 @@ void printGateCode(char* flags, int gateCode) {
     else {
         nFlagsNeeded = (int) ceil(log(gateCode + 1)/log(2));
     }
-    if (nFlagsNeeded>8) {
-        fprintf(stderr,"There's only space for 8 flags\n. Aborting");
+    
+    nFlagsMax = 9;
+    if (nFlagsNeeded > nFlagsMax) {
+        fprintf(stderr,"There's only space for %d flags\n. Aborting",nFlagsMax);
         return;
     }
     
-    nFlags = 8;
+    nFlags = nFlagsMax;
 
     for (iFlag = nFlags-1; iFlag >= 0; iFlag--) {
     
@@ -2376,7 +2477,7 @@ void printGateCode(char* flags, int gateCode) {
 
 
 
-int printImageInt(int* image, int nGlobal, char* varName) {
+static int printImageInt(int* image, int nGlobal, char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2396,7 +2497,7 @@ int printImageInt(int* image, int nGlobal, char* varName) {
 
 
 
-int printImageUChar(unsigned char* image, int nGlobal, char* varName) {
+static int printImageUChar(unsigned char* image, int nGlobal, char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2433,7 +2534,7 @@ void printIndexArrays(void) {
 
 
 
-int printMeta(SCANMETA* meta, char* varName) {
+static int printMeta(SCANMETA* meta, char* varName) {
     
     fprintf(stderr,"%s->heig = %f\n",varName,meta->heig);
     fprintf(stderr,"%s->elev = %f\n",varName,meta->elev);
@@ -2459,7 +2560,7 @@ void printPointsArray(void) {
     
     for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
         
-            char gateCodeStr[9];  // 8 bits plus 1 position for the null character '\0'
+            char gateCodeStr[10];  // 9 bits plus 1 position for the null character '\0'
             
             printGateCode(&gateCodeStr[0], (int) points[iPoint + gateCodeCol]);
         
@@ -2470,7 +2571,7 @@ void printPointsArray(void) {
             fprintf(stderr, "  %10.2f", points[iPoint + vradValueCol]);
             fprintf(stderr, "  %6.0f",  points[iPoint + cellValueCol]);
             fprintf(stderr, "  %8.0f",  points[iPoint + gateCodeCol]);
-            fprintf(stderr, "  %8s",    gateCodeStr);
+            fprintf(stderr, "  %12s",   gateCodeStr);
             fprintf(stderr, "\n");
     }    
     
@@ -2480,7 +2581,7 @@ void printPointsArray(void) {
 
 
 
-void sortCells(CELLPROP *cellProp, int nCells) {
+static void sortCells(CELLPROP *cellProp, int nCells) {
 
 
     //  *****************************************************************************
@@ -2538,7 +2639,7 @@ void tearDownVol2Bird() {
 
 
 
-void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
+static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
                                    const int nPointsIncluded, float* points) {
 
     int iPointIncluded;
@@ -2563,7 +2664,7 @@ void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, cons
 
 
 
-int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells) {
+static int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map
