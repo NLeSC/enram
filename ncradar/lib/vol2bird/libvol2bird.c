@@ -2048,6 +2048,7 @@ static int readUserConfigOptions(void) {
         CFG_FLOAT("AZIMMIN",     0.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMAX",   360.0f, CFGF_NONE),
         CFG_INT("PRINTCOUNTMAX",   10, CFGF_NONE),
+        CFG_FLOAT("RADAR_WAVELENGTH_CM", 5.3f, CFGF_NONE),
         CFG_END()
     };
     
@@ -2166,11 +2167,11 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     
     // the user can specify to exclude gates based on their azimuth;
     // the minimum is set by AZIMMIN
-    azimMin =  cfg_getfloat(cfg, "AZIMMIN");
+    azimMin = cfg_getfloat(cfg, "AZIMMIN");
 
     // the user can specify to exclude gates based on their azimuth;
     // the maximum is set by AZIMMAX
-    azimMax =  cfg_getfloat(cfg, "AZIMMAX");
+    azimMax = cfg_getfloat(cfg, "AZIMMAX");
 
 
     // ------------------------------------------------------------- //
@@ -2201,7 +2202,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     nColsProfile = (2 + nParsFitted + 8); 
 
     // the wavelength of the radar in units of centimeter
-    radarWavelength = 5.3; // FIXME issue https://github.com/jspaaks/baltrad-node/issues/20
+    radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
 
     // calculate the factor that will convert from Z (not dBZ) in 
     // units of mm^6/m^3 to reflectivity eta in units of cm^2/km^3
