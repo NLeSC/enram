@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
+// ****************************************************************************
+// Definition of general macros:
+// ****************************************************************************
 
+#define SIGN(x)    (((x)<0)?-1:1)
+#define SQUARE(x)  ((x)*(x))
+#define XYMAX(x,y) (((x)<(y))?(y):(x))
+#define XYMIN(x,y) (((x)<(y))?(x):(y))
 
-
+#define DEG2RAD    (0.017453293)  // Degrees to radians.
 
 // ****************************************************************************
 // Definition of parameters for fitting

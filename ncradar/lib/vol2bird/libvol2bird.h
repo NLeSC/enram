@@ -28,11 +28,8 @@
 // ****************************************************************************
 
 #define XABS(x)    (((x)<0)?(-(x)):(x))
-#define SIGN(x)    (((x)<0)?-1:1)
 #define ROUND(x)   (((x)>0)?(int)((x)+0.5):(int)((x)-0.5))
 #define SQUARE(x)  ((x)*(x))
-#define XYMAX(x,y) (((x)<(y))?(y):(x))
-#define XYMIN(x,y) (((x)<(y))?(x):(y))
 
 // ****************************************************************************
 // Defined (default) parameters.
@@ -82,78 +79,78 @@ typedef struct scanmeta SCANMETA;
 // Function prototypes
 // *****************************************************************************
 
-int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
+static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const unsigned char cmFlag, const unsigned char verbose);
 
-float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+static float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
 void calcProfile(int iProfileType);
 
-void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
+static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
         const int nRangNeighborhood, const int nAzimNeighborhood);
 
 void classifyGatesSimple(void);
 
-int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue);
+static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue);
 
-int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue);
+static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue);
 
 void constructPointsArray(PolarVolume_t* volume);
 
-int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
+static int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
                      const int nRang, const int nAzim, const float radarHeight);
 
-int detSvdfitArraySize(PolarVolume_t* volume);
+static int detSvdfitArraySize(PolarVolume_t* volume);
 
-int findCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
+static int findCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
 
-int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
+static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                         const int nAzimChild,  const int nRangChild,  const int iChild);
 
-void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
+static void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
-int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
+static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
                            const SCANMETA* dbzMeta, const unsigned char *dbzImage,
                            const int *cellImage,
                            const float altitudeMin, const float altitudeMax,
                            float* points, int iPoint);
 
-int hasAzimuthGap(const float *points, const int nPoints);
+static int hasAzimuthGap(const float *points, const int nPoints);
 
-int includeGate(int iProfileType, int gateCode);
+static int includeGate(int iProfileType, int gateCode);
 
-int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
+static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
                     unsigned char *values, char *paramStr);
 
-void printGateCode(char* flags, int gateCode);
+static void printGateCode(char* flags, int gateCode);
 
-int printImageInt(int* image, int nGlobal, char* varName);
+static int printImageInt(int* image, int nGlobal, char* varName);
 
-int printImageUChar(unsigned char* image, int nGlobal, char* varName);
+static int printImageUChar(unsigned char* image, int nGlobal, char* varName);
     
 void printIndexArrays(void);
     
-int printMeta(SCANMETA* meta, char* varName);
+static int printMeta(SCANMETA* meta, char* varName);
 
 void printPointsArray(void);
 
 void printProfile(void);
 
-int readUserConfigOptions(void);
+static int readUserConfigOptions(void);
 
 int setUpVol2Bird(PolarVolume_t* volume);
 
-void sortCells(CELLPROP *cellProp, int nCells);
+static void sortCells(CELLPROP *cellProp, int nCells);
 
 void tearDownVol2Bird();
 
-void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
+static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
                                    const int nPointsIncluded, float* points);
 
-int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
+static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
 
 
