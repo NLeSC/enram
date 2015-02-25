@@ -438,7 +438,8 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
 
 
-static float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rangScale, float azimScaleDeg) {
+static float calcDist(const int iRang1, const int iAzim1, const int iRang2, const 
+    const int iAzim2, const float rangScale, const float azimScaleDeg) {
 
     //  ******************************************************************************
     //  This function calculates the distance in km between two gates
@@ -466,7 +467,7 @@ static float calcDist(int iRang1, int iAzim1, int iRang2, int iAzim2, float rang
 
 
 
-void calcProfile(int iProfileType) {
+void calcProfile(const int iProfileType) {
  
  
         // ------------------------------------------------------------- //
@@ -865,7 +866,7 @@ void classifyGatesSimple(void) {
 
 
 
-static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue) {
+static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, const int nGlobal, const int initValue) {
 
     int iGlobal;
     
@@ -893,7 +894,7 @@ static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGl
 
 
 
-static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue) {
+static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, const int nGlobal, const unsigned char initValue) {
 
     int iGlobal;
     
@@ -1794,7 +1795,7 @@ static int hasAzimuthGap(const float* points, const int nPoints) {
 
 
 
-static int includeGate(int iProfileType, int gateCode) {
+static int includeGate(const int iProfileType, const int gateCode) {
     
     int doInclude = TRUE;
     
@@ -2412,8 +2413,6 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
                 iGlobal++;
             }
         }
-        
-
     } 
     else {
         
@@ -2431,7 +2430,7 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
 
 
 
-static void printGateCode(char* flags, int gateCode) {
+static void printGateCode(char* flags, const int gateCode) {
 
     int iFlag;
     int nFlagsNeeded;
@@ -2478,7 +2477,7 @@ static void printGateCode(char* flags, int gateCode) {
 
 
 
-static int printImageInt(int* image, int nGlobal, char* varName) {
+static int printImageInt(const int* image, const int nGlobal, const char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2498,7 +2497,7 @@ static int printImageInt(int* image, int nGlobal, char* varName) {
 
 
 
-static int printImageUChar(unsigned char* image, int nGlobal, char* varName) {
+static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2535,7 +2534,7 @@ void printIndexArrays(void) {
 
 
 
-static int printMeta(SCANMETA* meta, char* varName) {
+static int printMeta(const SCANMETA* meta, const char* varName) {
     
     fprintf(stderr,"%s->heig = %f\n",varName,meta->heig);
     fprintf(stderr,"%s->elev = %f\n",varName,meta->elev);
@@ -2582,7 +2581,7 @@ void printPointsArray(void) {
 
 
 
-static void sortCells(CELLPROP *cellProp, int nCells) {
+static void sortCells(CELLPROP *cellProp, const int nCells) {
 
 
     //  *****************************************************************************
@@ -2665,7 +2664,7 @@ static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitte
 
 
 
-static int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells) {
+static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map

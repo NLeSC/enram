@@ -84,9 +84,9 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const unsigned char cmFlag, const unsigned char verbose);
 
-static float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
+static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
 
-void calcProfile(int iProfileType);
+void calcProfile(const int iProfileType);
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
@@ -94,9 +94,9 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 void classifyGatesSimple(void);
 
-static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue);
+static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, const int nGlobal, const int initValue);
 
-static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue);
+static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, const int nGlobal, const unsigned char initValue);
 
 void constructPointsArray(PolarVolume_t* volume);
 
@@ -120,20 +120,20 @@ static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char 
 
 static int hasAzimuthGap(const float *points, const int nPoints);
 
-static int includeGate(int iProfileType, int gateCode);
+static int includeGate(const int iProfileType, const int gateCode);
 
 static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
                     unsigned char *values, char *paramStr);
 
-static void printGateCode(char* flags, int gateCode);
+static void printGateCode(char* flags, const int gateCode);
 
-static int printImageInt(int* image, int nGlobal, char* varName);
+static int printImageInt(const int* image, const int nGlobal, const char* varName);
 
-static int printImageUChar(unsigned char* image, int nGlobal, char* varName);
+static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName);
     
 void printIndexArrays(void);
     
-static int printMeta(SCANMETA* meta, char* varName);
+static int printMeta(const SCANMETA* meta, const char* varName);
 
 void printPointsArray(void);
 
@@ -143,7 +143,7 @@ static int readUserConfigOptions(void);
 
 int setUpVol2Bird(PolarVolume_t* volume);
 
-static void sortCells(CELLPROP *cellProp, int nCells);
+static void sortCells(CELLPROP *cellProp, const int nCells);
 
 void tearDownVol2Bird();
 
