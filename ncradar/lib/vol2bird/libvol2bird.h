@@ -143,7 +143,7 @@ int includeGate(int iProfileType, int gateCode);
 int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
                     unsigned char *values, char *paramStr);
 
-char* printGateCode(int gateCode);
+void printGateCode(char* flags, int gateCode);
 
 int printImageInt(int* image, int printCountMax, int nGlobal, char* varName);
 
@@ -158,7 +158,9 @@ void printPointsArray(void);
 
 void printProfile(void);
 
-void setUpVol2Bird(PolarVolume_t* volume);
+int readUserConfigOptions(void);
+
+int setUpVol2Bird(PolarVolume_t* volume);
 
 void sortCells(CELLPROP *cellProp, int nCells);
 

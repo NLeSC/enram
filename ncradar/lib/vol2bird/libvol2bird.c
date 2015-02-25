@@ -16,8 +16,10 @@
 
 
 #include <stdio.h>
+#include <confuse.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "polarvolume.h"
 #include "libvol2bird.h"
 #include "libsvdfit.h"
@@ -31,22 +33,22 @@ static int nColsPoints;
 //
 static int nRowsPoints;
 
-// column 1 in 'points' holds the azimuth angle
+// column 0 in 'points' holds the azimuth angle
 static int azimAngleCol;
 
 // column 1 in 'points' holds the elevation angle
 static int elevAngleCol;
 
-// column 1 in 'points' holds the dbz value
+// column 2 in 'points' holds the dbz value
 static int dbzValueCol;
 
-// column 1 in 'points' holds the vrad value
+// column 3 in 'points' holds the vrad value
 static int vradValueCol;
 
-// column 1 in 'points' holds the cell value
+// column 4 in 'points' holds the cell value
 static int cellValueCol;
 
-// column 1 in 'points' holds the gate classification code
+// column 5 in 'points' holds the gate classification code
 static int gateCodeCol;
 
 
@@ -227,6 +229,9 @@ static float* profile;
 
 // the type of profile that was last calculated
 static int iProfileTypeLast;
+
+// the configuration options
+static cfg_t* cfg;
 
 
 
@@ -1955,15 +1960,50 @@ void printProfile(void) {
 
 
 
-void setUpVol2Bird(PolarVolume_t* volume) {
+
+
+int readUserConfigOptions(void) {
+
+
+    cfg_opt_t opts[] = {
+        CFG_FLOAT("HLAYER",    200.0f, CFGF_NONE),
+        CFG_INT("NLAYER",          30, CFGF_NONE),
+        CFG_FLOAT("RANGMIN",  5000.0f, CFGF_NONE),
+        CFG_FLOAT("RANGMAX", 30000.0f, CFGF_NONE),
+        CFG_FLOAT("AZIMMIN",     0.0f, CFGF_NONE),
+        CFG_FLOAT("AZIMMAX",   360.0f, CFGF_NONE),
+        CFG_END()
+    };
+    
+    cfg = cfg_init(opts, CFGF_NONE);
+    
+    if (cfg_parse(cfg, "options.conf") == CFG_PARSE_ERROR) {
+        return 1;
+    }
+    
+    return 0;
+
+} // readUserConfigOptions
     
 
+
+
+
+
+int setUpVol2Bird(PolarVolume_t* volume) {
+
+
+    if (readUserConfigOptions() != 0) {
+        fprintf(stderr, "An error occurred while reading the user configuration file 'options.conf'.\n");
+        return -1; 
+    }
+    
     // ------------------------------------------------------------- //
     //                     assigning the constants                   //
     // ------------------------------------------------------------- //
 
     // the number of layers in an altitude profile
-    nLayers = NLAYER;
+    nLayers = cfg_getint(cfg, "NLAYER");
     
     // when analyzing cells, AREAMIN determines the minimum size of a 
     // cell to be considered in the rest of the analysis
@@ -1995,9 +2035,6 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     dbzMax = DBZMAX;
     
     // ...TODO
-    rCellMax = RANGMAX + 5.0f;
-    
-    // ...TODO
     fringeDist = EMASKMAX;
     
     // vrad's texture is calculated based on the local neighborhood. The
@@ -2012,15 +2049,18 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     nCountMin = NTEXMIN; 
 
     // the thickness in meters of a layer in the altitude profile
-    layerThickness = HLAYER;
+    layerThickness = cfg_getfloat(cfg, "HLAYER");
 
     // the range below which observations are excluded when constructing 
     // the altitude profile
-    rangeMin = RANGMIN;
+    rangeMin = cfg_getfloat(cfg, "RANGMIN");
 
     // the range beyond which observations are excluded when constructing 
     // the altitude profile
-    rangeMax = RANGMAX; // FIXME same as rCellMax?
+    rangeMax = cfg_getfloat(cfg, "RANGMAX"); // FIXME same as rCellMax?
+    
+    // ...TODO
+    rCellMax = rangeMax + 5.0f;
 
     // when determining whether there are enough vrad observations in 
     // each direction, use NBINSGAP sectors
@@ -2157,7 +2197,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     indexFrom = (int*) malloc(sizeof(int) * nLayers);
     if (indexFrom == NULL) {
         fprintf(stderr,"Error pre-allocating array 'indexFrom'\n");
-        return;
+        return -1;
     }
     for (iLayer = 0; iLayer < nLayers; iLayer++) {
         indexFrom[iLayer] = 0;
@@ -2168,7 +2208,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     indexTo = (int*) malloc(sizeof(int) * nLayers);
     if (indexTo == NULL) {
         fprintf(stderr,"Error pre-allocating array 'indexTo'\n");
-        return;
+        return -1;
     }
     for (iLayer = 0; iLayer < nLayers; iLayer++) {
         indexTo[iLayer] = 0;
@@ -2180,7 +2220,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     nPointsWritten = (int*) malloc(sizeof(int) * nLayers);
     if (nPointsWritten == NULL) {
         fprintf(stderr,"Error pre-allocating array 'nPointsWritten'\n");
-        return;
+        return -1;
     }
     for (iLayer = 0; iLayer < nLayers; iLayer++) {
         nPointsWritten[iLayer] = 0;
@@ -2193,7 +2233,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     points = (float*) malloc(sizeof(float) * nRowsPoints * nColsPoints);
     if (points == NULL) {
         fprintf(stderr,"Error pre-allocating array 'points'.\n"); 
-        return;
+        return -1;
     }
 
     int iRowPoints;
@@ -2210,7 +2250,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     profile = (float*) malloc(sizeof(float) * nRowsProfile * nColsProfile);
     if (profile == NULL) {
         fprintf(stderr,"Error pre-allocating array 'profile'.\n"); 
-        return;
+        return -1;
     }
 
     int iRowProfile;
@@ -2223,6 +2263,7 @@ void setUpVol2Bird(PolarVolume_t* volume) {
     }
 
 
+    return 0;
 
 } // setUpVol2Bird
 
@@ -2298,19 +2339,24 @@ int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, ch
 
 
 
-char* printGateCode(int gateCode) {
+void printGateCode(char* flags, int gateCode) {
 
     int iFlag;
+    int nFlagsNeeded;
     int nFlags;
     
     if (gateCode <= 0) {
-        nFlags = 0;
+        nFlagsNeeded = 0;
     }
     else {
-        nFlags = (int) ceil(log(gateCode + 1)/log(2));
+        nFlagsNeeded = (int) ceil(log(gateCode + 1)/log(2));
     }
-
-    char flags[nFlags+1];
+    if (nFlagsNeeded>8) {
+        fprintf(stderr,"There's only space for 8 flags\n. Aborting");
+        return;
+    }
+    
+    nFlags = 8;
 
     for (iFlag = nFlags-1; iFlag >= 0; iFlag--) {
     
@@ -2326,8 +2372,7 @@ char* printGateCode(int gateCode) {
     
     flags[nFlags] = '\0';
     
-    // FIXME returns pointer to local variable 
-    return &flags[0];
+    return;
     
 
 
@@ -2417,21 +2462,26 @@ void printPointsArray(void) {
     int iPoint;
     
     fprintf(stderr, "iPoint  azim    elev    dbz         vrad        cell    gateCode  flags     \n");
+    
     for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
-            fprintf(stderr, "  %6d",iPoint/nColsPoints);
-            fprintf(stderr, "  %6.2f", points[iPoint + 0]);
-            fprintf(stderr, "  %6.2f", points[iPoint + 1]);
-            fprintf(stderr, "  %10.2f", points[iPoint + 2]);
-            fprintf(stderr, "  %10.2f", points[iPoint + 3]);
-            fprintf(stderr, "  %6.0f", points[iPoint + 4]);
-            fprintf(stderr, "  %8.0f", points[iPoint + 5]);
-            fprintf(stderr, "  %8s", printGateCode(points[iPoint + 5]));
+        
+            char gateCodeStr[8];
+            
+            printGateCode(&gateCodeStr[0], (int) points[iPoint + gateCodeCol]);
+        
+            fprintf(stderr, "  %6d",    iPoint/nColsPoints);
+            fprintf(stderr, "  %6.2f",  points[iPoint + azimAngleCol]);
+            fprintf(stderr, "  %6.2f",  points[iPoint + elevAngleCol]);
+            fprintf(stderr, "  %10.2f", points[iPoint + dbzValueCol]);
+            fprintf(stderr, "  %10.2f", points[iPoint + vradValueCol]);
+            fprintf(stderr, "  %6.0f",  points[iPoint + cellValueCol]);
+            fprintf(stderr, "  %8.0f",  points[iPoint + gateCodeCol]);
+            fprintf(stderr, "  %8s",    gateCodeStr);
             fprintf(stderr, "\n");
     }    
     
 
 }
-
 
 
 
@@ -2482,6 +2532,10 @@ void tearDownVol2Bird() {
     free((void*) indexFrom);
     free((void*) indexTo);
     free((void*) nPointsWritten);
+    
+    
+    // free the memory that holds the user configurable options
+    cfg_free(cfg);
 
 } // tearDownVol2Bird
 
@@ -2640,10 +2694,4 @@ int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int m
     return nCellsValid;
 } // updateMap
 
-
-
-
-
-
-    
 
