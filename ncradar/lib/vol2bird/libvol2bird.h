@@ -85,9 +85,7 @@ typedef struct scanmeta SCANMETA;
 int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float absVradMin, const float clutterValueMax, const unsigned char cmFlag,
-        const unsigned char verbose);
+        const int nCells, const unsigned char cmFlag, const unsigned char verbose);
 
 float calcDist(int range1, int azim1,int range2,int azim2,float rscale,float ascale);
 
@@ -95,34 +93,22 @@ void calcProfile(int iProfileType);
 
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
-        const int nRangNeighborhood, const int nAzimNeighborhood,
-        const int nCountMin);
+        const int nRangNeighborhood, const int nAzimNeighborhood);
 
 void classifyGatesSimple(void);
 
-int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, 
-    int nGlobal, int initValue);
+int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, int nGlobal, int initValue);
 
-int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, 
-    int nGlobal, unsigned char initValue);
+int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, int nGlobal, unsigned char initValue);
 
 void constructPointsArray(PolarVolume_t* volume);
 
-int detNumberOfGates(const int iLayer, const float layerThickness,
-                     const float rangeMin, const float rangeMax,
-                     const float rangeScale, const float elevAngle,
-                     const int nRang, const int nAzim,
-                     const float radarHeight);
+int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
+                     const int nRang, const int nAzim, const float radarHeight);
 
+int detSvdfitArraySize(PolarVolume_t* volume);
 
-int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness, float rangeMin, float rangeMax);
-
-
-int findCells(const unsigned char *dbzImage,
-              int *cellImage,
-              const SCANMETA *dbzMeta,
-              const float dbzThresMin,
-              const float rCellMax);
+int findCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
 
 int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                         const int nAzimChild,  const int nRangChild,  const int iChild);
@@ -132,11 +118,10 @@ void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale
 int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
                            const SCANMETA* dbzMeta, const unsigned char *dbzImage,
                            const int *cellImage,
-                           const float rangeMin, const float rangeMax,
                            const float altitudeMin, const float altitudeMax,
                            float* points, int iPoint);
 
-int hasAzimuthGap(const float *points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin);
+int hasAzimuthGap(const float *points, const int nPoints);
 
 int includeGate(int iProfileType, int gateCode);
 
@@ -145,10 +130,9 @@ int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta,
 
 void printGateCode(char* flags, int gateCode);
 
-int printImageInt(int* image, int printCountMax, int nGlobal, char* varName);
+int printImageInt(int* image, int nGlobal, char* varName);
 
-int printImageUChar(unsigned char* image, int printCountMax, int nGlobal, 
-    char* varName);
+int printImageUChar(unsigned char* image, int nGlobal, char* varName);
     
 void printIndexArrays(void);
     
@@ -167,9 +151,9 @@ void sortCells(CELLPROP *cellProp, int nCells);
 void tearDownVol2Bird();
 
 void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
-                                   const int nPointsIncluded, const float absVDifMax, float* points);
+                                   const int nPointsIncluded, float* points);
 
-int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells, const int minCellArea);
+int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
 
 

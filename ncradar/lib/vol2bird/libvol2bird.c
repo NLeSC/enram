@@ -89,7 +89,7 @@ static int nLayers;
 
 // when analyzing cells, AREAMIN determines the minimum size of a 
 // cell to be considered in the rest of the analysis
-static int areaMin;
+static int minCellArea;
 
 // when analyzing cells, only cells for which the average dbz is 
 // more than DBZCELL are considered in the rest of the analysis
@@ -238,8 +238,8 @@ static cfg_t* cfg;
 int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, const int areaMin, const float cellDbzMin, const float cellStdDevMax, const float cellClutterFraction,
-        const float vradMin, const float clutterValueMax, const unsigned char clutterFlag,
+        const int nCells, 
+        const unsigned char clutterFlag,
         const unsigned char verbose) {
 
     //  *********************************************************************************
@@ -374,7 +374,7 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     /*Determine which cells to drop from map based on low mean dBZ / high stdev /
      * small area / high percentage clutter*/
     for (iCell = 0; iCell < nCells; iCell++) {
-        if (cellProp[iCell].area < areaMin ||
+        if (cellProp[iCell].area < minCellArea ||
             (cellProp[iCell].dbzAvg < cellDbzMin &&
              cellProp[iCell].texAvg > cellStdDevMax &&
              ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
@@ -386,14 +386,14 @@ int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
     }
 
     /*Sorting cell properties according to cell area. Drop small cells from map*/
-    nCellsValid = updateMap(cellImage,nGlobal,cellProp,nCells,areaMin);
+    nCellsValid = updateMap(cellImage,nGlobal,cellProp,nCells);
 
 
 
     //Printing of cell properties to stdout.
     if ((int) verbose==1){
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
-        fprintf(stderr,"#Minimum cell area in pixels   : %i\n",areaMin);
+        fprintf(stderr,"#Minimum cell area in pixels   : %i\n",minCellArea);
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
         fprintf(stderr,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
         fprintf(stderr,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
@@ -592,7 +592,7 @@ void calcProfile(int iProfileType) {
                 // check if there are directions that have almost no observations
                 // (as this makes the svdfit result really uncertain)  
 
-                hasGap = hasAzimuthGap(&pointsSelection[0], nDims, nPointsIncluded, nBinsGap, nObsGapMin);
+                hasGap = hasAzimuthGap(&pointsSelection[0], nPointsIncluded);
                 
                 if (hasGap==FALSE) {
                     
@@ -628,7 +628,7 @@ void calcProfile(int iProfileType) {
                 // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
                 // gate in the secong svdfit iteration
                 updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
-                                              absVDifMax, &points[0]);
+                                              &points[0]);
 
 
                 profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
@@ -662,7 +662,7 @@ void calcProfile(int iProfileType) {
 void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
         const SCANMETA *dbzMeta, const int nRangNeighborhood,
-        const int nAzimNeighborhood, const int nCountMin) {
+        const int nAzimNeighborhood) {
 
 
     //  ****************************************************************************************
@@ -950,7 +950,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             // print a selection of what's been read just now
             printMeta(&dbzMeta,"dbzMeta");
-            printImageUChar(&dbzImage[0], printCountMax, nGlobal, "dbzImage");
+            printImageUChar(&dbzImage[0], nGlobal, "dbzImage");
 
 
             // populate the vradMeta and vradImage variables with data from  
@@ -959,7 +959,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             // print a selection of what's been read just now
             printMeta(&vradMeta,"vradMeta");
-            printImageUChar(&vradImage[0], printCountMax, nGlobal, "vradImage");
+            printImageUChar(&vradImage[0], nGlobal, "vradImage");
 
 
             // ------------------------------------------------------------- //
@@ -968,17 +968,17 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             calcTexture(&texImage[0], &vradImage[0], &dbzImage[0], 
                         &texMeta, &vradMeta, &dbzMeta, 
-                        nRangNeighborhood, nAzimNeighborhood, nCountMin);
+                        nRangNeighborhood, nAzimNeighborhood);
 
             printMeta(&texMeta,"texMeta");
-            printImageUChar(&texImage[0], printCountMax, nGlobal, "texImage");
+            printImageUChar(&texImage[0], nGlobal, "texImage");
 
             // ------------------------------------------------------------- //
             //        find (weather) cells in the reflectivity image         //
             // ------------------------------------------------------------- //
             
             int nCells = findCells(&dbzImage[0], &cellImage[0], 
-                                   &dbzMeta, dbzThresMin, rCellMax);
+                                   &dbzMeta);
                                    
             fprintf(stderr,"Found %d cells.\n",nCells);
 
@@ -988,8 +988,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             int nCellsValid = analyzeCells(&dbzImage[0], &vradImage[0], &texImage[0], 
                 &clutterImage[0], &cellImage[0], &dbzMeta, &vradMeta, &texMeta, 
-                &clutterMeta, nCells, areaMin, cellDbzMin, cellStdDevMax, 
-                cellClutterFraction, vradMin, clutterValueMax, 
+                &clutterMeta, nCells, 
                 clutterFlag, verbose);
 
             // ------------------------------------------------------------- //
@@ -1000,10 +999,10 @@ void constructPointsArray(PolarVolume_t* volume) {
                 cellMeta.azimScale, cellMeta.rangeScale, fringeDist);
                 
             printMeta(&cellMeta,"cellMeta");
-            printImageInt(&cellImage[0], printCountMax, nGlobal, "cellImage");
+            printImageInt(&cellImage[0], nGlobal, "cellImage");
             
             printMeta(&clutterMeta,"clutterMeta");
-            printImageUChar(&clutterImage[0], printCountMax, nGlobal, "clutterImage");
+            printImageUChar(&clutterImage[0], nGlobal, "clutterImage");
             
             // ------------------------------------------------------------- //
             //    fill in the appropriate elements in the points array       //
@@ -1020,7 +1019,6 @@ void constructPointsArray(PolarVolume_t* volume) {
                 int n = getListOfSelectedGates(&vradMeta, &vradImage[0],
                     &dbzMeta, &dbzImage[0], 
                     &cellImage[0], 
-                    rangeMin, rangeMax, 
                     altitudeMin, altitudeMax, 
                     &points[0], iRowPoints);
                     
@@ -1034,7 +1032,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
 
-            printImageInt(&cellImage[0], printCountMax, nGlobal, "cellImage");
+            printImageInt(&cellImage[0], nGlobal, "cellImage");
 
             // ------------------------------------------------------------- //
             //                         clean up                              //
@@ -1058,8 +1056,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
 
 
-int detNumberOfGates(const int iLayer, const float layerThickness,
-                     const float rangeMin, const float rangeMax,
+int detNumberOfGates(const int iLayer, 
                      const float rangeScale, const float elevAngle,
                      const int nRang, const int nAzim,
                      const float radarHeight) {
@@ -1106,7 +1103,7 @@ int detNumberOfGates(const int iLayer, const float layerThickness,
 
 
 
-int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness, float rangeMin, float rangeMax) {
+int detSvdfitArraySize(PolarVolume_t* volume) {
     
     int iScan;
     int nScans = PolarVolume_getNumberOfScans(volume);
@@ -1133,8 +1130,8 @@ int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness,
             float rangeScale = (float) PolarScan_getRscale(scan);
             float radarHeight = (float) PolarScan_getHeight(scan);
 
-            nGates[iLayer] += detNumberOfGates(iLayer, layerThickness,
-                rangeMin, rangeMax, rangeScale, elevAngle, nRang, 
+            nGates[iLayer] += detNumberOfGates(iLayer, 
+                rangeScale, elevAngle, nRang, 
                 nAzim, radarHeight);
                 
             RAVE_OBJECT_RELEASE(scan);
@@ -1177,9 +1174,7 @@ int detSvdfitArraySize(PolarVolume_t* volume, int nLayers, float layerThickness,
 
 
 int findCells(const unsigned char *dbzImage, int *cellImage,
-        const SCANMETA *dbzMeta,
-        const float dbzThresMin,
-        const float rCellMax) {
+        const SCANMETA *dbzMeta) {
 
     //  *****************************************************************************
     //  This function detects the cells in 'dbzImage' using a threshold value of
@@ -1613,7 +1608,6 @@ void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScal
 int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage, 
                            const SCANMETA* dbzMeta, const unsigned char *dbzImage,
                            const int *cellImage,
-                           const float rangeMin, const float rangeMax,
                            const float altitudeMin, const float altitudeMax,
                            float* points, int iRowPoints) {
 
@@ -1722,8 +1716,7 @@ int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradIm
 
 
 
-int hasAzimuthGap(const float* points, const int nDims, const int nPoints, const int nBinsGap, const int nObsGapMin)
-{
+int hasAzimuthGap(const float* points, const int nPoints) {
 
     int hasGap;
     int nObs[nBinsGap];
@@ -1972,6 +1965,7 @@ int readUserConfigOptions(void) {
         CFG_FLOAT("RANGMAX", 30000.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMIN",     0.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMAX",   360.0f, CFGF_NONE),
+        CFG_INT("PRINTCOUNTMAX",   10, CFGF_NONE),
         CFG_END()
     };
     
@@ -2007,7 +2001,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     
     // when analyzing cells, AREAMIN determines the minimum size of a 
     // cell to be considered in the rest of the analysis
-    areaMin = AREACELL;
+    minCellArea = AREACELL;
     
     // when analyzing cells, only cells for which the average dbz is 
     // more than DBZCELL are considered in the rest of the analysis
@@ -2095,8 +2089,8 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     // the maximum number that printCount is allowed to reach before 
     // printing ceases
-    printCountMax = 10;
-
+    printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
+    
     // whether clutter data is used
     clutterFlag = FALSE;
 
@@ -2226,7 +2220,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
         nPointsWritten[iLayer] = 0;
     }
     
-    nRowsPoints = detSvdfitArraySize(volume, nLayers, layerThickness, rangeMin, rangeMax);
+    nRowsPoints = detSvdfitArraySize(volume);
 
     // pre-allocate the 'points' array (note it has 'nColsPoints'
     // pseudo-columns)
@@ -2382,7 +2376,7 @@ void printGateCode(char* flags, int gateCode) {
 
 
 
-int printImageInt(int* image, int printCountMax, int nGlobal, char* varName) {
+int printImageInt(int* image, int nGlobal, char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2402,7 +2396,7 @@ int printImageInt(int* image, int printCountMax, int nGlobal, char* varName) {
 
 
 
-int printImageUChar(unsigned char* image, int printCountMax, int nGlobal, char* varName) {
+int printImageUChar(unsigned char* image, int nGlobal, char* varName) {
 
     int printCount = 0;
     int iGlobal;
@@ -2465,7 +2459,7 @@ void printPointsArray(void) {
     
     for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
         
-            char gateCodeStr[8];
+            char gateCodeStr[9];  // 8 bits plus 1 position for the null character '\0'
             
             printGateCode(&gateCodeStr[0], (int) points[iPoint + gateCodeCol]);
         
@@ -2545,7 +2539,7 @@ void tearDownVol2Bird() {
 
 
 void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
-                                   const int nPointsIncluded, const float absVDifMax, float* points) {
+                                   const int nPointsIncluded, float* points) {
 
     int iPointIncluded;
     int iPoint;
@@ -2569,7 +2563,7 @@ void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, cons
 
 
 
-int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells, int minCellArea) {
+int updateMap(int *cellImage, int nGlobal, CELLPROP *cellProp, int nCells) {
 
     //  *****************************************************************************
     //  This function updates the cellImage by dropping cells and reindexing the map
