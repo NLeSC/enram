@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "polarvolume.h"
-#include "libvol2bird.h"
 #include "libsvdfit.h"
 
 
