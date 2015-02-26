@@ -187,6 +187,9 @@ static float cellClutterFraction;
 // more than DBZCELL are considered in the rest of the analysis
 static float cellDbzMin;
 
+// minimum quality of the fit
+static float chisqMin;
+
 // ...TODO
 static float clutterValueMax;
 
@@ -253,30 +256,31 @@ static float vradMin;
 //          where each altitude layer's data starts and ends     //
 // ------------------------------------------------------------- //
 
-// TODO
+// for a given altitude layer in the profile, only part of the 'points'
+// array is relevant. The 'indexFrom' and 'indexTo' arrays keep track 
+// which rows in 'points' pertains to a given layer
 static int* indexFrom;
-
-// TODO
 static int* indexTo;
 
-// TODO
+// nPointsWritten stores the number of points that was copied from one 
+// of the scan elevations to the 'points' array; it should therefore
+// never exceed indexTo[i]-indexFrom[i]
 static int* nPointsWritten;
 
 
 
 
 // ------------------------------------------------------------- //
-//                   ________________________                    //
+//                       some other variables                    //
 // ------------------------------------------------------------- //
 
-// ...TODO
+// rCellMax is defined as rangeMax + 5000.0f  in order to avoid 
+// edge effects when calculating the fringe
 static float rCellMax;
 
-// minimum quality of the fit
-static float chisqMin;
-
 // the number of dimensions to describe the location of an echo 
-// (azimuth and elevAngle)
+// (azimuth and elevAngle) as used in the 'pointsSelection' array 
+// that is passed to svdfit
 static int nDims;
 
 // how many parameters are fitted by the svdfit procedure
@@ -300,12 +304,11 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
         const int nCells, const int useStaticClutterData, const int verboseOutputRequired) {
 
-    //  *********************************************************************************
-    //  This function analyzes the cellImage array found by the 'findCells' procedure.
-    //  Small cells are rejected and the cells are re-numbered according to size.
-    //  The final number of cells in cellImage is returned as an integer.
-    //  *********************************************************************************
-
+    // ----------------------------------------------------------------------------------- // 
+    //  This function analyzes the cellImage array found by the 'findCells' procedure.     //
+    //  Small cells are rejected and the cells are re-numbered according to size.          //
+    //  The final number of cells in cellImage is returned as an integer.                  // 
+    // ----------------------------------------------------------------------------------- //
 
     CELLPROP *cellProp;
     int iCell;
@@ -328,7 +331,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     nGlobal = nAzim*nRang;
     nCellsValid = 0;
 
-    if (nCells == FALSE) {
+    if (nCells == 0) {
         iGlobal = 0;
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
             for (iRang = 0; iRang < nRang; iRang++) {
@@ -339,7 +342,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         return nCellsValid;
     }
 
-    /*Allocating and initializing memory for cell properties.*/
+    // Allocating and initializing memory for cell properties.
     cellProp = (CELLPROP *)malloc(nCells*sizeof(CELLPROP));
     if (!cellProp) {
         fprintf(stderr,"Requested memory could not be allocated!\n");
@@ -358,7 +361,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         cellProp[iCell].cv = 0;
     }
 
-    /*Calculation of cell properties.*/
+    // Calculation of cell properties.
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
         for (iRang = 0; iRang < nRang; iRang++) {
 
@@ -382,7 +385,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
             cellProp[iCell].area += 1;
 
-            //low radial velocities are treated as clutter, not included in calculation cell properties
+            // low radial velocities are treated as clutter, not included in calculation cell properties
             if (vradValue < vradMin){
 
                 cellProp[iCell].clutterArea += 1;
@@ -394,7 +397,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
                 continue;
             }
 
-            //pixels in clutter map not included in calculation cell properties
+            // pixels in clutter map not included in calculation cell properties
             if (useStaticClutterData == TRUE){
                 if (clutterValue > clutterValueMax){
                     cellProp[iCell].clutterArea += 1;
@@ -429,8 +432,8 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         }
     }
 
-    /*Determine which cells to drop from map based on low mean dBZ / high stdev /
-     * small area / high percentage clutter*/
+    // determine which cells to drop from map based on low mean dBZ / high stdev /
+    // small area / high percentage clutter
     for (iCell = 0; iCell < nCells; iCell++) {
         if (cellProp[iCell].area < minCellArea ||
             (cellProp[iCell].dbzAvg < cellDbzMin &&
@@ -443,12 +446,10 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         }
     }
 
-    /*Sorting cell properties according to cell area. Drop small cells from map*/
+    // sorting cell properties according to cell area. Drop small cells from map
     nCellsValid = updateMap(cellImage,nGlobal,cellProp,nCells);
 
-
-
-    //Printing of cell properties to stdout.
+    // printing of cell properties to stderr
     if (verboseOutputRequired == TRUE){
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
         fprintf(stderr,"#Minimum cell area in pixels   : %i\n",minCellArea);
@@ -486,9 +487,9 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 static float calcDist(const int iRang1, const int iAzim1, const int iRang2, const 
     const int iAzim2, const float rangScale, const float azimScaleDeg) {
 
-    //  ******************************************************************************
-    //  This function calculates the distance in km between two gates
-    //  ******************************************************************************
+    // -------------------------------------------------------- //
+    // This function calculates the distance between two gates  //
+    // -------------------------------------------------------- //
 
     float range1;
     float range2;
@@ -685,7 +686,7 @@ void calcProfile(const int iProfileType) {
                         }
                         
                     }
-                } // hasGap==FALSE
+                } // hasGap == FALSE
                 
                 // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
                 // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
@@ -728,11 +729,11 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const int nAzimNeighborhood) {
 
 
-    //  ****************************************************************************************
-    //  This function computes a texture parameter based on a block of (nRangNeighborhood x
-    //  nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation
-    //  in the velocity field
-    //  ****************************************************************************************
+    // --------------------------------------------------------------------------------------- //
+    // This function computes a texture parameter based on a block of (nRangNeighborhood x     //
+    // nAzimNeighborhood) pixels. The texture parameter equals the local standard deviation    //
+    // in the radial velocity field                                                            //
+    // --------------------------------------------------------------------------------------- //
 
 
     int iRang;
@@ -777,7 +778,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
             iGlobal = iRang + iAzim * nRang;
 
-            /* count number of direct neighbors above threshold */
+            // count number of direct neighbors above threshold
             count = 0;
             vmoment1 = 0;
             vmoment2 = 0;
@@ -815,7 +816,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
             vmoment2 /= count;
             dbz /= count;
 
-            /* when not enough neighbors, continue */
+            // when not enough neighbors, continue
             if (count < nCountMin) {
                 texImage[iGlobal] = missingValue;
             }
@@ -1272,12 +1273,12 @@ static int detSvdfitArraySize(PolarVolume_t* volume) {
 static int findCells(const unsigned char *dbzImage, int *cellImage,
         const SCANMETA *dbzMeta) {
 
-    //  *****************************************************************************
-    //  This function detects the cells in 'dbzImage' using a threshold value of
-    //  'dbzThresMin' and a non-recursive algorithm which looks for neighboring
-    //  pixels above threshold. On return the marked cells are contained by
-    //  'cellImage'. The number of detected cells/highest index value is returned.
-    //  *****************************************************************************
+    //  ----------------------------------------------------------------------------- //
+    //  This function detects the cells in 'dbzImage' using a threshold value of      //
+    //  'dbzThresMin' and a non-recursive algorithm which looks for neighboring       //
+    //  pixels above threshold. On return the marked cells are contained by           //
+    //  'cellImage'. The number of detected cells/highest index value is returned.    //
+    //  ----------------------------------------------------------------------------- //
 
 
     int iCellIdentifier;
@@ -1344,20 +1345,21 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
         dbzThres = (unsigned char) ROUND((dbzThresMin - dbzValueOffset) / dbzValueScale);
     }
 
-    /*Initializing of connection cellImage.*/
     cellImageInitialValue = -1;
     for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
         cellImage[iGlobal] = cellImageInitialValue;
     }
 
-    /*If threshold value is equal to missing value, return.*/
+    // If threshold value is equal to missing value, return.
     if (dbzThres == dbzMissing) {
         return -1;
     }
 
-    /*Labeling of groups of connected pixels using horizontal, vertical, and */
-    /*diagonal connections. The algorithm is described in 'Digital Image */
-    /*Processing' by Gonzales and Woods published by Addison-Wesley.*/
+    // ----------------------------------------------------------------------- //
+    // Labeling of groups of connected pixels using horizontal, vertical, and  //
+    // diagonal connections. The algorithm is described in 'Digital Image      //
+    // Processing' by Gonzales and Woods published by Addison-Wesley.          //
+    // ----------------------------------------------------------------------- //
 
     iCellIdentifier = 0;
 
@@ -1401,7 +1403,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
                 continue;
             }
 
-            /* count number of direct neighbors above threshold */
+            // count number of direct neighbors above threshold
             count = 0;
             for (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++) {
 
@@ -1416,7 +1418,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
                 }
 
             }
-            /* when not enough qualified neighbors, continue */
+            // when not enough qualified neighbors, continue
             if (count - 1 < nNeighbors) {
                 continue;
             }
@@ -1426,9 +1428,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
             #endif
 
 
-            /*Looking for horizontal, vertical, forward diagonal, and backward diagonal */
-            /*connections.*/
-
+            // Looking for horizontal, vertical, forward diagonal, and backward diagonal connections.
             for (iNeighborhood = 0; iNeighborhood < nHalfNeighborhood; iNeighborhood++) {
 
                 iLocal = findNearbyGateIndex(nAzim,nRang,iGlobal,nAzimNeighborhood,nRangNeighborhood,iNeighborhood);
@@ -1438,30 +1438,30 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
                     continue;
                 }
 
-                /* no connection found, go to next pixel within neighborhood */
+                // no connection found, go to next pixel within neighborhood
                 if (cellImage[iLocal] == cellImageInitialValue) {
                     continue;
                 }
 
-                /* if pixel still unassigned, assign same iCellIdentifier as connection */
+                // if pixel still unassigned, assign same iCellIdentifier as connection
                 if (cellImage[iGlobal] == cellImageInitialValue) {
                     cellImage[iGlobal] = cellImage[iLocal];
                 }
                 else {
-                    /* if connection found but pixel is already assigned a different iCellIdentifier: */
+                    // if connection found but pixel is already assigned a different iCellIdentifier:
                     if (cellImage[iGlobal] != cellImage[iLocal]) {
-                        /* merging cells detected: replace all other occurences by value of connection: */
+                        // merging cells detected: replace all other occurences by value of connection:
                         for (iGlobalOther = 0; iGlobalOther < nGlobal; iGlobalOther++) {
                             if (cellImage[iGlobalOther] == cellImage[iGlobal]) {
                                 cellImage[iGlobalOther] = cellImage[iLocal];
                             }
-                            /*note: not all iCellIdentifier need to be used eventually */
+                            // note: not all iCellIdentifier need to be used eventually
                         }
                     }
                 }
             }
 
-            /*When no connections are found, give a new number.*/
+            // When no connections are found, give a new number.
             if (cellImage[iGlobal] == cellImageInitialValue) {
 
                 #ifdef FPRINTFON
@@ -1505,13 +1505,9 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
                 }
             }
         }
-
-
     }
 
-
-
-    /*Returning number of detected cells (including fringe/clutter) .*/
+    // Returning number of detected cells (including fringe/clutter)
     nCells = iCellIdentifier;
 
     return nCells;
@@ -1596,12 +1592,11 @@ static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, con
 
 static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale, float fringeDist) {
 
-    //  ******************************************************************************
-    //  This function enlarges cellImage by additional fringe.
-    //  First a block around each pixel is searched for pixels within a distance
-    //  equal to 'fringeDist'.
-    //  ******************************************************************************
-
+    // -------------------------------------------------------------------------- //
+    // This function enlarges cells in cellImage by an additional fringe.         //
+    // First a block around each pixel is searched for pixels within a distance   //
+    // equal to 'fringeDist'.                                                     //
+    // -------------------------------------------------------------------------- //
 
     int iRang;
     int iAzim;
@@ -1682,17 +1677,17 @@ static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, floa
                 iAzimLocal = iLocal / nRang;
                 iRangLocal = iLocal % nRang;
 
-                //if not within range or already in cellImage or already a fringe, do nothing
+                // if not within range or already in cellImage or already a fringe, do nothing
                 theDist = calcDist(iRang, iAzim, iRangLocal, iAzimLocal, rScale, aScale);
                 if (theDist > fringeDist || cellImage[iLocal] >= 1) {
                     continue; // with the next iGlobal
                 }
-                //include pixel (iRangLocal,iAzimLocal) in fringe
+                // include pixel (iRangLocal,iAzimLocal) in fringe
                 cellImage[iLocal] = 1;
+                
             } // (iNeighborhood = 0; iNeighborhood < nNeighborhood; iNeighborhood++)
         } // (iRang = 0; iRang < nRang; iRang++)
     } // (iAzim = 0; iAzim < nAzim; iAzim++)
-
 
     return;
 
@@ -1707,10 +1702,11 @@ static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char 
                            const float altitudeMin, const float altitudeMax,
                            float* points, int iRowPoints) {
 
-    // Write combinations of an azimuth angle, an elevation angle, an 
-    // observed vrad value, an observed dbz value, and a cell identifier
-    // value into an external larger list.
-
+    // ------------------------------------------------------------------- //
+    // Write combinations of an azimuth angle, an elevation angle, an      // 
+    // observed vrad value, an observed dbz value, and a cell identifier   //
+    // value into an external larger list.                                 //
+    // ------------------------------------------------------------------- //
 
     int iAzim;
     int iRang;
@@ -1758,8 +1754,9 @@ static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char 
         gateHeight = gateRange * (float) sin(elevAngle*DEG2RAD) + radarHeight;
 
         if (gateRange < rangeMin || gateRange > rangeMax) {
-            // the current gate is either (1) too close to the radar
-            // or (2) too far away.
+            // the current gate is either 
+            // (1) too close to the radar; or
+            // (2) too far away.
             continue;
         }
         if (gateHeight < altitudeMin || gateHeight > altitudeMax) {
@@ -1807,7 +1804,7 @@ static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char 
     return nPointsWritten;
 
 
-} //getListOfSelectedGates
+} // getListOfSelectedGates
 
 
 
@@ -2501,6 +2498,11 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
 
 
 static void printGateCode(char* flags, const int gateCode) {
+    
+    // --------------------------------------------------- //
+    // this function prints the integer value gateCode as  //
+    // the equivalent sequence of bits                     //
+    // --------------------------------------------------- //
 
     int iFlag;
     int nFlagsNeeded;
@@ -2525,9 +2527,9 @@ static void printGateCode(char* flags, const int gateCode) {
 
     for (iFlag = nFlags-1; iFlag >= 0; iFlag--) {
     
-        int iFlagIsActive = (gateCode & (1 << iFlag)) >> iFlag;
+        int iFlagIsEnabled = (gateCode & (1 << iFlag)) >> iFlag;
         
-        if (iFlagIsActive == TRUE) {
+        if (iFlagIsEnabled == TRUE) {
             flags[nFlags-iFlag-1] = '1';
         }
         else {
@@ -2629,6 +2631,10 @@ static int printMeta(const SCANMETA* meta, const char* varName) {
 
 void printOptions(void) {
     
+    // ------------------------------------------------------- //
+    // this function prints vol2bird's configuration to stderr //
+    // ------------------------------------------------------- //
+    
     if (initializationSuccessful==FALSE) {
         fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
         return;
@@ -2678,6 +2684,10 @@ void printOptions(void) {
 
 void printPointsArray(void) {
     
+    // ------------------------------------------------- //
+    // this function prints the 'points' array to stderr //
+    // ------------------------------------------------- //
+    
     if (initializationSuccessful==FALSE) {
         fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
         return;
@@ -2710,11 +2720,10 @@ void printPointsArray(void) {
 
 static void sortCells(CELLPROP *cellProp, const int nCells) {
 
-
-    //  *****************************************************************************
-    //  Sorting of the cell properties using cell area.
-    //  Assume an area equal to zero for cells that are marked 'dropped'
-    //  *****************************************************************************
+    // ---------------------------------------------------------------- //
+    // Sorting of the cell properties based on cell area.               //
+    // Assume an area equal to zero for cells that are marked 'dropped' //
+    // ---------------------------------------------------------------- // 
 
     int iCell;
     int iCellOther;
@@ -2746,6 +2755,10 @@ static void sortCells(CELLPROP *cellProp, const int nCells) {
 
 
 void tearDownVol2Bird() {
+    
+    // ---------------------------------------------------------- //
+    // free the memory that was previously allocated for vol2bird //
+    // ---------------------------------------------------------- //
 
     if (initializationSuccessful==FALSE) {
         fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
@@ -2776,6 +2789,14 @@ void tearDownVol2Bird() {
 
 static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
                                    const int nPointsIncluded, float* points) {
+                                       
+    // ----------------------------------------------------------------------------------- //
+    // after the first svdfit to the selection of points, we want to identify gates that   //
+    // deviate strongly from the fitted vrad value (we assume that they are outliers). So, //
+    // this function marks the corresponding points in 'points' by enabling the            //
+    // 'flagPositionVDifMax' bit in 'gateCode', such that outliers will be rejected during //
+    // the second svdfit iteration                                                         //
+    // ----------------------------------------------------------------------------------- //
 
     int iPointIncluded;
     int iPoint;
@@ -2801,11 +2822,10 @@ static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitte
 
 static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells) {
 
-    //  *****************************************************************************
-    //  This function updates the cellImage by dropping cells and reindexing the map
-    //  Leaving index 0 unused, will be used for assigning cell fringes
-    //  *****************************************************************************
-
+    // ------------------------------------------------------------------------- //
+    // This function updates cellImage by dropping cells and reindexing the map. //
+    // Leaving index 0 unused, will be used for assigning cell fringes           //
+    // ------------------------------------------------------------------------- //
 
     int iGlobal;
     int iCell;
@@ -2850,7 +2870,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
     }
 
 
-    /*Sort the cells by area and determine number of valid cells*/
+    // sort the cells by area and determine number of valid cells
     sortCells(cellProp, nCells);
 
     while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
@@ -2879,7 +2899,6 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
         fprintf(stderr,"before: iCellNew = %d.\n",iCellNew);
         fprintf(stderr,"\n");
         #endif
-
 
         for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
             if (cellImage[iGlobal] == cellProp[iCell].index) {
@@ -2918,8 +2937,6 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
         fprintf(stderr,"\n");
         #endif
     }
-
-
 
     return nCellsValid;
 } // updateMap
