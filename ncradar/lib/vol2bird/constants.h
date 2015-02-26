@@ -7,7 +7,7 @@
 #define EMASKMAX                  500.0
 #define NBINSGAP                  8
 #define NDBZMIN                   25
-#define NEIGHBOURS                5
+#define NEIGHBORS                 5
 #define NOBSGAPMIN                5
 #define NTEXBINAZIM               3
 #define NTEXBINRANG               3
