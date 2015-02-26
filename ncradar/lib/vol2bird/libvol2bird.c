@@ -246,6 +246,9 @@ static int iProfileTypeLast;
 // the configuration options
 static cfg_t* cfg;
 
+// whether the vol2bird module has been initialized
+static int initializationSuccessful = FALSE;
+
 
 
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
@@ -469,7 +472,11 @@ static float calcDist(const int iRang1, const int iAzim1, const int iRang2, cons
 
 void calcProfile(const int iProfileType) {
  
- 
+        if (initializationSuccessful==FALSE) {
+            fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+            return;
+        }
+        
         // ------------------------------------------------------------- //
         //                        prepare the profile                    //
         // ------------------------------------------------------------- //
@@ -792,6 +799,12 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
 void classifyGatesSimple(void) {
     
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+    
     int iPoint;
     
     for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
@@ -923,6 +936,11 @@ static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* s
 
 void constructPointsArray(PolarVolume_t* volume) {
     
+        if (initializationSuccessful==FALSE) {
+            fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+            return;
+        }
+
         // iterate over the scans in 'volume'
         int iScan;
         int nScans;
@@ -2002,7 +2020,11 @@ static int includeGate(const int iProfileType, const int gateCode) {
 
 void printProfile(void) {
     
-    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
     fprintf(stderr,"\n\nProfile type: %d\n",iProfileTypeLast);
 
     fprintf(stderr,"altmin-altmax: [u         ,v         ,w         ]; "
@@ -2354,7 +2376,8 @@ int setUpVol2Bird(PolarVolume_t* volume) {
         }
     }
 
-
+    initializationSuccessful = TRUE;
+    
     return 0;
 
 } // setUpVol2Bird
@@ -2424,7 +2447,7 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
     
     return 0;
 
-}
+} // mapDataFromRave
 
 
 
@@ -2468,10 +2491,8 @@ static void printGateCode(char* flags, const int gateCode) {
     flags[nFlags] = '\0';
     
     return;
-    
 
-
-}
+} // printGateCode
 
 
 
@@ -2493,7 +2514,7 @@ static int printImageInt(const int* image, const int nGlobal, const char* varNam
     }
     
     return 0;
-}
+} // printImageInt
 
 
 
@@ -2513,11 +2534,16 @@ static int printImageUChar(const unsigned char* image, const int nGlobal, const 
     }
     
     return 0;
-}
+} // printImageUChar
 
 
 
 void printIndexArrays(void) {
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
     
     int iLayer;
 
@@ -2530,7 +2556,7 @@ void printIndexArrays(void) {
             indexTo[iLayer] - indexFrom[iLayer], 
             nPointsWritten[iLayer]);
     }
-}
+} // printIndexArrays
 
 
 
@@ -2548,12 +2574,68 @@ static int printMeta(const SCANMETA* meta, const char* varName) {
     
     return 0;
 
-}
+} // printMeta
+
+
+
+
+
+void printOptions(void) {
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
+    fprintf(stderr,"\n\nvol2bird configuration:\n\n");
+
+    fprintf(stderr,"%-25s = %f\n","absVDifMax",absVDifMax);
+    fprintf(stderr,"%-25s = %f\n","azimMax",azimMax);
+    fprintf(stderr,"%-25s = %f\n","azimMin",azimMin);
+    fprintf(stderr,"%-25s = %f\n","birdRadarCrossSection",birdRadarCrossSection);
+    fprintf(stderr,"%-25s = %f\n","cellClutterFraction",cellClutterFraction);
+    fprintf(stderr,"%-25s = %f\n","cellDbzMin",cellDbzMin);
+    fprintf(stderr,"%-25s = %f\n","cellStdDevMax",cellStdDevMax);
+    fprintf(stderr,"%-25s = %f\n","chisqMin",chisqMin);
+    fprintf(stderr,"%-25s = %d\n","clutterFlag",clutterFlag);
+    fprintf(stderr,"%-25s = %f\n","clutterValueMax",clutterValueMax);
+    fprintf(stderr,"%-25s = %f\n","dbzFactor",dbzFactor);
+    fprintf(stderr,"%-25s = %f\n","dbzMax",dbzMax);
+    fprintf(stderr,"%-25s = %f\n","dbzThresMin",dbzThresMin);
+    fprintf(stderr,"%-25s = %f\n","fringeDist",fringeDist);
+    fprintf(stderr,"%-25s = %f\n","layerThickness",layerThickness);
+    fprintf(stderr,"%-25s = %d\n","minCellArea",minCellArea);
+    fprintf(stderr,"%-25s = %d\n","nAzimNeighborhood",nAzimNeighborhood);
+    fprintf(stderr,"%-25s = %d\n","nBinsGap",nBinsGap);
+    fprintf(stderr,"%-25s = %d\n","nCountMin",nCountMin);
+    fprintf(stderr,"%-25s = %d\n","nLayers",nLayers);
+    fprintf(stderr,"%-25s = %d\n","nObsGapMin",nObsGapMin);
+    fprintf(stderr,"%-25s = %d\n","nPointsIncludedMin",nPointsIncludedMin);
+    fprintf(stderr,"%-25s = %d\n","nRangNeighborhood",nRangNeighborhood);
+    fprintf(stderr,"%-25s = %d\n","printCountMax",printCountMax);
+    fprintf(stderr,"%-25s = %f\n","radarWavelength",radarWavelength);
+    fprintf(stderr,"%-25s = %f\n","rangeMax",rangeMax);
+    fprintf(stderr,"%-25s = %f\n","rangeMin",rangeMin);
+    fprintf(stderr,"%-25s = %f\n","rCellMax",rCellMax);
+    fprintf(stderr,"%-25s = %f\n","refracIndex",refracIndex);
+    fprintf(stderr,"%-25s = %d\n","verbose",verbose);
+    fprintf(stderr,"%-25s = %f\n","vradMin",vradMin);
+    
+    fprintf(stderr,"\n\n");
+
+}  // printOptions
+
+
 
 
 
 void printPointsArray(void) {
-        
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
     int iPoint;
     
     fprintf(stderr, "iPoint  azim    elev    dbz         vrad        cell    gateCode  flags     \n");
@@ -2574,9 +2656,7 @@ void printPointsArray(void) {
             fprintf(stderr, "  %12s",   gateCodeStr);
             fprintf(stderr, "\n");
     }    
-    
-
-}
+} // printPointsArray
 
 
 
@@ -2620,6 +2700,11 @@ static void sortCells(CELLPROP *cellProp, const int nCells) {
 
 void tearDownVol2Bird() {
 
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
     // free the points array, the indexes into it, the counters, as well
     // as the profile data array
     free((void*) points);
@@ -2631,6 +2716,9 @@ void tearDownVol2Bird() {
     
     // free the memory that holds the user configurable options
     cfg_free(cfg);
+    
+    // reset this variable to its initial value
+    initializationSuccessful = FALSE;
 
 } // tearDownVol2Bird
 

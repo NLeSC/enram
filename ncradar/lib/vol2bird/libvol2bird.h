@@ -135,6 +135,8 @@ void printIndexArrays(void);
     
 static int printMeta(const SCANMETA* meta, const char* varName);
 
+void printOptions(void);
+
 void printPointsArray(void);
 
 void printProfile(void);
