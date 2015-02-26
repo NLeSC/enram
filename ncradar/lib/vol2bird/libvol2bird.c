@@ -180,8 +180,8 @@ static int verboseOutputRequired;
 // cell to be considered in the rest of the analysis
 static int minCellArea;
 
-// ...TODO
-static float cellClutterFraction;
+// Maximum percentage of clutter in a cell 
+static float cellClutterFractionMax;
 
 // when analyzing cells, only cells for which the average dbz is 
 // more than DBZCELL are considered in the rest of the analysis
@@ -191,7 +191,7 @@ static float cellDbzMin;
 static float chisqMin;
 
 // ...TODO
-static float clutterValueMax;
+static float clutterValueMin;
 
 // ...TODO
 static float dbzMax;
@@ -399,7 +399,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
             // pixels in clutter map not included in calculation cell properties
             if (useStaticClutterData == TRUE){
-                if (clutterValue > clutterValueMax){
+                if (clutterValue > clutterValueMin){
                     cellProp[iCell].clutterArea += 1;
                     continue;
                 }
@@ -438,7 +438,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         if (cellProp[iCell].area < minCellArea ||
             (cellProp[iCell].dbzAvg < cellDbzMin &&
              cellProp[iCell].texAvg > cellStdDevMax &&
-             ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
+             ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFractionMax )) { // FIXME this condition still looks wrong if you ask me
             // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
             // bird migration --see discussion of issue #37 on GitHub.
             cellProp[iCell].drop = TRUE;
@@ -2160,14 +2160,14 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     cellStdDevMax = STDEVCELL;
     
     // ...TODO
-    cellClutterFraction = CLUTPERCCELL;
+    cellClutterFractionMax = CLUTPERCCELL;
     
     // When analyzing cells, radial velocities lower than VRADMIN 
     // are treated as clutter
     vradMin = VRADMIN;
     
     // ...TODO
-    clutterValueMax = DBZCLUTTER;
+    clutterValueMin = DBZCLUTTER;
     
     // ...TODO
     dbzThresMin = DBZMIN;
@@ -2646,11 +2646,11 @@ void printOptions(void) {
     fprintf(stderr,"%-25s = %f\n","azimMax",azimMax);
     fprintf(stderr,"%-25s = %f\n","azimMin",azimMin);
     fprintf(stderr,"%-25s = %f\n","birdRadarCrossSection",birdRadarCrossSection);
-    fprintf(stderr,"%-25s = %f\n","cellClutterFraction",cellClutterFraction);
+    fprintf(stderr,"%-25s = %f\n","cellClutterFractionMax",cellClutterFractionMax);
     fprintf(stderr,"%-25s = %f\n","cellDbzMin",cellDbzMin);
     fprintf(stderr,"%-25s = %f\n","cellStdDevMax",cellStdDevMax);
     fprintf(stderr,"%-25s = %f\n","chisqMin",chisqMin);
-    fprintf(stderr,"%-25s = %f\n","clutterValueMax",clutterValueMax);
+    fprintf(stderr,"%-25s = %f\n","clutterValueMin",clutterValueMin);
     fprintf(stderr,"%-25s = %f\n","dbzFactor",dbzFactor);
     fprintf(stderr,"%-25s = %f\n","dbzMax",dbzMax);
     fprintf(stderr,"%-25s = %f\n","dbzThresMin",dbzThresMin);
