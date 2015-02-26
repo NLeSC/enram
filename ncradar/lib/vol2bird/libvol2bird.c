@@ -27,146 +27,203 @@
 
 
 
+
+// ------------------------------------------------------------- //
+//               information about the 'points' array            //
+// ------------------------------------------------------------- //
+
 // the 'points' array has this many pseudo-columns
 static int nColsPoints;
 
-//
+// the 'points' array has this many rows
 static int nRowsPoints;
 
-// column 0 in 'points' holds the azimuth angle
+// the psuedo-column in 'points' that holds the azimuth angle
 static int azimAngleCol;
 
-// column 1 in 'points' holds the elevation angle
+// the psuedo-column in 'points' that holds the elevation angle
 static int elevAngleCol;
 
-// column 2 in 'points' holds the dbz value
+// the psuedo-column in 'points' that holds the dbz value
 static int dbzValueCol;
 
-// column 3 in 'points' holds the vrad value
+// the psuedo-column in 'points' that holds the vrad value
 static int vradValueCol;
 
-// column 4 in 'points' holds the cell value
+// the psuedo-column in 'points' that holds the cell value
 static int cellValueCol;
 
-// column 5 in 'points' holds the gate classification code
+// the psuedo-column in 'points' that holds the gate classification code
 static int gateCodeCol;
 
+// the 'points' array itself
+static float* points;
 
 
 
-// the 0th bit in gateCode says whether this gate is true in the static
+
+
+// ------------------------------------------------------------- //
+//          information about the flagfields of 'gateCode'       //
+// ------------------------------------------------------------- //
+
+// the bit in 'gateCode' that says whether this gate is true in the static
 // clutter map (which we don't have yet TODO)
 static int flagPositionStaticClutter;
 
-// the 1st bit in gateCode says whether this gate is part of the 
+// the bit in 'gateCode' that says whether this gate is part of the 
 // calculated cluttermap (without fringe)
 static int flagPositionDynamicClutter;
 
-// the 2nd bit in gateCode says whether this gate is part of the 
+// the bit in 'gateCode' that says whether this gate is part of the 
 // fringe of the calculated cluttermap
 static int flagPositionDynamicClutterFringe;
 
-// the 3rd bit in gateCode says whether this gate has reflectivity data 
+// the bit in 'gateCode' that says whether this gate has reflectivity data 
 // but no corresponding radial velocity data
 static int flagPositionVradMissing;
 
-// the 4th bit in gateCode says whether this gate's dbz value is too
+// the bit in 'gateCode' the psuedo-columnsays whether this gate's dbz value is too
 // high to be due to birds, it must be caused by something else
 static int flagPositionDbzTooHighForBirds;
 
-// the 5th bit in gateCode says whether this gate's radial velocity is
+// the bit in 'gateCode' the psuedo-columnsays whether this gate's radial velocity is
 // close to zero. These gates are all discarded to exclude ground 
 // clutter, which often has a radial velocity near zero.
 static int flagPositionVradTooLow;
 
-// the 6th bit in gateCode says whether this gate passed the VDIFMAX test
+// the bit in 'gateCode' that says whether this gate passed the VDIFMAX test
 static int flagPositionVDifMax;
 
-// the 7th bit says whether the gate's azimuth angle was too low
+// the bit in 'gateCode' that says whether the gate's azimuth angle was too low
 static int flagPositionAzimTooLow;
 
-// the 8th bit says whether the gate's azimuth angle was too high
+// the bit in 'gateCode' that says whether the gate's azimuth angle was too high
 static int flagPositionAzimTooHigh;
 
 
-// the number of layers in an altitude profile
-static int nLayers;
 
-// when analyzing cells, AREAMIN determines the minimum size of a 
-// cell to be considered in the rest of the analysis
-static int minCellArea;
 
-// when analyzing cells, only cells for which the average dbz is 
-// more than DBZCELL are considered in the rest of the analysis
-static float cellDbzMin;
+// ------------------------------------------------------------- //
+//              information about the 'profile' array            //
+// ------------------------------------------------------------- //
 
-// when analyzing cells, only cells for which the stddev of vrad
-// (aka the texture) is less than STDEVCELL are considered in the
-// rest of the analysis
-static float cellStdDevMax;
+// the number of different types of profile we're making
+static int nProfileTypes;
 
-// ...TODO
-static float cellClutterFraction;
+// how many rows there are in a profile
+static int nRowsProfile;
 
-// When analyzing cells, radial velocities lower than VRADMIN 
-// are treated as clutter
-static float vradMin;
+// columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
+static int nColsProfile; 
 
-// ...TODO
-static float clutterValueMax;
+// the profile array itself
+static float* profile;
 
-// ...TODO
-static float dbzThresMin;
+// the type of profile that was last calculated
+static int iProfileTypeLast;
 
-// ...TODO
-static float dbzMax;
 
-// ...TODO
-static int rCellMax;
 
-// ...TODO
-static float fringeDist;
 
-// vrad's texture is calculated based on the local neighborhood. The
-// neighborhood size in the range direction is equal to NTEXBINRANG
-static int nRangNeighborhood;
 
-// vrad's texture is calculated based on the local neighborhood. The
-// neighborhood size in the azimuth direction is equal to NTEXBINAZIM
-static int nAzimNeighborhood;
+// ------------------------------------------------------------- //
+//              vol2bird options from options.conf               //
+// ------------------------------------------------------------- //
 
-// ...TODO
-static int nCountMin; 
+// the configuration options 
+static cfg_t* cfg;
 
-// the thickness in meters of a layer in the altitude profile
-static float layerThickness;
-
-// the range below which observations are excluded when constructing 
-// the altitude profile
-static float rangeMin;
-
-// the range beyond which observations are excluded when constructing 
-// the altitude profile
-static float rangeMax;
+// the user can specify to exclude gates based on their azimuth;
+// the maximum is set by azimMax
+static float azimMax;
 
 // the user can specify to exclude gates based on their azimuth;
 // the minimum is set by azimMin
 static float azimMin;
 
-// the user can specify to exclude gates based on their azimuth;
-// the maximum is set by azmMax
-static float azimMax;
+// the thickness in meters of a layer in the altitude profile
+static float layerThickness;
+
+// the number of layers in an altitude profile
+static int nLayers;
+
+// the maximum number that printCount is allowed to reach before 
+// printing ceases
+static int printCountMax;
+
+// the range beyond which observations are excluded when constructing 
+// the altitude profile
+static float rangeMax;
+
+// the range below which observations are excluded when constructing 
+// the altitude profile
+static float rangeMin;
+
+// the wavelength of the radar in units of centimeter
+static float radarWavelength;
+
+// whether clutter data is used
+static int useStaticClutterData;
+
+// whether verbose output is required
+static int verboseOutputRequired;
+
+
+
+
+// ------------------------------------------------------------- //
+//              vol2bird options from constants.h                //
+// ------------------------------------------------------------- //
+
+// when analyzing cells, AREAMIN determines the minimum size of a 
+// cell to be considered in the rest of the analysis
+static int minCellArea;
+
+// ...TODO
+static float cellClutterFraction;
+
+// when analyzing cells, only cells for which the average dbz is 
+// more than DBZCELL are considered in the rest of the analysis
+static float cellDbzMin;
+
+// ...TODO
+static float clutterValueMax;
+
+// ...TODO
+static float dbzMax;
+
+// ...TODO
+static float dbzThresMin;
+
+// ...TODO
+static float fringeDist;
 
 // when determining whether there are enough vrad observations in 
 // each direction, use NBINSGAP sectors
 static int nBinsGap;
 
+// when calculating the altitude-layer averaged dbz, there should 
+// be at least NDBZMIN valid data points
+static int nPointsIncludedMin;
+
+// TODO
+static int nNeighbors;
+
 // there should be at least NOBSGAPMIN vrad observations in each 
 // sector
 static int nObsGapMin;
 
-// minimum quality of the fit
-static float chisqMin;
+// vrad's texture is calculated based on the local neighborhood. The
+// neighborhood size in the azimuth direction is equal to NTEXBINAZIM
+static int nAzimNeighborhood;
+
+// vrad's texture is calculated based on the local neighborhood. The
+// neighborhood size in the range direction is equal to NTEXBINRANG
+static int nRangNeighborhood;
+
+// ...TODO
+static int nCountMin; 
 
 // the refractive index of water
 static float refracIndex;
@@ -174,14 +231,27 @@ static float refracIndex;
 // the bird radar cross section
 static float birdRadarCrossSection;
 
-// when calculating the altitude-layer averaged dbz, there should 
-// be at least NDBZMIN valid data points
-static int nPointsIncludedMin;
+// when analyzing cells, only cells for which the stddev of vrad
+// (aka the texture) is less than STDEVCELL are considered in the
+// rest of the analysis
+static float cellStdDevMax;
 
 // after fitting the vrad data, throw out any vrad observations that 
 // are more that VDIFMAX away from the fitted value, since these are
 // likely outliers 
 static float absVDifMax;
+
+// When analyzing cells, radial velocities lower than VRADMIN 
+// are treated as clutter
+static float vradMin;
+
+
+
+
+// ------------------------------------------------------------- //
+//             lists of indices into the 'points' array:         //
+//          where each altitude layer's data starts and ends     //
+// ------------------------------------------------------------- //
 
 // TODO
 static int* indexFrom;
@@ -192,20 +262,18 @@ static int* indexTo;
 // TODO
 static int* nPointsWritten;
 
-// TODO
-static float* points;
 
 
 
-// the maximum number that printCount is allowed to reach before 
-// printing ceases
-static int printCountMax;
+// ------------------------------------------------------------- //
+//                   ________________________                    //
+// ------------------------------------------------------------- //
 
-// whether clutter data is used
-static unsigned char clutterFlag;
+// ...TODO
+static float rCellMax;
 
-// whether verbose output is required
-static unsigned char verbose;
+// minimum quality of the fit
+static float chisqMin;
 
 // the number of dimensions to describe the location of an echo 
 // (azimuth and elevAngle)
@@ -214,49 +282,23 @@ static int nDims;
 // how many parameters are fitted by the svdfit procedure
 static int nParsFitted;
 
-// maximum number of gates possible given the elevation angles of 
-// the scans and the limits set by RANGEMIN and RANGEMAX, i.e. the
-// number of pseudo rows in the points array
-static int nRowsPoints;
-
-// the number of pseudo columns in the points array
-static int nColsPoints;
-
-// TODO
-static int nRowsProfile;
-
-// columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
-static int nColsProfile; 
-
-// the wavelength of the radar in units of centimeter
-static float radarWavelength;
-
 // the factor that is used when converting from Z to eta
 static float dbzFactor;
-
-// the types of profile we're making
-static int nProfileTypes;
-
-// the profile data
-static float* profile;
-
-// the type of profile that was last calculated
-static int iProfileTypeLast;
-
-// the configuration options
-static cfg_t* cfg;
 
 // whether the vol2bird module has been initialized
 static int initializationSuccessful = FALSE;
 
 
 
+
+
+
+
+
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, 
-        const unsigned char clutterFlag,
-        const unsigned char verbose) {
+        const int nCells, const int useStaticClutterData, const int verboseOutputRequired) {
 
     //  *********************************************************************************
     //  This function analyzes the cellImage array found by the 'findCells' procedure.
@@ -286,7 +328,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     nGlobal = nAzim*nRang;
     nCellsValid = 0;
 
-    if (nCells == 0) {
+    if (nCells == FALSE) {
         iGlobal = 0;
         for (iAzim = 0; iAzim < nAzim; iAzim++) {
             for (iRang = 0; iRang < nRang; iRang++) {
@@ -312,7 +354,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         cellProp[iCell].texAvg = 0;
         cellProp[iCell].dbzMax = dbzMeta->valueOffset;
         cellProp[iCell].index = iCell;
-        cellProp[iCell].drop = 0;
+        cellProp[iCell].drop = FALSE;
         cellProp[iCell].cv = 0;
     }
 
@@ -353,7 +395,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
             }
 
             //pixels in clutter map not included in calculation cell properties
-            if ((int) clutterFlag == 1){
+            if (useStaticClutterData == TRUE){
                 if (clutterValue > clutterValueMax){
                     cellProp[iCell].clutterArea += 1;
                     continue;
@@ -396,7 +438,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
              ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFraction )) {
             // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
             // bird migration --see discussion of issue #37 on GitHub.
-            cellProp[iCell].drop = 1;
+            cellProp[iCell].drop = TRUE;
             cellProp[iCell].area = 0;
         }
     }
@@ -407,7 +449,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
 
     //Printing of cell properties to stdout.
-    if ((int) verbose==1){
+    if (verboseOutputRequired == TRUE){
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
         fprintf(stderr,"#Minimum cell area in pixels   : %i\n",minCellArea);
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
@@ -415,10 +457,10 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         fprintf(stderr,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
         fprintf(stderr,"cellProp: .index .area .clutterArea .dbzAvg .texAvg   .cv .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
         for (iCell = 0; iCell < nCells; iCell++) {
-            if (cellProp[iCell].area==0) {
+            if (cellProp[iCell].area == 0) {
                 continue;
             }
-            fprintf(stderr,"cellProp: %6d %5d %12d %7.2f %7.2f %3.2f %7.2f %11d %11d %5d\n",
+            fprintf(stderr,"cellProp: %6d %5d %12d %7.2f %7.2f %3.2f %7.2f %11d %11d %5c\n",
                     cellProp[iCell].index,
                     cellProp[iCell].area,
                     cellProp[iCell].clutterArea,
@@ -428,7 +470,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
                     cellProp[iCell].dbzMax,
                     cellProp[iCell].iRangOfMax,
                     cellProp[iCell].iAzimOfMax,
-                    cellProp[iCell].drop);
+                    cellProp[iCell].drop == TRUE ? 'T' : 'F');
         }
     }
 
@@ -600,7 +642,7 @@ void calcProfile(const int iProfileType) {
                 // reflectivity eta in units of cm^2/km^3
                 reflectivity = dbzFactor * undbzAvg;
                 
-                if (iProfileType==1) {
+                if (iProfileType == 1) {
                     // calculate bird density in number of birds/km^3 by
                     // dividing the reflectivity by the (assumed) cross section
                     // of one bird
@@ -735,7 +777,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
             iGlobal = iRang + iAzim * nRang;
 
-            /* count number of direct neighbours above threshold */
+            /* count number of direct neighbors above threshold */
             count = 0;
             vmoment1 = 0;
             vmoment2 = 0;
@@ -773,7 +815,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
             vmoment2 /= count;
             dbz /= count;
 
-            /* when not enough neighbours, continue */
+            /* when not enough neighbors, continue */
             if (count < nCountMin) {
                 texImage[iGlobal] = missingValue;
             }
@@ -1041,7 +1083,7 @@ void constructPointsArray(PolarVolume_t* volume) {
             int nCellsValid = analyzeCells(&dbzImage[0], &vradImage[0], &texImage[0], 
                 &clutterImage[0], &cellImage[0], &dbzMeta, &vradMeta, &texMeta, 
                 &clutterMeta, nCells, 
-                clutterFlag, verbose);
+                useStaticClutterData, verboseOutputRequired);
 
             // ------------------------------------------------------------- //
             //                     calculate fringe                          //
@@ -1375,7 +1417,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
 
             }
             /* when not enough qualified neighbors, continue */
-            if (count - 1 < NEIGHBOURS) {
+            if (count - 1 < nNeighbors) {
                 continue;
             }
 
@@ -2064,14 +2106,16 @@ static int readUserConfigOptions(void) {
 
 
     cfg_opt_t opts[] = {
-        CFG_FLOAT("HLAYER",    200.0f, CFGF_NONE),
-        CFG_INT("NLAYER",          30, CFGF_NONE),
-        CFG_FLOAT("RANGEMIN",  5000.0f, CFGF_NONE),
-        CFG_FLOAT("RANGEMAX", 30000.0f, CFGF_NONE),
-        CFG_FLOAT("AZIMMIN",     0.0f, CFGF_NONE),
-        CFG_FLOAT("AZIMMAX",   360.0f, CFGF_NONE),
-        CFG_INT("PRINTCOUNTMAX",   10, CFGF_NONE),
-        CFG_FLOAT("RADAR_WAVELENGTH_CM", 5.3f, CFGF_NONE),
+        CFG_FLOAT("HLAYER",200.0f, CFGF_NONE),
+        CFG_INT("NLAYER",30, CFGF_NONE),
+        CFG_FLOAT("RANGEMIN",5000.0f, CFGF_NONE),
+        CFG_FLOAT("RANGEMAX",25000.0f, CFGF_NONE),
+        CFG_FLOAT("AZIMMIN",0.0f, CFGF_NONE),
+        CFG_FLOAT("AZIMMAX",360.0f, CFGF_NONE),
+        CFG_INT("PRINTCOUNTMAX",10, CFGF_NONE),
+        CFG_FLOAT("RADAR_WAVELENGTH_CM",5.3f, CFGF_NONE),
+        CFG_BOOL("USE_STATIC_CLUTTER_DATA",FALSE,CFGF_NONE),
+        CFG_BOOL("VERBOSE_OUTPUT_REQUIRED",FALSE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2157,10 +2201,10 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     // the range beyond which observations are excluded when constructing 
     // the altitude profile
-    rangeMax = cfg_getfloat(cfg, "RANGEMAX"); // FIXME same as rCellMax?
-    
+    rangeMax = cfg_getfloat(cfg, "RANGEMAX");
+
     // ...TODO
-    rCellMax = rangeMax + 5.0f;
+    rCellMax = rangeMax + 5000.0f;
 
     // when determining whether there are enough vrad observations in 
     // each direction, use NBINSGAP sectors
@@ -2195,6 +2239,9 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     // the user can specify to exclude gates based on their azimuth;
     // the maximum is set by AZIMMAX
     azimMax = cfg_getfloat(cfg, "AZIMMAX");
+    
+    // TODO
+    nNeighbors = NEIGHBORS;
 
 
     // ------------------------------------------------------------- //
@@ -2206,10 +2253,10 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
     
     // whether clutter data is used
-    clutterFlag = FALSE;
+    useStaticClutterData = cfg_getbool(cfg,"USE_STATIC_CLUTTER_DATA");
 
     // whether verbose output is required
-    verbose = TRUE;
+    verboseOutputRequired = cfg_getbool(cfg,"VERBOSE_OUTPUT_REQUIRED");
 
     // the number of dimensions to describe the location of an echo 
     // (azimuth and elevAngle)
@@ -2597,7 +2644,6 @@ void printOptions(void) {
     fprintf(stderr,"%-25s = %f\n","cellDbzMin",cellDbzMin);
     fprintf(stderr,"%-25s = %f\n","cellStdDevMax",cellStdDevMax);
     fprintf(stderr,"%-25s = %f\n","chisqMin",chisqMin);
-    fprintf(stderr,"%-25s = %d\n","clutterFlag",clutterFlag);
     fprintf(stderr,"%-25s = %f\n","clutterValueMax",clutterValueMax);
     fprintf(stderr,"%-25s = %f\n","dbzFactor",dbzFactor);
     fprintf(stderr,"%-25s = %f\n","dbzMax",dbzMax);
@@ -2618,7 +2664,8 @@ void printOptions(void) {
     fprintf(stderr,"%-25s = %f\n","rangeMin",rangeMin);
     fprintf(stderr,"%-25s = %f\n","rCellMax",rCellMax);
     fprintf(stderr,"%-25s = %f\n","refracIndex",refracIndex);
-    fprintf(stderr,"%-25s = %d\n","verbose",verbose);
+    fprintf(stderr,"%-25s = %c\n","useStaticClutterData",useStaticClutterData == TRUE ? 'T' : 'F');
+    fprintf(stderr,"%-25s = %c\n","verboseOutputRequired",verboseOutputRequired == TRUE ? 'T' : 'F');
     fprintf(stderr,"%-25s = %f\n","vradMin",vradMin);
     
     fprintf(stderr,"\n\n");
@@ -2797,7 +2844,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
             continue;
         }
 
-        if (cellProp[cellImageValue].drop == 1) {
+        if (cellProp[cellImageValue].drop == TRUE) {
             cellImage[iGlobal] = -1;
         }
     }
