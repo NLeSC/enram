@@ -190,13 +190,14 @@ static float cellDbzMin;
 // minimum quality of the fit
 static float chisqMin;
 
-// ...TODO
+// threshold dbz value for excluding gates as clutter (static clutter 
+// only)
 static float clutterValueMin;
 
-// ...TODO
+// maximum dbz used in calculation of profile dbzAvg  
 static float dbzMax;
 
-// ...TODO
+// minimum dbz used in calculation of cell dbzAvg
 static float dbzThresMin;
 
 // ...TODO
@@ -857,7 +858,6 @@ void classifyGatesSimple(void) {
         const float vradValue = points[iPoint * nColsPoints + vradValueCol];
         const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
 
-        
         int gateCode = 0;
         
         if (FALSE) {
@@ -2200,7 +2200,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     // the altitude profile
     rangeMax = cfg_getfloat(cfg, "RANGEMAX");
 
-    // ...TODO
+    // ...TODO 
     rCellMax = rangeMax + 5000.0f;
 
     // when determining whether there are enough vrad observations in 
