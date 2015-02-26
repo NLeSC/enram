@@ -1,4 +1,5 @@
 #define AREACELL                  4
+#define CHISQMIN                  1e-5
 #define CLUTPERCCELL              0.5
 #define DBZCELL                   15.0
 #define DBZCLUTTER                -10.0

@@ -31,8 +31,6 @@
 
 #define NPARSFITTEDMAX    (16)      /*Maximum number of fit parameters.*/
 #define SVDTOL            (1e-5)      /*Accuracy in SV decomposition.*/
-#define CHISQMIN          (1e-5)      /*Minimum valid SV standard deviation.*/
-
 
 
 
