@@ -82,7 +82,7 @@ typedef struct scanmeta SCANMETA;
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, const unsigned char cmFlag, const unsigned char verbose);
+        const int nCells, const int useStaticClutterData, const int verboseOutputRequired);
 
 static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
 
