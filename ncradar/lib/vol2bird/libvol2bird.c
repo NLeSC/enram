@@ -824,8 +824,15 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
                 tex = sqrt(XABS(vmoment2-SQUARE(vmoment1)));
 
-                // FIXME maybe add safeguard against negative outcomes of ROUND((tex - texOffset) / texScale);
-                texImage[iGlobal] = (unsigned char) ROUND((tex - texOffset) / texScale);
+                double tmpTex = ROUND((tex - texOffset) / texScale);
+                if (0 <= tmpTex && tmpTex <= 255) {
+                    texImage[iGlobal] = (unsigned char) tmpTex;
+                }
+                else {
+                    fprintf(stderr, "Error casting texture value of %f to unsigned char type at texImage[%d]. Aborting.\n",tmpTex,iGlobal);
+                    return;
+                }
+                
 
                 #ifdef FPRINTFON
                 fprintf(stderr,
