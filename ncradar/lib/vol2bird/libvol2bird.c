@@ -1306,8 +1306,18 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
     float dbzValueScale;
     float dbzRangeScale;
 
+
+    // These next two local variables 'nAzimNeighborhood' and 
+    // 'nRangNeighborhood' shadow two static global variables of the 
+    // same name, but that is in fact what you want. This is because the
+    // value of 'nAzimNeighborHood' (function scope) is not equal to 
+    // 'nAzimNeighborHood' (file scope) and because 'nRangNeighborHood' 
+    // (function scope) is not equal to 'nRangNeighborHood' (file 
+    // scope). The variable names are the same though, because they play
+    // the same role in 'findNearbyGateIndex()'.
     int nAzimNeighborhood;
     int nRangNeighborhood;
+    
     int nHalfNeighborhood;
 
     int cellIdentifierGlobal;
@@ -1335,8 +1345,14 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
     nRang = dbznRang;
 
     nGlobal = nAzim * nRang;
+    
+    // We use a neighborhood of 3x3, because in this function we are
+    // interested in a cell's direct neighbors. See also comment at
+    // variable definitions of 'nAzimNeighborhood' and 'nRangNeighborhood'
+    // above. 
     nAzimNeighborhood = 3;
     nRangNeighborhood = 3;
+    
     nNeighborhood = nAzimNeighborhood * nRangNeighborhood;
     nHalfNeighborhood = (nNeighborhood - 1)/2;
 
