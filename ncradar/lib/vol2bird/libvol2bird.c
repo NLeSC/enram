@@ -726,8 +726,7 @@ void calcProfile(const int iProfileType) {
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
-        const SCANMETA *dbzMeta, const int nRangNeighborhood,
-        const int nAzimNeighborhood) {
+        const SCANMETA *dbzMeta) {
 
 
     // --------------------------------------------------------------------------------------- //
@@ -1060,8 +1059,7 @@ void constructPointsArray(PolarVolume_t* volume) {
             // ------------------------------------------------------------- //
 
             calcTexture(&texImage[0], &vradImage[0], &dbzImage[0], 
-                        &texMeta, &vradMeta, &dbzMeta, 
-                        nRangNeighborhood, nAzimNeighborhood);
+                        &texMeta, &vradMeta, &dbzMeta);
 
             if (printCountMax > 0) {
                 printMeta(&texMeta,"texMeta");

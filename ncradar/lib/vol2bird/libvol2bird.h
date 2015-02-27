@@ -80,17 +80,16 @@ typedef struct scanmeta SCANMETA;
 // *****************************************************************************
 
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
-        const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
-        const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, const int useStaticClutterData, const int verboseOutputRequired);
+                        const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
+                        const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
+                        const int nCells, const int useStaticClutterData, const int verboseOutputRequired);
 
 static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
 
 void calcProfile(const int iProfileType);
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
-        const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta,
-        const int nRangNeighborhood, const int nAzimNeighborhood);
+                        const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta);
 
 void classifyGatesSimple(void);
 
@@ -101,29 +100,29 @@ static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* s
 void constructPointsArray(PolarVolume_t* volume);
 
 static int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
-                     const int nRang, const int nAzim, const float radarHeight);
+                            const int nRang, const int nAzim, const float radarHeight);
 
 static int detSvdfitArraySize(PolarVolume_t* volume);
 
 static int findCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
 
 static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
-                        const int nAzimChild,  const int nRangChild,  const int iChild);
+                               const int nAzimChild,  const int nRangChild,  const int iChild);
 
 static void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
 
 static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
-                           const SCANMETA* dbzMeta, const unsigned char *dbzImage,
-                           const int *cellImage,
-                           const float altitudeMin, const float altitudeMax,
-                           float* points, int iPoint);
+                                  const SCANMETA* dbzMeta, const unsigned char *dbzImage,
+                                  const int *cellImage,
+                                  const float altitudeMin, const float altitudeMax,
+                                  float* points, int iPoint);
 
 static int hasAzimuthGap(const float *points, const int nPoints);
 
 static int includeGate(const int iProfileType, const int gateCode);
 
 static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
-                    unsigned char *values, char *paramStr);
+                           unsigned char *values, char *paramStr);
 
 static void printGateCode(char* flags, const int gateCode);
 
@@ -150,7 +149,7 @@ static void sortCells(CELLPROP *cellProp, const int nCells);
 void tearDownVol2Bird();
 
 static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
-                                   const int nPointsIncluded, float* points);
+                                          const int nPointsIncluded, float* points);
 
 static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
