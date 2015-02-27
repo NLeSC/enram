@@ -743,7 +743,9 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
     int iNeighborhood;
     int nNeighborhood;
     int count;
-    unsigned char missingValue;
+    unsigned char vradMissingValue;
+    unsigned char dbzMissingValue;
+    unsigned char texMissingValue;
     double vmoment1;
     double vmoment2;
     double dbz;
@@ -760,16 +762,18 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
     nRang = vradMeta->nRang;
     nAzim = vradMeta->nAzim;
-    missingValue = vradMeta->missing; // FIXME this missingValue is used indiscriminately in vRad, tex and dbz alike
 
     dbzOffset = dbzMeta->valueOffset;
     dbzScale = dbzMeta->valueScale;
+    dbzMissingValue = dbzMeta->missing;
 
     vradOffset = vradMeta->valueOffset;
     vradScale = vradMeta->valueScale;
+    vradMissingValue = vradMeta->missing;
 
     texOffset = texMeta->valueOffset;
     texScale = texMeta->valueScale;
+    texMissingValue = texMeta->missing;
 
     nNeighborhood = (int)(nRangNeighborhood * nAzimNeighborhood);
 
@@ -798,7 +802,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
                     continue;
                 }
 
-                if (vradImage[iLocal] == missingValue || dbzImage[iLocal] == missingValue) {
+                if (vradImage[iLocal] == vradMissingValue || dbzImage[iLocal] == dbzMissingValue) {
                     continue;
                 }
 
@@ -818,7 +822,7 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
 
             // when not enough neighbors, continue
             if (count < nCountMin) {
-                texImage[iGlobal] = missingValue;
+                texImage[iGlobal] = texMissingValue;
             }
             else {
 
@@ -845,6 +849,9 @@ static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
         } //for
     } //for
 } // calcTexture
+
+
+
 
 
 void classifyGatesSimple(void) {
