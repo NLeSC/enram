@@ -28,101 +28,6 @@
 
 
 
-// ------------------------------------------------------------- //
-//               information about the 'points' array            //
-// ------------------------------------------------------------- //
-
-// the 'points' array has this many pseudo-columns
-static int nColsPoints;
-
-// the 'points' array has this many rows
-static int nRowsPoints;
-
-// the psuedo-column in 'points' that holds the azimuth angle
-static int azimAngleCol;
-
-// the psuedo-column in 'points' that holds the elevation angle
-static int elevAngleCol;
-
-// the psuedo-column in 'points' that holds the dbz value
-static int dbzValueCol;
-
-// the psuedo-column in 'points' that holds the vrad value
-static int vradValueCol;
-
-// the psuedo-column in 'points' that holds the cell value
-static int cellValueCol;
-
-// the psuedo-column in 'points' that holds the gate classification code
-static int gateCodeCol;
-
-// the 'points' array itself
-static float* points;
-
-
-
-
-
-// ------------------------------------------------------------- //
-//          information about the flagfields of 'gateCode'       //
-// ------------------------------------------------------------- //
-
-// the bit in 'gateCode' that says whether this gate is true in the static
-// clutter map (which we don't have yet TODO)
-static int flagPositionStaticClutter;
-
-// the bit in 'gateCode' that says whether this gate is part of the 
-// calculated cluttermap (without fringe)
-static int flagPositionDynamicClutter;
-
-// the bit in 'gateCode' that says whether this gate is part of the 
-// fringe of the calculated cluttermap
-static int flagPositionDynamicClutterFringe;
-
-// the bit in 'gateCode' that says whether this gate has reflectivity data 
-// but no corresponding radial velocity data
-static int flagPositionVradMissing;
-
-// the bit in 'gateCode' the psuedo-columnsays whether this gate's dbz value is too
-// high to be due to birds, it must be caused by something else
-static int flagPositionDbzTooHighForBirds;
-
-// the bit in 'gateCode' the psuedo-columnsays whether this gate's radial velocity is
-// close to zero. These gates are all discarded to exclude ground 
-// clutter, which often has a radial velocity near zero.
-static int flagPositionVradTooLow;
-
-// the bit in 'gateCode' that says whether this gate passed the VDIFMAX test
-static int flagPositionVDifMax;
-
-// the bit in 'gateCode' that says whether the gate's azimuth angle was too low
-static int flagPositionAzimTooLow;
-
-// the bit in 'gateCode' that says whether the gate's azimuth angle was too high
-static int flagPositionAzimTooHigh;
-
-
-
-
-// ------------------------------------------------------------- //
-//              information about the 'profile' array            //
-// ------------------------------------------------------------- //
-
-// the number of different types of profile we're making
-static int nProfileTypes;
-
-// how many rows there are in a profile
-static int nRowsProfile;
-
-// columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
-static int nColsProfile; 
-
-// the profile array itself
-static float* profile;
-
-// the type of profile that was last calculated
-static int iProfileTypeLast;
-
 
 
 
@@ -200,7 +105,8 @@ static float dbzMax;
 // minimum dbz used in calculation of cell dbzAvg
 static float dbzThresMin;
 
-// ...TODO
+// each weather cell identified by findCells() is grown by a distance 
+// equal to 'fringeDist' using a region-growing approach
 static float fringeDist;
 
 // when determining whether there are enough vrad observations in 
@@ -252,7 +158,44 @@ static float absVDifMax;
 static float vradMin;
 
 
+// ------------------------------------------------------------- //
+//               information about the 'points' array            //
+// ------------------------------------------------------------- //
 
+// The data needed for calculating bird densities are collected
+// in one big array, 'points'. Although this array is one 
+// variable, it is partitioned into 'nLayers' parts. The parts 
+// are not equal in size, therefore we need to keep track of  
+// where the data pertaining to a certain altitude bin can be
+// written. The valid range of indexes into 'points' are stored 
+// in arrays 'indexFrom' and 'indexTo'.
+
+// the 'points' array has this many pseudo-columns
+static int nColsPoints;
+
+// the 'points' array has this many rows
+static int nRowsPoints;
+
+// the psuedo-column in 'points' that holds the azimuth angle
+static int azimAngleCol;
+
+// the psuedo-column in 'points' that holds the elevation angle
+static int elevAngleCol;
+
+// the psuedo-column in 'points' that holds the dbz value
+static int dbzValueCol;
+
+// the psuedo-column in 'points' that holds the vrad value
+static int vradValueCol;
+
+// the psuedo-column in 'points' that holds the cell value
+static int cellValueCol;
+
+// the psuedo-column in 'points' that holds the gate classification code
+static int gateCodeCol;
+
+// the 'points' array itself
+static float* points;
 
 // ------------------------------------------------------------- //
 //             lists of indices into the 'points' array:         //
@@ -269,6 +212,69 @@ static int* indexTo;
 // of the scan elevations to the 'points' array; it should therefore
 // never exceed indexTo[i]-indexFrom[i]
 static int* nPointsWritten;
+
+
+
+
+// ------------------------------------------------------------- //
+//          information about the flagfields of 'gateCode'       //
+// ------------------------------------------------------------- //
+
+// the bit in 'gateCode' that says whether this gate is true in the static
+// clutter map (which we don't have yet TODO)
+static int flagPositionStaticClutter;
+
+// the bit in 'gateCode' that says whether this gate is part of the 
+// calculated cluttermap (without fringe)
+static int flagPositionDynamicClutter;
+
+// the bit in 'gateCode' that says whether this gate is part of the 
+// fringe of the calculated cluttermap
+static int flagPositionDynamicClutterFringe;
+
+// the bit in 'gateCode' that says whether this gate has reflectivity data 
+// but no corresponding radial velocity data
+static int flagPositionVradMissing;
+
+// the bit in 'gateCode' the psuedo-columnsays whether this gate's dbz value is too
+// high to be due to birds, it must be caused by something else
+static int flagPositionDbzTooHighForBirds;
+
+// the bit in 'gateCode' the psuedo-columnsays whether this gate's radial velocity is
+// close to zero. These gates are all discarded to exclude ground 
+// clutter, which often has a radial velocity near zero.
+static int flagPositionVradTooLow;
+
+// the bit in 'gateCode' that says whether this gate passed the VDIFMAX test
+static int flagPositionVDifMax;
+
+// the bit in 'gateCode' that says whether the gate's azimuth angle was too low
+static int flagPositionAzimTooLow;
+
+// the bit in 'gateCode' that says whether the gate's azimuth angle was too high
+static int flagPositionAzimTooHigh;
+
+
+
+
+// ------------------------------------------------------------- //
+//              information about the 'profile' array            //
+// ------------------------------------------------------------- //
+
+// the number of different types of profile we're making
+static int nProfileTypes;
+
+// how many rows there are in a profile
+static int nRowsProfile;
+
+// columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
+static int nColsProfile; 
+
+// the profile array itself
+static float* profile;
+
+// the type of profile that was last calculated
+static int iProfileTypeLast;
 
 
 
@@ -2151,7 +2157,7 @@ static int readUserConfigOptions(void) {
     if (cfg_parse(cfg, "options.conf") == CFG_PARSE_ERROR) {
         return 1;
     }
-    
+   
     return 0;
 
 } // readUserConfigOptions
@@ -2163,221 +2169,61 @@ static int readUserConfigOptions(void) {
 
 int setUpVol2Bird(PolarVolume_t* volume) {
 
-
     if (readUserConfigOptions() != 0) {
         fprintf(stderr, "An error occurred while reading the user configuration file 'options.conf'.\n");
         return -1; 
     }
     
     // ------------------------------------------------------------- //
-    //                     assigning the constants                   //
+    //              vol2bird options from options.conf               //
     // ------------------------------------------------------------- //
 
-    // the number of layers in an altitude profile
-    nLayers = cfg_getint(cfg, "NLAYER");
-    
-    // when analyzing cells, AREAMIN determines the minimum size of a 
-    // cell to be considered in the rest of the analysis
-    minCellArea = AREACELL;
-    
-    // when analyzing cells, only cells for which the average dbz is 
-    // more than DBZCELL are considered in the rest of the analysis
-    cellDbzMin = DBZCELL;
-    
-    // when analyzing cells, only cells for which the stddev of vrad
-    // (aka the texture) is less than STDEVCELL are considered in the
-    // rest of the analysis
-    cellStdDevMax = STDEVCELL;
-    
-    // ...TODO
-    cellClutterFractionMax = CLUTPERCCELL;
-    
-    // When analyzing cells, radial velocities lower than VRADMIN 
-    // are treated as clutter
-    vradMin = VRADMIN;
-    
-    // ...TODO
-    clutterValueMin = DBZCLUTTER;
-    
-    // ...TODO
-    dbzThresMin = DBZMIN;
-    
-    // ...TODO
-    dbzMax = DBZMAX;
-    
-    // ...TODO
-    fringeDist = EMASKMAX;
-    
-    // vrad's texture is calculated based on the local neighborhood. The
-    // neighborhood size in the range direction is equal to NTEXBINRANG
-    nRangNeighborhood = NTEXBINRANG;
-    
-    // vrad's texture is calculated based on the local neighborhood. The
-    // neighborhood size in the azimuth direction is equal to NTEXBINAZIM
-    nAzimNeighborhood = NTEXBINAZIM;
-    
-    // ...TODO
-    nCountMin = NTEXMIN; 
-
-    // the thickness in meters of a layer in the altitude profile
-    layerThickness = cfg_getfloat(cfg, "HLAYER");
-
-    // the range below which observations are excluded when constructing 
-    // the altitude profile
-    rangeMin = cfg_getfloat(cfg, "RANGEMIN");
-
-    // the range beyond which observations are excluded when constructing 
-    // the altitude profile
-    rangeMax = cfg_getfloat(cfg, "RANGEMAX");
-
-    // ...TODO 
-    rCellMax = rangeMax + 5000.0f;
-
-    // when determining whether there are enough vrad observations in 
-    // each direction, use NBINSGAP sectors
-    nBinsGap = NBINSGAP;
-
-    // there should be at least NOBSGAPMIN vrad observations in each 
-    // sector
-    nObsGapMin = NOBSGAPMIN;
-
-    // minimum quality of the fit
-    chisqMin = CHISQMIN;
-
-    // the refractive index of water
-    refracIndex = REFRACTIVE_INDEX_OF_WATER;
-
-    // the bird radar cross section
-    birdRadarCrossSection = SIGMABIRD;
-
-    // when calculating the altitude-layer averaged dbz, there should 
-    // be at least NDBZMIN valid data points
-    nPointsIncludedMin = NDBZMIN;
-
-    // after fitting the vrad data, throw out any vrad observations that 
-    // are more that VDIFMAX away from the fitted value, since these are
-    // likely outliers 
-    absVDifMax = VDIFMAX;
-    
-    // the user can specify to exclude gates based on their azimuth;
-    // the minimum is set by AZIMMIN
-    azimMin = cfg_getfloat(cfg, "AZIMMIN");
-
-    // the user can specify to exclude gates based on their azimuth;
-    // the maximum is set by AZIMMAX
     azimMax = cfg_getfloat(cfg, "AZIMMAX");
-    
-    // TODO
-    nNeighborsMin = NEIGHBORS;
-
-
-    // ------------------------------------------------------------- //
-    //                initialization of variables                    //
-    // ------------------------------------------------------------- //
-
-    // the maximum number that printCount is allowed to reach before 
-    // printing ceases
+    azimMin = cfg_getfloat(cfg, "AZIMMIN");
+    layerThickness = cfg_getfloat(cfg, "HLAYER");
+    nLayers = cfg_getint(cfg, "NLAYER");
     printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
-    
-    // whether clutter data is used
+    rangeMax = cfg_getfloat(cfg, "RANGEMAX");
+    rangeMin = cfg_getfloat(cfg, "RANGEMIN");
+    radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
     useStaticClutterData = cfg_getbool(cfg,"USE_STATIC_CLUTTER_DATA");
-
-    // whether verbose output is required
     verboseOutputRequired = cfg_getbool(cfg,"VERBOSE_OUTPUT_REQUIRED");
 
-    // the number of dimensions to describe the location of an echo 
-    // (azimuth and elevAngle)
-    nDims = 2;
 
-    // how many parameters are fitted by the svdfit procedure
-    nParsFitted = 3;
 
-    // TODO
-    nRowsProfile = nLayers;
+    // ------------------------------------------------------------- //
+    //              vol2bird options from constants.h                //
+    // ------------------------------------------------------------- //
 
-    // columns in profile contain [altmin,altmax,u,v,w,hSpeed,hDir,chi,hasGap,dbzAvg,nPointsCopied,reflectivity,birdDensity]
-    nColsProfile = (2 + nParsFitted + 8); 
+    minCellArea = AREACELL;
+    cellClutterFractionMax = CLUTPERCCELL;
+    cellDbzMin = DBZCELL;
+    chisqMin = CHISQMIN;
+    clutterValueMin = DBZCLUTTER;
+    dbzMax = DBZMAX;
+    dbzThresMin = DBZMIN;
+    fringeDist = EMASKMAX;
+    nBinsGap = NBINSGAP;
+    nPointsIncludedMin = NDBZMIN;
+    nNeighborsMin = NEIGHBORS;
+    nObsGapMin = NOBSGAPMIN;
+    nAzimNeighborhood = NTEXBINAZIM;
+    nRangNeighborhood = NTEXBINRANG;
+    nCountMin = NTEXMIN; 
+    refracIndex = REFRACTIVE_INDEX_OF_WATER;
+    birdRadarCrossSection = SIGMABIRD;
+    cellStdDevMax = STDEVCELL;
+    absVDifMax = VDIFMAX;
+    vradMin = VRADMIN;
 
-    // the wavelength of the radar in units of centimeter
-    radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
 
-    // calculate the factor that will convert from Z (not dBZ) in 
-    // units of mm^6/m^3 to reflectivity eta in units of cm^2/km^3
-    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
+
+
+    // ------------------------------------------------------------- //
+    //             lists of indices into the 'points' array:         //
+    //          where each altitude layer's data starts and ends     //
+    // ------------------------------------------------------------- //
     
-    // the types of profile we're making
-    nProfileTypes = 3;
-    
-    
-    // the 'points' array has this many pseudo-columns
-    nColsPoints = 6;
-
-    // column 1 in 'points' holds the azimuth angle
-    azimAngleCol = 0;
-
-    // column 1 in 'points' holds the elevation angle
-    elevAngleCol = 1;
-
-    // column 1 in 'points' holds the dbz value
-    dbzValueCol = 2;
-
-    // column 1 in 'points' holds the vrad value
-    vradValueCol = 3;
-
-    // column 1 in 'points' holds the cell value
-    cellValueCol = 4;
-
-    // column 1 in 'points' holds the gate classification code
-    gateCodeCol = 5;
-
-
-    // the 0th bit in gateCode says whether this gate is true in the static
-    // clutter map (which we don't have yet TODO)
-    flagPositionStaticClutter = 0;
-
-    // the 1st bit in gateCode says whether this gate is part of the 
-    // calculated cluttermap (without fringe)
-    flagPositionDynamicClutter = 1;
-
-    // the 2nd bit in gateCode says whether this gate is part of the 
-    // fringe of the calculated cluttermap
-    flagPositionDynamicClutterFringe = 2;
-
-    // the 3rd bit in gateCode says whether this gate has reflectivity data 
-    // but no corresponding radial velocity data
-    flagPositionVradMissing = 3;
-
-    // the 4th bit in gateCode says whether this gate's dbz value is too
-    // high to be due to birds, it must be caused by something else
-    flagPositionDbzTooHighForBirds = 4;
-
-    // the 5th bit in gateCode says whether this gate's radial velocity is
-    // close to zero. These gates are all discarded to exclude ground 
-    // clutter, which often has a radial velocity near zero.
-    flagPositionVradTooLow = 5;
-
-    // the 6th bit in gateCode says whether this gate passed the VDIFMAX test
-    flagPositionVDifMax = 6;
-    
-    // the 7th bit says whether the gate's azimuth angle was too low
-    flagPositionAzimTooLow = 7;
-
-    // the 8th bit says whether the gate's azimuth angle was too high
-    flagPositionAzimTooHigh = 8;
-    
-    
-    // the type of profile that was calculated last
-    iProfileTypeLast = -1;
-    
-
-    // The data needed for calculating bird densities are collected
-    // in one big array, 'points'. Although this array is one 
-    // variable, it is partitioned into 'nLayers' parts. The parts 
-    // are not equal in size, therefore we need to keep track of  
-    // where the data pertaining to a certain altitude bin can be
-    // written. The valid range of indexes into 'points' are stored 
-    // in arrays 'indexFrom' and 'indexTo'.
-
     int iLayer;
     
     // pre-allocate the list with start-from indexes for each 
@@ -2413,8 +2259,25 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     for (iLayer = 0; iLayer < nLayers; iLayer++) {
         nPointsWritten[iLayer] = 0;
     }
-    
+
+
+
+
+    // ------------------------------------------------------------- //
+    //               information about the 'points' array            //
+    // ------------------------------------------------------------- //
+
+    nColsPoints = 6;
     nRowsPoints = detSvdfitArraySize(volume);
+    
+    fprintf(stderr, "nRowsPoints = %d\n",nRowsPoints);
+
+    azimAngleCol = 0;
+    elevAngleCol = 1;
+    dbzValueCol = 2;
+    vradValueCol = 3;
+    cellValueCol = 4;
+    gateCodeCol = 5;
 
     // pre-allocate the 'points' array (note it has 'nColsPoints'
     // pseudo-columns)
@@ -2432,9 +2295,33 @@ int setUpVol2Bird(PolarVolume_t* volume) {
             points[iRowPoints*nColsPoints + iColPoints] = NAN;
         }
     }
+    // ------------------------------------------------------------- //
+    //          information about the flagfields of 'gateCode'       //
+    // ------------------------------------------------------------- //
+
+    flagPositionStaticClutter = 0;
+    flagPositionDynamicClutter = 1;
+    flagPositionDynamicClutterFringe = 2;
+    flagPositionVradMissing = 3;
+    flagPositionDbzTooHighForBirds = 4;
+    flagPositionVradTooLow = 5;
+    flagPositionVDifMax = 6;
+    flagPositionAzimTooLow = 7;
+    flagPositionAzimTooHigh = 8;
+
+
+
+
+    // ------------------------------------------------------------- //
+    //              information about the 'profile' array            //
+    // ------------------------------------------------------------- //
+
+    nProfileTypes = 3;
+    nRowsProfile = nLayers;
+    nColsProfile = 13; 
     
     // pre-allocate the array holding any profiled data (note it has 
-    // 'nColsPoints' pseudocolumns):
+    // 'nColsProfile' pseudocolumns):
     profile = (float*) malloc(sizeof(float) * nRowsProfile * nColsProfile);
     if (profile == NULL) {
         fprintf(stderr,"Error pre-allocating array 'profile'.\n"); 
@@ -2450,6 +2337,19 @@ int setUpVol2Bird(PolarVolume_t* volume) {
         }
     }
 
+    iProfileTypeLast = -1;
+
+
+
+
+    // ------------------------------------------------------------- //
+    //                       some other variables                    //
+    // ------------------------------------------------------------- //
+
+    rCellMax = rangeMax + 5000.0f;
+    nDims = 2;
+    nParsFitted = 3;
+    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
     initializationSuccessful = TRUE;
     
     return 0;
