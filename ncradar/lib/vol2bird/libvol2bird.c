@@ -211,8 +211,9 @@ static int nBinsGap;
 // be at least NDBZMIN valid data points
 static int nPointsIncludedMin;
 
-// TODO
-static int nNeighbors;
+// the minimum number of direct neighbors with dbz value above 
+// dbzThresMin as used in findCells()
+static int nNeighborsMin;
 
 // there should be at least NOBSGAPMIN vrad observations in each 
 // sector
@@ -226,7 +227,8 @@ static int nAzimNeighborhood;
 // neighborhood size in the range direction is equal to NTEXBINRANG
 static int nRangNeighborhood;
 
-// ...TODO
+// the minimum number of neighbors for the texture value to be 
+// considered valid, as used in calcTexture()
 static int nCountMin; 
 
 // the refractive index of water
@@ -1288,7 +1290,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
     //  ----------------------------------------------------------------------------- //
     //  This function detects the cells in 'dbzImage' using a threshold value of      //
     //  'dbzThresMin' and a non-recursive algorithm which looks for neighboring       //
-    //  pixels above threshold. On return the marked cells are contained by           //
+    //  pixels above that threshold. On return the marked cells are contained by      //
     //  'cellImage'. The number of detected cells/highest index value is returned.    //
     //  ----------------------------------------------------------------------------- //
 
@@ -1447,7 +1449,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
 
             }
             // when not enough qualified neighbors, continue
-            if (count - 1 < nNeighbors) {
+            if (count - 1 < nNeighborsMin) {
                 continue;
             }
 
@@ -2266,7 +2268,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     azimMax = cfg_getfloat(cfg, "AZIMMAX");
     
     // TODO
-    nNeighbors = NEIGHBORS;
+    nNeighborsMin = NEIGHBORS;
 
 
     // ------------------------------------------------------------- //
