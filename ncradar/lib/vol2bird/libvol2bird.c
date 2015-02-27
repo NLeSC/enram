@@ -1105,7 +1105,7 @@ void constructPointsArray(PolarVolume_t* volume) {
             // ------------------------------------------------------------- //
 
             fringeCells(&cellImage[0], cellMeta.nRang, cellMeta.nAzim, 
-                cellMeta.azimScale, cellMeta.rangeScale, fringeDist);
+                cellMeta.azimScale, cellMeta.rangeScale);
                 
             if (printCountMax > 0) {
                 printMeta(&cellMeta,"cellMeta");
@@ -1620,7 +1620,7 @@ static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, con
 
 
 
-static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale, float fringeDist) {
+static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, float rScale) {
 
     // -------------------------------------------------------------------------- //
     // This function enlarges cells in cellImage by an additional fringe.         //

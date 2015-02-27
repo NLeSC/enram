@@ -109,7 +109,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage, const SCANME
 static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                                const int nAzimChild,  const int nRangChild,  const int iChild);
 
-static void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale, float fringe);
+static void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale);
 
 static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
                                   const SCANMETA* dbzMeta, const unsigned char *dbzImage,
