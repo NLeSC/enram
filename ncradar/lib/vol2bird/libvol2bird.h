@@ -126,9 +126,9 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta,
 
 static void printGateCode(char* flags, const int gateCode);
 
-static int printImageInt(const int* image, const int nGlobal, const char* varName);
+//static int printImageInt(const int* image, const int nGlobal, const char* varName);
 
-static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName);
+//static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName);
     
 void printIndexArrays(void);
     
@@ -157,4 +157,6 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
 
 
+void printImageInt(const SCANMETA* meta, const unsigned char* image);
 
+void printImageUChar(const SCANMETA* meta, const unsigned char* image);

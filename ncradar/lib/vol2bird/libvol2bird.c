@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <unistd.h>
+
 #include "polarvolume.h"
 #include "libvol2bird.h"
 #include "libsvdfit.h"
@@ -56,6 +58,9 @@ static int nLayers;
 // the maximum number that printCount is allowed to reach before 
 // printing ceases
 static int printCountMax;
+
+// whether or not to print the texture data to stderr  
+static int printTexture;
 
 // the range beyond which observations are excluded when constructing 
 // the altitude profile
@@ -732,9 +737,9 @@ void calcProfile(const int iProfileType) {
 
 
 
-static void calcTexture(unsigned char *texImage, const unsigned char *vradImage,
-        const unsigned char *dbzImage, const SCANMETA *texMeta, const SCANMETA *vradMeta,
-        const SCANMETA *dbzMeta) {
+static void calcTexture(unsigned char* texImage, const unsigned char* vradImage,
+        const unsigned char* dbzImage, const SCANMETA* texMeta, const SCANMETA* vradMeta,
+        const SCANMETA* dbzMeta) {
 
 
     // --------------------------------------------------------------------------------------- //
@@ -1056,12 +1061,8 @@ void constructPointsArray(PolarVolume_t* volume) {
                 fprintf(stderr, "Something went wrong while mapping DBZH data from RAVE to LIBVOL2BIRD.\n");
             }
 
-            // print a selection of what's been read just now
-            if (printCountMax > 0) {
-                printMeta(&dbzMeta,"dbzMeta");
-                printImageUChar(&dbzImage[0], nGlobal, "dbzImage");
-            }
-
+            printMeta(&dbzMeta,"dbzMeta");
+            printImageUChar(&dbzMeta,&dbzImage[0]);
 
             // populate the vradMeta and vradImage variables with data from  
             // the Rave scan object:
@@ -1070,11 +1071,8 @@ void constructPointsArray(PolarVolume_t* volume) {
                 fprintf(stderr, "Something went wrong while mapping VRAD data from RAVE to LIBVOL2BIRD.\n");
             }
 
-            // print a selection of what's been read just now
-            if (printCountMax > 0) {
-                printMeta(&vradMeta,"vradMeta");
-                printImageUChar(&vradImage[0], nGlobal, "vradImage");
-            }
+            printMeta(&vradMeta,"vradMeta");
+            printImageUChar(&vradMeta,&vradImage[0]);
 
             // ------------------------------------------------------------- //
             //                      calculate vrad texture                   //
@@ -1083,10 +1081,15 @@ void constructPointsArray(PolarVolume_t* volume) {
             calcTexture(&texImage[0], &vradImage[0], &dbzImage[0], 
                         &texMeta, &vradMeta, &dbzMeta);
 
+            printImageUChar(&texMeta, &texImage[0]);
+
+
             if (printCountMax > 0) {
                 printMeta(&texMeta,"texMeta");
-                printImageUChar(&texImage[0], nGlobal, "texImage");
+                printImageUChar(&texMeta,&texImage[0]);
             }
+
+
 
             // ------------------------------------------------------------- //
             //        find (weather) cells in the reflectivity image         //
@@ -1113,13 +1116,11 @@ void constructPointsArray(PolarVolume_t* volume) {
             fringeCells(&cellImage[0], cellMeta.nRang, cellMeta.nAzim, 
                 cellMeta.azimScale, cellMeta.rangeScale);
                 
-            if (printCountMax > 0) {
-                printMeta(&cellMeta,"cellMeta");
-                printImageInt(&cellImage[0], nGlobal, "cellImage");
+            printMeta(&cellMeta,"cellMeta");
+            printImageInt(&cellMeta,&cellImage[0]);
             
-                printMeta(&clutterMeta,"clutterMeta");
-                printImageUChar(&clutterImage[0], nGlobal, "clutterImage");
-            }
+            printMeta(&clutterMeta,"clutterMeta");
+            printImageUChar(&clutterMeta,&clutterImage[0]);
             
             // ------------------------------------------------------------- //
             //    fill in the appropriate elements in the points array       //
@@ -1149,7 +1150,7 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
 
-            printImageInt(&cellImage[0], nGlobal, "cellImage");
+            printImageInt(&cellMeta,&cellImage[0]);
 
             // ------------------------------------------------------------- //
             //                         clean up                              //
@@ -2149,6 +2150,11 @@ static int readUserConfigOptions(void) {
         CFG_FLOAT("RADAR_WAVELENGTH_CM",5.3f, CFGF_NONE),
         CFG_BOOL("USE_STATIC_CLUTTER_DATA",FALSE,CFGF_NONE),
         CFG_BOOL("VERBOSE_OUTPUT_REQUIRED",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_DBZ",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_VRAD",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_CELL",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_TEXTURE",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_CLUT",FALSE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2183,6 +2189,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     layerThickness = cfg_getfloat(cfg, "HLAYER");
     nLayers = cfg_getint(cfg, "NLAYER");
     printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
+    printTexture = cfg_getbool(cfg,"PRINT_TEXTURE");
     rangeMax = cfg_getfloat(cfg, "RANGEMAX");
     rangeMin = cfg_getfloat(cfg, "RANGEMIN");
     radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
@@ -2269,8 +2276,6 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     nColsPoints = 6;
     nRowsPoints = detSvdfitArraySize(volume);
-    
-    fprintf(stderr, "nRowsPoints = %d\n",nRowsPoints);
 
     azimAngleCol = 0;
     elevAngleCol = 1;
@@ -2477,43 +2482,43 @@ static void printGateCode(char* flags, const int gateCode) {
 
 
 
-static int printImageInt(const int* image, const int nGlobal, const char* varName) {
+//static int printImageInt(const int* image, const int nGlobal, const char* varName) {
 
-    int printCount = 0;
-    int iGlobal;
+    //int printCount = 0;
+    //int iGlobal;
     
-    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-        if (printCount < printCountMax && image[iGlobal] != 0) {
-            fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
-            printCount++;
-        }
-    }
-    if (printCount == 0) {
-        fprintf(stderr, "all entries in '%s' are 0.\n",varName);
-    }
+    //for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        //if (printCount < printCountMax && image[iGlobal] != 0) {
+            //fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
+            //printCount++;
+        //}
+    //}
+    //if (printCount == 0) {
+        //fprintf(stderr, "all entries in '%s' are 0.\n",varName);
+    //}
     
-    return 0;
-} // printImageInt
+    //return 0;
+//} // printImageInt
 
 
 
-static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName) {
+//static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName) {
 
-    int printCount = 0;
-    int iGlobal;
+    //int printCount = 0;
+    //int iGlobal;
     
-    for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-        if (printCount < printCountMax && image[iGlobal] != 0) {
-            fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
-            printCount++;
-        }
-    }
-    if (printCount == 0) {
-        fprintf(stderr, "all entries in '%s' are 0.\n",varName);
-    }
+    //for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
+        //if (printCount < printCountMax && image[iGlobal] != 0) {
+            //fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
+            //printCount++;
+        //}
+    //}
+    //if (printCount == 0) {
+        //fprintf(stderr, "all entries in '%s' are 0.\n",varName);
+    //}
     
-    return 0;
-} // printImageUChar
+    //return 0;
+//} // printImageUChar
 
 
 
@@ -2872,3 +2877,108 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 } // updateMap
 
 
+
+
+void printImageInt(const SCANMETA* meta, const unsigned char* image) {
+
+
+    int nRang = meta->nRang;
+    int nAzim = meta->nAzim;
+    int iRang;
+    int iAzim;
+    int iGlobal;
+    int maxValue;
+    int thisValue;
+    int nChars;
+    char* formatStr;
+    
+    iGlobal = 0;
+    maxValue = 0;
+    
+    fprintf(stderr,"elevAngle = %f degrees\n",meta->elev);
+    
+    
+    // first, determine how many characters are needed to print array 'image'
+    for (iAzim = 0; iAzim < nAzim; iAzim++) { 
+        
+        for (iRang = 0; iRang < nRang; iRang++) {
+            
+            thisValue = (int) image[iGlobal];
+            if (thisValue > maxValue) {
+                maxValue = thisValue;
+                fprintf(stderr,"[%d/%d,%d/%d] maxValue is now %d\n",iAzim,nAzim,iRang,nRang,maxValue);
+            } ;
+            
+            iGlobal += 1;
+            
+        }
+    }
+
+
+    fprintf(stderr,"maxValue = %d\n",maxValue);
+    nChars = (int) ceil(log(maxValue + 1)/log(10));
+    
+    switch (nChars) {
+        case 1 :
+            formatStr = " %1d";
+            break; 
+        case 2 :
+            formatStr = " %2d"; 
+            break;
+        case 3 :
+            formatStr = " %3d"; 
+            break;
+        case 4 :
+            formatStr = " %4d"; 
+            break;
+        default :
+            formatStr = " %8d"; 
+    }
+    
+    
+    iGlobal = 0;
+    
+    for (iAzim = 0; iAzim < nAzim; iAzim++) { 
+        
+        for (iRang = 0; iRang < nRang; iRang++) {
+            
+            thisValue = (int) image[iGlobal];
+            
+            fprintf(stderr,formatStr,thisValue);
+            
+            iGlobal += 1;
+            
+        }
+        fprintf(stderr,"\n");
+    }
+        
+}
+
+
+
+void printImageUChar(const SCANMETA* meta, const unsigned char* image) {
+
+    int nAzim;
+    int iAzim;
+    int nRang;
+    int iRang;
+    int iGlobal;
+
+    nAzim = meta->nAzim;
+    nRang = meta->nRang;
+    
+    int* imageInt = malloc(sizeof(int) * nRang * nAzim);
+    iGlobal = 0;
+    
+    for (iAzim = 0; iAzim < nAzim; iAzim++) {
+        for (iRang = 0; iRang < nRang; iRang++) {
+            imageInt[iGlobal] = (int) image[iGlobal];
+            iGlobal += 1;
+        }
+    }     
+
+    printImageInt(meta,imageInt);
+    
+    free(imageInt);
+    
+}
