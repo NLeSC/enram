@@ -59,8 +59,12 @@ static int nLayers;
 // printing ceases
 static int printCountMax;
 
-// whether or not to print the texture data to stderr  
-static int printTexture;
+static int printDbz;
+static int printVrad;
+static int printTex;
+static int printCell;
+static int printClut;
+
 
 // the range beyond which observations are excluded when constructing 
 // the altitude profile
@@ -1061,9 +1065,6 @@ void constructPointsArray(PolarVolume_t* volume) {
                 fprintf(stderr, "Something went wrong while mapping DBZH data from RAVE to LIBVOL2BIRD.\n");
             }
 
-            printMeta(&dbzMeta,"dbzMeta");
-            printImageUChar(&dbzMeta,&dbzImage[0]);
-
             // populate the vradMeta and vradImage variables with data from  
             // the Rave scan object:
             int rcVrad = mapDataFromRave(scan, &vradMeta, &vradImage[0],"VRAD");
@@ -1071,8 +1072,6 @@ void constructPointsArray(PolarVolume_t* volume) {
                 fprintf(stderr, "Something went wrong while mapping VRAD data from RAVE to LIBVOL2BIRD.\n");
             }
 
-            printMeta(&vradMeta,"vradMeta");
-            printImageUChar(&vradMeta,&vradImage[0]);
 
             // ------------------------------------------------------------- //
             //                      calculate vrad texture                   //
@@ -1080,15 +1079,6 @@ void constructPointsArray(PolarVolume_t* volume) {
 
             calcTexture(&texImage[0], &vradImage[0], &dbzImage[0], 
                         &texMeta, &vradMeta, &dbzMeta);
-
-            printImageUChar(&texMeta, &texImage[0]);
-
-
-            if (printCountMax > 0) {
-                printMeta(&texMeta,"texMeta");
-                printImageUChar(&texMeta,&texImage[0]);
-            }
-
 
 
             // ------------------------------------------------------------- //
@@ -1116,12 +1106,32 @@ void constructPointsArray(PolarVolume_t* volume) {
             fringeCells(&cellImage[0], cellMeta.nRang, cellMeta.nAzim, 
                 cellMeta.azimScale, cellMeta.rangeScale);
                 
-            printMeta(&cellMeta,"cellMeta");
-            printImageInt(&cellMeta,&cellImage[0]);
-            
-            printMeta(&clutterMeta,"clutterMeta");
-            printImageUChar(&clutterMeta,&clutterImage[0]);
-            
+
+            // ------------------------------------------------------------- //
+            //            print selected outputs to stderr                   //
+            // ------------------------------------------------------------- //
+
+            if (printDbz == TRUE) {
+                printMeta(&dbzMeta,"dbzMeta");
+                printImageUChar(&dbzMeta,&dbzImage[0]);
+            }
+            if (printVrad == TRUE) {
+                printMeta(&vradMeta,"vradMeta");
+                printImageUChar(&vradMeta,&vradImage[0]);
+            }
+            if (printTex == TRUE) {
+                printMeta(&texMeta,"texMeta");
+                printImageUChar(&texMeta,&texImage[0]);
+            }
+            if (printCell == TRUE) {
+                printMeta(&cellMeta,"cellMeta");
+                printImageInt(&cellMeta,&cellImage[0]);
+            }
+            if (printClut == TRUE) { 
+                printMeta(&clutterMeta,"clutterMeta");
+                printImageUChar(&clutterMeta,&clutterImage[0]);
+            }
+                        
             // ------------------------------------------------------------- //
             //    fill in the appropriate elements in the points array       //
             // ------------------------------------------------------------- //
@@ -1149,8 +1159,6 @@ void constructPointsArray(PolarVolume_t* volume) {
 
 
             } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
-
-            printImageInt(&cellMeta,&cellImage[0]);
 
             // ------------------------------------------------------------- //
             //                         clean up                              //
@@ -2150,11 +2158,11 @@ static int readUserConfigOptions(void) {
         CFG_FLOAT("RADAR_WAVELENGTH_CM",5.3f, CFGF_NONE),
         CFG_BOOL("USE_STATIC_CLUTTER_DATA",FALSE,CFGF_NONE),
         CFG_BOOL("VERBOSE_OUTPUT_REQUIRED",FALSE,CFGF_NONE),
-        CFG_BOOL("PRINT_DBZ",FALSE,CFGF_NONE),
-        CFG_BOOL("PRINT_VRAD",FALSE,CFGF_NONE),
-        CFG_BOOL("PRINT_CELL",FALSE,CFGF_NONE),
-        CFG_BOOL("PRINT_TEXTURE",FALSE,CFGF_NONE),
-        CFG_BOOL("PRINT_CLUT",FALSE,CFGF_NONE),
+        CFG_BOOL("PRINT_DBZ",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_VRAD",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_CELL",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_TEXTURE",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_CLUT",TRUE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2189,13 +2197,16 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     layerThickness = cfg_getfloat(cfg, "HLAYER");
     nLayers = cfg_getint(cfg, "NLAYER");
     printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
-    printTexture = cfg_getbool(cfg,"PRINT_TEXTURE");
     rangeMax = cfg_getfloat(cfg, "RANGEMAX");
     rangeMin = cfg_getfloat(cfg, "RANGEMIN");
     radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
     useStaticClutterData = cfg_getbool(cfg,"USE_STATIC_CLUTTER_DATA");
     verboseOutputRequired = cfg_getbool(cfg,"VERBOSE_OUTPUT_REQUIRED");
-
+    printDbz = cfg_getbool(cfg,"PRINT_DBZ");
+    printVrad = cfg_getbool(cfg,"PRINT_VRAD");
+    printTex = cfg_getbool(cfg,"PRINT_TEXTURE");
+    printCell = cfg_getbool(cfg,"PRINT_CELL");
+    printClut = cfg_getbool(cfg,"PRINT_CLUT");
 
 
     // ------------------------------------------------------------- //
@@ -2919,6 +2930,9 @@ void printImageInt(const SCANMETA* meta, const unsigned char* image) {
     nChars = (int) ceil(log(maxValue + 1)/log(10));
     
     switch (nChars) {
+        case 0 :
+            formatStr = " %1d";
+            break; 
         case 1 :
             formatStr = " %1d";
             break; 
