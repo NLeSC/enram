@@ -100,7 +100,7 @@ static int verboseOutputRequired;
 
 // when analyzing cells, AREAMIN determines the minimum size of a 
 // cell to be considered in the rest of the analysis
-static int minCellArea;
+static int nGatesCellMin;
 
 // Maximum percentage of clutter in a cell 
 static float cellClutterFractionMax;
@@ -377,8 +377,8 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     for (iCell = 0; iCell < nCells; iCell++) {
         cellProp[iCell].iRangOfMax = -1;
         cellProp[iCell].iAzimOfMax = -1;
-        cellProp[iCell].area = 0;
-        cellProp[iCell].clutterArea = 0;
+        cellProp[iCell].nGates = 0;
+        cellProp[iCell].nGatesClutter = 0;
         cellProp[iCell].dbzAvg = 0;
         cellProp[iCell].texAvg = 0;
         cellProp[iCell].dbzMax = dbzMeta->valueOffset;
@@ -409,12 +409,12 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
             fprintf(stderr,"iGlobal = %d, iCell = %d\n",iGlobal,iCell);
             #endif
 
-            cellProp[iCell].area += 1;
+            cellProp[iCell].nGates += 1;
 
             // low radial velocities are treated as clutter, not included in calculation cell properties
             if (vradValue < vradMin){
 
-                cellProp[iCell].clutterArea += 1;
+                cellProp[iCell].nGatesClutter += 1;
 
                 #ifdef FPRINTFON
                 fprintf(stderr,"iGlobal = %d: vrad too low...treating as clutter\n",iGlobal);
@@ -426,7 +426,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
             // pixels in clutter map not included in calculation cell properties
             if (useStaticClutterData == TRUE){
                 if (clutterValue > clutterValueMin){
-                    cellProp[iCell].clutterArea += 1;
+                    cellProp[iCell].nGatesClutter += 1;
                     continue;
                 }
             }
@@ -450,7 +450,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
 
     for (iCell = 0; iCell < nCells; iCell++) {
-        validArea = cellProp[iCell].area - cellProp[iCell].clutterArea;
+        validArea = cellProp[iCell].nGates - cellProp[iCell].nGatesClutter;
         if (validArea > 0){
             cellProp[iCell].dbzAvg /= validArea;
             cellProp[iCell].texAvg /= validArea;
@@ -461,14 +461,14 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     // determine which cells to drop from map based on low mean dBZ / high stdev /
     // small area / high percentage clutter
     for (iCell = 0; iCell < nCells; iCell++) {
-        if (cellProp[iCell].area < minCellArea ||
+        if (cellProp[iCell].nGates < nGatesCellMin ||
             (cellProp[iCell].dbzAvg < cellDbzMin &&
              cellProp[iCell].texAvg > cellStdDevMax &&
-             ((float) cellProp[iCell].clutterArea / cellProp[iCell].area) < cellClutterFractionMax )) { // FIXME this condition still looks wrong if you ask me
+             ((float) cellProp[iCell].nGatesClutter / cellProp[iCell].nGates) < cellClutterFractionMax )) { // FIXME this condition still looks wrong if you ask me
             // Terms 2,3 and 4 are combined with && to be conservative in labeling stuff as
             // bird migration --see discussion of issue #37 on GitHub.
             cellProp[iCell].drop = TRUE;
-            cellProp[iCell].area = 0;
+            cellProp[iCell].nGates = 0;
         }
     }
 
@@ -478,19 +478,19 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     // printing of cell properties to stderr
     if (verboseOutputRequired == TRUE){
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
-        fprintf(stderr,"#Minimum cell area in pixels   : %i\n",minCellArea);
+        fprintf(stderr,"#Minimum cell area in pixels   : %i\n",nGatesCellMin);
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
         fprintf(stderr,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
         fprintf(stderr,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
-        fprintf(stderr,"cellProp: .index .area .clutterArea .dbzAvg .texAvg   .cv .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
+        fprintf(stderr,"cellProp: .index .nGates .nGatesClutter .dbzAvg .texAvg   .cv .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
         for (iCell = 0; iCell < nCells; iCell++) {
-            if (cellProp[iCell].area == 0) {
+            if (cellProp[iCell].nGates == 0) {
                 continue;
             }
             fprintf(stderr,"cellProp: %6d %5d %12d %7.2f %7.2f %3.2f %7.2f %11d %11d %5c\n",
                     cellProp[iCell].index,
-                    cellProp[iCell].area,
-                    cellProp[iCell].clutterArea,
+                    cellProp[iCell].nGates,
+                    cellProp[iCell].nGatesClutter,
                     cellProp[iCell].dbzAvg,
                     cellProp[iCell].texAvg,
                     cellProp[iCell].cv,
@@ -2211,7 +2211,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     //              vol2bird options from constants.h                //
     // ------------------------------------------------------------- //
 
-    minCellArea = AREACELL;
+    nGatesCellMin = AREACELL;
     cellClutterFractionMax = CLUTPERCCELL;
     cellDbzMin = DBZCELL;
     chisqMin = CHISQMIN;
@@ -2612,7 +2612,7 @@ void printConfiguration(void) {
     fprintf(stderr,"%-25s = %f\n","dbzThresMin",dbzThresMin);
     fprintf(stderr,"%-25s = %f\n","fringeDist",fringeDist);
     fprintf(stderr,"%-25s = %f\n","layerThickness",layerThickness);
-    fprintf(stderr,"%-25s = %d\n","minCellArea",minCellArea);
+    fprintf(stderr,"%-25s = %d\n","nGatesCellMin",nGatesCellMin);
     fprintf(stderr,"%-25s = %d\n","nAzimNeighborhood",nAzimNeighborhood);
     fprintf(stderr,"%-25s = %d\n","nBinsGap",nBinsGap);
     fprintf(stderr,"%-25s = %d\n","nCountMin",nCountMin);
@@ -2692,7 +2692,7 @@ static void sortCells(CELLPROP *cellProp, const int nCells) {
 
         iCellOther = iCell - 1;
 
-        while (iCellOther >= 0 && cellProp[iCellOther].area * XABS(cellProp[iCellOther].drop - 1) < tmp.area * XABS(tmp.drop - 1)) {
+        while (iCellOther >= 0 && cellProp[iCellOther].nGates * XABS(cellProp[iCellOther].drop - 1) < tmp.nGates * XABS(tmp.drop - 1)) {
 
             cellProp[iCellOther + 1] = cellProp[iCellOther];
 
@@ -2829,7 +2829,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
     // sort the cells by area and determine number of valid cells
     sortCells(cellProp, nCells);
 
-    while (nCellsValid > 0 && cellProp[nCellsValid - 1].area < minCellArea) {
+    while (nCellsValid > 0 && cellProp[nCellsValid - 1].nGates < nGatesCellMin) {
         nCellsValid--;
     }
 
@@ -2850,7 +2850,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
         #ifdef FPRINTFON
         fprintf(stderr,"before: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
-        fprintf(stderr,"before: cellProp[%d].area = %d.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"before: cellProp[%d].nGates = %d.\n",iCell,cellProp[iCell].nGates);
         fprintf(stderr,"before: iCell = %d.\n",iCell);
         fprintf(stderr,"before: iCellNew = %d.\n",iCellNew);
         fprintf(stderr,"\n");
@@ -2889,7 +2889,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
         #ifdef FPRINTFON
         fprintf(stderr,"after: cellProp[%d].index = %d.\n",iCell,cellProp[iCell].index);
-        fprintf(stderr,"after: cellProp[%d].area = %d.\n",iCell,cellProp[iCell].area);
+        fprintf(stderr,"after: cellProp[%d].nGates = %d.\n",iCell,cellProp[iCell].nGates);
         fprintf(stderr,"\n");
         #endif
     }
