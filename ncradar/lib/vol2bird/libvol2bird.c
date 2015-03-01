@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <unistd.h>
+//#include <unistd.h>
 
 #include "polarvolume.h"
 #include "libvol2bird.h"
@@ -2930,7 +2930,6 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
             thisValue = (int) imageInt[iGlobal];
             if (thisValue > maxValue) {
                 maxValue = thisValue;
-                fprintf(stderr,"[%d/%d,%d/%d] maxValue is now %d\n",iAzim,nAzim,iRang,nRang,maxValue);
             } ;
             
             iGlobal += 1;
@@ -2939,7 +2938,6 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
     }
 
 
-    fprintf(stderr,"maxValue = %d\n",maxValue);
     nChars = (int) ceil(log(maxValue + 1)/log(10));
     
     switch (nChars) {
