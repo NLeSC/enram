@@ -531,12 +531,18 @@ static float calcDist(const int iRang1, const int iAzim1, const int iRang2, cons
 
 
 
-void calcProfile(const int iProfileType) {
+void calcProfile(PolarVolume_t* volume, const int iProfileType) {
  
         if (initializationSuccessful==FALSE) {
             fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
             return;
         }
+
+        // construct the 'points' array
+        constructPointsArray(volume);
+
+        // classify the gates based on the data in 'points'
+        classifyGatesSimple();
         
         // ------------------------------------------------------------- //
         //                        prepare the profile                    //
@@ -871,7 +877,7 @@ static void calcTexture(unsigned char* texImage, const unsigned char* vradImage,
 
 
 
-void classifyGatesSimple(void) {
+static void classifyGatesSimple(void) {
     
     
     if (initializationSuccessful==FALSE) {
@@ -1007,7 +1013,7 @@ static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* s
 
 
 
-void constructPointsArray(PolarVolume_t* volume) {
+static void constructPointsArray(PolarVolume_t* volume) {
     
         if (initializationSuccessful==FALSE) {
             fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
@@ -2411,10 +2417,12 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
         double* valuePtr = &value;
         unsigned char valueUChar;
         
-        for (iRang = 0; iRang < nRang; iRang++) {
-            for (iAzim = 0; iAzim < nAzim; iAzim++) {
-
+        
+        for (iAzim = 0; iAzim < nAzim; iAzim++) {
+            for (iRang = 0; iRang < nRang; iRang++) {
+            
                 RaveValueType t = PolarScanParam_getValue(param, iRang, iAzim, valuePtr);
+                
                 if (0 <= value && value <=255) {
                     valueUChar = (unsigned char) value;
                 }
@@ -2890,7 +2898,7 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
 
 
-void printImageInt(const SCANMETA* meta, const unsigned char* image) {
+void printImageInt(const SCANMETA* meta, const int* imageInt) {
 
 
     int nRang = meta->nRang;
@@ -2909,12 +2917,12 @@ void printImageInt(const SCANMETA* meta, const unsigned char* image) {
     fprintf(stderr,"elevAngle = %f degrees\n",meta->elev);
     
     
-    // first, determine how many characters are needed to print array 'image'
+    // first, determine how many characters are needed to print array 'imageInt'
     for (iAzim = 0; iAzim < nAzim; iAzim++) { 
         
         for (iRang = 0; iRang < nRang; iRang++) {
             
-            thisValue = (int) image[iGlobal];
+            thisValue = (int) imageInt[iGlobal];
             if (thisValue > maxValue) {
                 maxValue = thisValue;
                 fprintf(stderr,"[%d/%d,%d/%d] maxValue is now %d\n",iAzim,nAzim,iRang,nRang,maxValue);
@@ -2955,8 +2963,10 @@ void printImageInt(const SCANMETA* meta, const unsigned char* image) {
     for (iAzim = 0; iAzim < nAzim; iAzim++) { 
         
         for (iRang = 0; iRang < nRang; iRang++) {
+    
+            iGlobal = iRang + iAzim * nRang;
             
-            thisValue = (int) image[iGlobal];
+            thisValue = (int) imageInt[iGlobal];
             
             fprintf(stderr,formatStr,thisValue);
             
@@ -2970,7 +2980,7 @@ void printImageInt(const SCANMETA* meta, const unsigned char* image) {
 
 
 
-void printImageUChar(const SCANMETA* meta, const unsigned char* image) {
+void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
 
     int nAzim;
     int iAzim;
@@ -2986,8 +2996,11 @@ void printImageUChar(const SCANMETA* meta, const unsigned char* image) {
     
     for (iAzim = 0; iAzim < nAzim; iAzim++) {
         for (iRang = 0; iRang < nRang; iRang++) {
-            imageInt[iGlobal] = (int) image[iGlobal];
+            
+            iGlobal = iRang + iAzim * nRang;
+            imageInt[iGlobal] = (int) imageUChar[iGlobal];
             iGlobal += 1;
+            
         }
     }     
 
