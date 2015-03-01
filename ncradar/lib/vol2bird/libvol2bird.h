@@ -86,18 +86,18 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
 static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
 
-void calcProfile(const int iProfileType);
+void calcProfile(PolarVolume_t* volume, const int iProfileType);
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
                         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta);
 
-void classifyGatesSimple(void);
+static void classifyGatesSimple(void);
 
 static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, const int nGlobal, const int initValue);
 
 static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, const int nGlobal, const unsigned char initValue);
 
-void constructPointsArray(PolarVolume_t* volume);
+static void constructPointsArray(PolarVolume_t* volume);
 
 static int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
                             const int nRang, const int nAzim, const float radarHeight);
@@ -157,6 +157,6 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
 
 
-void printImageInt(const SCANMETA* meta, const unsigned char* image);
+void printImageInt(const SCANMETA* meta, const int* imageInt);
 
-void printImageUChar(const SCANMETA* meta, const unsigned char* image);
+void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
