@@ -61,8 +61,8 @@ struct cellprop {
     float dbzAvg;
     float texAvg;
     float cv;
-    int area;
-    int clutterArea;
+    int nGates;
+    int nGatesClutter;
     float dbzMax;
     int index;
     int drop;

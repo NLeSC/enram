@@ -5,7 +5,7 @@
 #define DBZCLUTTER                -10.0
 #define DBZMAX                    20.0
 #define DBZMIN                    -100.0
-#define EMASKMAX                  500.0
+#define FRINGEDIST                5000.0
 #define NBINSGAP                  8
 #define NDBZMIN                   25
 #define NEIGHBORS                 5

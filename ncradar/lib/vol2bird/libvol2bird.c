@@ -482,12 +482,12 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
         fprintf(stderr,"#Threshold for mean stdev cell : %g dBZ\n",cellStdDevMax);
         fprintf(stderr,"#Valid cells                   : %i/%i\n#\n",nCellsValid,nCells);
-        fprintf(stderr,"cellProp: .index .nGates .nGatesClutter .dbzAvg .texAvg   .cv .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
+        fprintf(stderr,"cellProp: .index .nGates .nGatesClutter .dbzAvg .texAvg .cv   .dbzMax .iRangOfMax .iAzimOfMax .drop\n");
         for (iCell = 0; iCell < nCells; iCell++) {
             if (cellProp[iCell].nGates == 0) {
                 continue;
             }
-            fprintf(stderr,"cellProp: %6d %5d %12d %7.2f %7.2f %3.2f %7.2f %11d %11d %5c\n",
+            fprintf(stderr,"cellProp: %6d %7d %14d %7.2f %7.2f %5.2f %7.2f %11d %11d %5c\n",
                     cellProp[iCell].index,
                     cellProp[iCell].nGates,
                     cellProp[iCell].nGatesClutter,
@@ -2218,7 +2218,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     clutterValueMin = DBZCLUTTER;
     dbzMax = DBZMAX;
     dbzThresMin = DBZMIN;
-    fringeDist = EMASKMAX;
+    fringeDist = FRINGEDIST;
     nBinsGap = NBINSGAP;
     nPointsIncludedMin = NDBZMIN;
     nNeighborsMin = NEIGHBORS;
