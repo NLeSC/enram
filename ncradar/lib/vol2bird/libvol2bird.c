@@ -59,12 +59,23 @@ static int nLayers;
 // printing ceases
 static int printCountMax;
 
+// whether or not to print each scan's raw dbz values to stderr
 static int printDbz;
+
+// whether or not to print each scan's raw vrad values to stderr
 static int printVrad;
+
+// whether or not to print each scan's raw tex values to stderr
 static int printTex;
+
+// whether or not to print each scan's cell values to stderr
 static int printCell;
+
+// whether or not to print each scan's clutter values to stderr
 static int printClut;
 
+// whether or not to print vol2bird's configuration options to stderr
+static int printOptions;
 
 // the range beyond which observations are excluded when constructing 
 // the altitude profile
@@ -531,19 +542,13 @@ static float calcDist(const int iRang1, const int iAzim1, const int iRang2, cons
 
 
 
-void calcProfile(PolarVolume_t* volume, const int iProfileType) {
+void calcProfile(const int iProfileType) {
  
         if (initializationSuccessful==FALSE) {
             fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
             return;
         }
 
-        // construct the 'points' array
-        constructPointsArray(volume);
-
-        // classify the gates based on the data in 'points'
-        classifyGatesSimple();
-        
         // ------------------------------------------------------------- //
         //                        prepare the profile                    //
         // ------------------------------------------------------------- //
@@ -879,12 +884,6 @@ static void calcTexture(unsigned char* texImage, const unsigned char* vradImage,
 
 static void classifyGatesSimple(void) {
     
-    
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-    
     int iPoint;
     
     for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
@@ -1015,11 +1014,6 @@ static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* s
 
 static void constructPointsArray(PolarVolume_t* volume) {
     
-        if (initializationSuccessful==FALSE) {
-            fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-            return;
-        }
-
         // iterate over the scans in 'volume'
         int iScan;
         int nScans;
@@ -1159,7 +1153,7 @@ static void constructPointsArray(PolarVolume_t* volume) {
                 nPointsWritten[iLayer] += n;
 
                 if (indexFrom[iLayer] + nPointsWritten[iLayer] > indexTo[iLayer]) {
-                    fprintf(stderr, "Problem occured: writing over existing data\n");
+                    fprintf(stderr, "Problem occurred: writing over existing data\n");
                     return;
                 }
 
@@ -2119,14 +2113,14 @@ void printProfile(void) {
 
     fprintf(stderr,"altmin-altmax: [u         ,v         ,w         ]; "
                    "hSpeed  , hDir    , chi     , hasGap  , dbzAvg  ,"
-                   " nPoints, eta     , rhobird \n");
+                   " nPoints, eta         , rhobird \n");
 
     int iLayer;
     
     for (iLayer = nLayers - 1; iLayer >= 0; iLayer--) {
         
         fprintf(stderr,"%6.0f-%-6.0f: [%10.2f,%10.2f,%10.2f]; %8.2f, "
-        "%8.1f, %8.1f, %8c, %8.2f, %7.0f, %8.2f, %8.2f\n",
+        "%8.1f, %8.1f, %8c, %8.2f, %7.0f, %12.2f, %8.2f\n",
         profile[iLayer * nColsProfile +  0],
         profile[iLayer * nColsProfile +  1],
         profile[iLayer * nColsProfile +  2],
@@ -2169,6 +2163,7 @@ static int readUserConfigOptions(void) {
         CFG_BOOL("PRINT_CELL",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_TEXTURE",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_CLUT",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_OPTIONS",TRUE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2193,7 +2188,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
         fprintf(stderr, "An error occurred while reading the user configuration file 'options.conf'.\n");
         return -1; 
     }
-    
+   
     // ------------------------------------------------------------- //
     //              vol2bird options from options.conf               //
     // ------------------------------------------------------------- //
@@ -2213,7 +2208,7 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     printTex = cfg_getbool(cfg,"PRINT_TEXTURE");
     printCell = cfg_getbool(cfg,"PRINT_CELL");
     printClut = cfg_getbool(cfg,"PRINT_CLUT");
-
+    printOptions = cfg_getbool(cfg,"PRINT_OPTIONS");
 
     // ------------------------------------------------------------- //
     //              vol2bird options from constants.h                //
@@ -2239,6 +2234,18 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     cellStdDevMax = STDEVCELL;
     absVDifMax = VDIFMAX;
     vradMin = VRADMIN;
+
+
+
+
+    // ------------------------------------------------------------- //
+    //                       some other variables                    //
+    // ------------------------------------------------------------- //
+
+    rCellMax = rangeMax + 5000.0f;
+    nDims = 2;
+    nParsFitted = 3;
+    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
 
 
 
@@ -2317,10 +2324,9 @@ int setUpVol2Bird(PolarVolume_t* volume) {
             points[iRowPoints*nColsPoints + iColPoints] = NAN;
         }
     }
-    // ------------------------------------------------------------- //
-    //          information about the flagfields of 'gateCode'       //
-    // ------------------------------------------------------------- //
 
+    // information about the flagfields of 'gateCode'
+    
     flagPositionStaticClutter = 0;
     flagPositionDynamicClutter = 1;
     flagPositionDynamicClutterFringe = 2;
@@ -2330,6 +2336,12 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     flagPositionVDifMax = 6;
     flagPositionAzimTooLow = 7;
     flagPositionAzimTooHigh = 8;
+
+    // construct the 'points' array
+    constructPointsArray(volume);
+
+    // classify the gates based on the data in 'points'
+    classifyGatesSimple();
 
 
 
@@ -2361,19 +2373,12 @@ int setUpVol2Bird(PolarVolume_t* volume) {
 
     iProfileTypeLast = -1;
 
-
-
-
-    // ------------------------------------------------------------- //
-    //                       some other variables                    //
-    // ------------------------------------------------------------- //
-
-    rCellMax = rangeMax + 5000.0f;
-    nDims = 2;
-    nParsFitted = 3;
-    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
     initializationSuccessful = TRUE;
-    
+
+    if (TRUE) {
+        printConfiguration();
+    }
+
     return 0;
 
 } // setUpVol2Bird
@@ -2583,7 +2588,7 @@ static int printMeta(const SCANMETA* meta, const char* varName) {
 
 
 
-void printOptions(void) {
+void printConfiguration(void) {
     
     // ------------------------------------------------------- //
     // this function prints vol2bird's configuration to stderr //

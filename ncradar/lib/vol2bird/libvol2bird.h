@@ -95,7 +95,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
 
 static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
 
-void calcProfile(PolarVolume_t* volume, const int iProfileType);
+void calcProfile(const int iProfileType);
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
                         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta);
@@ -135,15 +135,15 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta,
 
 static void printGateCode(char* flags, const int gateCode);
 
-//static int printImageInt(const int* image, const int nGlobal, const char* varName);
+void printImageInt(const SCANMETA* meta, const int* imageInt);
 
-//static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName);
+void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
     
 void printIndexArrays(void);
     
 static int printMeta(const SCANMETA* meta, const char* varName);
 
-void printOptions(void);
+void printConfiguration(void);
 
 void printPointsArray(void);
 
@@ -162,10 +162,3 @@ static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitte
 
 static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
-
-
-
-
-void printImageInt(const SCANMETA* meta, const int* imageInt);
-
-void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
