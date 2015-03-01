@@ -19,9 +19,6 @@
 #include <confuse.h>
 #include <stdlib.h>
 #include <math.h>
-
-//#include <unistd.h>
-
 #include "polarvolume.h"
 #include "libvol2bird.h"
 #include "libsvdfit.h"
@@ -1683,12 +1680,12 @@ static void fringeCells(int *cellImage, int nRang, int nAzim, float aScale, floa
                     continue; // with the next iGlobal
                 }
 
-                if (cellImage[iLocal] < 1) { //FIXME THIS SHOULD BE <=1, BUT THEN TAKES MUCH MUCH LONGER
+                if (cellImage[iLocal] <= 1) {
                     isEdge = TRUE;
                 }
 
-            } //NOW ONLY CELL PIXELS WITHOUT ANY BORDERING FRINGE ARE 'FRINGED'
-
+            }
+            
             if (isEdge == FALSE) {
                 continue; // with the next iGlobal
             }
@@ -2911,13 +2908,17 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
     int iRang;
     int iAzim;
     int iGlobal;
+    int needsSignChar;
     int maxValue;
+    
+
     int thisValue;
     int nChars;
     char* formatStr;
     
     iGlobal = 0;
     maxValue = 0;
+    needsSignChar = FALSE;
     
     fprintf(stderr,"elevAngle = %f degrees\n",meta->elev);
     
@@ -2927,7 +2928,10 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
         
         for (iRang = 0; iRang < nRang; iRang++) {
             
-            thisValue = (int) imageInt[iGlobal];
+            thisValue = (int) XABS(imageInt[iGlobal]);
+            if (imageInt[iGlobal] < 0) {
+                needsSignChar = TRUE;
+            }
             if (thisValue > maxValue) {
                 maxValue = thisValue;
             } ;
@@ -2939,6 +2943,10 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
 
 
     nChars = (int) ceil(log(maxValue + 1)/log(10));
+
+    if (needsSignChar) {
+        nChars += 1;
+    }
     
     switch (nChars) {
         case 0 :
