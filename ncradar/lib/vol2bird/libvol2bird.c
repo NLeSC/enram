@@ -74,6 +74,9 @@ static int printClut;
 // whether or not to print vol2bird's configuration options to stderr
 static int printOptions;
 
+// whether or not a model should be fitted to the observed vrad values
+static int fitVrad;
+
 // the range beyond which observations are excluded when constructing 
 // the altitude profile
 static float rangeMax;
@@ -540,7 +543,12 @@ static float calcDist(const int iRang1, const int iAzim1, const int iRang2, cons
 
 
 void calcProfile(const int iProfileType) {
- 
+
+        int nPasses;
+        int iPoint;
+        int iLayer;
+        int iPass;
+
         if (initializationSuccessful==FALSE) {
             fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
             return;
@@ -549,24 +557,28 @@ void calcProfile(const int iProfileType) {
         // ------------------------------------------------------------- //
         //                        prepare the profile                    //
         // ------------------------------------------------------------- //
-        
+
         iProfileTypeLast = iProfileType;
-           
-        int iPoint;
-        
+
+        // if the user does not require fitting a model to the observed 
+        // vrad values, one pass is enough 
+        if (fitVrad == TRUE) {
+            nPasses = 2;
+        } 
+        else {
+            nPasses = 1;
+        }
+
         // reset the flagPositionVDifMax bit before calculating each profile
         for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
             int gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
             points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode &= ~(1<<flagPositionVDifMax));
         }
         
-        int iLayer;
         
         for (iLayer = 0; iLayer < nLayers; iLayer++) {
 
-            int iPassSvdfit;
-
-            for (iPassSvdfit = 0; iPassSvdfit < 2; iPassSvdfit++) {
+            for (iPass = 0; iPass < nPasses; iPass++) {
 
                 const int iPointFrom = indexFrom[iLayer];
                 const int iPointTo = indexTo[iLayer];
@@ -633,17 +645,17 @@ void calcProfile(const int iProfileType) {
                     if (includeGate(iProfileType,gateCode) == TRUE) {
 
                         // copy azimuth angle from the 'points' array
-                        pointsSelection[iPointIncluded * nDims + 0] = points[iPointLayer * nColsPoints + 0];
+                        pointsSelection[iPointIncluded * nDims + 0] = points[iPointLayer * nColsPoints + azimAngleCol];
                         // copy elevation angle from the 'points' array
-                        pointsSelection[iPointIncluded * nDims + 1] = points[iPointLayer * nColsPoints + 1];
+                        pointsSelection[iPointIncluded * nDims + 1] = points[iPointLayer * nColsPoints + elevAngleCol];
                         // get the dbz value at this [azimuth, elevation] 
-                        dbzValue = points[iPointLayer * nColsPoints + 2];
+                        dbzValue = points[iPointLayer * nColsPoints + dbzValueCol];
                         // convert from dB scale to linear scale 
                         undbzValue = (float) exp(0.1*log(10)*dbzValue);
                         // sum the undbz in this layer
                         undbzSum += undbzValue;
                         // copy the observed vrad value at this [azimuth, elevation] 
-                        yObs[iPointIncluded] = points[iPointLayer * nColsPoints + 3];
+                        yObs[iPointIncluded] = points[iPointLayer * nColsPoints + vradValueCol];
                         // pre-allocate the fitted vrad value at this [azimuth,elevation]
                         yFitted[iPointIncluded] = 0.0f;
                         // keep a record of which index was just included
@@ -655,13 +667,15 @@ void calcProfile(const int iProfileType) {
                     }
                 } // endfor (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
                 nPointsIncluded = iPointIncluded;
-                undbzAvg = (float) (undbzSum/nPointsIncluded);
+                
                 
                 if (nPointsIncluded > nPointsIncludedMin) {   
                     // when there are enough valid points, convert undbzAvg back to dB-scale
+                    undbzAvg = (float) (undbzSum/nPointsIncluded);
                     dbzAvg = (10*log(undbzAvg))/log(10);
                 }
                 else {
+                    undbzAvg = NAN;
                     dbzAvg = NAN;
                 }
 
@@ -681,45 +695,47 @@ void calcProfile(const int iProfileType) {
 
                 // check if there are directions that have almost no observations
                 // (as this makes the svdfit result really uncertain)  
-
                 hasGap = hasAzimuthGap(&pointsSelection[0], nPointsIncluded);
                 
-                if (hasGap==FALSE) {
-                    
-                    // ------------------------------------------------------------- //
-                    //                       do the svdfit                           //
-                    // ------------------------------------------------------------- //
+                if (fitVrad == TRUE) {
 
-                    chisq = svdfit(&pointsSelection[0], nDims, &yObs[0], &yFitted[0], 
-                            nPointsIncluded, &parameterVector[0], &avar[0], nParsFitted);
+                    if (hasGap==FALSE) {
+                        
+                        // ------------------------------------------------------------- //
+                        //                       do the svdfit                           //
+                        // ------------------------------------------------------------- //
 
-                    if (chisq < chisqMin) {
-                        // the fit was not good enough, reset parameter vector array 
-                        // elements to NAN and continue with the next layer
-                        parameterVector[0] = NAN;
-                        parameterVector[1] = NAN;
-                        parameterVector[2] = NAN;
-                        continue;
-                    } 
-                    else {
-                        
-                        chi = sqrt(chisq);
-                        hSpeed = sqrt(pow(parameterVector[0],2) + pow(parameterVector[1],2));
-                        hDir = (atan2(parameterVector[0],parameterVector[1])*RAD2DEG);
-                        
-                        if (hDir < 0) {
-                            hDir += 360.0f;
+                        chisq = svdfit(&pointsSelection[0], nDims, &yObs[0], &yFitted[0], 
+                                nPointsIncluded, &parameterVector[0], &avar[0], nParsFitted);
+
+                        if (chisq < chisqMin) {
+                            // the fit was not good enough, reset parameter vector array 
+                            // elements to NAN and continue with the next layer
+                            parameterVector[0] = NAN;
+                            parameterVector[1] = NAN;
+                            parameterVector[2] = NAN;
+                            continue;
+                        } 
+                        else {
+                            
+                            chi = sqrt(chisq);
+                            hSpeed = sqrt(pow(parameterVector[0],2) + pow(parameterVector[1],2));
+                            hDir = (atan2(parameterVector[0],parameterVector[1])*RAD2DEG);
+                            
+                            if (hDir < 0) {
+                                hDir += 360.0f;
+                            }
+                            
                         }
-                        
-                    }
-                } // hasGap == FALSE
-                
-                // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
-                // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
-                // gate in the secong svdfit iteration
-                updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
-                                              &points[0]);
+                    } // endif (hasGap == FALSE)
+                    
+                    // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
+                    // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
+                    // gate in the second svdfit iteration
+                    updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
+                                                  &points[0]);
 
+                }; // endif (fitVrad == TRUE)
 
                 profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
                 profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
@@ -740,7 +756,7 @@ void calcProfile(const int iProfileType) {
                 free((void*) yFitted);
                 free((void*) pointsSelection);
         
-            } // endfor (iPassSvdfit = 0; iPassSvdfit < 2; iPassSvdfit++)
+            } // endfor (iPass = 0; iPass < nPasses; iPass++)
             
         } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
 
@@ -2161,6 +2177,7 @@ static int readUserConfigOptions(void) {
         CFG_BOOL("PRINT_TEXTURE",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_CLUT",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_OPTIONS",TRUE,CFGF_NONE),
+        CFG_BOOL("FIT_VRAD",TRUE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2206,6 +2223,10 @@ int setUpVol2Bird(PolarVolume_t* volume) {
     printCell = cfg_getbool(cfg,"PRINT_CELL");
     printClut = cfg_getbool(cfg,"PRINT_CLUT");
     printOptions = cfg_getbool(cfg,"PRINT_OPTIONS");
+    fitVrad = cfg_getbool(cfg,"FIT_VRAD");
+
+
+
 
     // ------------------------------------------------------------- //
     //              vol2bird options from constants.h                //
