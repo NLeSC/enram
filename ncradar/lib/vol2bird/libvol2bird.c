@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "polarvolume.h"
+#include "polarscan.h"
 #include "libvol2bird.h"
 #include "libsvdfit.h"
 #include "constants.h"
@@ -2006,6 +2007,16 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
 
 
 
+static void mapDataToRave(void) {
+    
+ //   VerticalProfile_t profileRave;
+    
+    
+    
+}
+
+
+
 
 static void printGateCode(char* flags, const int gateCode) {
     
@@ -3007,7 +3018,7 @@ int vol2birdSetUp(PolarVolume_t* volume) {
 
     initializationSuccessful = TRUE;
 
-    if (TRUE) {
+    if (printOptions == TRUE) {
         vol2birdPrintOptions();
     }
 
