@@ -127,7 +127,7 @@ static float dbzMax;
 // minimum dbz used in calculation of cell dbzAvg
 static float dbzThresMin;
 
-// each weather cell identified by findCells() is grown by a distance 
+// each weather cell identified by findWeatherCells() is grown by a distance 
 // equal to 'fringeDist' using a region-growing approach
 static float fringeDist;
 
@@ -140,7 +140,7 @@ static int nBinsGap;
 static int nPointsIncludedMin;
 
 // the minimum number of direct neighbors with dbz value above 
-// dbzThresMin as used in findCells()
+// dbzThresMin as used in findWeatherCells()
 static int nNeighborsMin;
 
 // there should be at least NOBSGAPMIN vrad observations in each 
@@ -341,9 +341,9 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
         const int nCells, const int useStaticClutterData) {
 
     // ----------------------------------------------------------------------------------- // 
-    //  This function analyzes the cellImage array found by the 'findCells' procedure.     //
-    //  Small cells are rejected and the cells are re-numbered according to size.          //
-    //  The final number of cells in cellImage is returned as an integer.                  // 
+    //  This function analyzes the cellImage array found by the 'findWeatherCells'         //
+    //  procedure. Small cells are rejected and the cells are re-numbered according        //
+    //  to size. The final number of cells in cellImage is returned as an integer.         // 
     // ----------------------------------------------------------------------------------- //
 
     CELLPROP *cellProp;
@@ -882,7 +882,7 @@ static void constructPointsArray(PolarVolume_t* volume) {
             //        find (weather) cells in the reflectivity image         //
             // ------------------------------------------------------------- //
             
-            int nCells = findCells(&dbzImage[0], &cellImage[0], 
+            int nCells = findWeatherCells(&dbzImage[0], &cellImage[0], 
                                    &dbzMeta);
             
             if (printCellProp == TRUE) {
@@ -1098,7 +1098,7 @@ static int detSvdfitArraySize(PolarVolume_t* volume) {
 
 
 
-static int findCells(const unsigned char *dbzImage, int *cellImage,
+static int findWeatherCells(const unsigned char *dbzImage, int *cellImage,
         const SCANMETA *dbzMeta) {
 
     //  ----------------------------------------------------------------------------- //
@@ -1355,7 +1355,7 @@ static int findCells(const unsigned char *dbzImage, int *cellImage,
     nCells = iCellIdentifier;
 
     return nCells;
-} // findCells
+} // findWeatherCells
 
 
 

@@ -111,7 +111,7 @@ static int detNumberOfGates(const int iLayer, const float rangeScale, const floa
 
 static int detSvdfitArraySize(PolarVolume_t* volume);
 
-static int findCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
+static int findWeatherCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
 
 static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
                                const int nAzimChild,  const int nRangChild,  const int iChild);
