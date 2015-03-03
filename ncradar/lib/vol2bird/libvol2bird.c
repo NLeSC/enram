@@ -19,6 +19,8 @@
 #include <confuse.h>
 #include <stdlib.h>
 #include <math.h>
+#include <vertical_profile.h>
+
 #include "polarvolume.h"
 #include "polarscan.h"
 #include "libvol2bird.h"
@@ -2009,9 +2011,16 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* val
 
 static void mapDataToRave(void) {
     
- //   VerticalProfile_t profileRave;
+    // initialize the profile object
+    VerticalProfile_t* profileRave = NULL;
+
+    VerticalProfile_setLevels(profileRave,nLayers);
+    VerticalProfile_setInterval(profileRave,layerThickness);
+
+    RAVE_OBJECT_RELEASE(profileRave);
+
     
-    
+    return;
     
 }
 

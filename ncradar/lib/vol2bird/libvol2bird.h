@@ -131,11 +131,11 @@ static int includeGate(const int iProfileType, const int gateCode);
 static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
                            unsigned char *values, char *paramStr);
 
+static void mapDataToRave(void);
+
 static void printGateCode(char* flags, const int gateCode);
 
 static int printMeta(const SCANMETA* meta, const char* varName);
-
-//static int readUserConfig(void);
 
 static void sortCells(CELLPROP *cellProp, const int nCells);
 
