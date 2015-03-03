@@ -91,11 +91,9 @@ typedef struct scanmeta SCANMETA;
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
                         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
                         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-                        const int nCells, const int useStaticClutterData, const int verboseOutputRequired);
+                        const int nCells, const int useStaticClutterData);
 
 static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
-
-void calcProfile(const int iProfileType);
 
 static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
                         const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta);
@@ -135,30 +133,30 @@ static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta,
 
 static void printGateCode(char* flags, const int gateCode);
 
-void printImageInt(const SCANMETA* meta, const int* imageInt);
-
-void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
-    
-void printIndexArrays(void);
-    
 static int printMeta(const SCANMETA* meta, const char* varName);
 
-void printConfiguration(void);
-
-void printPointsArray(void);
-
-void printProfile(void);
-
-static int readUserConfigOptions(void);
-
-int setUpVol2Bird(PolarVolume_t* volume);
+//static int readUserConfig(void);
 
 static void sortCells(CELLPROP *cellProp, const int nCells);
 
-void tearDownVol2Bird();
-
 static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
                                           const int nPointsIncluded, float* points);
-
 static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
+void vol2birdCalcProfiles();
+
+void vol2birdPrintImageInt(const SCANMETA* meta, const int* imageInt);
+
+void vol2birdPrintImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
+
+void vol2birdPrintIndexArrays(void);
+
+void vol2birdPrintOptions(void);
+
+void vol2birdPrintPointsArray(void);
+
+void vol2birdPrintProfile(void);
+    
+int vol2birdSetUp(PolarVolume_t* volume);
+
+void vol2birdTearDown();

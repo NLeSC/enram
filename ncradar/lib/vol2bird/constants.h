@@ -16,5 +16,6 @@
 #define REFRACTIVE_INDEX_OF_WATER 0.964
 #define SIGMABIRD                 11.0
 #define STDEVCELL                 5.0
+#define STDEVBIRD                 2.0
 #define VDIFMAX                   10.0
 #define VRADMIN                   1.0

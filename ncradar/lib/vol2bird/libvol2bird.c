@@ -52,10 +52,6 @@ static float layerThickness;
 // the number of layers in an altitude profile
 static int nLayers;
 
-// the maximum number that printCount is allowed to reach before 
-// printing ceases
-static int printCountMax;
-
 // whether or not to print each scan's raw dbz values to stderr
 static int printDbz;
 
@@ -68,11 +64,20 @@ static int printTex;
 // whether or not to print each scan's cell values to stderr
 static int printCell;
 
+// whether or not to print each scan's cell properties to stderr
+static int printCellProp;
+
 // whether or not to print each scan's clutter values to stderr
 static int printClut;
 
 // whether or not to print vol2bird's configuration options to stderr
 static int printOptions;
+
+// whether or not to print vol2bird's profiled data to stderr
+static int printProfile;
+
+// whether or not to print the 'points' array
+static int printPointsArray;
 
 // whether or not a model should be fitted to the observed vrad values
 static int fitVrad;
@@ -90,9 +95,6 @@ static float radarWavelength;
 
 // whether clutter data is used
 static int useStaticClutterData;
-
-// whether verbose output is required
-static int verboseOutputRequired;
 
 
 
@@ -167,6 +169,9 @@ static float birdRadarCrossSection;
 // (aka the texture) is less than STDEVCELL are considered in the
 // rest of the analysis
 static float cellStdDevMax;
+
+// Minimum radial velocity standard deviation to be labeled as birds
+static float stdDevMinBird;
 
 // after fitting the vrad data, throw out any vrad observations that 
 // are more that VDIFMAX away from the fitted value, since these are
@@ -321,8 +326,10 @@ static float dbzFactor;
 // whether the vol2bird module has been initialized
 static int initializationSuccessful = FALSE;
 
-
-
+// during calculation of iProfileType == 3, use this array to store the
+// result of (chi < stdDevMinBird), such that it can be used later during 
+// calculation of iProfileType == 1
+static int* scatterersAreNotBirds;
 
 
 
@@ -331,7 +338,7 @@ static int initializationSuccessful = FALSE;
 static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
         const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
         const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-        const int nCells, const int useStaticClutterData, const int verboseOutputRequired) {
+        const int nCells, const int useStaticClutterData) {
 
     // ----------------------------------------------------------------------------------- // 
     //  This function analyzes the cellImage array found by the 'findCells' procedure.     //
@@ -479,7 +486,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
     nCellsValid = updateMap(cellImage,nGlobal,cellProp,nCells);
 
     // printing of cell properties to stderr
-    if (verboseOutputRequired == TRUE){
+    if (printCellProp == TRUE) {
         fprintf(stderr,"#Cell analysis for elevation %f:\n",dbzMeta->elev);
         fprintf(stderr,"#Minimum cell area in pixels   : %i\n",nGatesCellMin);
         fprintf(stderr,"#Threshold for mean dBZ cell   : %g dBZ\n",cellDbzMin);
@@ -502,7 +509,7 @@ static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vrad
                     cellProp[iCell].iAzimOfMax,
                     cellProp[iCell].drop == TRUE ? 'T' : 'F');
         }
-    }
+    } // endif (printCellProp == TRUE)
 
     free(cellProp);
 
@@ -538,229 +545,6 @@ static float calcDist(const int iRang1, const int iAzim1, const int iRang2, cons
 
 } // calcDist
 
-
-
-
-
-void calcProfile(const int iProfileType) {
-
-        int nPasses;
-        int iPoint;
-        int iLayer;
-        int iPass;
-
-        if (initializationSuccessful==FALSE) {
-            fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-            return;
-        }
-
-        // ------------------------------------------------------------- //
-        //                        prepare the profile                    //
-        // ------------------------------------------------------------- //
-
-        iProfileTypeLast = iProfileType;
-
-        // if the user does not require fitting a model to the observed 
-        // vrad values, one pass is enough 
-        if (fitVrad == TRUE) {
-            nPasses = 2;
-        } 
-        else {
-            nPasses = 1;
-        }
-
-        // reset the flagPositionVDifMax bit before calculating each profile
-        for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
-            int gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
-            points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode &= ~(1<<flagPositionVDifMax));
-        }
-        
-        
-        for (iLayer = 0; iLayer < nLayers; iLayer++) {
-
-            for (iPass = 0; iPass < nPasses; iPass++) {
-
-                const int iPointFrom = indexFrom[iLayer];
-                const int iPointTo = indexTo[iLayer];
-                const int nPointsLayer = nPointsWritten[iLayer];
-
-                int iPointLayer;
-                int iPointIncluded;
-                int nPointsIncluded;
-
-                float parameterVector[] = {NAN,NAN,NAN};
-                float avar[] = {NAN,NAN,NAN};
-                
-                float* pointsSelection = malloc(sizeof(float) * nPointsLayer * nDims);
-                float* yObs = malloc(sizeof(float) * nPointsLayer);
-                float* yFitted = malloc(sizeof(float) * nPointsLayer);
-                int* includedIndex = malloc(sizeof(int) * nPointsLayer);
-                
-                float dbzValue = NAN;
-                float undbzValue = NAN;
-                double undbzSum = 0.0;
-                float undbzAvg = NAN;
-                float dbzAvg = NAN;
-                float birdDensity = NAN;
-                float reflectivity = NAN;
-                int hasGap = TRUE;
-                float chisq = NAN;
-                float chi = NAN;
-                float hSpeed = NAN;
-                float hDir = NAN;
-
-
-                for (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
-
-                    pointsSelection[iPointLayer * nDims + 0] = 0.0f;
-                    pointsSelection[iPointLayer * nDims + 1] = 0.0f;
-                    
-                    yObs[iPointLayer] = 0.0f;
-                    yFitted[iPointLayer] = 0.0f;
-                    
-                    includedIndex[iPointLayer] = -1;
-
-                };
-
-                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
-                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
-                profile[iLayer*nColsProfile +  2] = NAN;
-                profile[iLayer*nColsProfile +  3] = NAN;
-                profile[iLayer*nColsProfile +  4] = NAN;
-                profile[iLayer*nColsProfile +  5] = NAN;
-                profile[iLayer*nColsProfile +  6] = NAN;
-                profile[iLayer*nColsProfile +  7] = NAN;
-                profile[iLayer*nColsProfile +  8] = NAN;
-                profile[iLayer*nColsProfile +  9] = NAN;
-                profile[iLayer*nColsProfile + 10] = NAN;
-                profile[iLayer*nColsProfile + 11] = NAN;
-                profile[iLayer*nColsProfile + 12] = NAN;
-
-                iPointIncluded = 0;
-                
-                for (iPointLayer = iPointFrom; iPointLayer < iPointFrom + nPointsLayer; iPointLayer++) {
-                    
-                    int gateCode = (int) points[iPointLayer * nColsPoints + gateCodeCol];
-
-                    if (includeGate(iProfileType,gateCode) == TRUE) {
-
-                        // copy azimuth angle from the 'points' array
-                        pointsSelection[iPointIncluded * nDims + 0] = points[iPointLayer * nColsPoints + azimAngleCol];
-                        // copy elevation angle from the 'points' array
-                        pointsSelection[iPointIncluded * nDims + 1] = points[iPointLayer * nColsPoints + elevAngleCol];
-                        // get the dbz value at this [azimuth, elevation] 
-                        dbzValue = points[iPointLayer * nColsPoints + dbzValueCol];
-                        // convert from dB scale to linear scale 
-                        undbzValue = (float) exp(0.1*log(10)*dbzValue);
-                        // sum the undbz in this layer
-                        undbzSum += undbzValue;
-                        // copy the observed vrad value at this [azimuth, elevation] 
-                        yObs[iPointIncluded] = points[iPointLayer * nColsPoints + vradValueCol];
-                        // pre-allocate the fitted vrad value at this [azimuth,elevation]
-                        yFitted[iPointIncluded] = 0.0f;
-                        // keep a record of which index was just included
-                        includedIndex[iPointIncluded] = iPointLayer;
-                        
-                        // raise the counter
-                        iPointIncluded += 1;
-                        
-                    }
-                } // endfor (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
-                nPointsIncluded = iPointIncluded;
-                
-                
-                if (nPointsIncluded > nPointsIncludedMin) {   
-                    // when there are enough valid points, convert undbzAvg back to dB-scale
-                    undbzAvg = (float) (undbzSum/nPointsIncluded);
-                    dbzAvg = (10*log(undbzAvg))/log(10);
-                }
-                else {
-                    undbzAvg = NAN;
-                    dbzAvg = NAN;
-                }
-
-                // convert from Z (not dBZ) in units of mm^6/m^3 to 
-                // reflectivity eta in units of cm^2/km^3
-                reflectivity = dbzFactor * undbzAvg;
-                
-                if (iProfileType == 1) {
-                    // calculate bird density in number of birds/km^3 by
-                    // dividing the reflectivity by the (assumed) cross section
-                    // of one bird
-                    birdDensity = reflectivity / birdRadarCrossSection;
-                }
-                else {
-                    birdDensity = NAN;
-                }
-
-                // check if there are directions that have almost no observations
-                // (as this makes the svdfit result really uncertain)  
-                hasGap = hasAzimuthGap(&pointsSelection[0], nPointsIncluded);
-                
-                if (fitVrad == TRUE) {
-
-                    if (hasGap==FALSE) {
-                        
-                        // ------------------------------------------------------------- //
-                        //                       do the svdfit                           //
-                        // ------------------------------------------------------------- //
-
-                        chisq = svdfit(&pointsSelection[0], nDims, &yObs[0], &yFitted[0], 
-                                nPointsIncluded, &parameterVector[0], &avar[0], nParsFitted);
-
-                        if (chisq < chisqMin) {
-                            // the fit was not good enough, reset parameter vector array 
-                            // elements to NAN and continue with the next layer
-                            parameterVector[0] = NAN;
-                            parameterVector[1] = NAN;
-                            parameterVector[2] = NAN;
-                            continue;
-                        } 
-                        else {
-                            
-                            chi = sqrt(chisq);
-                            hSpeed = sqrt(pow(parameterVector[0],2) + pow(parameterVector[1],2));
-                            hDir = (atan2(parameterVector[0],parameterVector[1])*RAD2DEG);
-                            
-                            if (hDir < 0) {
-                                hDir += 360.0f;
-                            }
-                            
-                        }
-                    } // endif (hasGap == FALSE)
-                    
-                    // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
-                    // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
-                    // gate in the second svdfit iteration
-                    updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
-                                                  &points[0]);
-
-                }; // endif (fitVrad == TRUE)
-
-                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
-                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
-                profile[iLayer*nColsProfile +  2] = parameterVector[0];
-                profile[iLayer*nColsProfile +  3] = parameterVector[1];
-                profile[iLayer*nColsProfile +  4] = parameterVector[2];
-                profile[iLayer*nColsProfile +  5] = hSpeed;
-                profile[iLayer*nColsProfile +  6] = hDir;
-                profile[iLayer*nColsProfile +  7] = chi;
-                profile[iLayer*nColsProfile +  8] = (float) hasGap;
-                profile[iLayer*nColsProfile +  9] = dbzAvg;
-                profile[iLayer*nColsProfile + 10] = (float) nPointsIncluded;
-                profile[iLayer*nColsProfile + 11] = reflectivity;
-                profile[iLayer*nColsProfile + 12] = birdDensity;
-                
-                
-                free((void*) yObs);
-                free((void*) yFitted);
-                free((void*) pointsSelection);
-        
-            } // endfor (iPass = 0; iPass < nPasses; iPass++)
-            
-        } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
-
-} // calcProfile
 
 
 
@@ -1100,9 +884,11 @@ static void constructPointsArray(PolarVolume_t* volume) {
             
             int nCells = findCells(&dbzImage[0], &cellImage[0], 
                                    &dbzMeta);
-                                   
-            fprintf(stderr,"Found %d cells.\n",nCells);
-
+            
+            if (printCellProp == TRUE) {
+                fprintf(stderr,"(%d/%d): found %d cells.\n",iScan, nScans, nCells);
+            }
+            
             // ------------------------------------------------------------- //
             //                      analyze cells                            //
             // ------------------------------------------------------------- //
@@ -1110,7 +896,7 @@ static void constructPointsArray(PolarVolume_t* volume) {
             int nCellsValid = analyzeCells(&dbzImage[0], &vradImage[0], &texImage[0], 
                 &clutterImage[0], &cellImage[0], &dbzMeta, &vradMeta, &texMeta, 
                 &clutterMeta, nCells, 
-                useStaticClutterData, verboseOutputRequired);
+                useStaticClutterData);
 
             // ------------------------------------------------------------- //
             //                     calculate fringe                          //
@@ -1126,23 +912,23 @@ static void constructPointsArray(PolarVolume_t* volume) {
 
             if (printDbz == TRUE) {
                 printMeta(&dbzMeta,"dbzMeta");
-                printImageUChar(&dbzMeta,&dbzImage[0]);
+                vol2birdPrintImageUChar(&dbzMeta,&dbzImage[0]);
             }
             if (printVrad == TRUE) {
                 printMeta(&vradMeta,"vradMeta");
-                printImageUChar(&vradMeta,&vradImage[0]);
+                vol2birdPrintImageUChar(&vradMeta,&vradImage[0]);
             }
             if (printTex == TRUE) {
                 printMeta(&texMeta,"texMeta");
-                printImageUChar(&texMeta,&texImage[0]);
+                vol2birdPrintImageUChar(&texMeta,&texImage[0]);
             }
             if (printCell == TRUE) {
                 printMeta(&cellMeta,"cellMeta");
-                printImageInt(&cellMeta,&cellImage[0]);
+                vol2birdPrintImageInt(&cellMeta,&cellImage[0]);
             }
             if (printClut == TRUE) { 
                 printMeta(&clutterMeta,"clutterMeta");
-                printImageUChar(&clutterMeta,&clutterImage[0]);
+                vol2birdPrintImageUChar(&clutterMeta,&clutterImage[0]);
             }
                         
             // ------------------------------------------------------------- //
@@ -2115,48 +1901,6 @@ static int includeGate(const int iProfileType, const int gateCode) {
 
 
 
-void printProfile(void) {
-    
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-
-    fprintf(stderr,"\n\nProfile type: %d\n",iProfileTypeLast);
-
-    fprintf(stderr,"altmin-altmax: [u         ,v         ,w         ]; "
-                   "hSpeed  , hDir    , chi     , hasGap  , dbzAvg  ,"
-                   " nPoints, eta         , rhobird \n");
-
-    int iLayer;
-    
-    for (iLayer = nLayers - 1; iLayer >= 0; iLayer--) {
-        
-        fprintf(stderr,"%6.0f-%-6.0f: [%10.2f,%10.2f,%10.2f]; %8.2f, "
-        "%8.1f, %8.1f, %8c, %8.2f, %7.0f, %12.2f, %8.2f\n",
-        profile[iLayer * nColsProfile +  0],
-        profile[iLayer * nColsProfile +  1],
-        profile[iLayer * nColsProfile +  2],
-        profile[iLayer * nColsProfile +  3],
-        profile[iLayer * nColsProfile +  4],
-        profile[iLayer * nColsProfile +  5],
-        profile[iLayer * nColsProfile +  6],
-        profile[iLayer * nColsProfile +  7],
-        profile[iLayer * nColsProfile +  8] == TRUE ? 'T' : 'F',
-        profile[iLayer * nColsProfile +  9],
-        profile[iLayer * nColsProfile + 10],
-        profile[iLayer * nColsProfile + 11],
-        profile[iLayer * nColsProfile + 12]);
-    }
-
-    
-} // printProfile()
-
-
-
-
-
-
 static int readUserConfigOptions(void) {
 
 
@@ -2167,17 +1911,19 @@ static int readUserConfigOptions(void) {
         CFG_FLOAT("RANGEMAX",25000.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMIN",0.0f, CFGF_NONE),
         CFG_FLOAT("AZIMMAX",360.0f, CFGF_NONE),
-        CFG_INT("PRINTCOUNTMAX",10, CFGF_NONE),
         CFG_FLOAT("RADAR_WAVELENGTH_CM",5.3f, CFGF_NONE),
         CFG_BOOL("USE_STATIC_CLUTTER_DATA",FALSE,CFGF_NONE),
         CFG_BOOL("VERBOSE_OUTPUT_REQUIRED",FALSE,CFGF_NONE),
         CFG_BOOL("PRINT_DBZ",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_VRAD",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_CELL",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_CELL_PROP",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_TEXTURE",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_CLUT",TRUE,CFGF_NONE),
         CFG_BOOL("PRINT_OPTIONS",TRUE,CFGF_NONE),
         CFG_BOOL("FIT_VRAD",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_PROFILE",TRUE,CFGF_NONE),
+        CFG_BOOL("PRINT_POINTS_ARRAY",FALSE,CFGF_NONE),
         CFG_END()
     };
     
@@ -2196,221 +1942,8 @@ static int readUserConfigOptions(void) {
 
 
 
-int setUpVol2Bird(PolarVolume_t* volume) {
-
-    if (readUserConfigOptions() != 0) {
-        fprintf(stderr, "An error occurred while reading the user configuration file 'options.conf'.\n");
-        return -1; 
-    }
-   
-    // ------------------------------------------------------------- //
-    //              vol2bird options from options.conf               //
-    // ------------------------------------------------------------- //
-
-    azimMax = cfg_getfloat(cfg, "AZIMMAX");
-    azimMin = cfg_getfloat(cfg, "AZIMMIN");
-    layerThickness = cfg_getfloat(cfg, "HLAYER");
-    nLayers = cfg_getint(cfg, "NLAYER");
-    printCountMax = cfg_getint(cfg,"PRINTCOUNTMAX");
-    rangeMax = cfg_getfloat(cfg, "RANGEMAX");
-    rangeMin = cfg_getfloat(cfg, "RANGEMIN");
-    radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
-    useStaticClutterData = cfg_getbool(cfg,"USE_STATIC_CLUTTER_DATA");
-    verboseOutputRequired = cfg_getbool(cfg,"VERBOSE_OUTPUT_REQUIRED");
-    printDbz = cfg_getbool(cfg,"PRINT_DBZ");
-    printVrad = cfg_getbool(cfg,"PRINT_VRAD");
-    printTex = cfg_getbool(cfg,"PRINT_TEXTURE");
-    printCell = cfg_getbool(cfg,"PRINT_CELL");
-    printClut = cfg_getbool(cfg,"PRINT_CLUT");
-    printOptions = cfg_getbool(cfg,"PRINT_OPTIONS");
-    fitVrad = cfg_getbool(cfg,"FIT_VRAD");
-
-
-
-
-    // ------------------------------------------------------------- //
-    //              vol2bird options from constants.h                //
-    // ------------------------------------------------------------- //
-
-    nGatesCellMin = AREACELL;
-    cellClutterFractionMax = CLUTPERCCELL;
-    cellDbzMin = DBZCELL;
-    chisqMin = CHISQMIN;
-    clutterValueMin = DBZCLUTTER;
-    dbzMax = DBZMAX;
-    dbzThresMin = DBZMIN;
-    fringeDist = FRINGEDIST;
-    nBinsGap = NBINSGAP;
-    nPointsIncludedMin = NDBZMIN;
-    nNeighborsMin = NEIGHBORS;
-    nObsGapMin = NOBSGAPMIN;
-    nAzimNeighborhood = NTEXBINAZIM;
-    nRangNeighborhood = NTEXBINRANG;
-    nCountMin = NTEXMIN; 
-    refracIndex = REFRACTIVE_INDEX_OF_WATER;
-    birdRadarCrossSection = SIGMABIRD;
-    cellStdDevMax = STDEVCELL;
-    absVDifMax = VDIFMAX;
-    vradMin = VRADMIN;
-
-
-
-
-    // ------------------------------------------------------------- //
-    //                       some other variables                    //
-    // ------------------------------------------------------------- //
-
-    rCellMax = rangeMax + 5000.0f;
-    nDims = 2;
-    nParsFitted = 3;
-    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
-
-
-
-
-    // ------------------------------------------------------------- //
-    //             lists of indices into the 'points' array:         //
-    //          where each altitude layer's data starts and ends     //
-    // ------------------------------------------------------------- //
-    
-    int iLayer;
-    
-    // pre-allocate the list with start-from indexes for each 
-    // altitude bin in the profile
-    indexFrom = (int*) malloc(sizeof(int) * nLayers);
-    if (indexFrom == NULL) {
-        fprintf(stderr,"Error pre-allocating array 'indexFrom'\n");
-        return -1;
-    }
-    for (iLayer = 0; iLayer < nLayers; iLayer++) {
-        indexFrom[iLayer] = 0;
-    }
-
-    // pre-allocate the list with end-before indexes for each 
-    // altitude bin in the profile
-    indexTo = (int*) malloc(sizeof(int) * nLayers);
-    if (indexTo == NULL) {
-        fprintf(stderr,"Error pre-allocating array 'indexTo'\n");
-        return -1;
-    }
-    for (iLayer = 0; iLayer < nLayers; iLayer++) {
-        indexTo[iLayer] = 0;
-    }
-
-    // for each altitude layer, you need to remember how many points 
-    // were already written. This information is stored in the 
-    // 'nPointsWritten' array
-    nPointsWritten = (int*) malloc(sizeof(int) * nLayers);
-    if (nPointsWritten == NULL) {
-        fprintf(stderr,"Error pre-allocating array 'nPointsWritten'\n");
-        return -1;
-    }
-    for (iLayer = 0; iLayer < nLayers; iLayer++) {
-        nPointsWritten[iLayer] = 0;
-    }
-
-
-
-
-    // ------------------------------------------------------------- //
-    //               information about the 'points' array            //
-    // ------------------------------------------------------------- //
-
-    nColsPoints = 6;
-    nRowsPoints = detSvdfitArraySize(volume);
-
-    azimAngleCol = 0;
-    elevAngleCol = 1;
-    dbzValueCol = 2;
-    vradValueCol = 3;
-    cellValueCol = 4;
-    gateCodeCol = 5;
-
-    // pre-allocate the 'points' array (note it has 'nColsPoints'
-    // pseudo-columns)
-    points = (float*) malloc(sizeof(float) * nRowsPoints * nColsPoints);
-    if (points == NULL) {
-        fprintf(stderr,"Error pre-allocating array 'points'.\n"); 
-        return -1;
-    }
-
-    int iRowPoints;
-    int iColPoints;
-        
-    for (iRowPoints = 0; iRowPoints < nRowsPoints; iRowPoints++) {
-        for (iColPoints = 0; iColPoints < nColsPoints; iColPoints++) {
-            points[iRowPoints*nColsPoints + iColPoints] = NAN;
-        }
-    }
-
-    // information about the flagfields of 'gateCode'
-    
-    flagPositionStaticClutter = 0;
-    flagPositionDynamicClutter = 1;
-    flagPositionDynamicClutterFringe = 2;
-    flagPositionVradMissing = 3;
-    flagPositionDbzTooHighForBirds = 4;
-    flagPositionVradTooLow = 5;
-    flagPositionVDifMax = 6;
-    flagPositionAzimTooLow = 7;
-    flagPositionAzimTooHigh = 8;
-
-    // construct the 'points' array
-    constructPointsArray(volume);
-
-    // classify the gates based on the data in 'points'
-    classifyGatesSimple();
-
-
-
-
-    // ------------------------------------------------------------- //
-    //              information about the 'profile' array            //
-    // ------------------------------------------------------------- //
-
-    nProfileTypes = 3;
-    nRowsProfile = nLayers;
-    nColsProfile = 13; 
-    
-    // pre-allocate the array holding any profiled data (note it has 
-    // 'nColsProfile' pseudocolumns):
-    profile = (float*) malloc(sizeof(float) * nRowsProfile * nColsProfile);
-    if (profile == NULL) {
-        fprintf(stderr,"Error pre-allocating array 'profile'.\n"); 
-        return -1;
-    }
-
-    int iRowProfile;
-    int iColProfile;
-        
-    for (iRowProfile = 0; iRowProfile < nRowsProfile; iRowProfile++) {
-        for (iColProfile = 0; iColProfile < nColsProfile; iColProfile++) {
-            profile[iRowProfile*nColsProfile + iColProfile] = NAN;
-        }
-    }
-
-    iProfileTypeLast = -1;
-
-    initializationSuccessful = TRUE;
-
-    if (TRUE) {
-        printConfiguration();
-    }
-
-    return 0;
-
-} // setUpVol2Bird
-
-
-
-
 static int mapDataFromRave(PolarScan_t* scan, SCANMETA* meta, unsigned char* values, char* paramStr) {
 
-    if (printCountMax > 0) {
-        fprintf(stderr,"The memory address of meta is: %p\n", (void*) meta);
-        fprintf(stderr,"%s\n",paramStr);
-    }
-    
     PolarScanParam_t* param = PolarScan_getParameter(scan,paramStr);
 
     int iRang;
@@ -2524,68 +2057,6 @@ static void printGateCode(char* flags, const int gateCode) {
 
 
 
-//static int printImageInt(const int* image, const int nGlobal, const char* varName) {
-
-    //int printCount = 0;
-    //int iGlobal;
-    
-    //for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-        //if (printCount < printCountMax && image[iGlobal] != 0) {
-            //fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
-            //printCount++;
-        //}
-    //}
-    //if (printCount == 0) {
-        //fprintf(stderr, "all entries in '%s' are 0.\n",varName);
-    //}
-    
-    //return 0;
-//} // printImageInt
-
-
-
-//static int printImageUChar(const unsigned char* image, const int nGlobal, const char* varName) {
-
-    //int printCount = 0;
-    //int iGlobal;
-    
-    //for (iGlobal = 0; iGlobal < nGlobal; iGlobal++) {
-        //if (printCount < printCountMax && image[iGlobal] != 0) {
-            //fprintf(stderr,"%s[%d] = %d\n",varName,iGlobal,image[iGlobal]);
-            //printCount++;
-        //}
-    //}
-    //if (printCount == 0) {
-        //fprintf(stderr, "all entries in '%s' are 0.\n",varName);
-    //}
-    
-    //return 0;
-//} // printImageUChar
-
-
-
-void printIndexArrays(void) {
-    
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-    
-    int iLayer;
-
-    fprintf(stderr, "iLayer  iFrom   iTo     iTo-iFrom nWritten\n");
-    for (iLayer = 0; iLayer < nLayers; iLayer++) {
-        fprintf(stderr, "%7d %7d %7d %10d %8d\n",
-            iLayer, 
-            indexFrom[iLayer], 
-            indexTo[iLayer], 
-            indexTo[iLayer] - indexFrom[iLayer], 
-            nPointsWritten[iLayer]);
-    }
-} // printIndexArrays
-
-
-
 static int printMeta(const SCANMETA* meta, const char* varName) {
     
     fprintf(stderr,"%s->heig = %f\n",varName,meta->heig);
@@ -2602,95 +2073,6 @@ static int printMeta(const SCANMETA* meta, const char* varName) {
 
 } // printMeta
 
-
-
-
-
-void printConfiguration(void) {
-    
-    // ------------------------------------------------------- //
-    // this function prints vol2bird's configuration to stderr //
-    // ------------------------------------------------------- //
-    
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-
-    fprintf(stderr,"\n\nvol2bird configuration:\n\n");
-
-    fprintf(stderr,"%-25s = %f\n","absVDifMax",absVDifMax);
-    fprintf(stderr,"%-25s = %f\n","azimMax",azimMax);
-    fprintf(stderr,"%-25s = %f\n","azimMin",azimMin);
-    fprintf(stderr,"%-25s = %f\n","birdRadarCrossSection",birdRadarCrossSection);
-    fprintf(stderr,"%-25s = %f\n","cellClutterFractionMax",cellClutterFractionMax);
-    fprintf(stderr,"%-25s = %f\n","cellDbzMin",cellDbzMin);
-    fprintf(stderr,"%-25s = %f\n","cellStdDevMax",cellStdDevMax);
-    fprintf(stderr,"%-25s = %f\n","chisqMin",chisqMin);
-    fprintf(stderr,"%-25s = %f\n","clutterValueMin",clutterValueMin);
-    fprintf(stderr,"%-25s = %f\n","dbzFactor",dbzFactor);
-    fprintf(stderr,"%-25s = %f\n","dbzMax",dbzMax);
-    fprintf(stderr,"%-25s = %f\n","dbzThresMin",dbzThresMin);
-    fprintf(stderr,"%-25s = %f\n","fringeDist",fringeDist);
-    fprintf(stderr,"%-25s = %f\n","layerThickness",layerThickness);
-    fprintf(stderr,"%-25s = %d\n","nGatesCellMin",nGatesCellMin);
-    fprintf(stderr,"%-25s = %d\n","nAzimNeighborhood",nAzimNeighborhood);
-    fprintf(stderr,"%-25s = %d\n","nBinsGap",nBinsGap);
-    fprintf(stderr,"%-25s = %d\n","nCountMin",nCountMin);
-    fprintf(stderr,"%-25s = %d\n","nLayers",nLayers);
-    fprintf(stderr,"%-25s = %d\n","nObsGapMin",nObsGapMin);
-    fprintf(stderr,"%-25s = %d\n","nPointsIncludedMin",nPointsIncludedMin);
-    fprintf(stderr,"%-25s = %d\n","nRangNeighborhood",nRangNeighborhood);
-    fprintf(stderr,"%-25s = %d\n","printCountMax",printCountMax);
-    fprintf(stderr,"%-25s = %f\n","radarWavelength",radarWavelength);
-    fprintf(stderr,"%-25s = %f\n","rangeMax",rangeMax);
-    fprintf(stderr,"%-25s = %f\n","rangeMin",rangeMin);
-    fprintf(stderr,"%-25s = %f\n","rCellMax",rCellMax);
-    fprintf(stderr,"%-25s = %f\n","refracIndex",refracIndex);
-    fprintf(stderr,"%-25s = %c\n","useStaticClutterData",useStaticClutterData == TRUE ? 'T' : 'F');
-    fprintf(stderr,"%-25s = %c\n","verboseOutputRequired",verboseOutputRequired == TRUE ? 'T' : 'F');
-    fprintf(stderr,"%-25s = %f\n","vradMin",vradMin);
-    
-    fprintf(stderr,"\n\n");
-
-}  // printOptions
-
-
-
-
-
-void printPointsArray(void) {
-    
-    // ------------------------------------------------- //
-    // this function prints the 'points' array to stderr //
-    // ------------------------------------------------- //
-    
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-
-    int iPoint;
-    
-    fprintf(stderr, "iPoint  azim    elev    dbz         vrad        cell    gateCode  flags     \n");
-    
-    for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
-        
-            char gateCodeStr[10];  // 9 bits plus 1 position for the null character '\0'
-            
-            printGateCode(&gateCodeStr[0], (int) points[iPoint + gateCodeCol]);
-        
-            fprintf(stderr, "  %6d",    iPoint/nColsPoints);
-            fprintf(stderr, "  %6.2f",  points[iPoint + azimAngleCol]);
-            fprintf(stderr, "  %6.2f",  points[iPoint + elevAngleCol]);
-            fprintf(stderr, "  %10.2f", points[iPoint + dbzValueCol]);
-            fprintf(stderr, "  %10.2f", points[iPoint + vradValueCol]);
-            fprintf(stderr, "  %6.0f",  points[iPoint + cellValueCol]);
-            fprintf(stderr, "  %8.0f",  points[iPoint + gateCodeCol]);
-            fprintf(stderr, "  %12s",   gateCodeStr);
-            fprintf(stderr, "\n");
-    }    
-} // printPointsArray
 
 
 
@@ -2726,39 +2108,6 @@ static void sortCells(CELLPROP *cellProp, const int nCells) {
 
     return;
 } // sortCells
-
-
-
-
-
-void tearDownVol2Bird() {
-    
-    // ---------------------------------------------------------- //
-    // free the memory that was previously allocated for vol2bird //
-    // ---------------------------------------------------------- //
-
-    if (initializationSuccessful==FALSE) {
-        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
-        return;
-    }
-
-    // free the points array, the indexes into it, the counters, as well
-    // as the profile data array
-    free((void*) points);
-    free((void*) profile);
-    free((void*) indexFrom);
-    free((void*) indexTo);
-    free((void*) nPointsWritten);
-    
-    
-    // free the memory that holds the user configurable options
-    cfg_free(cfg);
-    
-    // reset this variable to its initial value
-    initializationSuccessful = FALSE;
-
-} // tearDownVol2Bird
-
 
 
 
@@ -2921,7 +2270,255 @@ static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, cons
 
 
 
-void printImageInt(const SCANMETA* meta, const int* imageInt) {
+void vol2birdCalcProfiles() {
+
+    int nPasses;
+    int iPoint;
+    int iLayer;
+    int iPass;
+    int iProfileType;
+
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+    
+    // calculate the profiles in reverse order, because you need the result 
+    // of iProfileType == 3 in order to check whether chi < stdDevMinBird  
+    // when calculating iProfileType == 1
+    for (iProfileType = nProfileTypes; iProfileType > 0; iProfileType--) {
+
+        // ------------------------------------------------------------- //
+        //                        prepare the profile                    //
+        // ------------------------------------------------------------- //
+
+        iProfileTypeLast = iProfileType;
+
+        // if the user does not require fitting a model to the observed 
+        // vrad values, one pass is enough 
+        if (fitVrad == TRUE) {
+            nPasses = 2;
+        } 
+        else {
+            nPasses = 1;
+        }
+
+        // reset the flagPositionVDifMax bit before calculating each profile
+        for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
+            int gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
+            points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode &= ~(1<<flagPositionVDifMax));
+        }
+        
+        
+        for (iLayer = 0; iLayer < nLayers; iLayer++) {
+
+            // this variable is needed just outside of the iPass loop below 
+            float chi = NAN;
+        
+            for (iPass = 0; iPass < nPasses; iPass++) {
+
+                const int iPointFrom = indexFrom[iLayer];
+                const int iPointTo = indexTo[iLayer];
+                const int nPointsLayer = nPointsWritten[iLayer];
+
+                int iPointLayer;
+                int iPointIncluded;
+                int nPointsIncluded;
+
+                float parameterVector[] = {NAN,NAN,NAN};
+                float avar[] = {NAN,NAN,NAN};
+                
+                float* pointsSelection = malloc(sizeof(float) * nPointsLayer * nDims);
+                float* yObs = malloc(sizeof(float) * nPointsLayer);
+                float* yFitted = malloc(sizeof(float) * nPointsLayer);
+                int* includedIndex = malloc(sizeof(int) * nPointsLayer);
+                
+                float dbzValue = NAN;
+                float undbzValue = NAN;
+                double undbzSum = 0.0;
+                float undbzAvg = NAN;
+                float dbzAvg = NAN;
+                float birdDensity = NAN;
+                float reflectivity = NAN;
+                int hasGap = TRUE;
+                float chisq = NAN;
+                float hSpeed = NAN;
+                float hDir = NAN;
+
+
+                for (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
+
+                    pointsSelection[iPointLayer * nDims + 0] = 0.0f;
+                    pointsSelection[iPointLayer * nDims + 1] = 0.0f;
+                    
+                    yObs[iPointLayer] = 0.0f;
+                    yFitted[iPointLayer] = 0.0f;
+                    
+                    includedIndex[iPointLayer] = -1;
+
+                };
+
+                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
+                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
+                profile[iLayer*nColsProfile +  2] = NAN;
+                profile[iLayer*nColsProfile +  3] = NAN;
+                profile[iLayer*nColsProfile +  4] = NAN;
+                profile[iLayer*nColsProfile +  5] = NAN;
+                profile[iLayer*nColsProfile +  6] = NAN;
+                profile[iLayer*nColsProfile +  7] = NAN;
+                profile[iLayer*nColsProfile +  8] = NAN;
+                profile[iLayer*nColsProfile +  9] = NAN;
+                profile[iLayer*nColsProfile + 10] = NAN;
+                profile[iLayer*nColsProfile + 11] = NAN;
+                profile[iLayer*nColsProfile + 12] = NAN;
+
+                iPointIncluded = 0;
+                
+                for (iPointLayer = iPointFrom; iPointLayer < iPointFrom + nPointsLayer; iPointLayer++) {
+                    
+                    int gateCode = (int) points[iPointLayer * nColsPoints + gateCodeCol];
+
+                    if (includeGate(iProfileType,gateCode) == TRUE) {
+
+                        // copy azimuth angle from the 'points' array
+                        pointsSelection[iPointIncluded * nDims + 0] = points[iPointLayer * nColsPoints + azimAngleCol];
+                        // copy elevation angle from the 'points' array
+                        pointsSelection[iPointIncluded * nDims + 1] = points[iPointLayer * nColsPoints + elevAngleCol];
+                        // get the dbz value at this [azimuth, elevation] 
+                        dbzValue = points[iPointLayer * nColsPoints + dbzValueCol];
+                        // convert from dB scale to linear scale 
+                        undbzValue = (float) exp(0.1*log(10)*dbzValue);
+                        // sum the undbz in this layer
+                        undbzSum += undbzValue;
+                        // copy the observed vrad value at this [azimuth, elevation] 
+                        yObs[iPointIncluded] = points[iPointLayer * nColsPoints + vradValueCol];
+                        // pre-allocate the fitted vrad value at this [azimuth,elevation]
+                        yFitted[iPointIncluded] = 0.0f;
+                        // keep a record of which index was just included
+                        includedIndex[iPointIncluded] = iPointLayer;
+                        
+                        // raise the counter
+                        iPointIncluded += 1;
+                        
+                    }
+                } // endfor (iPointLayer = 0; iPointLayer < nPointsLayer; iPointLayer++) {
+                nPointsIncluded = iPointIncluded;
+                
+                
+                if (nPointsIncluded > nPointsIncludedMin) {   
+                    // when there are enough valid points, convert undbzAvg back to dB-scale
+                    undbzAvg = (float) (undbzSum/nPointsIncluded);
+                    dbzAvg = (10*log(undbzAvg))/log(10);
+                }
+                else {
+                    undbzAvg = NAN;
+                    dbzAvg = NAN;
+                }
+
+                // convert from Z (not dBZ) in units of mm^6/m^3 to 
+                // reflectivity eta in units of cm^2/km^3
+                reflectivity = dbzFactor * undbzAvg;
+                
+                if (iProfileType == 1) {
+                    // calculate bird density in number of birds/km^3 by
+                    // dividing the reflectivity by the (assumed) cross section
+                    // of one bird
+                    birdDensity = reflectivity / birdRadarCrossSection;
+                }
+                else {
+                    birdDensity = NAN;
+                }
+
+                // check if there are directions that have almost no observations
+                // (as this makes the svdfit result really uncertain)  
+                hasGap = hasAzimuthGap(&pointsSelection[0], nPointsIncluded);
+                
+                if (fitVrad == TRUE) {
+
+                    if (hasGap==FALSE) {
+                        
+                        // ------------------------------------------------------------- //
+                        //                       do the svdfit                           //
+                        // ------------------------------------------------------------- //
+
+                        chisq = svdfit(&pointsSelection[0], nDims, &yObs[0], &yFitted[0], 
+                                nPointsIncluded, &parameterVector[0], &avar[0], nParsFitted);
+
+                        if (chisq < chisqMin) {
+                            // the fit was not good enough, reset parameter vector array 
+                            // elements to NAN and continue with the next layer
+                            parameterVector[0] = NAN;
+                            parameterVector[1] = NAN;
+                            parameterVector[2] = NAN;
+                            continue;
+                        } 
+                        else {
+                            
+                            chi = sqrt(chisq);
+                            hSpeed = sqrt(pow(parameterVector[0],2) + pow(parameterVector[1],2));
+                            hDir = (atan2(parameterVector[0],parameterVector[1])*RAD2DEG);
+                            
+                            if (hDir < 0) {
+                                hDir += 360.0f;
+                            }
+                            
+                        }
+                    } // endif (hasGap == FALSE)
+                    
+                    // if the fitted vrad value is more than 'absVDifMax' away from the corresponding
+                    // observed vrad value, set the gate's flagPositionVDifMax bit flag to 1, excluding the 
+                    // gate in the second svdfit iteration
+                    updateFlagFieldsInPointsArray(&yObs[0], &yFitted[0], &includedIndex[0], nPointsIncluded,
+                                                  &points[0]);
+
+                }; // endif (fitVrad == TRUE)
+
+                profile[iLayer*nColsProfile +  0] = iLayer * layerThickness;
+                profile[iLayer*nColsProfile +  1] = (iLayer + 1) * layerThickness;
+                profile[iLayer*nColsProfile +  2] = parameterVector[0];
+                profile[iLayer*nColsProfile +  3] = parameterVector[1];
+                profile[iLayer*nColsProfile +  4] = parameterVector[2];
+                profile[iLayer*nColsProfile +  5] = hSpeed;
+                profile[iLayer*nColsProfile +  6] = hDir;
+                profile[iLayer*nColsProfile +  7] = chi;
+                profile[iLayer*nColsProfile +  8] = (float) hasGap;
+                profile[iLayer*nColsProfile +  9] = dbzAvg;
+                profile[iLayer*nColsProfile + 10] = (float) nPointsIncluded;
+                profile[iLayer*nColsProfile + 11] = reflectivity;
+                profile[iLayer*nColsProfile + 12] = birdDensity;
+                
+                free((void*) yObs);
+                free((void*) yFitted);
+                free((void*) pointsSelection);
+        
+            } // endfor (iPass = 0; iPass < nPasses; iPass++)
+            
+            
+            // You need some of the results of iProfileType == 3 in order 
+            // to calculate iProfileType == 1
+            if (iProfileType == 3) {
+                if (chi < stdDevMinBird) {
+                    scatterersAreNotBirds[iLayer] = TRUE;
+                }
+                else {
+                    scatterersAreNotBirds[iLayer] = FALSE;
+                }
+            }
+            
+        } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
+
+        if (printProfile ==  TRUE) {
+            vol2birdPrintProfile();
+        }
+
+    } // endfor (iProfileType = nProfileTypes; iProfileType > 0; iProfileType--)
+
+} // vol2birdCalcProfiles
+
+
+
+
+void vol2birdPrintImageInt(const SCANMETA* meta, const int* imageInt) {
 
 
     int nRang = meta->nRang;
@@ -3008,11 +2605,12 @@ void printImageInt(const SCANMETA* meta, const int* imageInt) {
         fprintf(stderr,"\n");
     }
         
-}
+} // vol2birdPrintImageInt
 
 
 
-void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
+
+void vol2birdPrintImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
 
     int nAzim;
     int iAzim;
@@ -3036,8 +2634,419 @@ void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
         }
     }     
 
-    printImageInt(meta,imageInt);
+    vol2birdPrintImageInt(meta,imageInt);
     
     free(imageInt);
     
-}
+} // vol2birdPrintImageUChar
+
+
+
+
+void vol2birdPrintIndexArrays(void) {
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+    
+    int iLayer;
+
+    fprintf(stderr, "iLayer  iFrom   iTo     iTo-iFrom nWritten\n");
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        fprintf(stderr, "%7d %7d %7d %10d %8d\n",
+            iLayer, 
+            indexFrom[iLayer], 
+            indexTo[iLayer], 
+            indexTo[iLayer] - indexFrom[iLayer], 
+            nPointsWritten[iLayer]);
+    }
+} // vol2birdPrintIndexArrays
+
+
+
+void vol2birdPrintOptions(void) {
+    
+    // ------------------------------------------------------- //
+    // this function prints vol2bird's configuration to stderr //
+    // ------------------------------------------------------- //
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
+    fprintf(stderr,"\n\nvol2bird configuration:\n\n");
+
+    fprintf(stderr,"%-25s = %f\n","absVDifMax",absVDifMax);
+    fprintf(stderr,"%-25s = %f\n","azimMax",azimMax);
+    fprintf(stderr,"%-25s = %f\n","azimMin",azimMin);
+    fprintf(stderr,"%-25s = %f\n","birdRadarCrossSection",birdRadarCrossSection);
+    fprintf(stderr,"%-25s = %f\n","cellClutterFractionMax",cellClutterFractionMax);
+    fprintf(stderr,"%-25s = %f\n","cellDbzMin",cellDbzMin);
+    fprintf(stderr,"%-25s = %f\n","cellStdDevMax",cellStdDevMax);
+    fprintf(stderr,"%-25s = %f\n","chisqMin",chisqMin);
+    fprintf(stderr,"%-25s = %f\n","clutterValueMin",clutterValueMin);
+    fprintf(stderr,"%-25s = %f\n","dbzFactor",dbzFactor);
+    fprintf(stderr,"%-25s = %f\n","dbzMax",dbzMax);
+    fprintf(stderr,"%-25s = %f\n","dbzThresMin",dbzThresMin);
+    fprintf(stderr,"%-25s = %f\n","fringeDist",fringeDist);
+    fprintf(stderr,"%-25s = %f\n","layerThickness",layerThickness);
+    fprintf(stderr,"%-25s = %d\n","nGatesCellMin",nGatesCellMin);
+    fprintf(stderr,"%-25s = %d\n","nAzimNeighborhood",nAzimNeighborhood);
+    fprintf(stderr,"%-25s = %d\n","nBinsGap",nBinsGap);
+    fprintf(stderr,"%-25s = %d\n","nCountMin",nCountMin);
+    fprintf(stderr,"%-25s = %d\n","nLayers",nLayers);
+    fprintf(stderr,"%-25s = %d\n","nObsGapMin",nObsGapMin);
+    fprintf(stderr,"%-25s = %d\n","nPointsIncludedMin",nPointsIncludedMin);
+    fprintf(stderr,"%-25s = %d\n","nRangNeighborhood",nRangNeighborhood);
+    fprintf(stderr,"%-25s = %f\n","radarWavelength",radarWavelength);
+    fprintf(stderr,"%-25s = %f\n","rangeMax",rangeMax);
+    fprintf(stderr,"%-25s = %f\n","rangeMin",rangeMin);
+    fprintf(stderr,"%-25s = %f\n","rCellMax",rCellMax);
+    fprintf(stderr,"%-25s = %f\n","refracIndex",refracIndex);
+    fprintf(stderr,"%-25s = %f\n","stdDevMinBird",stdDevMinBird);
+    fprintf(stderr,"%-25s = %c\n","useStaticClutterData",useStaticClutterData == TRUE ? 'T' : 'F');
+    fprintf(stderr,"%-25s = %f\n","vradMin",vradMin);
+    
+    fprintf(stderr,"\n\n");
+
+}  // vol2birdPrintOptions
+
+
+
+
+
+void vol2birdPrintPointsArray(void) {
+    
+    // ------------------------------------------------- //
+    // this function prints the 'points' array to stderr //
+    // ------------------------------------------------- //
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
+    int iPoint;
+    
+    fprintf(stderr, "iPoint  azim    elev    dbz         vrad        cell    gateCode  flags     \n");
+    
+    for (iPoint = 0; iPoint < nRowsPoints * nColsPoints; iPoint+=nColsPoints) {
+        
+            char gateCodeStr[10];  // 9 bits plus 1 position for the null character '\0'
+            
+            printGateCode(&gateCodeStr[0], (int) points[iPoint + gateCodeCol]);
+        
+            fprintf(stderr, "  %6d",    iPoint/nColsPoints);
+            fprintf(stderr, "  %6.2f",  points[iPoint + azimAngleCol]);
+            fprintf(stderr, "  %6.2f",  points[iPoint + elevAngleCol]);
+            fprintf(stderr, "  %10.2f", points[iPoint + dbzValueCol]);
+            fprintf(stderr, "  %10.2f", points[iPoint + vradValueCol]);
+            fprintf(stderr, "  %6.0f",  points[iPoint + cellValueCol]);
+            fprintf(stderr, "  %8.0f",  points[iPoint + gateCodeCol]);
+            fprintf(stderr, "  %12s",   gateCodeStr);
+            fprintf(stderr, "\n");
+    }    
+} // vol2birdPrintPointsArray
+
+
+
+
+void vol2birdPrintProfile(void) {
+    
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
+    fprintf(stderr,"\n\nProfile type: %d\n",iProfileTypeLast);
+
+    fprintf(stderr,"altmin-altmax: [u         ,v         ,w         ]; "
+                   "hSpeed  , hDir    , chi     , hasGap  , dbzAvg  ,"
+                   " nPoints, eta         , rhobird \n");
+
+    int iLayer;
+    
+    for (iLayer = nLayers - 1; iLayer >= 0; iLayer--) {
+        
+        fprintf(stderr,"%6.0f-%-6.0f: [%10.2f,%10.2f,%10.2f]; %8.2f, "
+        "%8.1f, %8.1f, %8c, %8.2f, %7.0f, %12.2f, %8.2f\n",
+        profile[iLayer * nColsProfile +  0],
+        profile[iLayer * nColsProfile +  1],
+        profile[iLayer * nColsProfile +  2],
+        profile[iLayer * nColsProfile +  3],
+        profile[iLayer * nColsProfile +  4],
+        profile[iLayer * nColsProfile +  5],
+        profile[iLayer * nColsProfile +  6],
+        profile[iLayer * nColsProfile +  7],
+        profile[iLayer * nColsProfile +  8] == TRUE ? 'T' : 'F',
+        profile[iLayer * nColsProfile +  9],
+        profile[iLayer * nColsProfile + 10],
+        profile[iLayer * nColsProfile + 11],
+        profile[iLayer * nColsProfile + 12]);
+    }
+
+    
+} // vol2birdPrintProfile()
+
+
+
+
+int vol2birdSetUp(PolarVolume_t* volume) {
+
+    if (readUserConfigOptions() != 0) {
+        fprintf(stderr, "An error occurred while reading the user configuration file 'options.conf'.\n");
+        return -1; 
+    }
+   
+    // ------------------------------------------------------------- //
+    //              vol2bird options from options.conf               //
+    // ------------------------------------------------------------- //
+
+    azimMax = cfg_getfloat(cfg, "AZIMMAX");
+    azimMin = cfg_getfloat(cfg, "AZIMMIN");
+    layerThickness = cfg_getfloat(cfg, "HLAYER");
+    nLayers = cfg_getint(cfg, "NLAYER");
+    rangeMax = cfg_getfloat(cfg, "RANGEMAX");
+    rangeMin = cfg_getfloat(cfg, "RANGEMIN");
+    radarWavelength = cfg_getfloat(cfg, "RADAR_WAVELENGTH_CM");
+    useStaticClutterData = cfg_getbool(cfg,"USE_STATIC_CLUTTER_DATA");
+    printDbz = cfg_getbool(cfg,"PRINT_DBZ");
+    printVrad = cfg_getbool(cfg,"PRINT_VRAD");
+    printTex = cfg_getbool(cfg,"PRINT_TEXTURE");
+    printCell = cfg_getbool(cfg,"PRINT_CELL");
+    printCellProp = cfg_getbool(cfg,"PRINT_CELL_PROP");
+    printClut = cfg_getbool(cfg,"PRINT_CLUT");
+    printOptions = cfg_getbool(cfg,"PRINT_OPTIONS");
+    printProfile = cfg_getbool(cfg,"PRINT_PROFILE");
+    printPointsArray = cfg_getbool(cfg,"PRINT_POINTS_ARRAY");
+    fitVrad = cfg_getbool(cfg,"FIT_VRAD");
+
+
+
+    // ------------------------------------------------------------- //
+    //              vol2bird options from constants.h                //
+    // ------------------------------------------------------------- //
+
+    nGatesCellMin = AREACELL;
+    cellClutterFractionMax = CLUTPERCCELL;
+    cellDbzMin = DBZCELL;
+    chisqMin = CHISQMIN;
+    clutterValueMin = DBZCLUTTER;
+    dbzMax = DBZMAX;
+    dbzThresMin = DBZMIN;
+    fringeDist = FRINGEDIST;
+    nBinsGap = NBINSGAP;
+    nPointsIncludedMin = NDBZMIN;
+    nNeighborsMin = NEIGHBORS;
+    nObsGapMin = NOBSGAPMIN;
+    nAzimNeighborhood = NTEXBINAZIM;
+    nRangNeighborhood = NTEXBINRANG;
+    nCountMin = NTEXMIN; 
+    refracIndex = REFRACTIVE_INDEX_OF_WATER;
+    birdRadarCrossSection = SIGMABIRD;
+    cellStdDevMax = STDEVCELL;
+    stdDevMinBird = STDEVBIRD;
+    absVDifMax = VDIFMAX;
+    vradMin = VRADMIN;
+
+
+
+
+    // ------------------------------------------------------------- //
+    //                       some other variables                    //
+    // ------------------------------------------------------------- //
+
+    rCellMax = rangeMax + 5000.0f;
+    nDims = 2;
+    nParsFitted = 3;
+    dbzFactor = (pow(refracIndex,2) * 1000 * pow(PI,5))/pow(radarWavelength,4);
+
+
+
+
+    // ------------------------------------------------------------- //
+    //             lists of indices into the 'points' array:         //
+    //          where each altitude layer's data starts and ends     //
+    // ------------------------------------------------------------- //
+    
+    int iLayer;
+    
+    // pre-allocate the list with start-from indexes for each 
+    // altitude bin in the profile
+    indexFrom = (int*) malloc(sizeof(int) * nLayers);
+    if (indexFrom == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'indexFrom'\n");
+        return -1;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        indexFrom[iLayer] = 0;
+    }
+
+    // pre-allocate the list with end-before indexes for each 
+    // altitude bin in the profile
+    indexTo = (int*) malloc(sizeof(int) * nLayers);
+    if (indexTo == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'indexTo'\n");
+        return -1;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        indexTo[iLayer] = 0;
+    }
+
+    // pre-allocate the list containing TRUE or FALSE depending on the 
+    // results of calculating iProfileType == 3, which are needed when
+    // calculating iProfileType == 1
+    scatterersAreNotBirds = (int*) malloc(sizeof(int) * nLayers);
+    if (scatterersAreNotBirds == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'scatterersAreNotBirds'\n");
+        return -1;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        scatterersAreNotBirds[iLayer] = -1;
+    }
+
+
+    // for each altitude layer, you need to remember how many points 
+    // were already written. This information is stored in the 
+    // 'nPointsWritten' array
+    nPointsWritten = (int*) malloc(sizeof(int) * nLayers);
+    if (nPointsWritten == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'nPointsWritten'\n");
+        return -1;
+    }
+    for (iLayer = 0; iLayer < nLayers; iLayer++) {
+        nPointsWritten[iLayer] = 0;
+    }
+
+
+
+
+    // ------------------------------------------------------------- //
+    //               information about the 'points' array            //
+    // ------------------------------------------------------------- //
+
+    nColsPoints = 6;
+    nRowsPoints = detSvdfitArraySize(volume);
+
+    azimAngleCol = 0;
+    elevAngleCol = 1;
+    dbzValueCol = 2;
+    vradValueCol = 3;
+    cellValueCol = 4;
+    gateCodeCol = 5;
+
+    // pre-allocate the 'points' array (note it has 'nColsPoints'
+    // pseudo-columns)
+    points = (float*) malloc(sizeof(float) * nRowsPoints * nColsPoints);
+    if (points == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'points'.\n"); 
+        return -1;
+    }
+
+    int iRowPoints;
+    int iColPoints;
+        
+    for (iRowPoints = 0; iRowPoints < nRowsPoints; iRowPoints++) {
+        for (iColPoints = 0; iColPoints < nColsPoints; iColPoints++) {
+            points[iRowPoints*nColsPoints + iColPoints] = NAN;
+        }
+    }
+
+    // information about the flagfields of 'gateCode'
+    
+    flagPositionStaticClutter = 0;
+    flagPositionDynamicClutter = 1;
+    flagPositionDynamicClutterFringe = 2;
+    flagPositionVradMissing = 3;
+    flagPositionDbzTooHighForBirds = 4;
+    flagPositionVradTooLow = 5;
+    flagPositionVDifMax = 6;
+    flagPositionAzimTooLow = 7;
+    flagPositionAzimTooHigh = 8;
+
+    // construct the 'points' array
+    constructPointsArray(volume);
+
+    // classify the gates based on the data in 'points'
+    classifyGatesSimple();
+
+    if (printPointsArray == TRUE) {
+
+        vol2birdPrintIndexArrays();
+        vol2birdPrintPointsArray();
+
+    }
+
+    // ------------------------------------------------------------- //
+    //              information about the 'profile' array            //
+    // ------------------------------------------------------------- //
+
+    nProfileTypes = 3;
+    nRowsProfile = nLayers;
+    nColsProfile = 13; 
+    
+    // pre-allocate the array holding any profiled data (note it has 
+    // 'nColsProfile' pseudocolumns):
+    profile = (float*) malloc(sizeof(float) * nRowsProfile * nColsProfile);
+    if (profile == NULL) {
+        fprintf(stderr,"Error pre-allocating array 'profile'.\n"); 
+        return -1;
+    }
+
+    int iRowProfile;
+    int iColProfile;
+        
+    for (iRowProfile = 0; iRowProfile < nRowsProfile; iRowProfile++) {
+        for (iColProfile = 0; iColProfile < nColsProfile; iColProfile++) {
+            profile[iRowProfile*nColsProfile + iColProfile] = NAN;
+        }
+    }
+
+    iProfileTypeLast = -1;
+
+    initializationSuccessful = TRUE;
+
+    if (TRUE) {
+        vol2birdPrintOptions();
+    }
+
+    return 0;
+
+} // vol2birdSetUp
+
+
+
+
+void vol2birdTearDown() {
+    
+    // ---------------------------------------------------------- //
+    // free the memory that was previously allocated for vol2bird //
+    // ---------------------------------------------------------- //
+
+    if (initializationSuccessful==FALSE) {
+        fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
+        return;
+    }
+
+    // free the points array, the indexes into it, the counters, as well
+    // as the profile data array
+    free((void*) points);
+    free((void*) profile);
+    free((void*) indexFrom);
+    free((void*) indexTo);
+    free((void*) nPointsWritten);
+    
+    
+    // free the memory that holds the user configurable options
+    cfg_free(cfg);
+    
+    // reset this variable to its initial value
+    initializationSuccessful = FALSE;
+
+} // vol2birdTearDown
+
+
+
+
