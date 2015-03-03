@@ -2318,7 +2318,6 @@ void vol2birdCalcProfiles() {
             for (iPass = 0; iPass < nPasses; iPass++) {
 
                 const int iPointFrom = indexFrom[iLayer];
-                const int iPointTo = indexTo[iLayer];
                 const int nPointsLayer = nPointsWritten[iLayer];
 
                 int iPointLayer;
