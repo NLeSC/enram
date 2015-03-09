@@ -90,18 +90,12 @@ typedef struct scanmeta SCANMETA;
 
 void vol2birdCalcProfiles();
 
-void vol2birdPrintImageInt(const SCANMETA* meta, const int* imageInt);
-
-void vol2birdPrintImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
-
 void vol2birdPrintIndexArrays(void);
 
 void vol2birdPrintOptions(void);
 
 void vol2birdPrintPointsArray(void);
 
-void vol2birdPrintProfile(void);
-    
 int vol2birdSetUp(PolarVolume_t* volume);
 
 void vol2birdTearDown();

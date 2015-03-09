@@ -77,7 +77,13 @@ static void mapDataToRave(void);
 
 static void printGateCode(char* flags, const unsigned int gateCode);
 
+static void printImageInt(const SCANMETA* meta, const int* imageInt);
+
+static void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar);
+
 static int printMeta(const SCANMETA* meta, const char* varName);
+
+static void printProfile(void);
 
 static void sortCells(CELLPROP *cellProp, const int nCells);
 
@@ -132,7 +138,7 @@ static int printClut;
 static int printOptions;
 
 // whether or not to print vol2bird's profiled data to stderr
-static int printProfile;
+static int printProfileVar;
 
 // whether or not to print the 'points' array
 static int printPointsArray;
@@ -970,23 +976,23 @@ static void constructPointsArray(PolarVolume_t* volume) {
 
             if (printDbz == TRUE) {
                 printMeta(&dbzMeta,"dbzMeta");
-                vol2birdPrintImageUChar(&dbzMeta,&dbzImage[0]);
+                printImageUChar(&dbzMeta,&dbzImage[0]);
             }
             if (printVrad == TRUE) {
                 printMeta(&vradMeta,"vradMeta");
-                vol2birdPrintImageUChar(&vradMeta,&vradImage[0]);
+                printImageUChar(&vradMeta,&vradImage[0]);
             }
             if (printTex == TRUE) {
                 printMeta(&texMeta,"texMeta");
-                vol2birdPrintImageUChar(&texMeta,&texImage[0]);
+                printImageUChar(&texMeta,&texImage[0]);
             }
             if (printCell == TRUE) {
                 printMeta(&cellMeta,"cellMeta");
-                vol2birdPrintImageInt(&cellMeta,&cellImage[0]);
+                printImageInt(&cellMeta,&cellImage[0]);
             }
             if (printClut == TRUE) { 
                 printMeta(&clutterMeta,"clutterMeta");
-                vol2birdPrintImageUChar(&clutterMeta,&clutterImage[0]);
+                printImageUChar(&clutterMeta,&clutterImage[0]);
             }
                         
             // ------------------------------------------------------------- //
@@ -2581,8 +2587,8 @@ void vol2birdCalcProfiles() {
             
         } // endfor (iLayer = 0; iLayer < nLayers; iLayer++)
 
-        if (printProfile ==  TRUE) {
-            vol2birdPrintProfile();
+        if (printProfileVar ==  TRUE) {
+            printProfile();
         }
 
     } // endfor (iProfileType = nProfileTypes; iProfileType > 0; iProfileType--)
@@ -2592,7 +2598,7 @@ void vol2birdCalcProfiles() {
 
 
 
-void vol2birdPrintImageInt(const SCANMETA* meta, const int* imageInt) {
+void printImageInt(const SCANMETA* meta, const int* imageInt) {
 
 
     int nRang = meta->nRang;
@@ -2679,12 +2685,12 @@ void vol2birdPrintImageInt(const SCANMETA* meta, const int* imageInt) {
         fprintf(stderr,"\n");
     }
         
-} // vol2birdPrintImageInt
+} // printImageInt
 
 
 
 
-void vol2birdPrintImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
+void printImageUChar(const SCANMETA* meta, const unsigned char* imageUChar) {
 
     int nAzim;
     int iAzim;
@@ -2708,11 +2714,11 @@ void vol2birdPrintImageUChar(const SCANMETA* meta, const unsigned char* imageUCh
         }
     }     
 
-    vol2birdPrintImageInt(meta,imageInt);
+    printImageInt(meta,imageInt);
     
     free(imageInt);
     
-} // vol2birdPrintImageUChar
+} // printImageUChar
 
 
 
@@ -2827,7 +2833,7 @@ void vol2birdPrintPointsArray(void) {
 
 
 
-void vol2birdPrintProfile(void) {
+void printProfile(void) {
     
     if (initializationSuccessful==FALSE) {
         fprintf(stderr,"You need to initialize vol2bird before you can use it. Aborting.\n");
@@ -2862,7 +2868,7 @@ void vol2birdPrintProfile(void) {
     }
 
     
-} // vol2birdPrintProfile()
+} // printProfile()
 
 
 
@@ -2893,7 +2899,7 @@ int vol2birdSetUp(PolarVolume_t* volume) {
     printCellProp = cfg_getbool(cfg,"PRINT_CELL_PROP");
     printClut = cfg_getbool(cfg,"PRINT_CLUT");
     printOptions = cfg_getbool(cfg,"PRINT_OPTIONS");
-    printProfile = cfg_getbool(cfg,"PRINT_PROFILE");
+    printProfileVar = cfg_getbool(cfg,"PRINT_PROFILE");
     printPointsArray = cfg_getbool(cfg,"PRINT_POINTS_ARRAY");
     fitVrad = cfg_getbool(cfg,"FIT_VRAD");
 
