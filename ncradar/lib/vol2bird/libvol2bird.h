@@ -85,63 +85,8 @@ typedef struct cellprop CELLPROP;
 typedef struct scanmeta SCANMETA;
 
 // *****************************************************************************
-// Function prototypes
+// Public function prototypes
 // *****************************************************************************
-
-static int analyzeCells(const unsigned char *dbzImage, const unsigned char *vradImage,
-                        const unsigned char *texImage, const unsigned char *clutterImage, int *cellImage,
-                        const SCANMETA *dbzMeta, const SCANMETA *vradMeta, const SCANMETA *texMeta, const SCANMETA *clutterMeta,
-                        const int nCells, const int useStaticClutterData);
-
-static float calcDist(const int range1, const int azim1, const int range2, const int azim2, const float rscale, const float ascale);
-
-static void calcTexture(unsigned char *texImage, const unsigned char *vradImage, const unsigned char *dbzImage,
-                        const SCANMETA *texMeta, const SCANMETA *vradMeta, const SCANMETA *dbzMeta);
-
-static void classifyGatesSimple(void);
-
-static int constructorInt(SCANMETA* meta, int* image, PolarScan_t* scan, const int nGlobal, const int initValue);
-
-static int constructorUChar(SCANMETA* meta, unsigned char* image, PolarScan_t* scan, const int nGlobal, const unsigned char initValue);
-
-static void constructPointsArray(PolarVolume_t* volume);
-
-static int detNumberOfGates(const int iLayer, const float rangeScale, const float elevAngle,
-                            const int nRang, const int nAzim, const float radarHeight);
-
-static int detSvdfitArraySize(PolarVolume_t* volume);
-
-static int findWeatherCells(const unsigned char *dbzImage, int *cellImage, const SCANMETA *dbzMeta);
-
-static int findNearbyGateIndex(const int nAzimParent, const int nRangParent, const int iParent,
-                               const int nAzimChild,  const int nRangChild,  const int iChild);
-
-static void fringeCells(int *cellImage,int nRang, int nAzim, float aScale, float rScale);
-
-static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char *vradImage,
-                                  const SCANMETA* dbzMeta, const unsigned char *dbzImage,
-                                  const int *cellImage,
-                                  const float altitudeMin, const float altitudeMax,
-                                  float* points, int iPoint);
-
-static int hasAzimuthGap(const float *points, const int nPoints);
-
-static int includeGate(const int iProfileType, const unsigned int gateCode);
-
-static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
-                           unsigned char *values, char *paramStr);
-
-static void mapDataToRave(void);
-
-static void printGateCode(char* flags, const unsigned int gateCode);
-
-static int printMeta(const SCANMETA* meta, const char* varName);
-
-static void sortCells(CELLPROP *cellProp, const int nCells);
-
-static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitted, const int* includedIndex, 
-                                          const int nPointsIncluded, float* points);
-static int updateMap(int *cellImage, const int nGlobal, CELLPROP *cellProp, const int nCells);
 
 void vol2birdCalcProfiles();
 
