@@ -126,14 +126,14 @@ static int getListOfSelectedGates(const SCANMETA* vradMeta, const unsigned char 
 
 static int hasAzimuthGap(const float *points, const int nPoints);
 
-static int includeGate(const int iProfileType, const int gateCode);
+static int includeGate(const int iProfileType, const unsigned int gateCode);
 
 static int mapDataFromRave(PolarScan_t* scan, SCANMETA *meta, 
                            unsigned char *values, char *paramStr);
 
 static void mapDataToRave(void);
 
-static void printGateCode(char* flags, const int gateCode);
+static void printGateCode(char* flags, const unsigned int gateCode);
 
 static int printMeta(const SCANMETA* meta, const char* varName);
 

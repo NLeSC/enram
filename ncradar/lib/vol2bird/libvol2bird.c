@@ -693,7 +693,7 @@ static void classifyGatesSimple(void) {
         const float vradValue = points[iPoint * nColsPoints + vradValueCol];
         const int cellValue = (int) points[iPoint * nColsPoints + cellValueCol];
 
-        int gateCode = 0;
+        unsigned int gateCode = 0;
         
         if (FALSE) {
             // this gate is true in the static clutter map (which we don't have yet TODO)
@@ -1699,7 +1699,7 @@ static int hasAzimuthGap(const float* points, const int nPoints) {
 
 
 
-static int includeGate(const int iProfileType, const int gateCode) {
+static int includeGate(const int iProfileType, const unsigned int gateCode) {
     
     int doInclude = TRUE;
     
@@ -2027,7 +2027,7 @@ static void mapDataToRave(void) {
 
 
 
-static void printGateCode(char* flags, const int gateCode) {
+static void printGateCode(char* flags, const unsigned int gateCode) {
     
     // --------------------------------------------------- //
     // this function prints the integer value gateCode as  //
@@ -2146,7 +2146,7 @@ static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitte
 
     int iPointIncluded;
     int iPoint;
-    int gateCode;
+    unsigned int gateCode;
 
     for (iPointIncluded = 0; iPointIncluded < nPointsIncluded; iPointIncluded++) {
 
@@ -2155,7 +2155,7 @@ static void updateFlagFieldsInPointsArray(const float* yObs, const float* yFitte
         if (absVDif > absVDifMax) {
             
             iPoint = includedIndex[iPointIncluded];
-            gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
+            gateCode = (unsigned int) points[iPoint * nColsPoints + gateCodeCol];
             points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode |= 1<<flagPositionVDifMax);
 
         }
@@ -2325,7 +2325,7 @@ void vol2birdCalcProfiles() {
 
         // reset the flagPositionVDifMax bit before calculating each profile
         for (iPoint = 0; iPoint < nRowsPoints; iPoint++) {
-            int gateCode = (int) points[iPoint * nColsPoints + gateCodeCol];
+            unsigned int gateCode = (unsigned int) points[iPoint * nColsPoints + gateCodeCol];
             points[iPoint * nColsPoints + gateCodeCol] = (float) (gateCode &= ~(1<<flagPositionVDifMax));
         }
         
@@ -2395,7 +2395,7 @@ void vol2birdCalcProfiles() {
                 
                 for (iPointLayer = iPointFrom; iPointLayer < iPointFrom + nPointsLayer; iPointLayer++) {
                     
-                    int gateCode = (int) points[iPointLayer * nColsPoints + gateCodeCol];
+                    unsigned int gateCode = (unsigned int) points[iPointLayer * nColsPoints + gateCodeCol];
 
                     if (includeGate(iProfileType,gateCode) == TRUE) {
 
